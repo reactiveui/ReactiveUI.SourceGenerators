@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/SolutionConfig/">
+    <File Path="..\.editorconfig" />
+    <File Path="..\.gitignore" />
+    <File Path="..\LICENSE" />
+    <File Path="..\README.md" />
+    <File Path="Directory.build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="stylecop.json" />
+  </Folder>
+  <Project Path="ReactiveUI.SourceGenerators.Execute\ReactiveUI.SourceGenerators.Execute.csproj" />
+  <Project Path="ReactiveUI.SourceGenerators\ReactiveUI.SourceGenerators.csproj" />
+</Solution>
