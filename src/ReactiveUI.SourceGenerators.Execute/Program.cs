@@ -69,28 +69,28 @@ public partial class TestClass : ReactiveObject
     /// Test1s this instance.
     /// </summary>
     [ReactiveCommand]
-    public void Test1() => Console.Out.WriteLine("Test1");
+    private void Test1() => Console.Out.WriteLine("Test1");
 
     /// <summary>
     /// Test2s this instance.
     /// </summary>
     /// <returns>Rectangle.</returns>
     [ReactiveCommand]
-    public Rectangle Test2() => default;
+    private Rectangle Test2() => default;
 
     /// <summary>
     /// Test3s the asynchronous.
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     [ReactiveCommand]
-    public async Task Test3Async() => await Task.Delay(0);
+    private async Task Test3Async() => await Task.Delay(0);
 
     /// <summary>
     /// Test4s the asynchronous.
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     [ReactiveCommand]
-    public async Task<Rectangle> Test4Async() => await Task.FromResult(new Rectangle(0, 0, 100, 100));
+    private async Task<Rectangle> Test4Async() => await Task.FromResult(new Rectangle(0, 0, 100, 100));
 
     /// <summary>
     /// Test5s the string to int.
@@ -98,21 +98,21 @@ public partial class TestClass : ReactiveObject
     /// <param name="str">The string.</param>
     /// <returns>int.</returns>
     [ReactiveCommand]
-    public int Test5StringToInt(string str) => int.Parse(str);
+    private int Test5StringToInt(string str) => int.Parse(str);
 
     /// <summary>
     /// Test6s the argument only.
     /// </summary>
     /// <param name="str">The string.</param>
     [ReactiveCommand]
-    public void Test6ArgOnly(string str) => Console.Out.WriteLine($">>> {str}");
+    private void Test6ArgOnly(string str) => Console.Out.WriteLine($">>> {str}");
 
     /// <summary>
     /// Test7s the observable.
     /// </summary>
     /// <returns>An Observable of Unit.</returns>
     [ReactiveCommand]
-    public IObservable<Unit> Test7Observable() => Observable.Return(Unit.Default);
+    private IObservable<Unit> Test7Observable() => Observable.Return(Unit.Default);
 
     /// <summary>
     /// Test8s the observable.
@@ -120,7 +120,7 @@ public partial class TestClass : ReactiveObject
     /// <param name="i">The i.</param>
     /// <returns>An Observable of int.</returns>
     [ReactiveCommand]
-    public IObservable<double> Test8Observable(int i) => Observable.Return(i + 10.0);
+    private IObservable<double> Test8Observable(int i) => Observable.Return(i + 10.0);
 }
 
 #pragma warning restore CA1822 // Mark members as static
