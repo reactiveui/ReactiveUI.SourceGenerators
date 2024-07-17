@@ -6,13 +6,13 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
-using ReactiveUI.SourceGenerators.Input.Models;
 using ReactiveUI.SourceGenerators.Models;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static ReactiveUI.SourceGenerators.Diagnostics.DiagnosticDescriptors;
@@ -99,6 +99,12 @@ public partial class ReactiveGenerator
                             AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(propertyInfo.FieldName)))))));
             }
 
+            // Prepare the forwarded attributes, if any
+            var forwardedAttributes =
+                propertyInfo.ForwardedAttributes
+                .Select(static a => AttributeList(SingletonSeparatedList(a.GetSyntax())))
+                .ToImmutableArray();
+
             // Construct the generated property as follows:
             //
             // /// <inheritdoc cref="<FIELD_NAME>"/>
@@ -120,6 +126,7 @@ public partial class ReactiveGenerator
                             AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ReactiveGenerator).Assembly.GetName().Version.ToString()))))))
                     .WithOpenBracketToken(Token(TriviaList(Comment($"/// <inheritdoc cref=\"{getterFieldIdentifierName}\"/>")), SyntaxKind.OpenBracketToken, TriviaList())),
                     AttributeList(SingletonSeparatedList(Attribute(IdentifierName("global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage")))))
+                .AddAttributeLists([.. forwardedAttributes])
                 .AddModifiers(Token(SyntaxKind.PublicKeyword))
                 .AddAccessorListAccessors(
                     AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
@@ -137,6 +144,17 @@ public partial class ReactiveGenerator
             out ImmutableArray<DiagnosticInfo> diagnostics)
         {
             using var builder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
+
+            // Validate the target type
+            if (!IsTargetTypeValid(fieldSymbol))
+            {
+                propertyInfo = null;
+                diagnostics = builder.ToImmutable();
+
+                return false;
+            }
+
+            token.ThrowIfCancellationRequested();
 
             // Get the property type and name
             var typeNameWithNullabilityAnnotations = fieldSymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations();
@@ -163,6 +181,88 @@ public partial class ReactiveGenerator
 
             token.ThrowIfCancellationRequested();
 
+            using var forwardedAttributes = ImmutableArrayBuilder<AttributeInfo>.Rent();
+
+            // Gather attributes info
+            foreach (var attributeData in fieldSymbol.GetAttributes())
+            {
+                token.ThrowIfCancellationRequested();
+
+                // Track the current attribute for forwarding if it is a validation attribute
+                if (attributeData.AttributeClass?.InheritsFromFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.ValidationAttribute") == true)
+                {
+                    forwardedAttributes.Add(AttributeInfo.Create(attributeData));
+                }
+
+                // Track the current attribute for forwarding if it is a Json Serialization attribute
+                if (attributeData.AttributeClass?.InheritsFromFullyQualifiedMetadataName("System.Text.Json.Serialization.JsonAttribute") == true)
+                {
+                    forwardedAttributes.Add(AttributeInfo.Create(attributeData));
+                }
+
+                // Also track the current attribute for forwarding if it is of any of the following types:
+                if (attributeData.AttributeClass?.HasOrInheritsFromFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.UIHintAttribute") == true ||
+                    attributeData.AttributeClass?.HasOrInheritsFromFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.ScaffoldColumnAttribute") == true ||
+                    attributeData.AttributeClass?.HasFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.DisplayAttribute") == true ||
+                    attributeData.AttributeClass?.HasFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.EditableAttribute") == true ||
+                    attributeData.AttributeClass?.HasFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.KeyAttribute") == true ||
+                    attributeData.AttributeClass?.HasFullyQualifiedMetadataName("System.Runtime.Serialization.DataMemberAttribute") == true ||
+                    attributeData.AttributeClass?.HasFullyQualifiedMetadataName("System.Runtime.Serialization.IgnoreDataMemberAttribute") == true)
+                {
+                    forwardedAttributes.Add(AttributeInfo.Create(attributeData));
+                }
+            }
+
+            token.ThrowIfCancellationRequested();
+
+            // Gather explicit forwarded attributes info
+            foreach (var attributeList in fieldSyntax.AttributeLists)
+            {
+                // Only look for attribute lists explicitly targeting the (generated) property. Roslyn will normally emit a
+                // CS0657 warning (invalid target), but that is automatically suppressed by a dedicated diagnostic suppressor
+                // that recognizes uses of this target specifically to support [Reactive].
+                if (attributeList.Target?.Identifier is not SyntaxToken(SyntaxKind.PropertyKeyword))
+                {
+                    continue;
+                }
+
+                token.ThrowIfCancellationRequested();
+
+                foreach (var attribute in attributeList.Attributes)
+                {
+                    // Roslyn ignores attributes in an attribute list with an invalid target, so we can't get the AttributeData as usual.
+                    // To reconstruct all necessary attribute info to generate the serialized model, we use the following steps:
+                    //   - We try to get the attribute symbol from the semantic model, for the current attribute syntax. In case this is not
+                    //     available (in theory it shouldn't, but it can be), we try to get it from the candidate symbols list for the node.
+                    //     If there are no candidates or more than one, we just issue a diagnostic and stop processing the current attribute.
+                    //     The returned symbols might be method symbols (constructor attribute) so in that case we can get the declaring type.
+                    //   - We then go over each attribute argument expression and get the operation for it. This will still be available even
+                    //     though the rest of the attribute is not validated nor bound at all. From the operation we can still retrieve all
+                    //     constant values to build the AttributeInfo model. After all, attributes only support constant values, typeof(T)
+                    //     expressions, or arrays of either these two types, or of other arrays with the same rules, recursively.
+                    //   - From the syntax, we can also determine the identifier names for named attribute arguments, if any.
+                    // There is no need to validate anything here: the attribute will be forwarded as is, and then Roslyn will validate on the
+                    // generated property. Users will get the same validation they'd have had directly over the field. The only drawback is the
+                    // lack of IntelliSense when constructing attributes over the field, but this is the best we can do from this end anyway.
+                    if (!semanticModel.GetSymbolInfo(attribute, token).TryGetAttributeTypeSymbol(out var attributeTypeSymbol))
+                    {
+                        continue;
+                    }
+
+                    var attributeArguments = attribute.ArgumentList?.Arguments ?? Enumerable.Empty<AttributeArgumentSyntax>();
+
+                    // Try to extract the forwarded attribute
+                    if (!AttributeInfo.TryCreate(attributeTypeSymbol, semanticModel, attributeArguments, token, out var attributeInfo))
+                    {
+                        continue;
+                    }
+
+                    forwardedAttributes.Add(attributeInfo);
+                }
+            }
+
+            token.ThrowIfCancellationRequested();
+
             // Get the nullability info for the property
             GetNullabilityInfo(
                 fieldSymbol,
@@ -177,11 +277,25 @@ public partial class ReactiveGenerator
                 fieldName,
                 propertyName,
                 isReferenceTypeOrUnconstraindTypeParameter,
-                includeMemberNotNullOnSetAccessor);
+                includeMemberNotNullOnSetAccessor,
+                forwardedAttributes.ToImmutable());
 
             diagnostics = builder.ToImmutable();
 
             return true;
+        }
+
+        /// <summary>
+        /// Validates the containing type for a given field being annotated.
+        /// </summary>
+        /// <param name="fieldSymbol">The input <see cref="IFieldSymbol"/> instance to process.</param>
+        /// <returns>Whether or not the containing type for <paramref name="fieldSymbol"/> is valid.</returns>
+        private static bool IsTargetTypeValid(IFieldSymbol fieldSymbol)
+        {
+            var isObservableObject = fieldSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.ReactiveObject");
+            var hasObservableObjectAttribute = fieldSymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName("ReactiveUI.SourceGenerators.ReactiveObjectAttribute");
+
+            return isObservableObject || hasObservableObjectAttribute;
         }
 
         /// <summary>

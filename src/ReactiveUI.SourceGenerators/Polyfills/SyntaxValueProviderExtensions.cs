@@ -29,7 +29,7 @@ internal static class SyntaxValueProviderExtensions
     /// <param name="fullyQualifiedMetadataName">The fully qualified metadata name of the attribute to look for.</param>
     /// <param name="predicate">A function that determines if the given <see cref="SyntaxNode"/> attribute target (<see
     /// cref="GeneratorAttributeSyntaxContext.TargetNode"/>) should be transformed.  Nodes that do not pass this
-    /// predicate will not have their attributes looked at at all.</param>
+    /// predicate will not have their attributes looked at all.</param>
     /// <param name="transform">A function that performs the transform. This will only be passed nodes that return <see
     /// langword="true"/> for <paramref name="predicate"/> and which have a matching <see cref="AttributeData"/> whose
     /// <see cref="AttributeData.AttributeClass"/> has the same fully qualified, metadata name as <paramref
@@ -63,6 +63,11 @@ internal static class SyntaxValueProviderExtensions
                     // implementation part. To avoid generating duplicate files, we only give priority to the definition part.
                     // On Roslyn 4.3+, ForAttributeWithMetadataName will already only return the symbol the attribute was located on.
                     if (symbol is IMethodSymbol { IsPartialDefinition: false, PartialDefinitionPart: not null })
+                    {
+                        return null;
+                    }
+
+                    if (!context.SemanticModel.Compilation.HasLanguageVersionAtLeastEqualTo(LanguageVersion.CSharp8))
                     {
                         return null;
                     }

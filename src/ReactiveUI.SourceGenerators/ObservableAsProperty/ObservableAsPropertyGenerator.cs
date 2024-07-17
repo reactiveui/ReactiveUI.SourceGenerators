@@ -8,7 +8,6 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ReactiveUI.SourceGenerators.Extensions;
-using ReactiveUI.SourceGenerators.Input.Models;
 using ReactiveUI.SourceGenerators.Models;
 
 namespace ReactiveUI.SourceGenerators;

@@ -18,7 +18,7 @@ internal static class SuppressionDescriptors
     public static readonly SuppressionDescriptor PropertyAttributeListForReactivePropertyField = new(
         id: "RXUISPR0001",
         suppressedDiagnosticId: "CS0657",
-        justification: "Fields using [ReactiveProperty] can use [property:] attribute lists to forward attributes to the generated properties");
+        justification: "Fields using [Reactive] can use [property:] attribute lists to forward attributes to the generated properties");
 
     /// <summary>
     /// Gets a <see cref="SuppressionDescriptor"/> for a method using [ReactiveCommand] with an attribute list targeting a field or property.

@@ -3,10 +3,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System;
 using System.Drawing;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace ReactiveUI.SourceGenerators.Test;
 
@@ -28,12 +29,18 @@ public static class EntryPoint
 /// <summary>
 /// TestClass.
 /// </summary>
+[DataContract]
 public partial class TestClass : ReactiveObject
 {
-    [Reactive]
-    private int _test1Property;
+    [JsonInclude]
+    [DataMember]
     [ObservableAsProperty]
     private double _test2Property;
+
+    [JsonInclude]
+    [Reactive]
+    [DataMember]
+    private int _test1Property;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TestClass"/> class.

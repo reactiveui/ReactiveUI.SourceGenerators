@@ -3,7 +3,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System;
 using System.CodeDom.Compiler;
 using System.IO;
 using System.Linq;
@@ -168,6 +167,15 @@ public partial class ReactiveCommandGenerator
                     var realReturnType = isTask || isObservable ? GetTaskReturnType(compilation, methodSymbol.ReturnType) : methodSymbol.ReturnType;
                     var isReturnTypeVoid = SymbolEqualityComparer.Default.Equals(realReturnType, compilation.GetSpecialType(SpecialType.System_Void));
                     var methodParameters = methodSymbol.Parameters.ToList();
+
+                    // TODO: Add support for CancellationToken
+                    ////var hasCancllationToken = isTask && methodParameters[0].Type.ToDisplayString() == "System.Threading.CancellationToken";
+                    ////if (hasCancllationToken)
+                    ////{
+                    ////    // Remove CancellationToken parameter
+                    ////    methodParameters.RemoveAt(0);
+                    ////}
+
                     if (methodParameters.Count > 1)
                     {
                         continue; // Too many parameters, continue

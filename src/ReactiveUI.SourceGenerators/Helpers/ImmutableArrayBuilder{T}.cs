@@ -151,7 +151,7 @@ internal ref struct ImmutableArrayBuilder<T>
         }
 
         /// <inheritdoc cref="ImmutableArrayBuilder{T}.AddRange"/>
-        public void AddRange(ReadOnlySpan<T> items)
+        public void AddRange(in ReadOnlySpan<T> items)
         {
             EnsureCapacity(items.Length);
 
@@ -174,16 +174,10 @@ internal ref struct ImmutableArrayBuilder<T>
         }
 
         /// <inheritdoc/>
-        void ICollection<T>.Clear()
-        {
-            throw new NotSupportedException();
-        }
+        void ICollection<T>.Clear() => throw new NotSupportedException();
 
         /// <inheritdoc/>
-        bool ICollection<T>.Contains(T item)
-        {
-            throw new NotSupportedException();
-        }
+        bool ICollection<T>.Contains(T item) => throw new NotSupportedException();
 
         /// <inheritdoc/>
         void ICollection<T>.CopyTo(T[] array, int arrayIndex) => Array.Copy(_array!, 0, array, arrayIndex, _index);
