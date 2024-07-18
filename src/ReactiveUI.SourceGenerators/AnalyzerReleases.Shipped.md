@@ -20,3 +20,9 @@ RXUISG0010 | ReactiveUI.SourceGenerators.ReactiveCommandGenerator | Error | See 
 RXUISG0011 | ReactiveUI.SourceGenerators.ReactiveCommandGenerator | Error | See https://www.reactiveui.net/errors/RXUISG0011
 RXUISG0012 | ReactiveUI.SourceGenerators.ReactiveCommandGenerator | Error | See https://www.reactiveui.net/errors/RXUISG0012
 RXUISG0013 | ReactiveUI.SourceGenerators.ReactiveGenerator | Error | See https://www.reactiveui.net/errors/RXUISG0013
+RXUISG0014 | ReactiveUI.SourceGenerators.ReactiveGenerator | Error | See https://www.reactiveui.net/errors/RXUISG0014
+RXUISG0015 | ReactiveUI.SourceGenerators.ReactiveGenerator | Error | See https://www.reactiveui.net/errors/RXUISG0015
+RXUISG0016 | ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator | Error | See https://www.reactiveui.net/errors/RXUISG0016
+RXUISG0017 | ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator | Error | See https://www.reactiveui.net/errors/RXUISG0017
+RXUISG0018 | ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator | Error | See https://www.reactiveui.net/errors/RXUISG0018
+RXUISG0019 | ReactiveUI.SourceGenerators.ReactiveGenerator | Error | See https://www.reactiveui.net/errors/RXUISG0019

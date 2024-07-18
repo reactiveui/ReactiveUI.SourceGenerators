@@ -22,7 +22,7 @@ namespace ReactiveUI.SourceGenerators;
 /// <summary>
 /// ReactiveGenerator.
 /// </summary>
-/// <seealso cref="Microsoft.CodeAnalysis.IIncrementalGenerator" />
+/// <seealso cref="IIncrementalGenerator" />
 public partial class ObservableAsPropertyGenerator
 {
     /// <summary>
@@ -124,6 +124,12 @@ public partial class ObservableAsPropertyGenerator
             // Validate the target type
             if (!IsTargetTypeValid(fieldSymbol))
             {
+                builder.Add(
+                    InvalidObservableAsPropertyError,
+                    fieldSymbol,
+                    fieldSymbol.ContainingType,
+                    fieldSymbol.Name);
+
                 propertyInfo = null;
                 diagnostics = builder.ToImmutable();
 
@@ -220,6 +226,12 @@ public partial class ObservableAsPropertyGenerator
                     // lack of IntelliSense when constructing attributes over the field, but this is the best we can do from this end anyway.
                     if (!semanticModel.GetSymbolInfo(attribute, token).TryGetAttributeTypeSymbol(out var attributeTypeSymbol))
                     {
+                        builder.Add(
+                            InvalidPropertyTargetedAttributeOnObservableAsPropertyField,
+                            attribute,
+                            fieldSymbol,
+                            attribute.Name);
+
                         continue;
                     }
 
@@ -228,6 +240,12 @@ public partial class ObservableAsPropertyGenerator
                     // Try to extract the forwarded attribute
                     if (!AttributeInfo.TryCreate(attributeTypeSymbol, semanticModel, attributeArguments, token, out var attributeInfo))
                     {
+                        builder.Add(
+                            InvalidPropertyTargetedAttributeExpressionOnObservableAsPropertyField,
+                            attribute,
+                            fieldSymbol,
+                            attribute.Name);
+
                         continue;
                     }
 

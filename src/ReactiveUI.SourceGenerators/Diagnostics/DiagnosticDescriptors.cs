@@ -198,7 +198,7 @@ internal static class DiagnosticDescriptors
         title: "Async void returning method annotated with ReactiveCommand",
         messageFormat: "The method {0} annotated with [ReactiveCommand] is async void (make sure to return a Task type instead)",
         category: typeof(ReactiveCommandGenerator).FullName,
-        defaultSeverity: DiagnosticSeverity.Warning,
+        defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "All asynchronous methods annotated with [ReactiveCommand] should return a Task type, to benefit from the additional support provided by ReactiveCommand and ReactiveCommand<T>.",
         helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0012");
@@ -218,4 +218,100 @@ internal static class DiagnosticDescriptors
         isEnabledByDefault: true,
         description: "The name of fields annotated with [Reactive] should use \"lowerCamel\", \"_lowerCamel\" or \"m_lowerCamel\" pattern to avoid collisions with the generated properties.",
         helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0013");
+
+    /// <summary>
+    /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a field with <c>[Reactive]</c> is using an invalid attribute targeting the property.
+    /// <para>
+    /// Format: <c>"The field {0} annotated with [Reactive] is using attribute "{1}" which was not recognized as a valid type (are you missing a using directive?)"</c>.
+    /// </para>
+    /// </summary>
+    public static readonly DiagnosticDescriptor InvalidPropertyTargetedAttributeOnReactiveField = new DiagnosticDescriptor(
+        id: "RXUISG0014",
+        title: "Invalid property targeted attribute type",
+        messageFormat: "The field {0} annotated with [Reactive] is using attribute \"{1}\" which was not recognized as a valid type (are you missing a using directive?)",
+        category: typeof(ReactiveGenerator).FullName,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "All attributes targeting the generated property for a field annotated with [Reactive] must correctly be resolved to valid types.",
+        helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0014");
+
+    /// <summary>
+    /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a field with <c>[Reactive]</c> is using an invalid attribute expression targeting the property.
+    /// <para>
+    /// Format: <c>"The field {0} annotated with [Reactive] is using attribute "{1}" with an invalid expression (are you passing any incorrect parameters to the attribute constructor?)"</c>.
+    /// </para>
+    /// </summary>
+    public static readonly DiagnosticDescriptor InvalidPropertyTargetedAttributeExpressionOnReactiveField = new DiagnosticDescriptor(
+        id: "RXUISG0015",
+        title: "Invalid property targeted attribute expression",
+        messageFormat: "The field {0} annotated with [Reactive] is using attribute \"{1}\" with an invalid expression (are you passing any incorrect parameters to the attribute constructor?)",
+        category: typeof(ReactiveGenerator).FullName,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "All attributes targeting the generated property for a field annotated with [Reactive] must be using valid expressions.",
+        helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0015");
+
+    /// <summary>
+    /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a field with <c>[ObservableAsProperty]</c> is using an invalid attribute targeting the property.
+    /// <para>
+    /// Format: <c>"The field {0} annotated with [ObservableAsProperty] is using attribute "{1}" which was not recognized as a valid type (are you missing a using directive?)"</c>.
+    /// </para>
+    /// </summary>
+    public static readonly DiagnosticDescriptor InvalidPropertyTargetedAttributeOnObservableAsPropertyField = new DiagnosticDescriptor(
+        id: "RXUISG0016",
+        title: "Invalid property targeted attribute type",
+        messageFormat: "The field {0} annotated with [ObservableAsProperty] is using attribute \"{1}\" which was not recognized as a valid type (are you missing a using directive?)",
+        category: typeof(ObservableAsPropertyGenerator).FullName,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "All attributes targeting the generated property for a field annotated with [ObservableAsProperty] must correctly be resolved to valid types.",
+        helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0016");
+
+    /// <summary>
+    /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a field with <c>[ObservableAsProperty]</c> is using an invalid attribute expression targeting the property.
+    /// <para>
+    /// Format: <c>"The field {0} annotated with [ObservableAsProperty] is using attribute "{1}" with an invalid expression (are you passing any incorrect parameters to the attribute constructor?)"</c>.
+    /// </para>
+    /// </summary>
+    public static readonly DiagnosticDescriptor InvalidPropertyTargetedAttributeExpressionOnObservableAsPropertyField = new DiagnosticDescriptor(
+        id: "RXUISG0017",
+        title: "Invalid property targeted attribute expression",
+        messageFormat: "The field {0} annotated with [ObservableAsProperty] is using attribute \"{1}\" with an invalid expression (are you passing any incorrect parameters to the attribute constructor?)",
+        category: typeof(ObservableAsPropertyGenerator).FullName,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "All attributes targeting the generated property for a field annotated with [ObservableAsProperty] must be using valid expressions.",
+        helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0017");
+
+    /// <summary>
+    /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a generated property created with <c>[ObservableAsProperty]</c> would cause conflicts with other generated members.
+    /// <para>
+    /// Format: <c>"The field {0}.{1} cannot be used to generate an observable property, as its name or type would cause conflicts with other generated members"</c>.
+    /// </para>
+    /// </summary>
+    public static readonly DiagnosticDescriptor InvalidObservableAsPropertyError = new DiagnosticDescriptor(
+        id: "RXUISG0018",
+        title: "Invalid generated property declaration",
+        messageFormat: "The field {0}.{1} cannot be used to generate an observable As property, as its name or type would cause conflicts with other generated members",
+        category: typeof(ObservableAsPropertyGenerator).FullName,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "The fields annotated with [ObservableAsProperty] cannot result in a property name or have a type that would cause conflicts with other generated members.",
+        helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0018");
+
+    /// <summary>
+    /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a generated property created with <c>[Reactive]</c> would cause conflicts with other generated members.
+    /// <para>
+    /// Format: <c>"The field {0}.{1} cannot be used to generate an observable property, as its name or type would cause conflicts with other generated members"</c>.
+    /// </para>
+    /// </summary>
+    public static readonly DiagnosticDescriptor InvalidReactiveError = new DiagnosticDescriptor(
+        id: "RXUISG0019",
+        title: "Invalid generated property declaration",
+        messageFormat: "The field {0}.{1} cannot be used to generate an reactive property, as its name or type would cause conflicts with other generated members",
+        category: typeof(ReactiveGenerator).FullName,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "The fields annotated with [Reactive] cannot result in a property name or have a type that would cause conflicts with other generated members.",
+        helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0019");
 }

@@ -22,7 +22,7 @@ namespace ReactiveUI.SourceGenerators;
 /// <summary>
 /// ReactiveGenerator.
 /// </summary>
-/// <seealso cref="Microsoft.CodeAnalysis.IIncrementalGenerator" />
+/// <seealso cref="IIncrementalGenerator" />
 public partial class ReactiveGenerator
 {
     /// <summary>
@@ -148,6 +148,12 @@ public partial class ReactiveGenerator
             // Validate the target type
             if (!IsTargetTypeValid(fieldSymbol))
             {
+                builder.Add(
+                    InvalidReactiveError,
+                    fieldSymbol,
+                    fieldSymbol.ContainingType,
+                    fieldSymbol.Name);
+
                 propertyInfo = null;
                 diagnostics = builder.ToImmutable();
 
@@ -246,6 +252,12 @@ public partial class ReactiveGenerator
                     // lack of IntelliSense when constructing attributes over the field, but this is the best we can do from this end anyway.
                     if (!semanticModel.GetSymbolInfo(attribute, token).TryGetAttributeTypeSymbol(out var attributeTypeSymbol))
                     {
+                        builder.Add(
+                            InvalidPropertyTargetedAttributeOnReactiveField,
+                            attribute,
+                            fieldSymbol,
+                            attribute.Name);
+
                         continue;
                     }
 
@@ -254,6 +266,12 @@ public partial class ReactiveGenerator
                     // Try to extract the forwarded attribute
                     if (!AttributeInfo.TryCreate(attributeTypeSymbol, semanticModel, attributeArguments, token, out var attributeInfo))
                     {
+                        builder.Add(
+                            InvalidPropertyTargetedAttributeExpressionOnReactiveField,
+                            attribute,
+                            fieldSymbol,
+                            attribute.Name);
+
                         continue;
                     }
 

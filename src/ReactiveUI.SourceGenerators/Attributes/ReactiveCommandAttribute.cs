@@ -10,6 +10,6 @@ namespace ReactiveUI.SourceGenerators;
 /// <summary>
 /// ReativeCommandAttribute.
 /// </summary>
-/// <seealso cref="System.Attribute" />
+/// <seealso cref="Attribute" />
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 public sealed class ReactiveCommandAttribute : Attribute;

@@ -35,23 +35,20 @@ public sealed partial class ReactiveCommandGenerator : IIncrementalGenerator
                     using var hierarchys = ImmutableArrayBuilder<HierarchyInfo>.Rent();
                     using var commandInfos = ImmutableArrayBuilder<CommandInfo>.Rent();
 
-                    if (context.Node is ClassDeclarationSyntax declaredClass)
+                    if (context.Node is ClassDeclarationSyntax declaredClass && declaredClass.Modifiers.Any(SyntaxKind.PartialKeyword))
                     {
-                        if (declaredClass.Modifiers.Any(SyntaxKind.PartialKeyword))
-                        {
-                            var compilation = context.SemanticModel.Compilation;
-                            var semanticModel = compilation.GetSemanticModel(context.SemanticModel.SyntaxTree);
-                            Execute.GetCommandInfoFromClass(
-                                hierarchys,
-                                compilation,
-                                semanticModel,
-                                declaredClass,
-                                out var commandInfo);
+                        var compilation = context.SemanticModel.Compilation;
+                        var semanticModel = compilation.GetSemanticModel(context.SemanticModel.SyntaxTree);
+                        Execute.GetCommandInfoFromClass(
+                            hierarchys,
+                            compilation,
+                            semanticModel,
+                            declaredClass,
+                            out var commandInfo);
 
-                            if (commandInfo?.CommandExtensionInfos.IsEmpty == false)
-                            {
-                                commandInfos.Add(commandInfo);
-                            }
+                        if (commandInfo?.CommandExtensionInfos.IsEmpty == false)
+                        {
+                            commandInfos.Add(commandInfo);
                         }
                     }
 
@@ -60,7 +57,7 @@ public sealed partial class ReactiveCommandGenerator : IIncrementalGenerator
                 })
             .Where(static item => item.Hierarchy.Any())!;
 
-        ////// Output the diagnostics
+        // TODO: Output the diagnostics
         ////context.ReportDiagnostics(commandInfoWithErrors.Select(static (item, _) => item.Info.Errors));
 
         // Get the filtered sequence to enable caching

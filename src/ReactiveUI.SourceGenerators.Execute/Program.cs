@@ -57,19 +57,30 @@ public partial class TestClass : ReactiveObject
         Console.Out.WriteLine(Test6ArgOnlyCommand);
         Console.Out.WriteLine(Test7ObservableCommand);
         Console.Out.WriteLine(Test8ObservableCommand);
+        Console.Out.WriteLine(Test9AsyncCommand);
+        Console.Out.WriteLine(Test10AsyncCommand);
         Test1Command?.Execute().Subscribe();
         Test2Command?.Execute().Subscribe(r => Console.Out.WriteLine(r));
         Test3AsyncCommand?.Execute().Subscribe();
         Test4AsyncCommand?.Execute().Subscribe(r => Console.Out.WriteLine(r));
-        Test5StringToIntCommand?.Execute("100").Subscribe(i => Console.Out.WriteLine(i));
+        Test5StringToIntCommand?.Execute("100").Subscribe(Console.Out.WriteLine);
         Test6ArgOnlyCommand?.Execute("Hello World").Subscribe();
         Test7ObservableCommand?.Execute().Subscribe();
 
         _test2PropertyHelper = Test8ObservableCommand!.ToProperty(this, x => x.Test2Property);
 
-        Test8ObservableCommand?.Execute(100).Subscribe(i => Console.Out.WriteLine(i));
+        Test8ObservableCommand?.Execute(100).Subscribe(Console.Out.WriteLine);
         Console.Out.WriteLine($"Test2Property Value: {Test2Property}");
         Console.Out.WriteLine($"Test2Property underlying Value: {_test2Property}");
+
+        Test9AsyncCommand?.ThrownExceptions.Subscribe(Console.Out.WriteLine);
+        var cancel = Test9AsyncCommand?.Execute().Subscribe();
+        Task.Delay(1000).Wait();
+        cancel?.Dispose();
+
+        Test10AsyncCommand?.Execute(200).Subscribe(r => Console.Out.WriteLine(r));
+
+        Console.ReadLine();
     }
 
     /// <summary>
@@ -128,6 +139,12 @@ public partial class TestClass : ReactiveObject
     /// <returns>An Observable of int.</returns>
     [ReactiveCommand]
     private IObservable<double> Test8Observable(int i) => Observable.Return(i + 10.0);
+
+    [ReactiveCommand]
+    private async Task Test9Async(CancellationToken ct) => await Task.Delay(2000, ct);
+
+    [ReactiveCommand]
+    private async Task<Rectangle> Test10Async(int size, CancellationToken ct) => await Task.FromResult(new Rectangle(0, 0, size, size));
 }
 
 #pragma warning restore CA1822 // Mark members as static

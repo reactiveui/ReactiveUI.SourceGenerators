@@ -104,3 +104,39 @@ public partial class MyReactiveClass
     private IObservable<string> Execute(string parameter) => Observable.Return(parameter);
 }
 ```
+
+### Usage ReactiveCommand with CancellationToken
+```csharp
+using ReactiveUI.SourceGenerators;
+
+public partial class MyReactiveClass
+{
+    public MyReactiveCommand()
+    {
+        InitializeCommands();
+    }
+
+    [ReactiveCommand]
+    private async Task Execute(CancellationToken token) => await Task.Delay(1000, token);
+}
+```
+
+### Usage ReactiveCommand with CancellationToken and parameter
+```csharp
+using ReactiveUI.SourceGenerators;
+
+public partial class MyReactiveClass
+{
+    public MyReactiveCommand()
+    {
+        InitializeCommands();
+    }
+
+    [ReactiveCommand]
+    private async Task<string> Execute(string parameter, CancellationToken token)
+    {
+        await Task.Delay(1000, token);
+        return parameter;
+    }
+}
+```

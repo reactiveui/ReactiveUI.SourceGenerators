@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <LangVersion>latest</LangVersion>
     <PackageDescription>A MVVM framework that integrates with the Reactive Extensions for .NET to create elegant, testable User Interfaces that run on any mobile or desktop platform. This is the Source Generators package for ReactiveUI</PackageDescription>
   </PropertyGroup>
 

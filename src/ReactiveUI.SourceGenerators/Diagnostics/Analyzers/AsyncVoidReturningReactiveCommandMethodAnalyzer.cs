@@ -35,7 +35,7 @@ public sealed class AsyncVoidReturningReactiveCommandMethodAnalyzer : Diagnostic
 
         context.RegisterCompilationStartAction(static context =>
         {
-            // Get the symbol for [RelayCommand]
+            // Get the symbol for [ReactiveCommand]
             if (context.Compilation.GetTypeByMetadataName("ReactiveUI.SourceGenerators.ReactiveCommandAttribute") is not INamedTypeSymbol reactiveCommandSymbol)
             {
                 return;

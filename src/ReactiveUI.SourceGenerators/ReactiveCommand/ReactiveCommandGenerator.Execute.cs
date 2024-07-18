@@ -4,6 +4,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.CodeDom.Compiler;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -20,7 +21,7 @@ namespace ReactiveUI.SourceGenerators;
 /// <summary>
 /// ReactiveCommandGenerator.
 /// </summary>
-/// <seealso cref="Microsoft.CodeAnalysis.IIncrementalGenerator" />
+/// <seealso cref="IIncrementalGenerator" />
 public partial class ReactiveCommandGenerator
 {
     private const string RxCmd = "ReactiveUI.ReactiveCommand";
@@ -80,6 +81,8 @@ public partial class ReactiveCommandGenerator
             }
 
             writer.WriteLine();
+
+            // Create the Command Initialization method
             writer.WriteLine($"{Token(SyntaxKind.ProtectedKeyword)} {Token(SyntaxKind.VoidKeyword)} InitializeCommands()");
             writer.WriteLine(Token(SyntaxKind.OpenBraceToken));
             writer.Indent++;
@@ -166,15 +169,16 @@ public partial class ReactiveCommandGenerator
                     var isObservable = IsObservableReturnType(methodSymbol.ReturnType);
                     var realReturnType = isTask || isObservable ? GetTaskReturnType(compilation, methodSymbol.ReturnType) : methodSymbol.ReturnType;
                     var isReturnTypeVoid = SymbolEqualityComparer.Default.Equals(realReturnType, compilation.GetSpecialType(SpecialType.System_Void));
-                    var methodParameters = methodSymbol.Parameters.ToList();
-
-                    // TODO: Add support for CancellationToken
-                    ////var hasCancllationToken = isTask && methodParameters[0].Type.ToDisplayString() == "System.Threading.CancellationToken";
-                    ////if (hasCancllationToken)
-                    ////{
-                    ////    // Remove CancellationToken parameter
-                    ////    methodParameters.RemoveAt(0);
-                    ////}
+                    var hasCancllationToken = isTask && methodSymbol.Parameters.Any(x => x.Type.ToDisplayString() == "System.Threading.CancellationToken");
+                    var methodParameters = new List<IParameterSymbol>();
+                    if (hasCancllationToken && methodSymbol.Parameters.Length == 2)
+                    {
+                        methodParameters.Add(methodSymbol.Parameters[0]);
+                    }
+                    else if (!hasCancllationToken)
+                    {
+                        methodParameters.AddRange(methodSymbol.Parameters);
+                    }
 
                     if (methodParameters.Count > 1)
                     {
