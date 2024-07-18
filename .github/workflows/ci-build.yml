@@ -17,5 +17,5 @@ jobs:
       productNamespacePrefix: "SourceGenerators"
       useVisualStudioPreview: false
       useMauiCheckDotNetTool: false
-      solutionFile: "ReactiveUI.SourceGenerators.slnx"
+      installWorkflows: false
       dotNetBuild: true
