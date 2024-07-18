@@ -14,7 +14,8 @@ jobs:
       configuration: Release
       productNamespacePrefix: "SourceGenerators"
       useVisualStudioPreview: false
-      useMauiCheckDotNetTool: false
+      useMauiCheckDotNetTool: false      
+      dotNetBuild: true
     secrets:
       SIGN_CLIENT_USER_ID: ${{ secrets.SIGN_CLIENT_USER_ID }}
       SIGN_CLIENT_SECRET: ${{ secrets.SIGN_CLIENT_SECRET }}

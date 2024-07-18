@@ -17,3 +17,4 @@ jobs:
       productNamespacePrefix: "SourceGenerators"
       useVisualStudioPreview: false
       useMauiCheckDotNetTool: false
+      dotNetBuild: true
