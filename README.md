@@ -1,7 +1,18 @@
 # ReactiveUI.SourceGenerators
 Use source generators to generate ReactiveUI objects. 
 
-Not taking public contributions at this time  
+Not taking public contributions at this time
+
+These Source Generators were designed to work in full with ReactiveUI V19.5.31 and newer supporting all features, currently:
+- [Reactive]
+- [ObservableAsProperty]
+- [ReactiveCommand]
+
+Versions older than V19.5.31 to this:
+- [Reactive] fully supported, 
+- [ObservableAsProperty] fully supported, 
+- [ReactiveCommand] all supported except Cancellation Token asnyc methods.
+
 
 ## Usage Reactive property `[Reactive]`
 ```csharp
