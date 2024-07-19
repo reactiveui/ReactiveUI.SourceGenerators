@@ -8,8 +8,10 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 
-namespace ReactiveUI.SourceGenerators.Test;
+namespace SGReactiveUI.SourceGenerators.Test;
 
 #pragma warning disable SA1402 // File may only contain a single type
 #pragma warning disable SA1649 // File name should match first type name
