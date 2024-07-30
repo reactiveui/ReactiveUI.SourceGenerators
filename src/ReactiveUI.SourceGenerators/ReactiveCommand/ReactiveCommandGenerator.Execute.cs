@@ -5,8 +5,11 @@
 
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -77,6 +80,14 @@ public partial class ReactiveCommandGenerator
             {
                 var outputType = commandExtensionInfo.GetOutputTypeText();
                 var inputType = commandExtensionInfo.GetInputTypeText();
+
+                writer.WriteLine(AttributeList(SingletonSeparatedList(
+                        Attribute(IdentifierName("global::System.CodeDom.Compiler.GeneratedCode"))
+                        .AddArgumentListArguments(
+                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ReactiveCommandGenerator).FullName))),
+                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ReactiveCommandGenerator).Assembly.GetName().Version.ToString())))))));
+                writer.WriteLine(AttributeList(SingletonSeparatedList(Attribute(IdentifierName("global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage")))));
+
                 writer.WriteLine($"{Token(SyntaxKind.PublicKeyword)} {RxCmd}<{inputType}, {outputType}>? {commandExtensionInfo.MethodName}{RxCmdProp}");
             }
 
@@ -97,37 +108,89 @@ public partial class ReactiveCommandGenerator
                 {
                     if (commandExtensionInfo.IsObservable)
                     {
-                        writer.WriteLine($"{commandName} = {RxCmd}.CreateFromObservable({commandExtensionInfo.MethodName});");
+                        if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
+                        {
+                            writer.WriteLine($"{commandName} = {RxCmd}.CreateFromObservable({commandExtensionInfo.MethodName});");
+                        }
+                        else
+                        {
+                            writer.WriteLine($"{commandName} = {RxCmd}.CreateFromObservable({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
+                        }
                     }
                     else if (commandExtensionInfo.IsTask)
                     {
-                        writer.WriteLine($"{commandName} = {RxCmd}.CreateFromTask({commandExtensionInfo.MethodName});");
+                        if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
+                        {
+                            writer.WriteLine($"{commandName} = {RxCmd}.CreateFromTask({commandExtensionInfo.MethodName});");
+                        }
+                        else
+                        {
+                            writer.WriteLine($"{commandName} = {RxCmd}.CreateFromTask({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
+                        }
+                    }
+                    else if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
+                    {
+                        writer.WriteLine($"{commandName} = {RxCmd}.Create({commandExtensionInfo.MethodName});");
                     }
                     else
                     {
-                        writer.WriteLine($"{commandName} = {RxCmd}.Create({commandExtensionInfo.MethodName});");
+                        writer.WriteLine($"{commandName} = {RxCmd}.Create({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
                     }
                 }
                 else if (commandExtensionInfo.ArgumentType != null && !commandExtensionInfo.IsReturnTypeVoid)
                 {
                     if (commandExtensionInfo.IsObservable)
                     {
-                        writer.WriteLine($"{commandName} = {RxCmd}.CreateFromObservable<{inputType}, {outputType}>({commandExtensionInfo.MethodName});");
+                        if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
+                        {
+                            writer.WriteLine($"{commandName} = {RxCmd}.CreateFromObservable<{inputType}, {outputType}>({commandExtensionInfo.MethodName});");
+                        }
+                        else
+                        {
+                            writer.WriteLine($"{commandName} = {RxCmd}.CreateFromObservable<{inputType}, {outputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
+                        }
                     }
                     else if (commandExtensionInfo.IsTask)
                     {
-                        writer.WriteLine($"{commandName} = {RxCmd}.CreateFromTask<{inputType}, {outputType}>({commandExtensionInfo.MethodName});");
+                        if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
+                        {
+                            writer.WriteLine($"{commandName} = {RxCmd}.CreateFromTask<{inputType}, {outputType}>({commandExtensionInfo.MethodName});");
+                        }
+                        else
+                        {
+                            writer.WriteLine($"{commandName} = {RxCmd}.CreateFromTask<{inputType}, {outputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
+                        }
+                    }
+                    else if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
+                    {
+                        writer.WriteLine($"{commandName} = {RxCmd}.Create<{inputType}, {outputType}>({commandExtensionInfo.MethodName});");
                     }
                     else
                     {
-                        writer.WriteLine($"{commandName} = {RxCmd}.Create<{inputType}, {outputType}>({commandExtensionInfo.MethodName});");
+                        writer.WriteLine($"{commandName} = {RxCmd}.Create<{inputType}, {outputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
                     }
                 }
                 else if (commandExtensionInfo.ArgumentType != null && commandExtensionInfo.IsReturnTypeVoid)
                 {
-                    writer.WriteLine(!commandExtensionInfo.IsTask
-                        ? $"{commandName} = {RxCmd}.Create<{inputType}>({commandExtensionInfo.MethodName});"
-                        : $"{commandName} = {RxCmd}.CreateFromTask<{inputType}>({commandExtensionInfo.MethodName});");
+                    if (!commandExtensionInfo.IsTask)
+                    {
+                        if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
+                        {
+                            writer.WriteLine($"{commandName} = {RxCmd}.Create<{inputType}>({commandExtensionInfo.MethodName});");
+                        }
+                        else
+                        {
+                            writer.WriteLine($"{commandName} = {RxCmd}.Create<{inputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
+                        }
+                    }
+                    else if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
+                    {
+                        writer.WriteLine($"{commandName} = {RxCmd}.CreateFromTask<{inputType}>({commandExtensionInfo.MethodName});");
+                    }
+                    else
+                    {
+                        writer.WriteLine($"{commandName} = {RxCmd}.CreateFromTask<{inputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
+                    }
                 }
             }
 
@@ -141,7 +204,7 @@ public partial class ReactiveCommandGenerator
             return ParseCompilationUnit(output).NormalizeWhitespace();
         }
 
-        internal static void GetCommandInfoFromClass(ImmutableArrayBuilder<HierarchyInfo> hierarchys, Compilation compilation, SemanticModel semanticModel, ClassDeclarationSyntax declaredClass, out CommandInfo? commandInfo)
+        internal static void GetCommandInfoFromClass(ImmutableArrayBuilder<HierarchyInfo> hierarchys, Compilation compilation, SemanticModel semanticModel, ClassDeclarationSyntax declaredClass, CancellationToken token, out CommandInfo? commandInfo)
         {
             var classSymbol = ModelExtensions.GetDeclaredSymbol(semanticModel, declaredClass) as INamedTypeSymbol;
             var classNamespace = classSymbol?.ContainingNamespace.ToString();
@@ -151,10 +214,13 @@ public partial class ReactiveCommandGenerator
                 .OfType<MethodDeclarationSyntax>()
                 .ToList();
 
+            token.ThrowIfCancellationRequested();
+
             using var commandExtensionInfos = ImmutableArrayBuilder<CommandExtensionInfo>.Rent();
             foreach (var methodSyntax in methodMembers)
             {
                 var symbol = ModelExtensions.GetDeclaredSymbol(semanticModel, methodSyntax)!;
+                token.ThrowIfCancellationRequested();
 
                 // Skip symbols without the target attribute
                 if (!symbol.TryGetAttributeWithFullyQualifiedMetadataName(RxCmdAttribute, out var attributeData))
@@ -162,6 +228,7 @@ public partial class ReactiveCommandGenerator
                     continue;
                 }
 
+                token.ThrowIfCancellationRequested();
                 if (attributeData != null)
                 {
                     var methodSymbol = (IMethodSymbol)symbol!;
@@ -185,8 +252,27 @@ public partial class ReactiveCommandGenerator
                         continue; // Too many parameters, continue
                     }
 
+                    token.ThrowIfCancellationRequested();
+
                     // Get the hierarchy info for the target symbol, and try to gather the command info
                     hierarchys.Add(HierarchyInfo.From(methodSymbol.ContainingType));
+
+                    // Get the CanExecute expression type, if any
+                    TryGetCanExecuteExpressionType(
+                        methodSymbol,
+                        attributeData,
+                        out var canExecuteMemberName,
+                        out var canExecuteTypeInfo);
+
+                    token.ThrowIfCancellationRequested();
+
+                    GatherForwardedAttributes(
+                        methodSymbol,
+                        semanticModel,
+                        methodSyntax,
+                        token,
+                        out var fieldAttributes,
+                        out var propertyAttributes);
 
                     commandExtensionInfos.Add(new(
                         methodSymbol.Name,
@@ -194,7 +280,11 @@ public partial class ReactiveCommandGenerator
                         methodParameters.SingleOrDefault()?.Type,
                         isTask,
                         isReturnTypeVoid,
-                        isObservable));
+                        isObservable,
+                        canExecuteMemberName,
+                        canExecuteTypeInfo,
+                        fieldAttributes,
+                        propertyAttributes));
                 }
             }
 
@@ -241,10 +331,274 @@ public partial class ReactiveCommandGenerator
             return false;
         }
 
+        private static bool IsObservableBoolType(ITypeSymbol? typeSymbol)
+        {
+            var nameFormat = SymbolDisplayFormat.FullyQualifiedFormat;
+            do
+            {
+                var typeName = typeSymbol?.ToDisplayString(nameFormat);
+                if (typeName?.Contains("global::System.IObservable<bool>") == true)
+                {
+                    return true;
+                }
+
+                typeSymbol = typeSymbol?.BaseType;
+            }
+            while (typeSymbol != null);
+
+            return false;
+        }
+
         private static ITypeSymbol GetTaskReturnType(Compilation compilation, ITypeSymbol typeSymbol) => typeSymbol switch
         {
             INamedTypeSymbol { TypeArguments.Length: 1 } namedTypeSymbol => namedTypeSymbol.TypeArguments[0],
             _ => compilation.GetSpecialType(SpecialType.System_Void)
         };
+
+        /// <summary>
+        /// Tries to get the expression type for the "CanExecute" property, if available.
+        /// </summary>
+        /// <param name="methodSymbol">The input <see cref="IMethodSymbol"/> instance to process.</param>
+        /// <param name="attributeData">The <see cref="AttributeData"/> instance for <paramref name="methodSymbol"/>.</param>
+        /// <param name="canExecuteMemberName">The resulting can execute member name, if available.</param>
+        /// <param name="canExecuteTypeInfo">The resulting expression type, if available.</param>
+        private static void TryGetCanExecuteExpressionType(
+            IMethodSymbol methodSymbol,
+            AttributeData attributeData,
+            out string? canExecuteMemberName,
+            out CanExecuteTypeInfo? canExecuteTypeInfo)
+        {
+            // Get the can execute member, if any
+            if (!attributeData.TryGetNamedArgument("CanExecute", out string? memberName))
+            {
+                canExecuteMemberName = null;
+                canExecuteTypeInfo = null;
+
+                return;
+            }
+
+            if (memberName is null)
+            {
+                goto Failure;
+            }
+
+            var canExecuteSymbols = methodSymbol.ContainingType!.GetAllMembers(memberName).ToImmutableArray();
+
+            if (canExecuteSymbols.IsEmpty)
+            {
+                // Special case for when the target member is a generated property from [ObservableProperty]
+                if (TryGetCanExecuteMemberFromGeneratedProperty(memberName, methodSymbol.ContainingType, out canExecuteTypeInfo))
+                {
+                    canExecuteMemberName = memberName;
+
+                    return;
+                }
+            }
+            else if (canExecuteSymbols.Length > 1)
+            {
+                goto Failure;
+            }
+            else if (TryGetCanExecuteExpressionFromSymbol(canExecuteSymbols[0], out canExecuteTypeInfo))
+            {
+                canExecuteMemberName = memberName;
+
+                return;
+            }
+
+        Failure:
+            canExecuteMemberName = null;
+            canExecuteTypeInfo = null;
+
+            return;
+        }
+
+        /// <summary>
+        /// Gets the expression type for the can execute logic, if possible.
+        /// </summary>
+        /// <param name="canExecuteSymbol">The can execute member symbol (either a method or a property).</param>
+        /// <param name="canExecuteTypeInfo">The resulting can execute expression type, if available.</param>
+        /// <returns>Whether or not <paramref name="canExecuteTypeInfo"/> was set and the input symbol was valid.</returns>
+        private static bool TryGetCanExecuteExpressionFromSymbol(
+            ISymbol canExecuteSymbol,
+            [NotNullWhen(true)] out CanExecuteTypeInfo? canExecuteTypeInfo)
+        {
+            if (canExecuteSymbol is IMethodSymbol canExecuteMethodSymbol)
+            {
+                // The return type must always be a bool
+                if (!IsObservableBoolType(canExecuteMethodSymbol.ReturnType))
+                {
+                    goto Failure;
+                }
+
+                // If the method has parameters, it has to have a single one matching the command type
+                if (canExecuteMethodSymbol.Parameters.Length == 1)
+                {
+                    goto Failure;
+                }
+
+                // Parameterless methods are always valid
+                if (canExecuteMethodSymbol.Parameters.IsEmpty)
+                {
+                    canExecuteTypeInfo = CanExecuteTypeInfo.MethodObservable;
+
+                    return true;
+                }
+            }
+            else if (canExecuteSymbol is IPropertySymbol { GetMethod: not null } canExecutePropertySymbol)
+            {
+                // The property type must always be a bool
+                if (!IsObservableBoolType(canExecutePropertySymbol.Type))
+                {
+                    goto Failure;
+                }
+
+                canExecuteTypeInfo = CanExecuteTypeInfo.PropertyObservable;
+
+                return true;
+            }
+
+        Failure:
+            canExecuteTypeInfo = null;
+
+            return false;
+        }
+
+        /// <summary>
+        /// Gets the expression type for the can execute logic, if possible.
+        /// </summary>
+        /// <param name="memberName">The member name passed to <c>[ReactiveCommand(CanExecute = ...)]</c>.</param>
+        /// <param name="containingType">The containing type for the method annotated with <c>[ReactiveCommand]</c>.</param>
+        /// <param name="canExecuteTypeInfo">The resulting can execute expression type, if available.</param>
+        /// <returns>Whether or not <paramref name="canExecuteTypeInfo"/> was set and the input symbol was valid.</returns>
+        private static bool TryGetCanExecuteMemberFromGeneratedProperty(
+            string memberName,
+            INamedTypeSymbol containingType,
+            [NotNullWhen(true)] out CanExecuteTypeInfo? canExecuteTypeInfo)
+        {
+            foreach (var memberSymbol in containingType.GetAllMembers())
+            {
+                // Only look for instance fields of Observable bool type
+                if (!IsObservableBoolType(memberSymbol.ContainingType) || memberSymbol is not IFieldSymbol fieldSymbol)
+                {
+                    continue;
+                }
+
+                var attributes = memberSymbol.GetAttributes();
+
+                // Only filter fields with the [Reactive] attribute
+                if (memberSymbol is IFieldSymbol &&
+                    !attributes.Any(static a => a.AttributeClass?.HasFullyQualifiedMetadataName(
+                        "ReactiveUI.SourceGenerators.ReactiveAttribute") == true))
+                {
+                    continue;
+                }
+
+                // Get the target property name either directly or matching the generated one
+                var propertyName = ReactiveGenerator.Execute.GetGeneratedPropertyName(fieldSymbol);
+
+                // If the generated property name matches, get the right expression type
+                if (memberName == propertyName)
+                {
+                    canExecuteTypeInfo = CanExecuteTypeInfo.PropertyObservable;
+
+                    return true;
+                }
+            }
+
+            canExecuteTypeInfo = null;
+
+            return false;
+        }
+
+        /// <summary>
+        /// Gathers all forwarded attributes for the generated field and property.
+        /// </summary>
+        /// <param name="methodSymbol">The input <see cref="IMethodSymbol" /> instance to process.</param>
+        /// <param name="semanticModel">The <see cref="SemanticModel" /> instance for the current run.</param>
+        /// <param name="methodDeclaration">The method declaration.</param>
+        /// <param name="token">The cancellation token for the current operation.</param>
+        /// <param name="fieldAttributes">The resulting field attributes to forward.</param>
+        /// <param name="propertyAttributes">The resulting property attributes to forward.</param>
+        private static void GatherForwardedAttributes(
+            IMethodSymbol methodSymbol,
+            SemanticModel semanticModel,
+            MethodDeclarationSyntax methodDeclaration,
+            CancellationToken token,
+            out ImmutableArray<AttributeInfo> fieldAttributes,
+            out ImmutableArray<AttributeInfo> propertyAttributes)
+        {
+            using var fieldAttributesInfo = ImmutableArrayBuilder<AttributeInfo>.Rent();
+            using var propertyAttributesInfo = ImmutableArrayBuilder<AttributeInfo>.Rent();
+
+            static void GatherForwardedAttributes(
+                IMethodSymbol methodSymbol,
+                SemanticModel semanticModel,
+                MethodDeclarationSyntax methodDeclaration,
+                CancellationToken token,
+                ImmutableArrayBuilder<AttributeInfo> fieldAttributesInfo,
+                ImmutableArrayBuilder<AttributeInfo> propertyAttributesInfo)
+            {
+                // Get the single syntax reference for the input method symbol (there should be only one)
+                if (methodSymbol.DeclaringSyntaxReferences is not [SyntaxReference syntaxReference])
+                {
+                    return;
+                }
+
+                // Gather explicit forwarded attributes info
+                foreach (var attributeList in methodDeclaration.AttributeLists)
+                {
+                    if (attributeList.Target?.Identifier is not SyntaxToken(SyntaxKind.PropertyKeyword or SyntaxKind.FieldKeyword))
+                    {
+                        continue;
+                    }
+
+                    foreach (var attribute in attributeList.Attributes)
+                    {
+                        // Get the symbol info for the attribute (once again just like in the [ObservableProperty] generator)
+                        if (!semanticModel.GetSymbolInfo(attribute, token).TryGetAttributeTypeSymbol(out var attributeTypeSymbol))
+                        {
+                            continue;
+                        }
+
+                        var attributeArguments = attribute.ArgumentList?.Arguments ?? Enumerable.Empty<AttributeArgumentSyntax>();
+
+                        // Try to extract the forwarded attribute
+                        if (!AttributeInfo.TryCreate(attributeTypeSymbol, semanticModel, attributeArguments, token, out var attributeInfo))
+                        {
+                            continue;
+                        }
+
+                        // Add the new attribute info to the right builder
+                        if (attributeList.Target?.Identifier is SyntaxToken(SyntaxKind.FieldKeyword))
+                        {
+                            fieldAttributesInfo.Add(attributeInfo);
+                        }
+                        else
+                        {
+                            propertyAttributesInfo.Add(attributeInfo);
+                        }
+                    }
+                }
+            }
+
+            // If the method is a partial definition, also gather attributes from the implementation part
+            if (methodSymbol is { IsPartialDefinition: true } or { PartialDefinitionPart: not null })
+            {
+                var partialDefinition = methodSymbol.PartialDefinitionPart ?? methodSymbol;
+                var partialImplementation = methodSymbol.PartialImplementationPart ?? methodSymbol;
+
+                // We always give priority to the partial definition, to ensure a predictable and testable ordering
+                GatherForwardedAttributes(partialDefinition, semanticModel, methodDeclaration, token, fieldAttributesInfo, propertyAttributesInfo);
+                GatherForwardedAttributes(partialImplementation, semanticModel, methodDeclaration, token, fieldAttributesInfo, propertyAttributesInfo);
+            }
+            else
+            {
+                // If the method is not a partial definition/implementation, just gather attributes from the method with no modifications
+                GatherForwardedAttributes(methodSymbol, semanticModel, methodDeclaration, token, fieldAttributesInfo, propertyAttributesInfo);
+            }
+
+            fieldAttributes = fieldAttributesInfo.ToImmutable();
+            propertyAttributes = propertyAttributesInfo.ToImmutable();
+        }
     }
 }

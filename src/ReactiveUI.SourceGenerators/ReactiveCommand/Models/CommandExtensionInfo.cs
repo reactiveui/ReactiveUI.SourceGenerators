@@ -4,6 +4,8 @@
 // See the LICENSE file in the project root for full license information.
 
 using Microsoft.CodeAnalysis;
+using ReactiveUI.SourceGenerators.Helpers;
+using ReactiveUI.SourceGenerators.Models;
 
 namespace ReactiveUI.SourceGenerators.Input.Models;
 
@@ -13,7 +15,11 @@ internal record CommandExtensionInfo(
     ITypeSymbol? ArgumentType,
     bool IsTask,
     bool IsReturnTypeVoid,
-    bool IsObservable)
+    bool IsObservable,
+    string? CanExecuteObservableName,
+    CanExecuteTypeInfo? CanExecuteTypeInfo,
+    EquatableArray<AttributeInfo> ForwardedFieldAttributes,
+    EquatableArray<AttributeInfo> ForwardedPropertyAttributes)
 {
     private const string UnitTypeName = "global::System.Reactive.Unit";
 

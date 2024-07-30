@@ -86,9 +86,17 @@ public partial class TestClass : ReactiveObject
     }
 
     /// <summary>
+    /// Gets the can execute test1.
+    /// </summary>
+    /// <value>
+    /// The can execute test1.
+    /// </value>
+    public IObservable<bool> CanExecuteTest1 => Observable.Return(true);
+
+    /// <summary>
     /// Test1s this instance.
     /// </summary>
-    [ReactiveCommand]
+    [ReactiveCommand(CanExecute = nameof(CanExecuteTest1))]
     private void Test1() => Console.Out.WriteLine("Test1");
 
     /// <summary>
