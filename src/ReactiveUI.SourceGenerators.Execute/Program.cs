@@ -97,6 +97,7 @@ public partial class TestClass : ReactiveObject
     /// Test1s this instance.
     /// </summary>
     [ReactiveCommand(CanExecute = nameof(CanExecuteTest1))]
+    [property: JsonInclude]
     private void Test1() => Console.Out.WriteLine("Test1");
 
     /// <summary>

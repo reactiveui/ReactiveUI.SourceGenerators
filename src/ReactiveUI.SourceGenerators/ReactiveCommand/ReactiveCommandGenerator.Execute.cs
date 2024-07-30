@@ -31,6 +31,11 @@ public partial class ReactiveCommandGenerator
     private const string RxCmd = "ReactiveUI.ReactiveCommand";
     private const string RxCmdAttribute = "ReactiveUI.SourceGenerators.ReactiveCommandAttribute";
     private const string RxCmdProp = " { get; private set; }";
+    private const string Attribute = "Attribute";
+    private const string Create = ".Create";
+    private const string CreateO = ".CreateFromObservable";
+    private const string CreateT = ".CreateFromTask";
+    private const string GeneratedCode = "global::System.CodeDom.Compiler.GeneratedCode";
 
     /// <summary>
     /// A container for all the logic for <see cref="ReactiveCommandGenerator"/>.
@@ -83,12 +88,23 @@ public partial class ReactiveCommandGenerator
                 var inputType = commandExtensionInfo.GetInputTypeText();
                 var commandName = GetGeneratedCommandName(commandExtensionInfo.MethodName);
 
+                // Prepare any forwarded property attributes
+                var forwardedPropertyAttributes =
+                    commandExtensionInfo.ForwardedPropertyAttributes
+                    .Select(static a => $"[{a.TypeName.Substring(0, a.TypeName.IndexOf(Attribute))}]")
+                    .ToImmutableArray();
+
                 writer.WriteLine(AttributeList(SingletonSeparatedList(
-                        Attribute(IdentifierName("global::System.CodeDom.Compiler.GeneratedCode"))
+                        Attribute(IdentifierName(GeneratedCode))
                         .AddArgumentListArguments(
                             AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ReactiveCommandGenerator).FullName))),
                             AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ReactiveCommandGenerator).Assembly.GetName().Version.ToString())))))));
                 writer.WriteLine(AttributeList(SingletonSeparatedList(Attribute(IdentifierName("global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage")))));
+
+                foreach (var attribute in forwardedPropertyAttributes)
+                {
+                    writer.WriteLine(attribute);
+                }
 
                 writer.WriteLine($"{Token(SyntaxKind.PublicKeyword)} {RxCmd}<{inputType}, {outputType}>? {commandName}{RxCmdProp}");
             }
@@ -112,31 +128,31 @@ public partial class ReactiveCommandGenerator
                     {
                         if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
                         {
-                            writer.WriteLine($"{commandName} = {RxCmd}.CreateFromObservable({commandExtensionInfo.MethodName});");
+                            writer.WriteLine($"{commandName} = {RxCmd}{CreateO}({commandExtensionInfo.MethodName});");
                         }
                         else
                         {
-                            writer.WriteLine($"{commandName} = {RxCmd}.CreateFromObservable({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
+                            writer.WriteLine($"{commandName} = {RxCmd}{CreateO}({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
                         }
                     }
                     else if (commandExtensionInfo.IsTask)
                     {
                         if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
                         {
-                            writer.WriteLine($"{commandName} = {RxCmd}.CreateFromTask({commandExtensionInfo.MethodName});");
+                            writer.WriteLine($"{commandName} = {RxCmd}{CreateT}({commandExtensionInfo.MethodName});");
                         }
                         else
                         {
-                            writer.WriteLine($"{commandName} = {RxCmd}.CreateFromTask({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
+                            writer.WriteLine($"{commandName} = {RxCmd}{CreateT}({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
                         }
                     }
                     else if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
                     {
-                        writer.WriteLine($"{commandName} = {RxCmd}.Create({commandExtensionInfo.MethodName});");
+                        writer.WriteLine($"{commandName} = {RxCmd}{Create}({commandExtensionInfo.MethodName});");
                     }
                     else
                     {
-                        writer.WriteLine($"{commandName} = {RxCmd}.Create({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
+                        writer.WriteLine($"{commandName} = {RxCmd}{Create}({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
                     }
                 }
                 else if (commandExtensionInfo.ArgumentType != null && !commandExtensionInfo.IsReturnTypeVoid)
@@ -145,31 +161,31 @@ public partial class ReactiveCommandGenerator
                     {
                         if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
                         {
-                            writer.WriteLine($"{commandName} = {RxCmd}.CreateFromObservable<{inputType}, {outputType}>({commandExtensionInfo.MethodName});");
+                            writer.WriteLine($"{commandName} = {RxCmd}{CreateO}<{inputType}, {outputType}>({commandExtensionInfo.MethodName});");
                         }
                         else
                         {
-                            writer.WriteLine($"{commandName} = {RxCmd}.CreateFromObservable<{inputType}, {outputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
+                            writer.WriteLine($"{commandName} = {RxCmd}{CreateO}<{inputType}, {outputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
                         }
                     }
                     else if (commandExtensionInfo.IsTask)
                     {
                         if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
                         {
-                            writer.WriteLine($"{commandName} = {RxCmd}.CreateFromTask<{inputType}, {outputType}>({commandExtensionInfo.MethodName});");
+                            writer.WriteLine($"{commandName} = {RxCmd}{CreateT}<{inputType}, {outputType}>({commandExtensionInfo.MethodName});");
                         }
                         else
                         {
-                            writer.WriteLine($"{commandName} = {RxCmd}.CreateFromTask<{inputType}, {outputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
+                            writer.WriteLine($"{commandName} = {RxCmd}{CreateT}<{inputType}, {outputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
                         }
                     }
                     else if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
                     {
-                        writer.WriteLine($"{commandName} = {RxCmd}.Create<{inputType}, {outputType}>({commandExtensionInfo.MethodName});");
+                        writer.WriteLine($"{commandName} = {RxCmd}{Create}<{inputType}, {outputType}>({commandExtensionInfo.MethodName});");
                     }
                     else
                     {
-                        writer.WriteLine($"{commandName} = {RxCmd}.Create<{inputType}, {outputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
+                        writer.WriteLine($"{commandName} = {RxCmd}{Create}<{inputType}, {outputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
                     }
                 }
                 else if (commandExtensionInfo.ArgumentType != null && commandExtensionInfo.IsReturnTypeVoid)
@@ -178,20 +194,20 @@ public partial class ReactiveCommandGenerator
                     {
                         if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
                         {
-                            writer.WriteLine($"{commandName} = {RxCmd}.Create<{inputType}>({commandExtensionInfo.MethodName});");
+                            writer.WriteLine($"{commandName} = {RxCmd}{Create}<{inputType}>({commandExtensionInfo.MethodName});");
                         }
                         else
                         {
-                            writer.WriteLine($"{commandName} = {RxCmd}.Create<{inputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
+                            writer.WriteLine($"{commandName} = {RxCmd}{Create}<{inputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
                         }
                     }
                     else if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
                     {
-                        writer.WriteLine($"{commandName} = {RxCmd}.CreateFromTask<{inputType}>({commandExtensionInfo.MethodName});");
+                        writer.WriteLine($"{commandName} = {RxCmd}{CreateT}<{inputType}>({commandExtensionInfo.MethodName});");
                     }
                     else
                     {
-                        writer.WriteLine($"{commandName} = {RxCmd}.CreateFromTask<{inputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
+                        writer.WriteLine($"{commandName} = {RxCmd}{CreateT}<{inputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
                     }
                 }
             }
@@ -238,13 +254,13 @@ public partial class ReactiveCommandGenerator
                     var isObservable = IsObservableReturnType(methodSymbol.ReturnType);
                     var realReturnType = isTask || isObservable ? GetTaskReturnType(compilation, methodSymbol.ReturnType) : methodSymbol.ReturnType;
                     var isReturnTypeVoid = SymbolEqualityComparer.Default.Equals(realReturnType, compilation.GetSpecialType(SpecialType.System_Void));
-                    var hasCancllationToken = isTask && methodSymbol.Parameters.Any(x => x.Type.ToDisplayString() == "System.Threading.CancellationToken");
+                    var hasCancellationToken = isTask && methodSymbol.Parameters.Any(x => x.Type.ToDisplayString() == "System.Threading.CancellationToken");
                     var methodParameters = new List<IParameterSymbol>();
-                    if (hasCancllationToken && methodSymbol.Parameters.Length == 2)
+                    if (hasCancellationToken && methodSymbol.Parameters.Length == 2)
                     {
                         methodParameters.Add(methodSymbol.Parameters[0]);
                     }
-                    else if (!hasCancllationToken)
+                    else if (!hasCancellationToken)
                     {
                         methodParameters.AddRange(methodSymbol.Parameters);
                     }
@@ -273,7 +289,6 @@ public partial class ReactiveCommandGenerator
                         semanticModel,
                         methodSyntax,
                         token,
-                        out var fieldAttributes,
                         out var propertyAttributes);
 
                     token.ThrowIfCancellationRequested();
@@ -287,7 +302,6 @@ public partial class ReactiveCommandGenerator
                         isObservable,
                         canExecuteMemberName,
                         canExecuteTypeInfo,
-                        fieldAttributes,
                         propertyAttributes));
                 }
             }
@@ -521,17 +535,14 @@ public partial class ReactiveCommandGenerator
         /// <param name="semanticModel">The <see cref="SemanticModel" /> instance for the current run.</param>
         /// <param name="methodDeclaration">The method declaration.</param>
         /// <param name="token">The cancellation token for the current operation.</param>
-        /// <param name="fieldAttributes">The resulting field attributes to forward.</param>
         /// <param name="propertyAttributes">The resulting property attributes to forward.</param>
         private static void GatherForwardedAttributes(
             IMethodSymbol methodSymbol,
             SemanticModel semanticModel,
             MethodDeclarationSyntax methodDeclaration,
             CancellationToken token,
-            out ImmutableArray<AttributeInfo> fieldAttributes,
             out ImmutableArray<AttributeInfo> propertyAttributes)
         {
-            using var fieldAttributesInfo = ImmutableArrayBuilder<AttributeInfo>.Rent();
             using var propertyAttributesInfo = ImmutableArrayBuilder<AttributeInfo>.Rent();
 
             static void GatherForwardedAttributes(
@@ -539,7 +550,6 @@ public partial class ReactiveCommandGenerator
                 SemanticModel semanticModel,
                 MethodDeclarationSyntax methodDeclaration,
                 CancellationToken token,
-                ImmutableArrayBuilder<AttributeInfo> fieldAttributesInfo,
                 ImmutableArrayBuilder<AttributeInfo> propertyAttributesInfo)
             {
                 // Get the single syntax reference for the input method symbol (there should be only one)
@@ -551,14 +561,13 @@ public partial class ReactiveCommandGenerator
                 // Gather explicit forwarded attributes info
                 foreach (var attributeList in methodDeclaration.AttributeLists)
                 {
-                    if (attributeList.Target?.Identifier is not SyntaxToken(SyntaxKind.PropertyKeyword or SyntaxKind.FieldKeyword))
+                    if (attributeList.Target?.Identifier is not SyntaxToken(SyntaxKind.PropertyKeyword))
                     {
                         continue;
                     }
 
                     foreach (var attribute in attributeList.Attributes)
                     {
-                        // Get the symbol info for the attribute (once again just like in the [ObservableProperty] generator)
                         if (!semanticModel.GetSymbolInfo(attribute, token).TryGetAttributeTypeSymbol(out var attributeTypeSymbol))
                         {
                             continue;
@@ -573,11 +582,7 @@ public partial class ReactiveCommandGenerator
                         }
 
                         // Add the new attribute info to the right builder
-                        if (attributeList.Target?.Identifier is SyntaxToken(SyntaxKind.FieldKeyword))
-                        {
-                            fieldAttributesInfo.Add(attributeInfo);
-                        }
-                        else
+                        if (attributeList.Target?.Identifier is SyntaxToken(SyntaxKind.PropertyKeyword))
                         {
                             propertyAttributesInfo.Add(attributeInfo);
                         }
@@ -592,16 +597,15 @@ public partial class ReactiveCommandGenerator
                 var partialImplementation = methodSymbol.PartialImplementationPart ?? methodSymbol;
 
                 // We always give priority to the partial definition, to ensure a predictable and testable ordering
-                GatherForwardedAttributes(partialDefinition, semanticModel, methodDeclaration, token, fieldAttributesInfo, propertyAttributesInfo);
-                GatherForwardedAttributes(partialImplementation, semanticModel, methodDeclaration, token, fieldAttributesInfo, propertyAttributesInfo);
+                GatherForwardedAttributes(partialDefinition, semanticModel, methodDeclaration, token, propertyAttributesInfo);
+                GatherForwardedAttributes(partialImplementation, semanticModel, methodDeclaration, token, propertyAttributesInfo);
             }
             else
             {
                 // If the method is not a partial definition/implementation, just gather attributes from the method with no modifications
-                GatherForwardedAttributes(methodSymbol, semanticModel, methodDeclaration, token, fieldAttributesInfo, propertyAttributesInfo);
+                GatherForwardedAttributes(methodSymbol, semanticModel, methodDeclaration, token, propertyAttributesInfo);
             }
 
-            fieldAttributes = fieldAttributesInfo.ToImmutable();
             propertyAttributes = propertyAttributesInfo.ToImmutable();
         }
 
