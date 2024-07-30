@@ -15,10 +15,10 @@ namespace ReactiveUI.SourceGenerators;
 public sealed class ReactiveCommandAttribute : Attribute
 {
     /// <summary>
-    /// Gets the can execute.
+    /// Gets the can execute method or property.
     /// </summary>
     /// <value>
-    /// The can execute.
+    /// The name of the CanExecute Observable of bool.
     /// </value>
     public string? CanExecute { get; init; }
 }

@@ -85,7 +85,13 @@ public partial class TestClass : ReactiveObject
         Console.ReadLine();
     }
 
-    private IObservable<bool> CanExecuteTest1 => Observable.Return(true);
+    /// <summary>
+    /// Gets the can execute test1.
+    /// </summary>
+    /// <value>
+    /// The can execute test1.
+    /// </value>
+    public IObservable<bool> CanExecuteTest1 => Observable.Return(true);
 
     /// <summary>
     /// Test1s this instance.

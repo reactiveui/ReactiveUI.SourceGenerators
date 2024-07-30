@@ -84,8 +84,8 @@ public partial class ReactiveCommandGenerator
                 writer.WriteLine(AttributeList(SingletonSeparatedList(
                         Attribute(IdentifierName("global::System.CodeDom.Compiler.GeneratedCode"))
                         .AddArgumentListArguments(
-                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ReactiveGenerator).FullName))),
-                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ReactiveGenerator).Assembly.GetName().Version.ToString())))))));
+                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ReactiveCommandGenerator).FullName))),
+                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ReactiveCommandGenerator).Assembly.GetName().Version.ToString())))))));
                 writer.WriteLine(AttributeList(SingletonSeparatedList(Attribute(IdentifierName("global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage")))));
 
                 writer.WriteLine($"{Token(SyntaxKind.PublicKeyword)} {RxCmd}<{inputType}, {outputType}>? {commandExtensionInfo.MethodName}{RxCmdProp}");
