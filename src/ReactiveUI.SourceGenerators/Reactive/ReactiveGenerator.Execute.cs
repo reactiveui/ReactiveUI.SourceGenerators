@@ -304,6 +304,27 @@ public partial class ReactiveGenerator
         }
 
         /// <summary>
+        /// Get the generated property name for an input field.
+        /// </summary>
+        /// <param name="fieldSymbol">The input <see cref="IFieldSymbol"/> instance to process.</param>
+        /// <returns>The generated property name for <paramref name="fieldSymbol"/>.</returns>
+        internal static string GetGeneratedPropertyName(IFieldSymbol fieldSymbol)
+        {
+            var propertyName = fieldSymbol.Name;
+
+            if (propertyName.StartsWith("m_"))
+            {
+                propertyName = propertyName.Substring(2);
+            }
+            else if (propertyName.StartsWith("_"))
+            {
+                propertyName = propertyName.TrimStart('_');
+            }
+
+            return $"{char.ToUpper(propertyName[0], CultureInfo.InvariantCulture)}{propertyName.Substring(1)}";
+        }
+
+        /// <summary>
         /// Validates the containing type for a given field being annotated.
         /// </summary>
         /// <param name="fieldSymbol">The input <see cref="IFieldSymbol"/> instance to process.</param>
@@ -356,27 +377,6 @@ public partial class ReactiveGenerator
                 isReferenceTypeOrUnconstraindTypeParameter &&
                 fieldSymbol.Type.NullableAnnotation != NullableAnnotation.Annotated &&
                 semanticModel.Compilation.HasAccessibleTypeWithMetadataName("System.Diagnostics.CodeAnalysis.MemberNotNullAttribute");
-        }
-
-        /// <summary>
-        /// Get the generated property name for an input field.
-        /// </summary>
-        /// <param name="fieldSymbol">The input <see cref="IFieldSymbol"/> instance to process.</param>
-        /// <returns>The generated property name for <paramref name="fieldSymbol"/>.</returns>
-        private static string GetGeneratedPropertyName(IFieldSymbol fieldSymbol)
-        {
-            var propertyName = fieldSymbol.Name;
-
-            if (propertyName.StartsWith("m_"))
-            {
-                propertyName = propertyName.Substring(2);
-            }
-            else if (propertyName.StartsWith("_"))
-            {
-                propertyName = propertyName.TrimStart('_');
-            }
-
-            return $"{char.ToUpper(propertyName[0], CultureInfo.InvariantCulture)}{propertyName.Substring(1)}";
         }
     }
 }

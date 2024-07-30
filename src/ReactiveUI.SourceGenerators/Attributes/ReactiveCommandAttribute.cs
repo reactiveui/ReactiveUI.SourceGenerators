@@ -12,4 +12,13 @@ namespace ReactiveUI.SourceGenerators;
 /// </summary>
 /// <seealso cref="Attribute" />
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-public sealed class ReactiveCommandAttribute : Attribute;
+public sealed class ReactiveCommandAttribute : Attribute
+{
+    /// <summary>
+    /// Gets the can execute.
+    /// </summary>
+    /// <value>
+    /// The can execute.
+    /// </value>
+    public string? CanExecute { get; init; }
+}

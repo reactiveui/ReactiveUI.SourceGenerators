@@ -44,6 +44,7 @@ public sealed partial class ReactiveCommandGenerator : IIncrementalGenerator
                             compilation,
                             semanticModel,
                             declaredClass,
+                            token,
                             out var commandInfo);
 
                         if (commandInfo?.CommandExtensionInfos.IsEmpty == false)

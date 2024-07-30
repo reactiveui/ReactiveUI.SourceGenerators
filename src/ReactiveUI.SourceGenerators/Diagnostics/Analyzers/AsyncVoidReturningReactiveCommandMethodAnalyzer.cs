@@ -14,7 +14,7 @@ using static ReactiveUI.SourceGenerators.Diagnostics.DiagnosticDescriptors;
 namespace ReactiveUI.SourceGenerators;
 
 /// <summary>
-/// A diagnostic analyzer that generates a warning when using <c>[RelayCommand]</c> over an <see langword="async"/> <see cref="void"/> method.
+/// A diagnostic analyzer that generates a warning when using <c>[ReactiveCommand]</c> over an <see langword="async"/> <see cref="void"/> method.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class AsyncVoidReturningReactiveCommandMethodAnalyzer : DiagnosticAnalyzer
