@@ -7,6 +7,7 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -29,7 +30,7 @@ public partial class ReactiveCommandGenerator
 {
     private const string RxCmd = "ReactiveUI.ReactiveCommand";
     private const string RxCmdAttribute = "ReactiveUI.SourceGenerators.ReactiveCommandAttribute";
-    private const string RxCmdProp = "Command { get; private set; }";
+    private const string RxCmdProp = " { get; private set; }";
 
     /// <summary>
     /// A container for all the logic for <see cref="ReactiveCommandGenerator"/>.
@@ -80,6 +81,7 @@ public partial class ReactiveCommandGenerator
             {
                 var outputType = commandExtensionInfo.GetOutputTypeText();
                 var inputType = commandExtensionInfo.GetInputTypeText();
+                var commandName = GetGeneratedCommandName(commandExtensionInfo.MethodName);
 
                 writer.WriteLine(AttributeList(SingletonSeparatedList(
                         Attribute(IdentifierName("global::System.CodeDom.Compiler.GeneratedCode"))
@@ -88,7 +90,7 @@ public partial class ReactiveCommandGenerator
                             AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ReactiveCommandGenerator).Assembly.GetName().Version.ToString())))))));
                 writer.WriteLine(AttributeList(SingletonSeparatedList(Attribute(IdentifierName("global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage")))));
 
-                writer.WriteLine($"{Token(SyntaxKind.PublicKeyword)} {RxCmd}<{inputType}, {outputType}>? {commandExtensionInfo.MethodName}{RxCmdProp}");
+                writer.WriteLine($"{Token(SyntaxKind.PublicKeyword)} {RxCmd}<{inputType}, {outputType}>? {commandName}{RxCmdProp}");
             }
 
             writer.WriteLine();
@@ -101,7 +103,7 @@ public partial class ReactiveCommandGenerator
             // Add the command initialization
             foreach (var commandExtensionInfo in commandInfo.CommandExtensionInfos)
             {
-                var commandName = $"{commandExtensionInfo.MethodName}Command";
+                var commandName = GetGeneratedCommandName(commandExtensionInfo.MethodName);
                 var outputType = commandExtensionInfo.GetOutputTypeText();
                 var inputType = commandExtensionInfo.GetInputTypeText();
                 if (commandExtensionInfo.ArgumentType == null)
@@ -273,6 +275,8 @@ public partial class ReactiveCommandGenerator
                         token,
                         out var fieldAttributes,
                         out var propertyAttributes);
+
+                    token.ThrowIfCancellationRequested();
 
                     commandExtensionInfos.Add(new(
                         methodSymbol.Name,
@@ -599,6 +603,22 @@ public partial class ReactiveCommandGenerator
 
             fieldAttributes = fieldAttributesInfo.ToImmutable();
             propertyAttributes = propertyAttributesInfo.ToImmutable();
+        }
+
+        private static string GetGeneratedCommandName(string methodName)
+        {
+            var commandName = methodName;
+
+            if (commandName.StartsWith("m_"))
+            {
+                commandName = commandName.Substring(2);
+            }
+            else if (commandName.StartsWith("_"))
+            {
+                commandName = commandName.TrimStart('_');
+            }
+
+            return $"{char.ToUpper(commandName[0], CultureInfo.InvariantCulture)}{commandName.Substring(1)}Command";
         }
     }
 }
