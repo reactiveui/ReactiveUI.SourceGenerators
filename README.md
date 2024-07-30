@@ -199,3 +199,58 @@ public partial class MyReactiveClass
     }
 }
 ```
+
+### Usage ReactiveCommand with CanExecute
+```csharp
+using ReactiveUI.SourceGenerators;
+
+public partial class MyReactiveClass
+{
+    private IObservable<bool> _canExecute;
+
+    [Reactive]
+    private string _myProperty1;
+
+    [Reactive]
+    private string _myProperty2;
+
+    public MyReactiveClass()
+    {
+        InitializeCommands();
+        _canExecute = this.WhenAnyValue(x => x.MyProperty1, x => x.MyProperty2, (x, y) => !string.IsNullOrEmpty(x) && !string.IsNullOrEmpty(y));
+    }
+
+    [ReactiveCommand(CanExecute = nameof(_canExecute))]
+    private void Search() { }
+}
+```
+
+### Usage ReactiveCommand with parameterless Attribute pass through
+```csharp
+using ReactiveUI.SourceGenerators;
+
+public partial class MyReactiveClass
+{
+    private IObservable<bool> _canExecute;
+
+    [Reactive]
+    private string _myProperty1;
+
+    [Reactive]
+    private string _myProperty2;
+
+    public MyReactiveClass()
+    {
+        InitializeCommands();
+        _canExecute = this.WhenAnyValue(x => x.MyProperty1, x => x.MyProperty2, (x, y) => !string.IsNullOrEmpty(x) && !string.IsNullOrEmpty(y));
+    }
+
+    [ReactiveCommand(CanExecute = nameof(_canExecute))]
+    [property: JsonIgnore]
+    private void Search() { }
+}
+```
+
+### TODO:
+- Add ReactiveCommand with parameterised Attribute pass through
+- Add ObservableAsProperty to generate from a IObservable creating a property and the property helper wired to the Observable.
