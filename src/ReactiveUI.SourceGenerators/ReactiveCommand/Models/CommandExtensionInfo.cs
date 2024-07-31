@@ -18,7 +18,6 @@ internal record CommandExtensionInfo(
     bool IsObservable,
     string? CanExecuteObservableName,
     CanExecuteTypeInfo? CanExecuteTypeInfo,
-    EquatableArray<AttributeInfo> ForwardedFieldAttributes,
     EquatableArray<AttributeInfo> ForwardedPropertyAttributes)
 {
     private const string UnitTypeName = "global::System.Reactive.Unit";
