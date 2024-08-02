@@ -25,14 +25,14 @@ public static class EntryPoint
     /// <summary>
     /// Defines the entry point of the application.
     /// </summary>
-    public static void Main() => new TestClass();
+    public static void Main() => new TestViewModel();
 }
 
 /// <summary>
 /// TestClass.
 /// </summary>
 [DataContract]
-public partial class TestClass : ReactiveObject
+public partial class TestViewModel : ReactiveObject
 {
     [JsonInclude]
     [DataMember]
@@ -45,9 +45,9 @@ public partial class TestClass : ReactiveObject
     private int _test1Property;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="TestClass"/> class.
+    /// Initializes a new instance of the <see cref="TestViewModel"/> class.
     /// </summary>
-    public TestClass()
+    public TestViewModel()
     {
         InitializeCommands();
 

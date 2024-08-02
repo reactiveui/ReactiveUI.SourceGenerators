@@ -61,6 +61,29 @@ internal static class ITypeSymbolExtensions
     /// Checks whether or not a given <see cref="ITypeSymbol"/> inherits from a specified type.
     /// </summary>
     /// <param name="typeSymbol">The target <see cref="ITypeSymbol"/> instance to check.</param>
+    /// <param name="name">The full name of the type to check for inheritance.</param>
+    /// <returns>Whether or not <paramref name="typeSymbol"/> inherits from <paramref name="name"/>.</returns>
+    public static bool InheritsFromFullyQualifiedMetadataNameStartingWith(this ITypeSymbol typeSymbol, string name)
+    {
+        var baseType = typeSymbol.BaseType;
+
+        while (baseType is not null)
+        {
+            if (baseType.ContainsFullyQualifiedMetadataName(name))
+            {
+                return true;
+            }
+
+            baseType = baseType.BaseType;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Checks whether or not a given <see cref="ITypeSymbol"/> inherits from a specified type.
+    /// </summary>
+    /// <param name="typeSymbol">The target <see cref="ITypeSymbol"/> instance to check.</param>
     /// <param name="baseTypeSymbol">The <see cref="ITypeSymbol"/> instane to check for inheritance from.</param>
     /// <returns>Whether or not <paramref name="typeSymbol"/> inherits from <paramref name="baseTypeSymbol"/>.</returns>
     public static bool InheritsFromType(this ITypeSymbol typeSymbol, ITypeSymbol baseTypeSymbol)
@@ -186,6 +209,15 @@ internal static class ITypeSymbolExtensions
         symbol.AppendFullyQualifiedMetadataName(builder);
 
         return builder.WrittenSpan.SequenceEqual(name.AsSpan());
+    }
+
+    public static bool ContainsFullyQualifiedMetadataName(this ITypeSymbol symbol, string name)
+    {
+        using var builder = ImmutableArrayBuilder<char>.Rent();
+
+        symbol.AppendFullyQualifiedMetadataName(builder);
+
+        return builder.WrittenSpan.ToString().Contains(name);
     }
 
     /// <summary>

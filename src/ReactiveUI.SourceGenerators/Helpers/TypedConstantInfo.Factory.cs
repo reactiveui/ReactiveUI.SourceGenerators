@@ -11,9 +11,8 @@ using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
-using ReactiveUI.SourceGenerators.Helpers;
 
-namespace ReactiveUI.SourceGenerators.Models;
+namespace ReactiveUI.SourceGenerators.Helpers;
 
 /// <inheritdoc/>
 internal partial record TypedConstantInfo
