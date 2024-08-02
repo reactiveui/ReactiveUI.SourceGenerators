@@ -331,10 +331,11 @@ public partial class ReactiveGenerator
         /// <returns>Whether or not the containing type for <paramref name="fieldSymbol"/> is valid.</returns>
         private static bool IsTargetTypeValid(IFieldSymbol fieldSymbol)
         {
-            var isObservableObject = fieldSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.IReactiveObject");
+            var isObservableObject = fieldSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.ReactiveObject");
+            var isIObservableObject = fieldSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.IReactiveObject");
             var hasObservableObjectAttribute = fieldSymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName("ReactiveUI.SourceGenerators.ReactiveObjectAttribute");
 
-            return isObservableObject || hasObservableObjectAttribute;
+            return isIObservableObject || isObservableObject || hasObservableObjectAttribute;
         }
 
         /// <summary>

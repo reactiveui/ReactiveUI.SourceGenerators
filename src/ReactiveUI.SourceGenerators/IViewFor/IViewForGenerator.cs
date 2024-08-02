@@ -156,7 +156,8 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
             List(
                 new[]
                 {
-                    UsingDirective(ParseName("ReactiveUI"))
+                    UsingDirective(ParseName("ReactiveUI")),
+                    UsingDirective(ParseName("System.Windows")),
                 })).NormalizeWhitespace().ToFullString();
 
         // Remove the last 4 characters to remove the closing brackets

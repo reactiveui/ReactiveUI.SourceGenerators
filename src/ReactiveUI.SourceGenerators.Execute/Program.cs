@@ -25,7 +25,7 @@ public static class EntryPoint
     /// <summary>
     /// Defines the entry point of the application.
     /// </summary>
-    public static void Main() => new TestViewModel();
+    public static void Main() => _ = TestViewModel.Instance;
 }
 
 /// <summary>
@@ -72,7 +72,7 @@ public partial class TestViewModel : ReactiveObject
         _test2PropertyHelper = Test8ObservableCommand!.ToProperty(this, x => x.Test2Property);
 
         Test8ObservableCommand?.Execute(100).Subscribe(Console.Out.WriteLine);
-        Console.Out.WriteLine($"Test2Property Value: {Test2Property}");
+        Console.Out.WriteLine($"Test2Property Value: {Test2}");
         Console.Out.WriteLine($"Test2Property underlying Value: {_test2Property}");
 
         Test9AsyncCommand?.ThrownExceptions.Subscribe(Console.Out.WriteLine);
@@ -84,6 +84,14 @@ public partial class TestViewModel : ReactiveObject
 
         Console.ReadLine();
     }
+
+    /// <summary>
+    /// Gets the instance.
+    /// </summary>
+    /// <value>
+    /// The instance.
+    /// </value>
+    public static TestViewModel Instance { get; } = new();
 
     /// <summary>
     /// Gets the can execute test1.

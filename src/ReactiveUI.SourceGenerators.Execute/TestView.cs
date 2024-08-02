@@ -20,6 +20,6 @@ public partial class TestView : Window
     /// </summary>
     public TestView()
     {
-        ViewModel = new();
+        ViewModel = TestViewModel.Instance;
     }
 }
