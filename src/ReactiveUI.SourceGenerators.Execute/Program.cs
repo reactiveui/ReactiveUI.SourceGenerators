@@ -25,14 +25,14 @@ public static class EntryPoint
     /// <summary>
     /// Defines the entry point of the application.
     /// </summary>
-    public static void Main() => new TestClass();
+    public static void Main() => _ = TestViewModel.Instance;
 }
 
 /// <summary>
 /// TestClass.
 /// </summary>
 [DataContract]
-public partial class TestClass : ReactiveObject
+public partial class TestViewModel : ReactiveObject
 {
     [JsonInclude]
     [DataMember]
@@ -45,9 +45,9 @@ public partial class TestClass : ReactiveObject
     private int _test1Property;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="TestClass"/> class.
+    /// Initializes a new instance of the <see cref="TestViewModel"/> class.
     /// </summary>
-    public TestClass()
+    public TestViewModel()
     {
         InitializeCommands();
 
@@ -72,7 +72,7 @@ public partial class TestClass : ReactiveObject
         _test2PropertyHelper = Test8ObservableCommand!.ToProperty(this, x => x.Test2Property);
 
         Test8ObservableCommand?.Execute(100).Subscribe(Console.Out.WriteLine);
-        Console.Out.WriteLine($"Test2Property Value: {Test2Property}");
+        Console.Out.WriteLine($"Test2Property Value: {Test2}");
         Console.Out.WriteLine($"Test2Property underlying Value: {_test2Property}");
 
         Test9AsyncCommand?.ThrownExceptions.Subscribe(Console.Out.WriteLine);
@@ -84,6 +84,14 @@ public partial class TestClass : ReactiveObject
 
         Console.ReadLine();
     }
+
+    /// <summary>
+    /// Gets the instance.
+    /// </summary>
+    /// <value>
+    /// The instance.
+    /// </value>
+    public static TestViewModel Instance { get; } = new();
 
     /// <summary>
     /// Gets the can execute test1.

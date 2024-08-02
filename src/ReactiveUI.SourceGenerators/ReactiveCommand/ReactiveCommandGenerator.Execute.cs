@@ -224,7 +224,7 @@ public partial class ReactiveCommandGenerator
 
         internal static void GetCommandInfoFromClass(ImmutableArrayBuilder<HierarchyInfo> hierarchys, Compilation compilation, SemanticModel semanticModel, ClassDeclarationSyntax declaredClass, CancellationToken token, out CommandInfo? commandInfo)
         {
-            var classSymbol = ModelExtensions.GetDeclaredSymbol(semanticModel, declaredClass) as INamedTypeSymbol;
+            var classSymbol = ModelExtensions.GetDeclaredSymbol(semanticModel, declaredClass, token) as INamedTypeSymbol;
             var classNamespace = classSymbol?.ContainingNamespace.ToString();
             var typeName = declaredClass.Identifier.ValueText;
 
@@ -237,7 +237,7 @@ public partial class ReactiveCommandGenerator
             using var commandExtensionInfos = ImmutableArrayBuilder<CommandExtensionInfo>.Rent();
             foreach (var methodSyntax in methodMembers)
             {
-                var symbol = ModelExtensions.GetDeclaredSymbol(semanticModel, methodSyntax)!;
+                var symbol = ModelExtensions.GetDeclaredSymbol(semanticModel, methodSyntax, token)!;
                 token.ThrowIfCancellationRequested();
 
                 // Skip symbols without the target attribute

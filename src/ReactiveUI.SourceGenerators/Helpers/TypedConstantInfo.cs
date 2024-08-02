@@ -9,10 +9,9 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using ReactiveUI.SourceGenerators.Helpers;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace ReactiveUI.SourceGenerators.Models;
+namespace ReactiveUI.SourceGenerators.Helpers;
 
 /// <summary>
 /// A model representing a typed constant item.
