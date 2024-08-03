@@ -64,13 +64,25 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
                                 token.ThrowIfCancellationRequested();
 
                                 var viewForBaseType = IViewForBaseType.None;
-                                if (classSymbol?.InheritsFromFullyQualifiedMetadataNameStartingWith("System.Windows") == true || classSymbol?.InheritsFromFullyQualifiedMetadataNameStartingWith("System.Windows.Controls") == true)
+                                if (classSymbol?.InheritsFromFullyQualifiedMetadataNameStartingWith("System.Windows.Forms") == true)
+                                {
+                                    viewForBaseType = IViewForBaseType.WinForms;
+                                }
+                                else if (classSymbol?.InheritsFromFullyQualifiedMetadataNameStartingWith("System.Windows") == true || classSymbol?.InheritsFromFullyQualifiedMetadataNameStartingWith("System.Windows.Controls") == true)
                                 {
                                     viewForBaseType = IViewForBaseType.Wpf;
                                 }
                                 else if (classSymbol?.InheritsFromFullyQualifiedMetadataNameStartingWith("Microsoft.UI.Xaml") == true || classSymbol?.InheritsFromFullyQualifiedMetadataNameStartingWith("Microsoft.UI.Xaml.Controls") == true)
                                 {
                                     viewForBaseType = IViewForBaseType.WinUI;
+                                }
+                                else if (classSymbol?.InheritsFromFullyQualifiedMetadataNameStartingWith("Microsoft.Maui") == true)
+                                {
+                                    viewForBaseType = IViewForBaseType.Maui;
+                                }
+                                else if (classSymbol?.InheritsFromFullyQualifiedMetadataNameStartingWith("Avalonia") == true)
+                                {
+                                    viewForBaseType = IViewForBaseType.Avalonia;
                                 }
                                 else if (classSymbol?.InheritsFromFullyQualifiedMetadataNameStartingWith("Windows.UI.Xaml") == true || classSymbol?.InheritsFromFullyQualifiedMetadataNameStartingWith("Windows.UI.Xaml.Controls") == true)
                                 {
@@ -112,17 +124,14 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
                 case IViewForBaseType.None:
                     break;
                 case IViewForBaseType.Wpf:
-                    context.AddSource($"{item.Hierarchy.FilenameHint}.IViewFor.g.cs", GetIViewForWpfClassSyntax(item.Info.Value));
+                case IViewForBaseType.WinUI:
+                case IViewForBaseType.Uno:
+                    context.AddSource($"{item.Hierarchy.FilenameHint}.IViewFor.g.cs", GetIViewForWpfWinUiUno(item.Info.Value));
                     break;
                 case IViewForBaseType.WinForms:
-                    break;
-                case IViewForBaseType.WinUI:
+                    context.AddSource($"{item.Hierarchy.FilenameHint}.IViewFor.g.cs", GetIViewForWinForms(item.Info.Value));
                     break;
                 case IViewForBaseType.Avalonia:
-                    break;
-                case IViewForBaseType.Uwp:
-                    break;
-                case IViewForBaseType.Uno:
                     break;
                 case IViewForBaseType.Maui:
                     break;
@@ -130,8 +139,34 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
         });
     }
 
-    private static CompilationUnitSyntax GetIViewForWpfClassSyntax(IViewForInfo iViewForInfo)
+    private static CompilationUnitSyntax GetIViewForWpfWinUiUno(IViewForInfo iViewForInfo)
     {
+        UsingDirectiveSyntax[] usings = [];
+        if (iViewForInfo.BaseType == IViewForBaseType.Wpf)
+        {
+            usings =
+                [
+                    UsingDirective(ParseName("ReactiveUI")),
+                    UsingDirective(ParseName("System.Windows")),
+                ];
+        }
+        else if (iViewForInfo.BaseType == IViewForBaseType.WinUI)
+        {
+            usings =
+                [
+                    UsingDirective(ParseName("ReactiveUI")),
+                    UsingDirective(ParseName("Microsoft.UI.Xaml")),
+                ];
+        }
+        else if (iViewForInfo.BaseType == IViewForBaseType.Uno)
+        {
+            usings =
+                [
+                    UsingDirective(ParseName("ReactiveUI")),
+                    UsingDirective(ParseName("Windows.UI.Xaml")),
+                ];
+        }
+
         var code = CompilationUnit().AddMembers(
                 NamespaceDeclaration(IdentifierName(iViewForInfo.ClassNamespace))
                 .WithLeadingTrivia(TriviaList(
@@ -139,7 +174,8 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
                     Trivia(PragmaWarningDirectiveTrivia(Token(SyntaxKind.DisableKeyword), true)),
                     Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true))))
                 .AddMembers(
-                    ClassDeclaration(iViewForInfo.ClassName).AddBaseListTypes(
+                    ClassDeclaration(iViewForInfo.ClassName)
+                    .AddBaseListTypes(
                         SimpleBaseType(
                             GenericName(Identifier("IViewFor"))
                             .WithTypeArgumentList(
@@ -152,13 +188,8 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
                         .AddArgumentListArguments(
                             AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(IViewForGenerator).FullName))),
                             AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(IViewForGenerator).Assembly.GetName().Version.ToString())))))))))
-            .WithUsings(
-            List(
-                new[]
-                {
-                    UsingDirective(ParseName("ReactiveUI")),
-                    UsingDirective(ParseName("System.Windows")),
-                })).NormalizeWhitespace().ToFullString();
+            .WithUsings(List(usings))
+            .NormalizeWhitespace().ToFullString();
 
         // Remove the last 4 characters to remove the closing brackets
         var baseCode = code.Remove(code.Length - 4);
@@ -198,6 +229,78 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
         writer.WriteLine("set => SetValue(ViewModelProperty, value);");
         writer.Indent--;
         writer.WriteLine(Token(SyntaxKind.CloseBraceToken));
+        writer.WriteLine();
+
+        writer.WriteLine("/// <inheritdoc/>");
+        writer.WriteLine("object? IViewFor.ViewModel");
+        writer.WriteLine(Token(SyntaxKind.OpenBraceToken));
+        writer.Indent++;
+        writer.WriteLine("get => ViewModel;");
+        writer.WriteLine($"set => ViewModel = ({iViewForInfo.ViewModelTypeName}?)value;");
+        writer.Indent--;
+        writer.WriteLine(Token(SyntaxKind.CloseBraceToken));
+        writer.Indent--;
+        writer.WriteLine(Token(SyntaxKind.CloseBraceToken));
+        writer.Indent--;
+        writer.WriteLine(Token(SyntaxKind.CloseBraceToken));
+        writer.WriteLine(TriviaList(
+                            Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true)),
+                            Trivia(PragmaWarningDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true)))
+                            .NormalizeWhitespace());
+
+        var output = stringStream.ToString();
+        return ParseCompilationUnit(output).NormalizeWhitespace();
+    }
+
+    private static CompilationUnitSyntax GetIViewForWinForms(IViewForInfo iViewForInfo)
+    {
+        UsingDirectiveSyntax[] usings =
+                [
+                    UsingDirective(ParseName("ReactiveUI")),
+                    UsingDirective(ParseName("System.ComponentModel")),
+                ];
+
+        var code = CompilationUnit().AddMembers(
+                NamespaceDeclaration(IdentifierName(iViewForInfo.ClassNamespace))
+                .WithLeadingTrivia(TriviaList(
+                    Comment("// <auto-generated/>"),
+                    Trivia(PragmaWarningDirectiveTrivia(Token(SyntaxKind.DisableKeyword), true)),
+                    Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true))))
+                .AddMembers(
+                    ClassDeclaration(iViewForInfo.ClassName)
+                    .AddBaseListTypes(
+                        SimpleBaseType(
+                            GenericName(Identifier("IViewFor"))
+                            .WithTypeArgumentList(
+                                TypeArgumentList(
+                                    SingletonSeparatedList<TypeSyntax>(
+                                        IdentifierName(iViewForInfo.ViewModelTypeName))))))
+                    .AddModifiers([.. iViewForInfo.DeclarationSyntax.Modifiers])
+                    .AddAttributeLists(AttributeList(SingletonSeparatedList(
+                        Attribute(IdentifierName(GeneratedCode))
+                        .AddArgumentListArguments(
+                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(IViewForGenerator).FullName))),
+                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(IViewForGenerator).Assembly.GetName().Version.ToString())))))))))
+            .WithUsings(List(usings))
+            .NormalizeWhitespace().ToFullString();
+
+        // Remove the last 4 characters to remove the closing brackets
+        var baseCode = code.Remove(code.Length - 4);
+
+        // Prepare all necessary type names with type arguments
+        using var stringStream = new StringWriter();
+        using var writer = new IndentedTextWriter(stringStream, "\t");
+        writer.WriteLine(baseCode);
+        writer.Indent++;
+        writer.Indent++;
+
+        // Add the necessary properties and methods for IViewFor.
+        writer.WriteLine("/// <inheritdoc/>");
+        writer.WriteLine("[Category(\"ReactiveUI\")]");
+        writer.WriteLine("[Description(\"The ViewModel.\")]");
+        writer.WriteLine("[Bindable(true)]");
+        writer.WriteLine("[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]");
+        writer.WriteLine($"public {iViewForInfo.ViewModelTypeName}? ViewModel " + "{ get; set; }");
         writer.WriteLine();
 
         writer.WriteLine("/// <inheritdoc/>");

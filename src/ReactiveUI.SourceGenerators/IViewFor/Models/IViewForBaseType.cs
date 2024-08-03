@@ -9,10 +9,9 @@ internal enum IViewForBaseType
 {
     None,
     Wpf,
-    WinForms,
     WinUI,
-    Avalonia,
-    Uwp,
     Uno,
+    WinForms,
+    Avalonia,
     Maui,
 }
