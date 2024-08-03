@@ -26,7 +26,7 @@ namespace ReactiveUI.SourceGenerators;
 public partial class ObservableAsPropertyGenerator
 {
     /// <summary>
-    /// A container for all the logic for <see cref="ReactiveCommandGenerator"/>.
+    /// A container for all the logic for <see cref="ObservableAsPropertyGenerator"/>.
     /// </summary>
     internal static class Execute
     {
