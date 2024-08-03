@@ -18,10 +18,10 @@ namespace ReactiveUI.SourceGenerators.Diagnostics.Suppressions
     /// </summary>
     /// <seealso cref="DiagnosticSuppressor" />
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public sealed class ReactiveCommandAttributeWithFieldOrPropertyTargetDiagnosticSuppressor : DiagnosticSuppressor
+    public sealed class ReactiveCommandMethodDoesNotNeedToBeStatisDiagnosticSuppressor : DiagnosticSuppressor
     {
         /// <inheritdoc/>
-        public override ImmutableArray<SuppressionDescriptor> SupportedSuppressions => ImmutableArray.Create(FieldOrPropertyAttributeListForReactiveCommandMethod);
+        public override ImmutableArray<SuppressionDescriptor> SupportedSuppressions => ImmutableArray.Create(ReactiveCommandDoesNotAccessInstanceData);
 
         /// <inheritdoc/>
         public override void ReportSuppressions(SuppressionAnalysisContext context)
@@ -30,8 +30,8 @@ namespace ReactiveUI.SourceGenerators.Diagnostics.Suppressions
             {
                 var syntaxNode = diagnostic.Location.SourceTree?.GetRoot(context.CancellationToken).FindNode(diagnostic.Location.SourceSpan);
 
-                // Check that the target is effectively [field:] or [property:] over a method declaration, which is the case we're looking for
-                if (syntaxNode is AttributeTargetSpecifierSyntax { Parent.Parent: MethodDeclarationSyntax methodDeclaration, Identifier: SyntaxToken(SyntaxKind.FieldKeyword or SyntaxKind.PropertyKeyword) })
+                // Check that the target is a method declaration, which is the case we're looking for
+                if (syntaxNode is MethodDeclarationSyntax methodDeclaration)
                 {
                     var semanticModel = context.GetSemanticModel(syntaxNode.SyntaxTree);
 
@@ -43,7 +43,7 @@ namespace ReactiveUI.SourceGenerators.Diagnostics.Suppressions
                         semanticModel.Compilation.GetTypeByMetadataName("ReactiveUI.SourceGenerators.ReactiveCommandAttribute") is INamedTypeSymbol reactiveCommandSymbol &&
                         methodSymbol.HasAttributeWithType(reactiveCommandSymbol))
                     {
-                        context.ReportSuppression(Suppression.Create(FieldOrPropertyAttributeListForReactiveCommandMethod, diagnostic));
+                        context.ReportSuppression(Suppression.Create(ReactiveCommandDoesNotAccessInstanceData, diagnostic));
                     }
                 }
             }
