@@ -13,13 +13,10 @@ namespace SGReactiveUI.SourceGenerators.Test;
 /// TestView.
 /// </summary>
 [IViewFor(nameof(TestViewModel))]
-public partial class TestView : Window
+public partial class TestViewWpf : Window
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="TestView"/> class.
+    /// Initializes a new instance of the <see cref="TestViewWpf"/> class.
     /// </summary>
-    public TestView()
-    {
-        ViewModel = TestViewModel.Instance;
-    }
+    public TestViewWpf() => ViewModel = TestViewModel.Instance;
 }
