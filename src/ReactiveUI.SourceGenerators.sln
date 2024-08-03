@@ -18,6 +18,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveUI.SourceGenerators
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveUI.SourceGenerators", "ReactiveUI.SourceGenerators\ReactiveUI.SourceGenerators.csproj", "{A8CE4CD8-F858-67F2-E50D-86C5C17C6BE6}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveUI.SourceGenerators.Execute.Maui", "ReactiveUI.SourceGenerators.Execute.Maui\ReactiveUI.SourceGenerators.Execute.Maui.csproj", "{849CACF4-B85F-47B5-84B3-7C94DE864E7E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,6 +30,10 @@ Global
 		{76D5AC8C-4935-3E4B-BD12-71FAEC2B9A9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{76D5AC8C-4935-3E4B-BD12-71FAEC2B9A9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{76D5AC8C-4935-3E4B-BD12-71FAEC2B9A9D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{849CACF4-B85F-47B5-84B3-7C94DE864E7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{849CACF4-B85F-47B5-84B3-7C94DE864E7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{849CACF4-B85F-47B5-84B3-7C94DE864E7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{849CACF4-B85F-47B5-84B3-7C94DE864E7E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A8CE4CD8-F858-67F2-E50D-86C5C17C6BE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A8CE4CD8-F858-67F2-E50D-86C5C17C6BE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A8CE4CD8-F858-67F2-E50D-86C5C17C6BE6}.Release|Any CPU.ActiveCfg = Release|Any CPU

@@ -135,6 +135,7 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
                     context.AddSource($"{item.Hierarchy.FilenameHint}.IViewFor.g.cs", Execute.GetIViewForAvalonia(item.Info.Value));
                     break;
                 case IViewForBaseType.Maui:
+                    context.AddSource($"{item.Hierarchy.FilenameHint}.IViewFor.g.cs", Execute.GetIViewForMaui(item.Info.Value));
                     break;
             }
         });

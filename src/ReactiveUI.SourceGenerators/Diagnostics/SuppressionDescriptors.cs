@@ -9,9 +9,6 @@ namespace ReactiveUI.SourceGenerators.Diagnostics;
 
 internal static class SuppressionDescriptors
 {
-    /// <summary>
-    /// Gets a <see cref="SuppressionDescriptor"/> for a method using [ReactiveCommand] with an attribute list targeting a field or property.
-    /// </summary>
     public static readonly SuppressionDescriptor FieldOrPropertyAttributeListForReactiveCommandMethod = new(
         id: "RXUISPR0001",
         suppressedDiagnosticId: "CS0657",
@@ -21,4 +18,9 @@ internal static class SuppressionDescriptors
         id: "RXUISPR0002",
         suppressedDiagnosticId: "IDE0052",
         justification: "Fields using [ObservableAsProperty] are never read");
+
+    public static readonly SuppressionDescriptor ReactiveCommandDoesNotAccessInstanceData = new(
+        id: "RXUISPR0003",
+        suppressedDiagnosticId: "CA1822",
+        justification: "Methods using [ReactiveCommand] do not need to be static");
 }

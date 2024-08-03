@@ -3,15 +3,14 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-namespace SGReactiveUI.SourceGenerators.Test;
+using ReactiveUI.SourceGenerators;
 
-/// <summary>
-/// EntryPoint.
-/// </summary>
-public static class Program
+namespace SGReactiveUI.SourceGenerators.Test.Maui
 {
     /// <summary>
-    /// Defines the entry point of the application.
+    /// IViewForTest.
     /// </summary>
-    public static void Main() => _ = TestViewModel.Instance;
+    /// <seealso cref="NavigationPage" />
+    [IViewFor(nameof(TestViewModel))]
+    public partial class IViewForTest : Shell;
 }
