@@ -68,3 +68,4 @@
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" Link="stylecop.json" />
   </ItemGroup>
 </Project>
+<!--SyntaxFactory helper https://roslynquoter.azurewebsites.net/-->

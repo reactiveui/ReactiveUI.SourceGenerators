@@ -28,14 +28,15 @@ namespace ReactiveUI.SourceGenerators;
 /// <seealso cref="IIncrementalGenerator" />
 public partial class ReactiveCommandGenerator
 {
-    private const string RxCmd = "ReactiveUI.ReactiveCommand";
+    private const string ReactiveUI = "ReactiveUI";
+    private const string ReactiveCommand = "ReactiveCommand";
+    private const string RxCmd = ReactiveUI + "." + ReactiveCommand;
     private const string RxCmdAttribute = "ReactiveUI.SourceGenerators.ReactiveCommandAttribute";
-    private const string RxCmdProp = " { get; private set; }";
-    private const string Attribute = "Attribute";
     private const string Create = ".Create";
     private const string CreateO = ".CreateFromObservable";
     private const string CreateT = ".CreateFromTask";
     private const string GeneratedCode = "global::System.CodeDom.Compiler.GeneratedCode";
+    private const string ExcludeFromCodeCoverage = "global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage";
 
     /// <summary>
     /// A container for all the logic for <see cref="ReactiveCommandGenerator"/>.
@@ -58,6 +59,14 @@ public partial class ReactiveCommandGenerator
                     Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true))))
                 .AddMembers(
                     ClassDeclaration(commandInfo.ClassName)
+                    .AddAttributeLists(
+                        AttributeList(SingletonSeparatedList(
+                            Attribute(IdentifierName(GeneratedCode))
+                            .AddArgumentListArguments(
+                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ReactiveGenerator).FullName))),
+                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ReactiveGenerator).Assembly.GetName().Version.ToString()))))))
+                            .WithOpenBracketToken(Token(TriviaList(Comment($"/// <inheritdoc cref=\"{commandInfo.ClassName}\"/>")), SyntaxKind.OpenBracketToken, TriviaList())),
+                        AttributeList(SingletonSeparatedList(Attribute(IdentifierName(ExcludeFromCodeCoverage)))))
                     .AddModifiers([.. commandInfo.DeclarationSyntax.Modifiers])))
                 .AddMembers().NormalizeWhitespace().ToFullString();
 
@@ -90,23 +99,36 @@ public partial class ReactiveCommandGenerator
 
                 // Prepare any forwarded property attributes
                 var forwardedPropertyAttributes =
-                    commandExtensionInfo.ForwardedPropertyAttributes
-                    .Select(static a => $"[{a.TypeName.Substring(0, a.TypeName.IndexOf(Attribute))}]")
-                    .ToImmutableArray();
+                commandExtensionInfo.ForwardedPropertyAttributes
+                .Select(static a => AttributeList(SingletonSeparatedList(a.GetSyntax())))
+                .ToImmutableArray();
 
-                writer.WriteLine(AttributeList(SingletonSeparatedList(
-                        Attribute(IdentifierName(GeneratedCode))
-                        .AddArgumentListArguments(
-                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ReactiveCommandGenerator).FullName))),
-                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ReactiveCommandGenerator).Assembly.GetName().Version.ToString())))))));
-                writer.WriteLine(AttributeList(SingletonSeparatedList(Attribute(IdentifierName("global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage")))));
-
-                foreach (var attribute in forwardedPropertyAttributes)
-                {
-                    writer.WriteLine(attribute);
-                }
-
-                writer.WriteLine($"{Token(SyntaxKind.PublicKeyword)} {RxCmd}<{inputType}, {outputType}>? {commandName}{RxCmdProp}");
+                var commandDeclaration = PropertyDeclaration(
+                    NullableType(
+                QualifiedName(
+                    IdentifierName(ReactiveUI),
+                    GenericName(
+                        Identifier(ReactiveCommand))
+                    .WithTypeArgumentList(
+                        TypeArgumentList(
+                            SeparatedList<TypeSyntax>(
+                                new SyntaxNodeOrToken[]
+                                {
+                                    IdentifierName(inputType),
+                                    Token(SyntaxKind.CommaToken),
+                                    IdentifierName(outputType)
+                                }))))),
+                    Identifier(commandName))
+                    .AddModifiers(Token(SyntaxKind.PublicKeyword))
+                    .AddAccessorListAccessors(
+                        AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
+                        AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+                            .WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword)))
+                            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)))
+                    .AddAttributeLists([.. forwardedPropertyAttributes])
+                    .NormalizeWhitespace();
+                writer.WriteLine(commandDeclaration);
             }
 
             writer.WriteLine();
@@ -124,91 +146,15 @@ public partial class ReactiveCommandGenerator
                 var inputType = commandExtensionInfo.GetInputTypeText();
                 if (commandExtensionInfo.ArgumentType == null)
                 {
-                    if (commandExtensionInfo.IsObservable)
-                    {
-                        if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
-                        {
-                            writer.WriteLine($"{commandName} = {RxCmd}{CreateO}({commandExtensionInfo.MethodName});");
-                        }
-                        else
-                        {
-                            writer.WriteLine($"{commandName} = {RxCmd}{CreateO}({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
-                        }
-                    }
-                    else if (commandExtensionInfo.IsTask)
-                    {
-                        if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
-                        {
-                            writer.WriteLine($"{commandName} = {RxCmd}{CreateT}({commandExtensionInfo.MethodName});");
-                        }
-                        else
-                        {
-                            writer.WriteLine($"{commandName} = {RxCmd}{CreateT}({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
-                        }
-                    }
-                    else if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
-                    {
-                        writer.WriteLine($"{commandName} = {RxCmd}{Create}({commandExtensionInfo.MethodName});");
-                    }
-                    else
-                    {
-                        writer.WriteLine($"{commandName} = {RxCmd}{Create}({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
-                    }
-                }
-                else if (commandExtensionInfo.ArgumentType != null && !commandExtensionInfo.IsReturnTypeVoid)
-                {
-                    if (commandExtensionInfo.IsObservable)
-                    {
-                        if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
-                        {
-                            writer.WriteLine($"{commandName} = {RxCmd}{CreateO}<{inputType}, {outputType}>({commandExtensionInfo.MethodName});");
-                        }
-                        else
-                        {
-                            writer.WriteLine($"{commandName} = {RxCmd}{CreateO}<{inputType}, {outputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
-                        }
-                    }
-                    else if (commandExtensionInfo.IsTask)
-                    {
-                        if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
-                        {
-                            writer.WriteLine($"{commandName} = {RxCmd}{CreateT}<{inputType}, {outputType}>({commandExtensionInfo.MethodName});");
-                        }
-                        else
-                        {
-                            writer.WriteLine($"{commandName} = {RxCmd}{CreateT}<{inputType}, {outputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
-                        }
-                    }
-                    else if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
-                    {
-                        writer.WriteLine($"{commandName} = {RxCmd}{Create}<{inputType}, {outputType}>({commandExtensionInfo.MethodName});");
-                    }
-                    else
-                    {
-                        writer.WriteLine($"{commandName} = {RxCmd}{Create}<{inputType}, {outputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
-                    }
+                    writer.WriteLine(GenerateBasicCommand(commandExtensionInfo, commandName));
                 }
                 else if (commandExtensionInfo.ArgumentType != null && commandExtensionInfo.IsReturnTypeVoid)
                 {
-                    if (!commandExtensionInfo.IsTask)
-                    {
-                        if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
-                        {
-                            writer.WriteLine($"{commandName} = {RxCmd}{Create}<{inputType}>({commandExtensionInfo.MethodName});");
-                        }
-                        else
-                        {
-                            writer.WriteLine($"{commandName} = {RxCmd}{Create}<{inputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
-                        }
-                    }
-                    else if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
-                    {
-                        writer.WriteLine($"{commandName} = {RxCmd}{CreateT}<{inputType}>({commandExtensionInfo.MethodName});");
-                    }
-                    else
-                    {
-                        writer.WriteLine($"{commandName} = {RxCmd}{CreateT}<{inputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});");
-                    }
+                    writer.WriteLine(GenerateInCommand(commandExtensionInfo, commandName, inputType));
+                }
+                else if (commandExtensionInfo.ArgumentType != null && !commandExtensionInfo.IsReturnTypeVoid)
+                {
+                    writer.WriteLine(GenerateInOutCommand(commandExtensionInfo, commandName, outputType, inputType));
                 }
             }
 
@@ -220,6 +166,39 @@ public partial class ReactiveCommandGenerator
             writer.WriteLine(Token(SyntaxKind.CloseBraceToken));
             var output = stringStream.ToString();
             return ParseCompilationUnit(output).NormalizeWhitespace();
+
+            static string GenerateBasicCommand(CommandExtensionInfo commandExtensionInfo, string commandName)
+            {
+                var commandType = commandExtensionInfo.IsObservable ? CreateO : commandExtensionInfo.IsTask ? CreateT : Create;
+                if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
+                {
+                    return $"{commandName} = {RxCmd}{commandType}({commandExtensionInfo.MethodName});";
+                }
+
+                return $"{commandName} = {RxCmd}{commandType}({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});";
+            }
+
+            static string GenerateInOutCommand(CommandExtensionInfo commandExtensionInfo, string commandName, string outputType, string inputType)
+            {
+                var commandType = commandExtensionInfo.IsObservable ? CreateO : commandExtensionInfo.IsTask ? CreateT : Create;
+                if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
+                {
+                    return $"{commandName} = {RxCmd}{commandType}<{inputType}, {outputType}>({commandExtensionInfo.MethodName});";
+                }
+
+                return $"{commandName} = {RxCmd}{commandType}<{inputType}, {outputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});";
+            }
+
+            static string GenerateInCommand(CommandExtensionInfo commandExtensionInfo, string commandName, string inputType)
+            {
+                var commandType = commandExtensionInfo.IsTask ? CreateT : Create;
+                if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
+                {
+                    return $"{commandName} = {RxCmd}{commandType}<{inputType}>({commandExtensionInfo.MethodName});";
+                }
+
+                return $"{commandName} = {RxCmd}{commandType}<{inputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});";
+            }
         }
 
         internal static void GetCommandInfoFromClass(ImmutableArrayBuilder<HierarchyInfo> hierarchys, Compilation compilation, SemanticModel semanticModel, ClassDeclarationSyntax declaredClass, CancellationToken token, out CommandInfo? commandInfo)
