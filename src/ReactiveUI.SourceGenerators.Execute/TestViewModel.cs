@@ -92,6 +92,7 @@ public partial class TestViewModel : ReactiveObject
     /// </summary>
     [ReactiveCommand(CanExecute = nameof(CanExecuteTest1))]
     [property: JsonInclude]
+    [property: Test(AParameter = "Test Input")]
     private void Test1() => Console.Out.WriteLine("Test1");
 
     /// <summary>

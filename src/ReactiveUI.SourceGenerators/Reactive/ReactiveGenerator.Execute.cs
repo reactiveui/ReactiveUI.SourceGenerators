@@ -25,6 +25,9 @@ namespace ReactiveUI.SourceGenerators;
 /// <seealso cref="IIncrementalGenerator" />
 public partial class ReactiveGenerator
 {
+    private const string GeneratedCode = "global::System.CodeDom.Compiler.GeneratedCode";
+    private const string ExcludeFromCodeCoverage = "global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage";
+
     /// <summary>
     /// A container for all the logic for <see cref="ReactiveCommandGenerator"/>.
     /// </summary>
@@ -120,12 +123,12 @@ public partial class ReactiveGenerator
                 PropertyDeclaration(propertyType, Identifier(propertyInfo.PropertyName))
                 .AddAttributeLists(
                     AttributeList(SingletonSeparatedList(
-                        Attribute(IdentifierName("global::System.CodeDom.Compiler.GeneratedCode"))
+                        Attribute(IdentifierName(GeneratedCode))
                         .AddArgumentListArguments(
                             AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ReactiveGenerator).FullName))),
                             AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ReactiveGenerator).Assembly.GetName().Version.ToString()))))))
                     .WithOpenBracketToken(Token(TriviaList(Comment($"/// <inheritdoc cref=\"{getterFieldIdentifierName}\"/>")), SyntaxKind.OpenBracketToken, TriviaList())),
-                    AttributeList(SingletonSeparatedList(Attribute(IdentifierName("global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage")))))
+                    AttributeList(SingletonSeparatedList(Attribute(IdentifierName(ExcludeFromCodeCoverage)))))
                 .AddAttributeLists([.. forwardedAttributes])
                 .AddModifiers(Token(SyntaxKind.PublicKeyword))
                 .AddAccessorListAccessors(

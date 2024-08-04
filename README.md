@@ -283,5 +283,4 @@ public partial class MyReactiveControl : UserControl
 ```
 
 ### TODO:
-- Add ReactiveCommand with parameterised Attribute pass through
 - Add ObservableAsProperty to generate from a IObservable creating a property and the property helper wired to the Observable.
