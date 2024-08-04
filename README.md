@@ -7,11 +7,14 @@ These Source Generators were designed to work in full with ReactiveUI V19.5.31 a
 - [Reactive]
 - [ObservableAsProperty]
 - [ReactiveCommand]
+- [ReactiveCommand(CanExecute = nameof(IObservableBoolName))] with CanExecute
+- [ReactiveCommand][property: AttribueToAddToCommand] with Attribute passthrough
+- [IViewFor(nameof(ViewModelName))]
 
 Versions older than V19.5.31 to this:
 - [Reactive] fully supported, 
 - [ObservableAsProperty] fully supported, 
-- [ReactiveCommand] all supported except Cancellation Token asnyc methods.
+- [ReactiveCommand] all options supported except Cancellation Token asnyc methods.
 
 # Historical ways
 ## Read-write properties
@@ -248,6 +251,34 @@ public partial class MyReactiveClass
     [ReactiveCommand(CanExecute = nameof(_canExecute))]
     [property: JsonIgnore]
     private void Search() { }
+}
+```
+
+## Usage IViewFor `[IViewFor(nameof(ViewModelName))]`
+
+### IViewFor usage
+
+IVIewFor is used to link a View to a ViewModel, this is used to link the ViewModel to the View in a way that ReactiveUI can use it to bind the ViewModel to the View.
+The ViewModel is passed as a string to the IViewFor Attribute.
+The class must inherit from a UI Control from any of the following platforms and namespaces:
+- Maui (Microsoft.Maui)
+- WinUI (Microsoft.UI.Xaml)
+- WPF (System.Windows or System.Windows.Controls)
+- WinForms (System.Windows.Forms)
+- Avalonia (Avalonia)
+- Uno (Windows.UI.Xaml).
+
+```csharp
+using ReactiveUI.SourceGenerators;
+
+[IViewFor(MyReactiveClass)]
+public partial class MyReactiveControl : UserControl
+{
+    public MyReactiveControl()
+    {
+        InitializeComponent();
+        MyReactiveClass = new MyReactiveClass();
+    }
 }
 ```
 
