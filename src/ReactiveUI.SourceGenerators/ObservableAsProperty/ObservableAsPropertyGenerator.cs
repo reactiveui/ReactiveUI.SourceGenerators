@@ -5,9 +5,12 @@
 
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 using ReactiveUI.SourceGenerators.Extensions;
+using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Models;
 
 namespace ReactiveUI.SourceGenerators;
@@ -18,14 +21,19 @@ namespace ReactiveUI.SourceGenerators;
 [Generator(LanguageNames.CSharp)]
 public sealed partial class ObservableAsPropertyGenerator : IIncrementalGenerator
 {
+    private const string ObservableAsPropertyAttribute = "ReactiveUI.SourceGenerators.ObservableAsPropertyAttribute";
+
     /// <inheritdoc/>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
+        context.RegisterPostInitializationOutput(ctx =>
+            ctx.AddSource($"{ObservableAsPropertyAttribute}.g.cs", SourceText.From(AttributeDefinitions.ObservableAsPropertyAttribute, Encoding.UTF8)));
+
         // Gather info for all annotated command methods (starting from method declarations with at least one attribute)
         IncrementalValuesProvider<(HierarchyInfo Hierarchy, Result<PropertyInfo> Info)> propertyInfoWithErrors =
             context.SyntaxProvider
             .ForAttributeWithMetadataName(
-                "ReactiveUI.SourceGenerators.ObservableAsPropertyAttribute",
+                ObservableAsPropertyAttribute,
                 static (node, _) => node is VariableDeclaratorSyntax { Parent: VariableDeclarationSyntax { Parent: FieldDeclarationSyntax { Parent: ClassDeclarationSyntax or RecordDeclarationSyntax, AttributeLists.Count: > 0 } } },
                 static (context, token) =>
                 {

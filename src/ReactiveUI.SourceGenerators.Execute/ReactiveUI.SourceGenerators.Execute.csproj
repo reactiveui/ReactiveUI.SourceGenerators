@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ReactiveUI.SourceGenerators\ReactiveUI.SourceGenerators.csproj" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\ReactiveUI.SourceGenerators\ReactiveUI.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>

@@ -5,9 +5,11 @@
 
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Input.Models;
@@ -24,6 +26,9 @@ public sealed partial class ReactiveCommandGenerator : IIncrementalGenerator
     /// <inheritdoc/>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
+        context.RegisterPostInitializationOutput(ctx =>
+            ctx.AddSource("ReactiveUI.SourceGenerators.ReactiveCommandAttribute.g.cs", SourceText.From(AttributeDefinitions.ReactiveCommandAttribute, Encoding.UTF8)));
+
         // Gather info for all annotated command methods (starting from method declarations with at least one attribute)
         IncrementalValuesProvider<(ImmutableArray<HierarchyInfo> Hierarchy, Result<ImmutableArray<CommandInfo>> Info)> commandInfoWithErrors =
             context.SyntaxProvider

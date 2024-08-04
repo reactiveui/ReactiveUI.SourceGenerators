@@ -7,10 +7,12 @@ using System.CodeDom.Compiler;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Input.Models;
@@ -31,7 +33,10 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
     /// <inheritdoc/>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        // Gather info for all annotated command methods (starting from method declarations with at least one attribute)
+        context.RegisterPostInitializationOutput(ctx =>
+            ctx.AddSource($"{IViewForAttribute}.g.cs", SourceText.From(AttributeDefinitions.IViewForAttribute, Encoding.UTF8)));
+
+        // Gather info for all annotated IViewFor Classes
         IncrementalValuesProvider<(HierarchyInfo Hierarchy, Result<IViewForInfo> Info)> iViewForInfoWithErrors =
             context.SyntaxProvider
             .ForAttributeWithMetadataName(
