@@ -33,6 +33,7 @@
 
   <!-- Include PolySharp to generate polyfills for all projects (on their .NET Standard 2.x targets) -->
   <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
     <PackageReference Include="PolySharp">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>build; analyzers</IncludeAssets>

@@ -4,6 +4,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using Microsoft.CodeAnalysis;
+using ReactiveUI.SourceGenerators.CodeAnalyzers;
 
 #pragma warning disable IDE0090 // Use 'new DiagnosticDescriptor(...)'
 
@@ -250,4 +251,17 @@ internal static class DiagnosticDescriptors
         isEnabledByDefault: true,
         description: "The fields annotated with [Reactive] cannot result in a property name or have a type that would cause conflicts with other generated members.",
         helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0015");
+
+    /// <summary>
+    /// The property to field rule.
+    /// </summary>
+    public static readonly DiagnosticDescriptor PropertyToReactiveFieldRule = new(
+        id: "RXUISG0016",
+        title: "Property To Reactive Field, change to [Reactive] private type _fieldName;",
+        messageFormat: "Replace the property {0} with a INPC Reactive Property for ReactiveUI",
+        category: typeof(PropertyToReactiveFieldCodeFixProvider).FullName,
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        description: "Used to create a Read Write INPC Reactive Property for ReactiveUI, annotated with [Reactive].",
+        helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0016");
 }

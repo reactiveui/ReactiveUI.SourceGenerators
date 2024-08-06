@@ -142,6 +142,7 @@ public partial class ObservableAsPropertyGenerator
             var typeNameWithNullabilityAnnotations = fieldSymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations();
             var fieldName = fieldSymbol.Name;
             var propertyName = GetGeneratedPropertyName(fieldSymbol);
+            var initializer = fieldSyntax.Declaration.Variables.FirstOrDefault()?.Initializer;
 
             // Check for name collisions
             if (fieldName == propertyName)
@@ -270,6 +271,7 @@ public partial class ObservableAsPropertyGenerator
                 typeNameWithNullabilityAnnotations,
                 fieldName,
                 propertyName,
+                initializer,
                 isReferenceTypeOrUnconstraindTypeParameter,
                 includeMemberNotNullOnSetAccessor,
                 forwardedAttributes.ToImmutable());
