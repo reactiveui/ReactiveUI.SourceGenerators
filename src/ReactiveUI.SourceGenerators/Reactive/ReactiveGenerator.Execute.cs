@@ -169,6 +169,7 @@ public partial class ReactiveGenerator
             var typeNameWithNullabilityAnnotations = fieldSymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations();
             var fieldName = fieldSymbol.Name;
             var propertyName = GetGeneratedPropertyName(fieldSymbol);
+            var initializer = fieldSyntax.Declaration.Variables.FirstOrDefault()?.Initializer;
 
             // Check for name collisions
             if (fieldName == propertyName)
@@ -297,6 +298,7 @@ public partial class ReactiveGenerator
                 typeNameWithNullabilityAnnotations,
                 fieldName,
                 propertyName,
+                initializer,
                 isReferenceTypeOrUnconstraindTypeParameter,
                 includeMemberNotNullOnSetAccessor,
                 forwardedAttributes.ToImmutable());

@@ -23,4 +23,9 @@ internal static class SuppressionDescriptors
         id: "RXUISPR0003",
         suppressedDiagnosticId: "CA1822",
         justification: "Methods using [ReactiveCommand] do not need to be static");
+
+    public static readonly SuppressionDescriptor ReactiveFieldsShouldNotBeReadOnly = new(
+        id: "RXUISPR0004",
+        suppressedDiagnosticId: "RCS1169",
+        justification: "Fields using [Reactive] do not need to be ReadOnly");
 }

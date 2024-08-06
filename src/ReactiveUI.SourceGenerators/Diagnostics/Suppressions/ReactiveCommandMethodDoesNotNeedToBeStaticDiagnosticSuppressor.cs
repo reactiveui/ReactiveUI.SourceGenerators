@@ -18,7 +18,7 @@ namespace ReactiveUI.SourceGenerators.Diagnostics.Suppressions
     /// </summary>
     /// <seealso cref="DiagnosticSuppressor" />
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public sealed class ReactiveCommandMethodDoesNotNeedToBeStatisDiagnosticSuppressor : DiagnosticSuppressor
+    public sealed class ReactiveCommandMethodDoesNotNeedToBeStaticDiagnosticSuppressor : DiagnosticSuppressor
     {
         /// <inheritdoc/>
         public override ImmutableArray<SuppressionDescriptor> SupportedSuppressions => ImmutableArray.Create(ReactiveCommandDoesNotAccessInstanceData);

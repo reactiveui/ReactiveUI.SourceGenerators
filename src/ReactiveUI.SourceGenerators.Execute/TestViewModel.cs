@@ -26,7 +26,7 @@ public partial class TestViewModel : ReactiveObject
     [JsonInclude]
     [Reactive]
     [DataMember]
-    private int _test1Property;
+    private int _test1Property = 10;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TestViewModel"/> class.
@@ -76,6 +76,15 @@ public partial class TestViewModel : ReactiveObject
     /// The instance.
     /// </value>
     public static TestViewModel Instance { get; } = new();
+
+    /// <summary>
+    /// Gets or sets the test property.
+    /// </summary>
+    /// <value>
+    /// The test property.
+    /// </value>
+    [JsonInclude]
+    public string? TestProperty { get; set; } = "Test";
 
     /// <summary>
     /// Gets the can execute test1.
