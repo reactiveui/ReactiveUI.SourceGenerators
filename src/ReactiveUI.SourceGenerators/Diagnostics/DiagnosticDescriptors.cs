@@ -258,7 +258,7 @@ internal static class DiagnosticDescriptors
     public static readonly DiagnosticDescriptor PropertyToReactiveFieldRule = new(
         id: "RXUISG0016",
         title: "Property To Reactive Field, change to [Reactive] private type _fieldName;",
-        messageFormat: "Replace the property {0} with a INPC Reactive Property for ReactiveUI",
+        messageFormat: "Replace the property with a INPC Reactive Property for ReactiveUI",
         category: typeof(PropertyToReactiveFieldCodeFixProvider).FullName,
         defaultSeverity: DiagnosticSeverity.Info,
         isEnabledByDefault: true,

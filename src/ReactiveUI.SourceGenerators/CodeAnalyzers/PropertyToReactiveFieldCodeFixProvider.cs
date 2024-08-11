@@ -77,7 +77,7 @@ namespace ReactiveUI.SourceGenerators.CodeAnalyzers
 
             // Apply the code fix
             context.RegisterCodeFix(
-                CodeAction.Create("Convert to Reactive field", c => Task.FromResult(context.Document.WithSyntaxRoot(newRoot!))),
+                CodeAction.Create("Convert to Reactive field", c => Task.FromResult(context.Document.WithSyntaxRoot(newRoot!)), "Convert to Reactive field"),
                 diagnostic);
         }
     }

@@ -106,13 +106,6 @@ public partial class TestViewModel : ReactiveObject
     private void Test1() => Console.Out.WriteLine("Test1");
 
     /// <summary>
-    /// Test2s this instance.
-    /// </summary>
-    /// <returns>Rectangle.</returns>
-    [ReactiveCommand]
-    private Point Test2() => default;
-
-    /// <summary>
     /// Test3s the asynchronous.
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
