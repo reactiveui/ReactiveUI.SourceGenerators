@@ -21,7 +21,7 @@ public partial class TestViewModel : ReactiveObject
     [JsonInclude]
     [DataMember]
     [ObservableAsProperty]
-    private double _test2Property;
+    private double _test2Property = 1.1d;
 
     [JsonInclude]
     [Reactive]
@@ -53,10 +53,11 @@ public partial class TestViewModel : ReactiveObject
         Test6ArgOnlyCommand?.Execute("Hello World").Subscribe();
         Test7ObservableCommand?.Execute().Subscribe();
 
+        Console.Out.WriteLine($"Test2Property default Value: {Test2Property}");
         _test2PropertyHelper = Test8ObservableCommand!.ToProperty(this, x => x.Test2Property);
 
         Test8ObservableCommand?.Execute(100).Subscribe(Console.Out.WriteLine);
-        Console.Out.WriteLine($"Test2Property Value: {Test2}");
+        Console.Out.WriteLine($"Test2Property Value: {Test2Property}");
         Console.Out.WriteLine($"Test2Property underlying Value: {_test2Property}");
 
         Test9AsyncCommand?.ThrownExceptions.Subscribe(Console.Out.WriteLine);

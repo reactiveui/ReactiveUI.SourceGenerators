@@ -81,7 +81,15 @@ using ReactiveUI.SourceGenerators;
 public partial class MyReactiveClass : ReactiveObject
 {
     [ObservableAsProperty]
-    private string _myProperty;
+    private string _myProperty = "Default Value";
+
+    public MyReactiveClass()
+    {
+        _myPrpertyHelper = MyPropertyObservable()
+            .ToProperty(this, x => x.MyProperty);
+    }
+
+    IObservable<string> MyPropertyObservable() => Observable.Return("Test Value");
 }
 ```
 

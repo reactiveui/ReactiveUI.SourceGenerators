@@ -34,9 +34,14 @@ namespace ReactiveUI.SourceGenerators.CodeAnalyzers
         /// <param name="context">The context.</param>
         public override void Initialize(AnalysisContext context)
         {
-            context?.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-            context?.EnableConcurrentExecution();
-            context?.RegisterSyntaxNodeAction(AnalyzeNode, SyntaxKind.PropertyDeclaration);
+            if (context is null)
+            {
+                throw new System.ArgumentNullException(nameof(context));
+            }
+
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+            context.EnableConcurrentExecution();
+            context.RegisterSyntaxNodeAction(AnalyzeNode, SyntaxKind.PropertyDeclaration);
         }
 
         private void AnalyzeNode(SyntaxNodeAnalysisContext context)

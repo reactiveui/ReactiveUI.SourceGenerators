@@ -64,7 +64,7 @@ public partial class ObservableAsPropertyGenerator
                 getterFieldIdentifierName = propertyInfo.FieldName;
             }
 
-            var getterArrowExpression = ArrowExpressionClause(ParseExpression($"{getterFieldIdentifierName} = {getterFieldIdentifierName + "Helper"}.Value"));
+            var getterArrowExpression = ArrowExpressionClause(ParseExpression($"{getterFieldIdentifierName} = ({getterFieldIdentifierName}Helper?.Value ?? {getterFieldIdentifierName})"));
 
             // Prepare the forwarded attributes, if any
             var forwardedAttributes =
