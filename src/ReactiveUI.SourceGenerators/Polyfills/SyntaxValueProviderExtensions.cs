@@ -67,7 +67,7 @@ internal static class SyntaxValueProviderExtensions
                         return null;
                     }
 
-                    if (!context.SemanticModel.Compilation.HasLanguageVersionAtLeastEqualTo(LanguageVersion.CSharp8))
+                    if (!context.SemanticModel.Compilation.HasLanguageVersionAtLeastEqualTo(LanguageVersion.CSharp9))
                     {
                         return null;
                     }
@@ -111,7 +111,7 @@ internal static class SyntaxValueProviderExtensions
                         return null;
                     }
 
-                    if (!context.SemanticModel.Compilation.HasLanguageVersionAtLeastEqualTo(LanguageVersion.CSharp8))
+                    if (!context.SemanticModel.Compilation.HasLanguageVersionAtLeastEqualTo(LanguageVersion.CSharp9))
                     {
                         return null;
                     }

@@ -16,7 +16,7 @@ namespace ReactiveUI.SourceGenerators.Diagnostics.Suppressions
     /// <summary>
     /// ObservableAsProperty Attribute With Field Never Read Diagnostic Suppressor.
     /// </summary>
-    /// <seealso cref="Microsoft.CodeAnalysis.Diagnostics.DiagnosticSuppressor" />
+    /// <seealso cref="DiagnosticSuppressor" />
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class ObservableAsPropertyAttributeWithFieldNeverReadDiagnosticSuppressor : DiagnosticSuppressor
     {
@@ -38,7 +38,7 @@ namespace ReactiveUI.SourceGenerators.Diagnostics.Suppressions
                     // Get the method symbol from the first variable declaration
                     ISymbol? declaredSymbol = semanticModel.GetDeclaredSymbol(methodDeclaration, context.CancellationToken);
 
-                    // Check if the method is using [RelayCommand], in which case we should suppress the warning
+                    // Check if the method is using [ObservableAsProperty], in which case we should suppress the warning
                     if (declaredSymbol is IMethodSymbol methodSymbol &&
                         semanticModel.Compilation.GetTypeByMetadataName("ReactiveUI.SourceGenerators.ObservableAsPropertyAttribute") is INamedTypeSymbol reactiveCommandSymbol &&
                         methodSymbol.HasAttributeWithType(reactiveCommandSymbol))

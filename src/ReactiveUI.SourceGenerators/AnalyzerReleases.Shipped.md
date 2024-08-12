@@ -14,7 +14,7 @@ RXUISG0004 | ReactiveUI.SourceGenerators.ReactiveCommandGenerator | Error | See 
 RXUISG0005 | ReactiveUI.SourceGenerators.ReactiveCommandGenerator | Error | See https://www.reactiveui.net/errors/RXUISG0005
 RXUISG0006 | ReactiveUI.SourceGenerators.ReactiveCommandGenerator | Error | See https://www.reactiveui.net/errors/RXUISG0006
 RXUISG0007 | ReactiveUI.SourceGenerators.ReactiveCommandGenerator | Error | See https://www.reactiveui.net/errors/RXUISG0007
-RXUISG0008 | ReactiveUI.SourceGenerators.ReactiveCommandGenerator | Error | See https://www.reactiveui.net/errors/RXUISG0008
+RXUISG0008 | ReactiveUI.SourceGenerators.AsyncVoidReturningReactiveCommandMethodAnalyzer | Error | See https://www.reactiveui.net/errors/RXUISG0008
 RXUISG0009 | ReactiveUI.SourceGenerators.ReactiveGenerator | Error | See https://www.reactiveui.net/errors/RXUISG0009
 RXUISG0010 | ReactiveUI.SourceGenerators.ReactiveGenerator | Error | See https://www.reactiveui.net/errors/RXUISG0010
 RXUISG0011 | ReactiveUI.SourceGenerators.ReactiveGenerator | Error | See https://www.reactiveui.net/errors/RXUISG0011
