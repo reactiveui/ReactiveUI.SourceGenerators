@@ -137,7 +137,7 @@ internal static class DiagnosticDescriptors
         category: typeof(AsyncVoidReturningReactiveCommandMethodAnalyzer).FullName,
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
-        description: "All asynchronous methods annotated with [ReactiveCommand] should return a Task type, to benefit from the additional support provided by ReactiveCommand and ReactiveCommand<T>.",
+        description: "All asynchronous methods annotated with [ReactiveCommand] should return a Task type, to benefit from the additional support provided by ReactiveCommand.FromTask.",
         helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0008");
 
     /// <summary>

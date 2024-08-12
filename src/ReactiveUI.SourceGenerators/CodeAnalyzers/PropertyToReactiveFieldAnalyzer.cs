@@ -34,9 +34,9 @@ namespace ReactiveUI.SourceGenerators.CodeAnalyzers
         /// <param name="context">The context.</param>
         public override void Initialize(AnalysisContext context)
         {
-            if (context == null)
+            if (context is null)
             {
-                return;
+                throw new System.ArgumentNullException(nameof(context));
             }
 
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
