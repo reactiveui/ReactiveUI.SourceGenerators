@@ -36,7 +36,7 @@ internal partial record HierarchyInfo
         var typeDeclarationSyntax =
             Hierarchy[0].GetSyntax()
             .AddModifiers(Token(TriviaList(Comment("/// <inheritdoc/>")), SyntaxKind.PartialKeyword, TriviaList()))
-            .AddMembers(memberDeclarations.ToArray());
+            .AddMembers([.. memberDeclarations]);
 
         // Add the base list, if present
         if (baseList is not null)

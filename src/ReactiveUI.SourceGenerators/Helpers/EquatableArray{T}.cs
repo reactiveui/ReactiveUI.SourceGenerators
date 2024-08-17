@@ -89,7 +89,9 @@ internal readonly struct EquatableArray<T>(ImmutableArray<T> array) : IEquatable
     /// </summary>
     /// <param name="array">The array.</param>
     /// <returns>A bool.</returns>
+#pragma warning disable RCS1168 // Parameter name differs from base name
     public bool Equals(EquatableArray<T> array) => AsSpan().SequenceEqual(array.AsSpan());
+#pragma warning restore RCS1168 // Parameter name differs from base name
 
     /// <summary>
     /// Equalses the specified object.
@@ -153,9 +155,7 @@ internal readonly struct EquatableArray<T>(ImmutableArray<T> array) : IEquatable
 /// Extensions for <see cref="EquatableArray{T}"/>.
 /// </summary>
 #pragma warning disable SA1402 // File may only contain a single type
-#pragma warning disable SA1649 // File name should match first type name
 internal static class EquatableArray
-#pragma warning restore SA1649 // File name should match first type name
 #pragma warning restore SA1402 // File may only contain a single type
 {
     /// <summary>

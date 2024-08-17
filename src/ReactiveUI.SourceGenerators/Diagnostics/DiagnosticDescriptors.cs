@@ -21,27 +21,27 @@ internal static class DiagnosticDescriptors
     public static readonly DiagnosticDescriptor UnsupportedCSharpLanguageVersionError = new DiagnosticDescriptor(
         id: "RXUISG0001",
         title: "Unsupported C# language version",
-        messageFormat: "The source generator features from ReactiveUI require consuming projects to set the C# language version to at least C# 8.0",
+        messageFormat: "The source generator features from ReactiveUI require consuming projects to set the C# language version to at least C# 9.0",
         category: typeof(UnsupportedCSharpLanguageVersionAnalyzer).FullName,
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
-        description: "The source generator features from ReactiveUI require consuming projects to set the C# language version to at least C# 8.0. Make sure to add <LangVersion>8.0</LangVersion> (or above) to your .csproj file.",
+        description: "The source generator features from ReactiveUI require consuming projects to set the C# language version to at least C# 9.0. Make sure to add <LangVersion>9.0</LangVersion> (or above) to your .csproj file.",
         helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0001");
 
     /// <summary>
     /// Gets a <see cref="DiagnosticDescriptor"/> indicating when an annotated method to generate a command for has an invalid signature.
     /// <para>
-    /// Format: <c>"The method {0}.{1} cannot be used to generate a command property, as its signature isn't compatible with any of the existing relay command types"</c>.
+    /// Format: <c>"The method {0}.{1} cannot be used to generate a command property, as its signature isn't compatible with any of the existing reactive command types"</c>.
     /// </para>
     /// </summary>
     public static readonly DiagnosticDescriptor InvalidReactiveCommandMethodSignatureError = new DiagnosticDescriptor(
         id: "RXUISG0002",
         title: "Invalid ReactiveCommand method signature",
-        messageFormat: "The method {0}.{1} cannot be used to generate a command property, as its signature isn't compatible with any of the existing relay command types",
+        messageFormat: "The method {0}.{1} cannot be used to generate a command property, as its signature isn't compatible with any of the existing reactive command types",
         category: typeof(ReactiveCommandGenerator).FullName,
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
-        description: "Cannot apply [ReactiveCommand] to methods with a signature that doesn't match any of the existing relay command types.",
+        description: "Cannot apply [ReactiveCommand] to methods with a signature that doesn't match any of the existing reactive command types.",
         helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0002");
 
     /// <summary>
@@ -134,7 +134,7 @@ internal static class DiagnosticDescriptors
         id: "RXUISG0008",
         title: "Async void returning method annotated with ReactiveCommand",
         messageFormat: "The method {0} annotated with [ReactiveCommand] is async void (make sure to return a Task type instead)",
-        category: typeof(ReactiveCommandGenerator).FullName,
+        category: typeof(AsyncVoidReturningReactiveCommandMethodAnalyzer).FullName,
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "All asynchronous methods annotated with [ReactiveCommand] should return a Task type, to benefit from the additional support provided by ReactiveCommand.FromTask.",

@@ -16,7 +16,7 @@ namespace ReactiveUI.SourceGenerators;
 /// <summary>
 /// IViewForGenerator.
 /// </summary>
-/// <seealso cref="Microsoft.CodeAnalysis.IIncrementalGenerator" />
+/// <seealso cref="IIncrementalGenerator" />
 public partial class IViewForGenerator
 {
     internal static class Execute

@@ -33,7 +33,7 @@ public sealed class UnsupportedCSharpLanguageVersionAnalyzer : DiagnosticAnalyze
     });
 
     /// <inheritdoc/>
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(UnsupportedCSharpLanguageVersionError);
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(UnsupportedCSharpLanguageVersionError);
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)
@@ -51,13 +51,13 @@ public sealed class UnsupportedCSharpLanguageVersionAnalyzer : DiagnosticAnalyze
         context.RegisterCompilationStartAction(static context =>
         {
             // Check that the language version is not high enough, otherwise no diagnostic should ever be produced
-            if (context.Compilation.HasLanguageVersionAtLeastEqualTo(LanguageVersion.CSharp8))
+            if (context.Compilation.HasLanguageVersionAtLeastEqualTo(LanguageVersion.CSharp9))
             {
                 return;
             }
 
             // Try to get all necessary type symbols
-            if (!context.Compilation.TryBuildNamedTypeSymbolMap(GeneratorAttributeNamesToFullyQualifiedNamesMap, out ImmutableDictionary<string, INamedTypeSymbol>? typeSymbols))
+            if (!context.Compilation.TryBuildNamedTypeSymbolMap(GeneratorAttributeNamesToFullyQualifiedNamesMap, out var typeSymbols))
             {
                 return;
             }
@@ -76,7 +76,7 @@ public sealed class UnsupportedCSharpLanguageVersionAnalyzer : DiagnosticAnalyze
                     // Go over each attribute on the target symbol, and check if the attribute type name is a candidate.
                     // If it is, double check by actually resolving the symbol from the mapping and comparing against it.
                     if (attribute.AttributeClass is { Name: string attributeName } attributeClass &&
-                        typeSymbols.TryGetValue(attributeName, out INamedTypeSymbol? attributeSymbol) &&
+                        typeSymbols.TryGetValue(attributeName, out var attributeSymbol) &&
                         SymbolEqualityComparer.Default.Equals(attributeClass, attributeSymbol))
                     {
                         context.ReportDiagnostic(Diagnostic.Create(UnsupportedCSharpLanguageVersionError, context.Symbol.Locations.FirstOrDefault()));

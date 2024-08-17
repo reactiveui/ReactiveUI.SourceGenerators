@@ -65,7 +65,7 @@ internal ref struct ImmutableArrayBuilder<T>
     /// Adds the specified items to the end of the array.
     /// </summary>
     /// <param name="items">The items to add at the end of the array.</param>
-    public readonly void AddRange(scoped ReadOnlySpan<T> items) => _writer!.AddRange(items);
+    public readonly void AddRange(scoped in ReadOnlySpan<T> items) => _writer!.AddRange(items);
 
     /// <inheritdoc cref="ImmutableArray{T}.Builder.ToImmutable"/>
     public readonly ImmutableArray<T> ToImmutable()
@@ -111,43 +111,38 @@ internal ref struct ImmutableArrayBuilder<T>
         private T?[]? _array;
 
         /// <summary>
-        /// The starting offset within <see cref="_array"/>.
-        /// </summary>
-        private int _index;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="Writer"/> class.
         /// Creates a new <see cref="Writer"/> instance with the specified parameters.
         /// </summary>
         public Writer()
         {
             _array = ArrayPool<T?>.Shared.Rent(typeof(T) == typeof(char) ? 1024 : 8);
-            _index = 0;
+            Count = 0;
         }
 
         /// <inheritdoc cref="ImmutableArrayBuilder{T}.Count"/>
         public int Count
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => _index;
+            get; private set;
         }
 
         /// <inheritdoc cref="ImmutableArrayBuilder{T}.WrittenSpan"/>
         public ReadOnlySpan<T> WrittenSpan
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => new(_array!, 0, _index);
+            get => new(_array!, 0, Count);
         }
 
         /// <inheritdoc/>
         bool ICollection<T>.IsReadOnly => true;
 
         /// <inheritdoc cref="ImmutableArrayBuilder{T}.Add"/>
-        public void Add(T value)
+        public void Add(T item)
         {
             EnsureCapacity(1);
 
-            _array![_index++] = value;
+            _array![Count++] = item;
         }
 
         /// <inheritdoc cref="ImmutableArrayBuilder{T}.AddRange"/>
@@ -155,9 +150,9 @@ internal ref struct ImmutableArrayBuilder<T>
         {
             EnsureCapacity(items.Length);
 
-            items.CopyTo(_array.AsSpan(_index)!);
+            items.CopyTo(_array.AsSpan(Count)!);
 
-            _index += items.Length;
+            Count += items.Length;
         }
 
         /// <inheritdoc/>
@@ -180,13 +175,13 @@ internal ref struct ImmutableArrayBuilder<T>
         bool ICollection<T>.Contains(T item) => throw new NotSupportedException();
 
         /// <inheritdoc/>
-        void ICollection<T>.CopyTo(T[] array, int arrayIndex) => Array.Copy(_array!, 0, array, arrayIndex, _index);
+        void ICollection<T>.CopyTo(T[] array, int arrayIndex) => Array.Copy(_array!, 0, array, arrayIndex, Count);
 
         /// <inheritdoc/>
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
             var array = _array!;
-            var length = _index;
+            var length = Count;
 
             for (var i = 0; i < length; i++)
             {
@@ -207,7 +202,7 @@ internal ref struct ImmutableArrayBuilder<T>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void EnsureCapacity(int requestedSize)
         {
-            if (requestedSize > _array!.Length - _index)
+            if (requestedSize > _array!.Length - Count)
             {
                 ResizeBuffer(requestedSize);
             }
@@ -220,12 +215,12 @@ internal ref struct ImmutableArrayBuilder<T>
         [MethodImpl(MethodImplOptions.NoInlining)]
         private void ResizeBuffer(int sizeHint)
         {
-            var minimumSize = _index + sizeHint;
+            var minimumSize = Count + sizeHint;
 
             var oldArray = _array!;
             var newArray = ArrayPool<T?>.Shared.Rent(minimumSize);
 
-            Array.Copy(oldArray, newArray, _index);
+            Array.Copy(oldArray, newArray, Count);
 
             _array = newArray;
 

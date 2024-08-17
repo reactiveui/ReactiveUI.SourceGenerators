@@ -20,7 +20,7 @@ internal static class SourceProductionContextExtensions
     /// <param name="context">The input <see cref="SourceProductionContext"/> instance to use.</param>
     /// <param name="name">The name of the source file to add.</param>
     /// <param name="compilationUnit">The <see cref="CompilationUnitSyntax"/> instance representing the syntax tree to add.</param>
-    public static void AddSource(this SourceProductionContext context, string name, CompilationUnitSyntax compilationUnit)
+    public static void AddSource(this in SourceProductionContext context, string name, CompilationUnitSyntax compilationUnit)
     {
 #if !ROSLYN_4_3_1_OR_GREATER
         // We're fine with the extra allocation in the few cases where adjusting the filename is necessary.
