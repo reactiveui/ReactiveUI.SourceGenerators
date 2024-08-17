@@ -236,7 +236,7 @@ public partial class MyReactiveClass
 }
 ```
 
-### Usage ReactiveCommand with parameterless Attribute pass through
+### Usage ReactiveCommand with property Attribute pass through
 ```csharp
 using ReactiveUI.SourceGenerators;
 
