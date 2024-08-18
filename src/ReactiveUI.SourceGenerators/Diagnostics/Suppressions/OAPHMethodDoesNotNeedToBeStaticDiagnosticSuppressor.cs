@@ -18,7 +18,7 @@ namespace ReactiveUI.SourceGenerators.Diagnostics.Suppressions;
 /// </summary>
 /// <seealso cref="DiagnosticSuppressor" />
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public sealed class ReactiveCommandMethodDoesNotNeedToBeStaticDiagnosticSuppressor : DiagnosticSuppressor
+public sealed class OAPHMethodDoesNotNeedToBeStaticDiagnosticSuppressor : DiagnosticSuppressor
 {
     /// <inheritdoc/>
     public override ImmutableArray<SuppressionDescriptor> SupportedSuppressions => ImmutableArray.Create(ReactiveCommandDoesNotAccessInstanceData);
@@ -38,10 +38,10 @@ public sealed class ReactiveCommandMethodDoesNotNeedToBeStaticDiagnosticSuppress
                 // Get the method symbol from the first variable declaration
                 ISymbol? declaredSymbol = semanticModel.GetDeclaredSymbol(methodDeclaration, context.CancellationToken);
 
-                // Check if the method is using [ReactiveCommand], in which case we should suppress the warning
+                // Check if the method is using [ObservableAsProperty], in which case we should suppress the warning
                 if (declaredSymbol is IMethodSymbol methodSymbol &&
-                    semanticModel.Compilation.GetTypeByMetadataName("ReactiveUI.SourceGenerators.ReactiveCommandAttribute") is INamedTypeSymbol reactiveCommandSymbol &&
-                    methodSymbol.HasAttributeWithType(reactiveCommandSymbol))
+                    semanticModel.Compilation.GetTypeByMetadataName("ReactiveUI.SourceGenerators.ObservableAsPropertyAttribute") is INamedTypeSymbol oaphSymbol &&
+                    methodSymbol.HasAttributeWithType(oaphSymbol))
                 {
                     context.ReportSuppression(Suppression.Create(ReactiveCommandDoesNotAccessInstanceData, diagnostic));
                 }

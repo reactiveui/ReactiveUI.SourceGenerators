@@ -3,6 +3,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System;
+
 namespace ReactiveUI.SourceGenerators.Helpers;
 
 internal static class AttributeDefinitions
@@ -106,8 +108,17 @@ namespace ReactiveUI.SourceGenerators;
 /// </summary>
 /// <seealso cref="Attribute" />
 [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.IViewForGenerator", "1.1.0.0")]
-[AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
-public sealed class ObservableAsPropertyAttribute : Attribute;
+[AttributeUsage(AttributeTargets.Field | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+public sealed class ObservableAsPropertyAttribute : Attribute
+{
+    /// <summary>
+    /// Gets the name of the property.
+    /// </summary>
+    /// <value>
+    /// The name of the property.
+    /// </value>
+    public string? PropertyName { get; init; }
+}
 #nullable restore
 #pragma warning restore
 """;

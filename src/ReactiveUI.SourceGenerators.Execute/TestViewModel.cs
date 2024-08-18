@@ -34,6 +34,7 @@ public partial class TestViewModel : ReactiveObject
     public TestViewModel()
     {
         InitializeCommands();
+        InitializeOAPH();
 
         Console.Out.WriteLine(Test1Command);
         Console.Out.WriteLine(Test2Command);
@@ -96,6 +97,13 @@ public partial class TestViewModel : ReactiveObject
 #pragma warning disable CA1822 // Mark members as static
     public IObservable<bool> CanExecuteTest1 => Observable.Return(true);
 #pragma warning restore CA1822 // Mark members as static
+
+    /// <summary>
+    /// Observables as property test.
+    /// </summary>
+    /// <returns>Observable of double.</returns>
+    [ObservableAsProperty(PropertyName = "MyReadOnlyProperty")]
+    public IObservable<double> ObservableAsPropertyTest() => Observable.Return(10.0);
 
     /// <summary>
     /// Test1s this instance.
