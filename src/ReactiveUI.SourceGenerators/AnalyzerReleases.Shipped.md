@@ -23,3 +23,4 @@ RXUISG0013 | ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator | Error |
 RXUISG0014 | ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator | Error | See https://www.reactiveui.net/errors/RXUISG0014
 RXUISG0015 | ReactiveUI.SourceGenerators.ReactiveGenerator | Error | See https://www.reactiveui.net/errors/RXUISG0015
 RXUISG0016 | ReactiveUI.SourceGenerators.PropertyToReactiveFieldCodeFixProvider | Info | See https://www.reactiveui.net/errors/RXUISG0016
+RXUISG0017 | ReactiveUI.SourceGenerators.ObservableAsPropertyFromObservableGenerator | Error | See https://www.reactiveui.net/errors/RXUISG0017

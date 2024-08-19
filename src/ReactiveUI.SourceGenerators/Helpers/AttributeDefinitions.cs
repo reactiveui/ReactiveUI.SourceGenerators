@@ -3,6 +3,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System;
+
 namespace ReactiveUI.SourceGenerators.Helpers;
 
 internal static class AttributeDefinitions
@@ -48,7 +50,7 @@ namespace ReactiveUI.SourceGenerators;
 /// ReativeCommandAttribute.
 /// </summary>
 /// <seealso cref="Attribute" />
-[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.IViewForGenerator", "1.1.0.0")]
+[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveCommandGenerator", "1.1.0.0")]
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 public sealed class ReactiveCommandAttribute : Attribute
 {
@@ -81,7 +83,7 @@ namespace ReactiveUI.SourceGenerators;
 /// ReactiveAttribute.
 /// </summary>
 /// <seealso cref="Attribute" />
-[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.IViewForGenerator", "1.1.0.0")]
+[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveGenerator", "1.1.0.0")]
 [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
 public sealed class ReactiveAttribute : Attribute;
 #nullable restore
@@ -105,9 +107,18 @@ namespace ReactiveUI.SourceGenerators;
 /// ReactivePropertyAttribute.
 /// </summary>
 /// <seealso cref="Attribute" />
-[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.IViewForGenerator", "1.1.0.0")]
-[AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
-public sealed class ObservableAsPropertyAttribute : Attribute;
+[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "1.1.0.0")]
+[AttributeUsage(AttributeTargets.Field | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+public sealed class ObservableAsPropertyAttribute : Attribute
+{
+    /// <summary>
+    /// Gets the name of the property.
+    /// </summary>
+    /// <value>
+    /// The name of the property.
+    /// </value>
+    public string? PropertyName { get; init; }
+}
 #nullable restore
 #pragma warning restore
 """;
