@@ -264,4 +264,17 @@ internal static class DiagnosticDescriptors
         isEnabledByDefault: true,
         description: "Used to create a Read Write INPC Reactive Property for ReactiveUI, annotated with [Reactive].",
         helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0016");
+
+    /// <summary>
+    /// The observable as property method has parameters error.
+    /// </summary>
+    public static readonly DiagnosticDescriptor ObservableAsPropertyMethodHasParametersError = new DiagnosticDescriptor(
+        id: "RXUISG0017",
+        title: "Invalid generated property declaration",
+        messageFormat: "The method {0} cannot be used to generate an observable As property, as it has parameters",
+        category: typeof(ObservableAsPropertyFromObservableGenerator).FullName,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "The method annotated with [ObservableAsProperty] cannot currently initialize methods with parameters.",
+        helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0017");
 }

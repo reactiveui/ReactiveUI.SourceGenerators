@@ -50,7 +50,7 @@ namespace ReactiveUI.SourceGenerators;
 /// ReativeCommandAttribute.
 /// </summary>
 /// <seealso cref="Attribute" />
-[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.IViewForGenerator", "1.1.0.0")]
+[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveCommandGenerator", "1.1.0.0")]
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 public sealed class ReactiveCommandAttribute : Attribute
 {
@@ -83,7 +83,7 @@ namespace ReactiveUI.SourceGenerators;
 /// ReactiveAttribute.
 /// </summary>
 /// <seealso cref="Attribute" />
-[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.IViewForGenerator", "1.1.0.0")]
+[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveGenerator", "1.1.0.0")]
 [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
 public sealed class ReactiveAttribute : Attribute;
 #nullable restore
@@ -107,7 +107,7 @@ namespace ReactiveUI.SourceGenerators;
 /// ReactivePropertyAttribute.
 /// </summary>
 /// <seealso cref="Attribute" />
-[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.IViewForGenerator", "1.1.0.0")]
+[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "1.1.0.0")]
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 public sealed class ObservableAsPropertyAttribute : Attribute
 {

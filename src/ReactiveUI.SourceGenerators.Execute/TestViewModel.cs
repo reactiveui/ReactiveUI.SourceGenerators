@@ -99,9 +99,11 @@ public partial class TestViewModel : ReactiveObject
 #pragma warning restore CA1822 // Mark members as static
 
     /// <summary>
-    /// Observables as property test.
+    /// Gets observables as property test.
     /// </summary>
-    /// <returns>Observable of double.</returns>
+    /// <returns>
+    /// Observable of double.
+    /// </returns>
     [ObservableAsProperty(PropertyName = "MyReadOnlyProperty")]
     public IObservable<double> ObservableAsPropertyTest() => Observable.Return(10.0);
 

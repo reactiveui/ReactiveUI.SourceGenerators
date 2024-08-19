@@ -4,22 +4,16 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Collections.Immutable;
-using System.Data;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
-using ReactiveUI.SourceGenerators.Input.Models;
-using ReactiveUI.SourceGenerators.Models;
 using ReactiveUI.SourceGenerators.ObservableAsProperty.Models;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static ReactiveUI.SourceGenerators.Diagnostics.DiagnosticDescriptors;
 
 namespace ReactiveUI.SourceGenerators;
 
@@ -59,8 +53,7 @@ public partial class ObservableAsPropertyFromObservableGenerator
                             AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyFromObservableGenerator).Assembly.GetName().Version.ToString()))))))
                     .WithOpenBracketToken(Token(TriviaList(Comment($"/// <inheritdoc cref=\"{getterFieldIdentifierName + "Helper"}\"/>")), SyntaxKind.OpenBracketToken, TriviaList())))
                     .AddModifiers(
-                        Token(SyntaxKind.PrivateKeyword),
-                        Token(SyntaxKind.ReadOnlyKeyword)),
+                        Token(SyntaxKind.PrivateKeyword)),
                     PropertyDeclaration(propertyType, Identifier(propertyInfo.PropertyName))
                 .AddAttributeLists(
                     AttributeList(SingletonSeparatedList(
@@ -86,7 +79,7 @@ public partial class ObservableAsPropertyFromObservableGenerator
             foreach (var propertyInfo in propertyInfos)
             {
                 var fieldIdentifierName = GetGeneratedFieldName(propertyInfo.PropertyName);
-                propertyInitilisers.Add(ParseStatement($"{fieldIdentifierName}Helper = {propertyInfo.MethodName}!.ToProperty(this, x => x.{propertyInfo.PropertyName});"));
+                propertyInitilisers.Add(ParseStatement($"{fieldIdentifierName}Helper = {propertyInfo.MethodName}()!.ToProperty(this, x => x.{propertyInfo.PropertyName});"));
             }
 
             return MethodDeclaration(
