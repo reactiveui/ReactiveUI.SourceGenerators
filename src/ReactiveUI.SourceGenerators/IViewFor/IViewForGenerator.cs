@@ -17,7 +17,6 @@ using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Input.Models;
 using ReactiveUI.SourceGenerators.Models;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace ReactiveUI.SourceGenerators;
 
@@ -28,19 +27,18 @@ namespace ReactiveUI.SourceGenerators;
 public sealed partial class IViewForGenerator : IIncrementalGenerator
 {
     private const string GeneratedCode = "global::System.CodeDom.Compiler.GeneratedCode";
-    private const string IViewForAttribute = "ReactiveUI.SourceGenerators.IViewForAttribute";
 
     /// <inheritdoc/>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(ctx =>
-            ctx.AddSource($"{IViewForAttribute}.g.cs", SourceText.From(AttributeDefinitions.IViewForAttribute, Encoding.UTF8)));
+            ctx.AddSource($"{AttributeDefinitions.IViewForAttributeType}.g.cs", SourceText.From(AttributeDefinitions.IViewForAttribute, Encoding.UTF8)));
 
         // Gather info for all annotated IViewFor Classes
         IncrementalValuesProvider<(HierarchyInfo Hierarchy, Result<IViewForInfo> Info)> iViewForInfoWithErrors =
             context.SyntaxProvider
             .ForAttributeWithMetadataName(
-                IViewForAttribute,
+                AttributeDefinitions.IViewForAttributeType,
                 static (node, _) => node is ClassDeclarationSyntax { AttributeLists.Count: > 0 },
                 static (context, token) =>
                 {
@@ -55,7 +53,7 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
                         var compilation = context.SemanticModel.Compilation;
                         var semanticModel = compilation.GetSemanticModel(context.SemanticModel.SyntaxTree);
                         var symbol = ModelExtensions.GetDeclaredSymbol(semanticModel, declaredClass, token)!;
-                        if (symbol.TryGetAttributeWithFullyQualifiedMetadataName(IViewForAttribute, out var attributeData))
+                        if (symbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.IViewForAttributeType, out var attributeData))
                         {
                             token.ThrowIfCancellationRequested();
                             var classSymbol = symbol as INamedTypeSymbol;

@@ -27,12 +27,9 @@ public partial class ReactiveCommandGenerator
     private const string ReactiveUI = "ReactiveUI";
     private const string ReactiveCommand = "ReactiveCommand";
     private const string RxCmd = ReactiveUI + "." + ReactiveCommand;
-    private const string RxCmdAttribute = "ReactiveUI.SourceGenerators.ReactiveCommandAttribute";
     private const string Create = ".Create";
     private const string CreateO = ".CreateFromObservable";
     private const string CreateT = ".CreateFromTask";
-    private const string GeneratedCode = "global::System.CodeDom.Compiler.GeneratedCode";
-    private const string ExcludeFromCodeCoverage = "global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage";
 
     /// <summary>
     /// A container for all the logic for <see cref="ReactiveCommandGenerator"/>.
@@ -68,11 +65,11 @@ public partial class ReactiveCommandGenerator
                     Identifier("InitializeCommands"))
                 .AddAttributeLists(
                     AttributeList(SingletonSeparatedList(
-                        Attribute(IdentifierName(GeneratedCode))
+                        Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
                         .AddArgumentListArguments(
                             AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ReactiveGenerator).FullName))),
                             AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ReactiveGenerator).Assembly.GetName().Version.ToString())))))),
-                    AttributeList(SingletonSeparatedList(Attribute(IdentifierName(ExcludeFromCodeCoverage)))))
+                    AttributeList(SingletonSeparatedList(Attribute(IdentifierName(AttributeDefinitions.ExcludeFromCodeCoverage)))))
                 .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword)))
                 .WithBody(Block(commandInitilisers.ToImmutable()));
 
