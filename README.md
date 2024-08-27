@@ -354,7 +354,7 @@ The class must inherit from a UI Control from any of the following platforms and
 ```csharp
 using ReactiveUI.SourceGenerators;
 
-[IViewFor(MyReactiveClass)]
+[IViewFor(nameof(MyReactiveClass))]
 public partial class MyReactiveControl : UserControl
 {
     public MyReactiveControl()
