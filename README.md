@@ -1,11 +1,10 @@
 # ReactiveUI.SourceGenerators
-Use source generators to generate ReactiveUI objects. 
-
-Not taking public contributions at this time
+Use source generators to generate ReactiveUI objects.
 
 These Source Generators were designed to work in full with ReactiveUI V19.5.31 and newer supporting all features, currently:
 - [Reactive]
 - [ObservableAsProperty]
+- [ObservableAsProperty(PropertyName = "ReadOnlyPropertyName")]
 - [ReactiveCommand]
 - [ReactiveCommand(CanExecute = nameof(IObservableBoolName))] with CanExecute
 - [ReactiveCommand][property: AttribueToAddToCommand] with Attribute passthrough
@@ -75,6 +74,8 @@ public partial class MyReactiveClass : ReactiveObject
 ```
 
 ## Usage ObservableAsPropertyHelper `[ObservableAsProperty]`
+
+### Usage ObservableAsPropertyHelper with Field
 ```csharp
 using ReactiveUI.SourceGenerators;
 
@@ -90,6 +91,80 @@ public partial class MyReactiveClass : ReactiveObject
     }
 
     IObservable<string> MyPropertyObservable() => Observable.Return("Test Value");
+}
+```
+
+### Usage ObservableAsPropertyHelper with Observable Property
+```csharp
+using ReactiveUI.SourceGenerators;
+
+public partial class MyReactiveClass : ReactiveObject
+{    
+    public MyReactiveClass()
+    { 
+        // Initialize generated _myObservablePropertyHelper
+        // for the generated MyObservableProperty
+        InitializeOAPH();
+    }
+
+    [ObservableAsProperty]
+    IObservable<string> MyObservable => Observable.Return("Test Value");
+}
+```
+
+### Usage ObservableAsPropertyHelper with Observable Property and specific PropertyName
+```csharp
+using ReactiveUI.SourceGenerators;
+
+public partial class MyReactiveClass : ReactiveObject
+{    
+    public MyReactiveClass()
+    { 
+        // Initialize generated _testValuePropertyHelper
+        // for the generated TestValueProperty
+        InitializeOAPH();
+    }
+
+    [ObservableAsProperty(PropertyName = TestValueProperty)]
+    IObservable<string> MyObservable => Observable.Return("Test Value");
+}
+```
+
+### Usage ObservableAsPropertyHelper with Observable Method
+
+NOTE: This does not support methods with parameters
+```csharp
+using ReactiveUI.SourceGenerators;
+
+public partial class MyReactiveClass : ReactiveObject
+{    
+    public MyReactiveClass()
+    { 
+        // Initialize generated _myObservablePropertyHelper
+        // for the generated MyObservableProperty
+        InitializeOAPH();
+    }
+
+    [ObservableAsProperty]
+    IObservable<string> MyObservable() => Observable.Return("Test Value");
+}
+```
+
+### Usage ObservableAsPropertyHelper with Observable Method and specific PropertyName
+```csharp
+using ReactiveUI.SourceGenerators;
+
+public partial class MyReactiveClass : ReactiveObject
+{    
+    public MyReactiveClass()
+    { 
+        // Initialize generated _testValuePropertyHelper
+        // for the generated TestValueProperty
+        InitializeOAPH();
+    }
+
+    [ObservableAsProperty(PropertyName = TestValueProperty)]
+    IObservable<string> MyObservable() => Observable.Return("Test Value");
 }
 ```
 
@@ -279,7 +354,7 @@ The class must inherit from a UI Control from any of the following platforms and
 ```csharp
 using ReactiveUI.SourceGenerators;
 
-[IViewFor(MyReactiveClass)]
+[IViewFor(nameof(MyReactiveClass))]
 public partial class MyReactiveControl : UserControl
 {
     public MyReactiveControl()
@@ -291,4 +366,4 @@ public partial class MyReactiveControl : UserControl
 ```
 
 ### TODO:
-- Add ObservableAsProperty to generate from a IObservable creating a property and the property helper wired to the Observable.
+- Add ObservableAsProperty to generate from a IObservable method with parameters.

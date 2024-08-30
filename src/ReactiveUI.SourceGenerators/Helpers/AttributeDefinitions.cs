@@ -9,6 +9,8 @@ namespace ReactiveUI.SourceGenerators.Helpers;
 
 internal static class AttributeDefinitions
 {
+    public const string GeneratedCode = "global::System.CodeDom.Compiler.GeneratedCode";
+    public const string ExcludeFromCodeCoverage = "global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage";
     public const string ReactiveObjectAttribute = """
 // Copyright (c) 2024 .NET Foundation and Contributors. All rights reserved.
 // Licensed to the .NET Foundation under one or more agreements.
@@ -33,6 +35,7 @@ public sealed class ReactiveObjectAttribute : Attribute;
 #pragma warning restore
 """;
 
+    public const string ReactiveCommandAttributeType = "ReactiveUI.SourceGenerators.ReactiveCommandAttribute";
     public const string ReactiveCommandAttribute = """
 // Copyright (c) 2024 .NET Foundation and Contributors. All rights reserved.
 // Licensed to the .NET Foundation under one or more agreements.
@@ -66,6 +69,7 @@ public sealed class ReactiveCommandAttribute : Attribute
 #pragma warning restore
 """;
 
+    public const string ReactiveAttributeType = "ReactiveUI.SourceGenerators.ReactiveAttribute";
     public const string ReactiveAttribute = """
 // Copyright (c) 2024 .NET Foundation and Contributors. All rights reserved.
 // Licensed to the .NET Foundation under one or more agreements.
@@ -90,6 +94,7 @@ public sealed class ReactiveAttribute : Attribute;
 #pragma warning restore
 """;
 
+    public const string ObservableAsPropertyAttributeType = "ReactiveUI.SourceGenerators.ObservableAsPropertyAttribute";
     public const string ObservableAsPropertyAttribute = """
 // Copyright (c) 2024 .NET Foundation and Contributors. All rights reserved.
 // Licensed to the .NET Foundation under one or more agreements.
@@ -104,11 +109,11 @@ using System;
 namespace ReactiveUI.SourceGenerators;
 
 /// <summary>
-/// ReactivePropertyAttribute.
+/// ObservableAsPropertyAttribute.
 /// </summary>
 /// <seealso cref="Attribute" />
 [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "1.1.0.0")]
-[AttributeUsage(AttributeTargets.Field | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 public sealed class ObservableAsPropertyAttribute : Attribute
 {
     /// <summary>
@@ -123,6 +128,7 @@ public sealed class ObservableAsPropertyAttribute : Attribute
 #pragma warning restore
 """;
 
+    public const string IViewForAttributeType = "ReactiveUI.SourceGenerators.IViewForAttribute";
     public const string IViewForAttribute = """
 // Copyright (c) 2024 .NET Foundation and Contributors. All rights reserved.
 // Licensed to the .NET Foundation under one or more agreements.
@@ -137,7 +143,7 @@ using System;
 namespace ReactiveUI.SourceGenerators;
 
 /// <summary>
-/// ReactiveObjectAttribute.
+/// IViewForAttribute.
 /// </summary>
 /// <seealso cref="System.Attribute" />
 /// <remarks>

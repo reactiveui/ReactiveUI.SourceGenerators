@@ -60,7 +60,8 @@ public partial class TestViewModel : ReactiveObject
         Test8ObservableCommand?.Execute(100).Subscribe(Console.Out.WriteLine);
         Console.Out.WriteLine($"Test2Property Value: {Test2Property}");
         Console.Out.WriteLine($"Test2Property underlying Value: {_test2Property}");
-
+        Console.Out.WriteLine(ObservableAsPropertyTest2Property);
+        Console.Out.WriteLine(MyReadOnlyProperty);
         Test9AsyncCommand?.ThrownExceptions.Subscribe(Console.Out.WriteLine);
         var cancel = Test9AsyncCommand?.Execute().Subscribe();
         Task.Delay(1000).Wait();
@@ -94,9 +95,16 @@ public partial class TestViewModel : ReactiveObject
     /// <value>
     /// The can execute test1.
     /// </value>
-#pragma warning disable CA1822 // Mark members as static
-    public IObservable<bool> CanExecuteTest1 => Observable.Return(true);
-#pragma warning restore CA1822 // Mark members as static
+    public IObservable<bool> CanExecuteTest1 => ObservableAsPropertyTest2.Select(x => x > 0);
+
+    /// <summary>
+    /// Gets the observable as property test2.
+    /// </summary>
+    /// <value>
+    /// The observable as property test2.
+    /// </value>
+    [ObservableAsProperty]
+    public IObservable<int> ObservableAsPropertyTest2 => Observable.Return(9);
 
     /// <summary>
     /// Gets observables as property test.
@@ -113,7 +121,7 @@ public partial class TestViewModel : ReactiveObject
     [ReactiveCommand(CanExecute = nameof(CanExecuteTest1))]
     [property: JsonInclude]
     [property: Test(AParameter = "Test Input")]
-    private void Test1() => Console.Out.WriteLine("Test1");
+    private void Test1() => Console.Out.WriteLine("Test1 Command Executed");
 
     /// <summary>
     /// Test3s the asynchronous.

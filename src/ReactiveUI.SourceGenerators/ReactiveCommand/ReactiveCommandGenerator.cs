@@ -29,13 +29,13 @@ public sealed partial class ReactiveCommandGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(ctx =>
-            ctx.AddSource($"{RxCmdAttribute}.g.cs", SourceText.From(AttributeDefinitions.ReactiveCommandAttribute, Encoding.UTF8)));
+            ctx.AddSource($"{AttributeDefinitions.ReactiveCommandAttributeType}.g.cs", SourceText.From(AttributeDefinitions.ReactiveCommandAttribute, Encoding.UTF8)));
 
         // Gather info for all annotated command methods (starting from method declarations with at least one attribute)
         IncrementalValuesProvider<(HierarchyInfo Hierarchy, Result<CommandInfo> Info)> commandInfoWithErrors =
             context.SyntaxProvider
             .ForAttributeWithMetadataName(
-                RxCmdAttribute,
+                AttributeDefinitions.ReactiveCommandAttributeType,
                 static (node, _) => node is MethodDeclarationSyntax { Parent: ClassDeclarationSyntax or RecordDeclarationSyntax, AttributeLists.Count: > 0 },
                 static (context, token) =>
                 {
@@ -48,7 +48,7 @@ public sealed partial class ReactiveCommandGenerator : IIncrementalGenerator
                     token.ThrowIfCancellationRequested();
 
                     // Skip symbols without the target attribute
-                    if (!symbol.TryGetAttributeWithFullyQualifiedMetadataName(RxCmdAttribute, out var attributeData))
+                    if (!symbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ReactiveCommandAttributeType, out var attributeData))
                     {
                         return default;
                     }

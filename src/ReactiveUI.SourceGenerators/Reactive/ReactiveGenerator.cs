@@ -23,19 +23,17 @@ namespace ReactiveUI.SourceGenerators;
 [Generator(LanguageNames.CSharp)]
 public sealed partial class ReactiveGenerator : IIncrementalGenerator
 {
-    private const string ReactiveAttribute = "ReactiveUI.SourceGenerators.ReactiveAttribute";
-
     /// <inheritdoc/>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(ctx =>
-            ctx.AddSource($"{ReactiveAttribute}.g.cs", SourceText.From(AttributeDefinitions.ReactiveAttribute, Encoding.UTF8)));
+            ctx.AddSource($"{AttributeDefinitions.ReactiveAttributeType}.g.cs", SourceText.From(AttributeDefinitions.ReactiveAttribute, Encoding.UTF8)));
 
         // Gather info for all annotated command methods (starting from method declarations with at least one attribute)
         IncrementalValuesProvider<(HierarchyInfo Hierarchy, Result<PropertyInfo> Info)> propertyInfoWithErrors =
             context.SyntaxProvider
             .ForAttributeWithMetadataName(
-                ReactiveAttribute,
+                AttributeDefinitions.ReactiveAttributeType,
                 static (node, _) => node is VariableDeclaratorSyntax { Parent: VariableDeclarationSyntax { Parent: FieldDeclarationSyntax { Parent: ClassDeclarationSyntax or RecordDeclarationSyntax, AttributeLists.Count: > 0 } } },
                 static (context, token) =>
                 {

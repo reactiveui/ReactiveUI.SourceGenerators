@@ -25,12 +25,9 @@ public partial class ObservableAsPropertyFromObservableGenerator
 {
     internal static class Execute
     {
-        private const string GeneratedCode = "global::System.CodeDom.Compiler.GeneratedCode";
-        private const string ExcludeFromCodeCoverage = "global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage";
-
         internal static ImmutableArray<MemberDeclarationSyntax> GetPropertySyntax(ObservableMethodInfo propertyInfo)
         {
-            var getterFieldIdentifierName = GetGeneratedFieldName(propertyInfo.PropertyName);
+            var getterFieldIdentifierName = GetGeneratedFieldName(propertyInfo);
 
             var getterArrowExpression = ArrowExpressionClause(ParseExpression($"{getterFieldIdentifierName}Helper?.Value ?? default"));
 
@@ -47,7 +44,7 @@ public partial class ObservableAsPropertyFromObservableGenerator
                 .AddDeclarationVariables(VariableDeclarator(getterFieldIdentifierName + "Helper"))
                 .AddAttributeLists(
                     AttributeList(SingletonSeparatedList(
-                        Attribute(IdentifierName(GeneratedCode))
+                        Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
                         .AddArgumentListArguments(
                             AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyFromObservableGenerator).FullName))),
                             AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyFromObservableGenerator).Assembly.GetName().Version.ToString()))))))
@@ -57,12 +54,12 @@ public partial class ObservableAsPropertyFromObservableGenerator
                     PropertyDeclaration(propertyType, Identifier(propertyInfo.PropertyName))
                 .AddAttributeLists(
                     AttributeList(SingletonSeparatedList(
-                        Attribute(IdentifierName(GeneratedCode))
+                        Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
                         .AddArgumentListArguments(
                             AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyFromObservableGenerator).FullName))),
                             AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyFromObservableGenerator).Assembly.GetName().Version.ToString()))))))
                     .WithOpenBracketToken(Token(TriviaList(Comment($"/// <inheritdoc cref=\"{getterFieldIdentifierName}\"/>")), SyntaxKind.OpenBracketToken, TriviaList())),
-                    AttributeList(SingletonSeparatedList(Attribute(IdentifierName(ExcludeFromCodeCoverage)))))
+                    AttributeList(SingletonSeparatedList(Attribute(IdentifierName(AttributeDefinitions.ExcludeFromCodeCoverage)))))
                 .AddAttributeLists([.. forwardedAttributes])
                 .AddModifiers(Token(SyntaxKind.PublicKeyword))
                 .AddAccessorListAccessors(
@@ -75,11 +72,17 @@ public partial class ObservableAsPropertyFromObservableGenerator
         {
             using var propertyInitilisers = ImmutableArrayBuilder<StatementSyntax>.Rent();
 
-            // Add the command initializations
             foreach (var propertyInfo in propertyInfos)
             {
-                var fieldIdentifierName = GetGeneratedFieldName(propertyInfo.PropertyName);
-                propertyInitilisers.Add(ParseStatement($"{fieldIdentifierName}Helper = {propertyInfo.MethodName}()!.ToProperty(this, x => x.{propertyInfo.PropertyName});"));
+                var fieldIdentifierName = GetGeneratedFieldName(propertyInfo);
+                if (propertyInfo.IsProperty)
+                {
+                    propertyInitilisers.Add(ParseStatement($"{fieldIdentifierName}Helper = {propertyInfo.MethodName}!.ToProperty(this, x => x.{propertyInfo.PropertyName});"));
+                }
+                else
+                {
+                    propertyInitilisers.Add(ParseStatement($"{fieldIdentifierName}Helper = {propertyInfo.MethodName}()!.ToProperty(this, x => x.{propertyInfo.PropertyName});"));
+                }
             }
 
             return MethodDeclaration(
@@ -87,11 +90,11 @@ public partial class ObservableAsPropertyFromObservableGenerator
                     Identifier("InitializeOAPH"))
                 .AddAttributeLists(
                     AttributeList(SingletonSeparatedList(
-                        Attribute(IdentifierName(GeneratedCode))
+                        Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
                         .AddArgumentListArguments(
                             AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyFromObservableGenerator).FullName))),
                             AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyFromObservableGenerator).Assembly.GetName().Version.ToString())))))),
-                    AttributeList(SingletonSeparatedList(Attribute(IdentifierName(ExcludeFromCodeCoverage)))))
+                    AttributeList(SingletonSeparatedList(Attribute(IdentifierName(AttributeDefinitions.ExcludeFromCodeCoverage)))))
                 .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword)))
                 .WithBody(Block(propertyInitilisers.ToImmutable()));
         }
@@ -122,7 +125,7 @@ public partial class ObservableAsPropertyFromObservableGenerator
         /// <param name="methodDeclaration">The method declaration.</param>
         /// <param name="token">The cancellation token for the current operation.</param>
         /// <param name="propertyAttributes">The resulting property attributes to forward.</param>
-        internal static void GatherForwardedAttributes(
+        internal static void GatherForwardedAttributesFromMethod(
             IMethodSymbol methodSymbol,
             SemanticModel semanticModel,
             MethodDeclarationSyntax methodDeclaration,
@@ -131,7 +134,7 @@ public partial class ObservableAsPropertyFromObservableGenerator
         {
             using var propertyAttributesInfo = ImmutableArrayBuilder<AttributeInfo>.Rent();
 
-            static void GatherForwardedAttributes(
+            static void GatherForwardedAttributesFromMethod(
                 IMethodSymbol methodSymbol,
                 SemanticModel semanticModel,
                 MethodDeclarationSyntax methodDeclaration,
@@ -183,21 +186,81 @@ public partial class ObservableAsPropertyFromObservableGenerator
                 var partialImplementation = methodSymbol.PartialImplementationPart ?? methodSymbol;
 
                 // We always give priority to the partial definition, to ensure a predictable and testable ordering
-                GatherForwardedAttributes(partialDefinition, semanticModel, methodDeclaration, token, propertyAttributesInfo);
-                GatherForwardedAttributes(partialImplementation, semanticModel, methodDeclaration, token, propertyAttributesInfo);
+                GatherForwardedAttributesFromMethod(partialDefinition, semanticModel, methodDeclaration, token, propertyAttributesInfo);
+                GatherForwardedAttributesFromMethod(partialImplementation, semanticModel, methodDeclaration, token, propertyAttributesInfo);
             }
             else
             {
                 // If the method is not a partial definition/implementation, just gather attributes from the method with no modifications
-                GatherForwardedAttributes(methodSymbol, semanticModel, methodDeclaration, token, propertyAttributesInfo);
+                GatherForwardedAttributesFromMethod(methodSymbol, semanticModel, methodDeclaration, token, propertyAttributesInfo);
             }
 
             propertyAttributes = propertyAttributesInfo.ToImmutable();
         }
 
-        internal static string GetGeneratedFieldName(string propertyName)
+        internal static void GatherForwardedAttributesFromProperty(
+            IPropertySymbol methodSymbol,
+            SemanticModel semanticModel,
+            PropertyDeclarationSyntax methodDeclaration,
+            CancellationToken token,
+            out ImmutableArray<AttributeInfo> propertyAttributes)
         {
-            var commandName = propertyName;
+            using var propertyAttributesInfo = ImmutableArrayBuilder<AttributeInfo>.Rent();
+
+            static void GatherForwardedAttributesFromProperty(
+                IPropertySymbol methodSymbol,
+                SemanticModel semanticModel,
+                PropertyDeclarationSyntax methodDeclaration,
+                CancellationToken token,
+                ImmutableArrayBuilder<AttributeInfo> propertyAttributesInfo)
+            {
+                // Get the single syntax reference for the input method symbol (there should be only one)
+                if (methodSymbol.DeclaringSyntaxReferences is not [SyntaxReference syntaxReference])
+                {
+                    return;
+                }
+
+                // Gather explicit forwarded attributes info
+                foreach (var attributeList in methodDeclaration.AttributeLists)
+                {
+                    if (attributeList.Target?.Identifier is not SyntaxToken(SyntaxKind.PropertyKeyword))
+                    {
+                        continue;
+                    }
+
+                    foreach (var attribute in attributeList.Attributes)
+                    {
+                        if (!semanticModel.GetSymbolInfo(attribute, token).TryGetAttributeTypeSymbol(out var attributeTypeSymbol))
+                        {
+                            continue;
+                        }
+
+                        var attributeArguments = attribute.ArgumentList?.Arguments ?? Enumerable.Empty<AttributeArgumentSyntax>();
+
+                        // Try to extract the forwarded attribute
+                        if (!AttributeInfo.TryCreate(attributeTypeSymbol, semanticModel, attributeArguments, token, out var attributeInfo))
+                        {
+                            continue;
+                        }
+
+                        // Add the new attribute info to the right builder
+                        if (attributeList.Target?.Identifier is SyntaxToken(SyntaxKind.PropertyKeyword))
+                        {
+                            propertyAttributesInfo.Add(attributeInfo);
+                        }
+                    }
+                }
+            }
+
+            // If the method is not a partial definition/implementation, just gather attributes from the method with no modifications
+            GatherForwardedAttributesFromProperty(methodSymbol, semanticModel, methodDeclaration, token, propertyAttributesInfo);
+
+            propertyAttributes = propertyAttributesInfo.ToImmutable();
+        }
+
+        internal static string GetGeneratedFieldName(ObservableMethodInfo propertyInfo)
+        {
+            var commandName = propertyInfo.PropertyName;
 
             return $"_{char.ToLower(commandName[0], CultureInfo.InvariantCulture)}{commandName.Substring(1)}";
         }

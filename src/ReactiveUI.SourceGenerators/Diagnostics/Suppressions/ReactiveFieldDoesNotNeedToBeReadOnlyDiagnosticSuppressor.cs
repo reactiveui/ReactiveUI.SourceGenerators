@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using ReactiveUI.SourceGenerators.Extensions;
+using ReactiveUI.SourceGenerators.Helpers;
 using static ReactiveUI.SourceGenerators.Diagnostics.SuppressionDescriptors;
 
 namespace ReactiveUI.SourceGenerators.Diagnostics.Suppressions
@@ -40,7 +41,7 @@ namespace ReactiveUI.SourceGenerators.Diagnostics.Suppressions
 
                     // Check if the method is using [Reactive], in which case we should suppress the warning
                     if (declaredSymbol is IFieldSymbol fieldSymbol &&
-                        semanticModel.Compilation.GetTypeByMetadataName("ReactiveUI.SourceGenerators.ReactiveAttribute") is INamedTypeSymbol reactiveSymbol &&
+                        semanticModel.Compilation.GetTypeByMetadataName(AttributeDefinitions.ReactiveAttributeType) is INamedTypeSymbol reactiveSymbol &&
                         fieldSymbol.HasAttributeWithType(reactiveSymbol))
                     {
                         context.ReportSuppression(Suppression.Create(ReactiveFieldsShouldNotBeReadOnly, diagnostic));

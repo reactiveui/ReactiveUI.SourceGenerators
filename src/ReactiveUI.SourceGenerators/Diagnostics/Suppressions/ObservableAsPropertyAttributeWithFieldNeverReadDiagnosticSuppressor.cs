@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using ReactiveUI.SourceGenerators.Extensions;
+using ReactiveUI.SourceGenerators.Helpers;
 using static ReactiveUI.SourceGenerators.Diagnostics.SuppressionDescriptors;
 
 namespace ReactiveUI.SourceGenerators.Diagnostics.Suppressions
@@ -40,7 +41,7 @@ namespace ReactiveUI.SourceGenerators.Diagnostics.Suppressions
 
                     // Check if the method is using [ObservableAsProperty], in which case we should suppress the warning
                     if (declaredSymbol is IMethodSymbol methodSymbol &&
-                        semanticModel.Compilation.GetTypeByMetadataName("ReactiveUI.SourceGenerators.ObservableAsPropertyAttribute") is INamedTypeSymbol reactiveCommandSymbol &&
+                        semanticModel.Compilation.GetTypeByMetadataName(AttributeDefinitions.ObservableAsPropertyAttributeType) is INamedTypeSymbol reactiveCommandSymbol &&
                         methodSymbol.HasAttributeWithType(reactiveCommandSymbol))
                     {
                         context.ReportSuppression(Suppression.Create(FieldIsUsedToGenerateAObservableAsPropertyHelper, diagnostic));

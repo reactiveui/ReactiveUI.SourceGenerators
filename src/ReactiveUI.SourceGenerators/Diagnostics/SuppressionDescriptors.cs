@@ -22,7 +22,7 @@ internal static class SuppressionDescriptors
     public static readonly SuppressionDescriptor ReactiveCommandDoesNotAccessInstanceData = new(
         id: "RXUISPR0003",
         suppressedDiagnosticId: "CA1822",
-        justification: "Methods using [ReactiveCommand] do not need to be static");
+        justification: "Methods using [ReactiveCommand] or [ObservableAsProperty] do not need to be static");
 
     public static readonly SuppressionDescriptor ReactiveFieldsShouldNotBeReadOnly = new(
         id: "RXUISPR0004",

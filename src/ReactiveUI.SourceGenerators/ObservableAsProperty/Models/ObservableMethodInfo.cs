@@ -13,6 +13,7 @@ namespace ReactiveUI.SourceGenerators.ObservableAsProperty.Models
     ITypeSymbol MethodReturnType,
     ITypeSymbol? ArgumentType,
     string PropertyName,
+    bool IsProperty,
     EquatableArray<AttributeInfo> ForwardedPropertyAttributes)
     {
         public string GetObservableTypeText() => MethodReturnType is not INamedTypeSymbol typeSymbol

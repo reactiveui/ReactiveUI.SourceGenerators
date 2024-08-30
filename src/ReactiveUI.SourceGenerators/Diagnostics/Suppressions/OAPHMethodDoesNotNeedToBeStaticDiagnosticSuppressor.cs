@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using ReactiveUI.SourceGenerators.Extensions;
+using ReactiveUI.SourceGenerators.Helpers;
 using static ReactiveUI.SourceGenerators.Diagnostics.SuppressionDescriptors;
 
 namespace ReactiveUI.SourceGenerators.Diagnostics.Suppressions;
@@ -40,8 +41,25 @@ public sealed class OAPHMethodDoesNotNeedToBeStaticDiagnosticSuppressor : Diagno
 
                 // Check if the method is using [ObservableAsProperty], in which case we should suppress the warning
                 if (declaredSymbol is IMethodSymbol methodSymbol &&
-                    semanticModel.Compilation.GetTypeByMetadataName("ReactiveUI.SourceGenerators.ObservableAsPropertyAttribute") is INamedTypeSymbol oaphSymbol &&
+                    semanticModel.Compilation.GetTypeByMetadataName(AttributeDefinitions.ObservableAsPropertyAttributeType) is INamedTypeSymbol oaphSymbol &&
                     methodSymbol.HasAttributeWithType(oaphSymbol))
+                {
+                    context.ReportSuppression(Suppression.Create(ReactiveCommandDoesNotAccessInstanceData, diagnostic));
+                }
+            }
+
+            // Check that the target is a property declaration, which is the case we're looking for
+            if (syntaxNode is PropertyDeclarationSyntax propertyDeclaration)
+            {
+                var semanticModel = context.GetSemanticModel(syntaxNode.SyntaxTree);
+
+                // Get the method symbol from the first variable declaration
+                ISymbol? declaredSymbol = semanticModel.GetDeclaredSymbol(propertyDeclaration, context.CancellationToken);
+
+                // Check if the method is using [ObservableAsProperty], in which case we should suppress the warning
+                if (declaredSymbol is IPropertySymbol propertySymbol &&
+                    semanticModel.Compilation.GetTypeByMetadataName(AttributeDefinitions.ObservableAsPropertyAttributeType) is INamedTypeSymbol oaphSymbol &&
+                    propertySymbol.HasAttributeWithType(oaphSymbol))
                 {
                     context.ReportSuppression(Suppression.Create(ReactiveCommandDoesNotAccessInstanceData, diagnostic));
                 }

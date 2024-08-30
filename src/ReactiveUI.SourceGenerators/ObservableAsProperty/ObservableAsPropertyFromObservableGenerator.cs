@@ -23,8 +23,6 @@ namespace ReactiveUI.SourceGenerators;
 [Generator(LanguageNames.CSharp)]
 public sealed partial class ObservableAsPropertyFromObservableGenerator : IIncrementalGenerator
 {
-    private const string ObservableAsPropertyAttribute = "ReactiveUI.SourceGenerators.ObservableAsPropertyAttribute";
-
     /// <inheritdoc/>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -32,71 +30,97 @@ public sealed partial class ObservableAsPropertyFromObservableGenerator : IIncre
         IncrementalValuesProvider<(HierarchyInfo Hierarchy, Result<ObservableMethodInfo> Info)> propertyInfoWithErrors =
             context.SyntaxProvider
             .ForAttributeWithMetadataName(
-                ObservableAsPropertyAttribute,
-                static (node, _) => node is MethodDeclarationSyntax { Parent: ClassDeclarationSyntax or RecordDeclarationSyntax, AttributeLists.Count: > 0 },
+                AttributeDefinitions.ObservableAsPropertyAttributeType,
+                static (node, _) => node is MethodDeclarationSyntax or PropertyDeclarationSyntax { Parent: ClassDeclarationSyntax or RecordDeclarationSyntax, AttributeLists.Count: > 0 },
                 static (context, token) =>
                 {
-                    using var diagnostics = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
-                    var propertyInfo = default(ObservableMethodInfo?);
-                    var methodSyntax = (MethodDeclarationSyntax)context.TargetNode;
-                    var symbol = ModelExtensions.GetDeclaredSymbol(context.SemanticModel, methodSyntax, token)!;
+                    var symbol = ModelExtensions.GetDeclaredSymbol(context.SemanticModel, context.TargetNode, token)!;
                     token.ThrowIfCancellationRequested();
 
                     // Skip symbols without the target attribute
-                    if (!symbol.TryGetAttributeWithFullyQualifiedMetadataName(ObservableAsPropertyAttribute, out var attributeData))
+                    if (!symbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ObservableAsPropertyAttributeType, out var attributeData))
                     {
                         return default;
                     }
 
+                    // Get the can PropertyName member, if any
+                    attributeData.TryGetNamedArgument("PropertyName", out string? propertyName);
+
                     token.ThrowIfCancellationRequested();
 
+                    using var diagnostics = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
+                    var propertyInfo = default(ObservableMethodInfo?);
                     var compilation = context.SemanticModel.Compilation;
-                    var methodSymbol = (IMethodSymbol)symbol!;
-                    if (methodSymbol.Parameters.Length != 0)
+                    var hierarchy = default(HierarchyInfo);
+
+                    if (context.TargetNode is MethodDeclarationSyntax methodSyntax)
                     {
-                        diagnostics.Add(
-                            ObservableAsPropertyMethodHasParametersError,
+                        var methodSymbol = (IMethodSymbol)symbol!;
+                        if (methodSymbol.Parameters.Length != 0)
+                        {
+                            diagnostics.Add(
+                                ObservableAsPropertyMethodHasParametersError,
+                                methodSymbol,
+                                methodSymbol.Name);
+                            return default;
+                        }
+
+                        var isObservable = Execute.IsObservableReturnType(methodSymbol.ReturnType);
+
+                        token.ThrowIfCancellationRequested();
+
+                        Execute.GatherForwardedAttributesFromMethod(
                             methodSymbol,
-                            methodSymbol.Name);
-                        return default;
-                    }
+                            context.SemanticModel,
+                            methodSyntax,
+                            token,
+                            out var propertyAttributes);
 
-                    var isObservable = Execute.IsObservableReturnType(methodSymbol.ReturnType);
+                        token.ThrowIfCancellationRequested();
 
-                    token.ThrowIfCancellationRequested();
+                        // Get the hierarchy info for the target symbol, and try to gather the property info
+                        hierarchy = HierarchyInfo.From(methodSymbol.ContainingType);
+                        token.ThrowIfCancellationRequested();
 
-                    Execute.GatherForwardedAttributes(
-                        methodSymbol,
-                        context.SemanticModel,
-                        methodSyntax,
-                        token,
-                        out var propertyAttributes);
-
-                    token.ThrowIfCancellationRequested();
-
-                    // Get the can execute member, if any
-                    if (!attributeData.TryGetNamedArgument("PropertyName", out string? propertyName))
-                    {
-                        return default;
-                    }
-
-                    if (string.IsNullOrWhiteSpace(propertyName))
-                    {
-                        return default;
-                    }
-
-                    token.ThrowIfCancellationRequested();
-
-                    // Get the hierarchy info for the target symbol, and try to gather the property info
-                    var hierarchy = HierarchyInfo.From(methodSymbol.ContainingType);
-
-                    token.ThrowIfCancellationRequested();
-                    propertyInfo = new ObservableMethodInfo(
+                        propertyInfo = new ObservableMethodInfo(
                         methodSymbol.Name,
                         methodSymbol.ReturnType,
                         methodSymbol.Parameters.FirstOrDefault()?.Type,
-                        propertyName!,
+                        propertyName ?? (methodSymbol.Name + "Property"),
+                        false,
                         propertyAttributes);
+                    }
+
+                    if (context.TargetNode is PropertyDeclarationSyntax propertySyntax)
+                    {
+                        var propertySymbol = (IPropertySymbol)symbol!;
+                        var isObservable = Execute.IsObservableReturnType(propertySymbol.Type);
+
+                        token.ThrowIfCancellationRequested();
+
+                        Execute.GatherForwardedAttributesFromProperty(
+                            propertySymbol,
+                            context.SemanticModel,
+                            propertySyntax,
+                            token,
+                            out var propertyAttributes);
+
+                        token.ThrowIfCancellationRequested();
+
+                        // Get the hierarchy info for the target symbol, and try to gather the property info
+                        hierarchy = HierarchyInfo.From(propertySymbol.ContainingType);
+                        token.ThrowIfCancellationRequested();
+
+                        propertyInfo = new ObservableMethodInfo(
+                        propertySymbol.Name,
+                        propertySymbol.Type,
+                        propertySymbol.Parameters.FirstOrDefault()?.Type,
+                        propertyName ?? (propertySymbol.Name + "Property"),
+                        true,
+                        propertyAttributes);
+                    }
+
+                    token.ThrowIfCancellationRequested();
 
                     return (Hierarchy: hierarchy, new Result<ObservableMethodInfo?>(propertyInfo, diagnostics.ToImmutable()));
                 })
