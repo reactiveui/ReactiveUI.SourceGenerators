@@ -26,8 +26,6 @@ namespace ReactiveUI.SourceGenerators.WinForms;
 [Generator(LanguageNames.CSharp)]
 public sealed partial class ViewModelControlHostGenerator : IIncrementalGenerator
 {
-    private const string GeneratedCode = "global::System.CodeDom.Compiler.GeneratedCode";
-
     /// <inheritdoc/>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -35,7 +33,7 @@ public sealed partial class ViewModelControlHostGenerator : IIncrementalGenerato
             ctx.AddSource($"{AttributeDefinitions.ViewModelControlHostAttributeType}.g.cs", SourceText.From(AttributeDefinitions.ViewModelControlHostAttribute, Encoding.UTF8)));
 
         // Gather info for all annotated IViewFor Classes
-        IncrementalValuesProvider<(HierarchyInfo Hierarchy, Result<ViewModelControlHostInfo> Info)> iViewForInfoWithErrors =
+        IncrementalValuesProvider<(HierarchyInfo Hierarchy, Result<ViewModelControlHostInfo> Info)> vmcInfoWithErrors =
             context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 AttributeDefinitions.ViewModelControlHostAttributeType,
@@ -44,7 +42,7 @@ public sealed partial class ViewModelControlHostGenerator : IIncrementalGenerato
                 {
                     token.ThrowIfCancellationRequested();
                     using var hierarchys = ImmutableArrayBuilder<HierarchyInfo>.Rent();
-                    ViewModelControlHostInfo iViewForInfo = default!;
+                    ViewModelControlHostInfo vmcInfo = default!;
                     HierarchyInfo hierarchy = default!;
 
                     if (context.TargetNode is ClassDeclarationSyntax declaredClass && declaredClass.Modifiers.Any(SyntaxKind.PartialKeyword))
@@ -66,7 +64,7 @@ public sealed partial class ViewModelControlHostGenerator : IIncrementalGenerato
                                 GatherForwardedAttributes(attributeData, semanticModel, declaredClass, token, out var classAttributesInfo);
                                 token.ThrowIfCancellationRequested();
 
-                                iViewForInfo = new ViewModelControlHostInfo(
+                                vmcInfo = new ViewModelControlHostInfo(
                                     classNamespace!,
                                     className,
                                     viewModelTypeName!,
@@ -80,7 +78,7 @@ public sealed partial class ViewModelControlHostGenerator : IIncrementalGenerato
 
                     token.ThrowIfCancellationRequested();
                     ImmutableArray<DiagnosticInfo> diagnostics = default;
-                    return (Hierarchy: hierarchy, new Result<ViewModelControlHostInfo?>(iViewForInfo, diagnostics));
+                    return (Hierarchy: hierarchy, new Result<ViewModelControlHostInfo?>(vmcInfo, diagnostics));
                 })
             .Where(static item => item.Hierarchy is not null)!;
 
@@ -88,15 +86,13 @@ public sealed partial class ViewModelControlHostGenerator : IIncrementalGenerato
         ////context.ReportDiagnostics(iViewForInfoWithErrors.Select(static (item, _) => item.Info.Errors));
 
         // Get the filtered sequence to enable caching
-        var iViewForInfo =
-            iViewForInfoWithErrors
+        var vmcInfo =
+            vmcInfoWithErrors
             .Where(static item => item.Info.Value is not null)!;
 
         // Generate the requested properties and methods for IViewFor
-        context.RegisterSourceOutput(iViewForInfo, static (context, item) =>
-        {
-            context.AddSource($"{item.Hierarchy.FilenameHint}.ViewModelControlHost.g.cs", Execute.GetViewModelControlHost(item.Info.Value));
-        });
+        context.RegisterSourceOutput(vmcInfo, static (context, item) =>
+            context.AddSource($"{item.Hierarchy.FilenameHint}.ViewModelControlHost.g.cs", Execute.GetViewModelControlHost(item.Info.Value)));
     }
 
     private static void GatherForwardedAttributes(
