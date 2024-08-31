@@ -117,7 +117,7 @@ public partial class RoutedControlHostGenerator
                         }
                     }));
 
-                    ViewContractObservable = Observable<string>.Default;
+                    ViewContractObservable = Observable.Return(default(string)!);
 
                     var vmAndContract =
                         this.WhenAnyObservable(x => x.Router!.CurrentViewModel!)
