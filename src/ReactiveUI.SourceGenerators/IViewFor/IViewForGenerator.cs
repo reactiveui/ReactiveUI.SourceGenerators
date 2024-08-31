@@ -26,8 +26,6 @@ namespace ReactiveUI.SourceGenerators;
 [Generator(LanguageNames.CSharp)]
 public sealed partial class IViewForGenerator : IIncrementalGenerator
 {
-    private const string GeneratedCode = "global::System.CodeDom.Compiler.GeneratedCode";
-
     /// <inheritdoc/>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {

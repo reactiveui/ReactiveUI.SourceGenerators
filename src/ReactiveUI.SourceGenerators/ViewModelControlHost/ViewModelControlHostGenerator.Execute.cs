@@ -9,6 +9,7 @@ using System.IO;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Input.Models;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
@@ -84,7 +85,12 @@ public partial class ViewModelControlHostGenerator
                                 SimpleBaseType(IdentifierName("IReactiveObject")),
                                 Token(SyntaxKind.CommaToken),
                                 SimpleBaseType(IdentifierName("IViewFor"))
-                                        })))))))
+                                        })))
+                            .AddAttributeLists(AttributeList(SingletonSeparatedList(
+                                Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
+                                .AddArgumentListArguments(
+                                    AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ViewModelControlHostGenerator).FullName))),
+                                    AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ViewModelControlHostGenerator).Assembly.GetName().Version.ToString())))))))))))
             .NormalizeWhitespace().ToFullString();
 
             // Remove the last 4 characters to remove the closing brackets

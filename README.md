@@ -365,5 +365,26 @@ public partial class MyReactiveControl : UserControl
 }
 ```
 
+## Platform specific Attributes
+
+### WinForms
+
+#### RoutedControlHost
+```csharp
+using ReactiveUI.SourceGenerators.WinForms;
+
+[RoutedControlHost("YourNameSpace.CustomControl")]
+public partial class MyCustomRoutedControlHost;
+```
+
+#### ViewModelControlHost
+```csharp
+using ReactiveUI.SourceGenerators.WinForms;
+
+[ViewModelControlHost("YourNameSpace.CustomControl")]
+public partial class MyCustomViewModelControlHost;
+```
+
+
 ### TODO:
 - Add ObservableAsProperty to generate from a IObservable method with parameters.
