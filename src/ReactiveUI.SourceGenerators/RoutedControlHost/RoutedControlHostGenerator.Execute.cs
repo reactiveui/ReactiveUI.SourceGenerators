@@ -9,6 +9,7 @@ using System.IO;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Input.Models;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
@@ -82,7 +83,12 @@ public partial class RoutedControlHostGenerator
                                 SimpleBaseType(IdentifierName(vmcInfo.ViewModelTypeName)),
                                 Token(SyntaxKind.CommaToken),
                                 SimpleBaseType(IdentifierName("IReactiveObject"))
-                                        })))))))
+                                        })))
+                            .AddAttributeLists(AttributeList(SingletonSeparatedList(
+                            Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
+                            .AddArgumentListArguments(
+                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(RoutedControlHostGenerator).FullName))),
+                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(RoutedControlHostGenerator).Assembly.GetName().Version.ToString())))))))))))
             .NormalizeWhitespace().ToFullString();
 
             // Remove the last 4 characters to remove the closing brackets

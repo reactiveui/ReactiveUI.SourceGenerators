@@ -8,6 +8,7 @@ using System.IO;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Input.Models;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
@@ -66,7 +67,7 @@ public partial class IViewForGenerator
                                             IdentifierName(iViewForInfo.ViewModelTypeName))))))
                         .AddModifiers([.. iViewForInfo.DeclarationSyntax.Modifiers])
                         .AddAttributeLists(AttributeList(SingletonSeparatedList(
-                            Attribute(IdentifierName(GeneratedCode))
+                            Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
                             .AddArgumentListArguments(
                                 AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(IViewForGenerator).FullName))),
                                 AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(IViewForGenerator).Assembly.GetName().Version.ToString())))))))))
@@ -159,7 +160,7 @@ public partial class IViewForGenerator
                                             IdentifierName(iViewForInfo.ViewModelTypeName))))))
                         .AddModifiers([.. iViewForInfo.DeclarationSyntax.Modifiers])
                         .AddAttributeLists(AttributeList(SingletonSeparatedList(
-                            Attribute(IdentifierName(GeneratedCode))
+                            Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
                             .AddArgumentListArguments(
                                 AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(IViewForGenerator).FullName))),
                                 AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(IViewForGenerator).Assembly.GetName().Version.ToString())))))))))
@@ -232,7 +233,7 @@ public partial class IViewForGenerator
                                             IdentifierName(iViewForInfo.ViewModelTypeName))))))
                         .AddModifiers([.. iViewForInfo.DeclarationSyntax.Modifiers])
                         .AddAttributeLists(AttributeList(SingletonSeparatedList(
-                            Attribute(IdentifierName(GeneratedCode))
+                            Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
                             .AddArgumentListArguments(
                                 AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(IViewForGenerator).FullName))),
                                 AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(IViewForGenerator).Assembly.GetName().Version.ToString())))))))))
@@ -346,7 +347,7 @@ public partial class IViewForGenerator
                                             IdentifierName(iViewForInfo.ViewModelTypeName))))))
                         .AddModifiers([.. iViewForInfo.DeclarationSyntax.Modifiers])
                         .AddAttributeLists(AttributeList(SingletonSeparatedList(
-                            Attribute(IdentifierName(GeneratedCode))
+                            Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
                             .AddArgumentListArguments(
                                 AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(IViewForGenerator).FullName))),
                                 AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(IViewForGenerator).Assembly.GetName().Version.ToString())))))))))
