@@ -8,10 +8,7 @@ using ReactiveUI.SourceGenerators.WinForms;
 namespace SGReactiveUI.SourceGenerators.Test;
 
 /// <summary>
-/// TestWinFormsVMCHost.
+/// TestWinFormsRCHost.
 /// </summary>
-/// <seealso cref="System.Windows.Forms.UserControl" />
-/// <seealso cref="ReactiveUI.IReactiveObject" />
-/// <seealso cref="ReactiveUI.IViewFor" />
-[ViewModelControlHost(nameof(UserControl))]
-public partial class TestWinFormsVMCHost;
+[RoutedControlHost(nameof(UserControl))]
+public partial class TestWinFormsRCHost;
