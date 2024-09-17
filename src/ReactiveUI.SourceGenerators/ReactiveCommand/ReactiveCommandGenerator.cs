@@ -139,10 +139,10 @@ public sealed partial class ReactiveCommandGenerator : IIncrementalGenerator
             // Generate all member declarations for the current type
             var propertyDeclarations =
                 commandInfos
-                .Select(Execute.GetCommandProperty)
+                .SelectMany(Execute.GetCommandProperty)
                 .ToList();
 
-            var c = Execute.GetCommandInitiliser(commandInfos);
+            var c = Execute.GetCommandInitiliser();
             propertyDeclarations.Add(c);
             var memberDeclarations = propertyDeclarations.ToImmutableArray();
 
