@@ -110,7 +110,8 @@ public partial class ReactiveCommandGenerator
                             AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ReactiveCommandGenerator).FullName))),
                             AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ReactiveCommandGenerator).Assembly.GetName().Version.ToString())))))))
                         .AddModifiers(
-                        Token(SyntaxKind.PrivateKeyword));
+                        Token(SyntaxKind.PrivateKeyword))
+                        .NormalizeWhitespace();
 
             var commandDeclaration = PropertyDeclaration(
                 qualifiedName,
