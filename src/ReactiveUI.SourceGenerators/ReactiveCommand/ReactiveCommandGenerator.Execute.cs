@@ -316,6 +316,18 @@ public partial class ReactiveCommandGenerator
 
                 return true;
             }
+            else if (canExecuteSymbol is IFieldSymbol canExecuteFieldSymbol)
+            {
+                // The property type must always be a bool
+                if (!IsObservableBoolType(canExecuteFieldSymbol.Type))
+                {
+                    goto Failure;
+                }
+
+                canExecuteTypeInfo = CanExecuteTypeInfo.FieldObservable;
+
+                return true;
+            }
 
         Failure:
             canExecuteTypeInfo = null;

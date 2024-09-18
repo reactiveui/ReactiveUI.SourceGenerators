@@ -18,6 +18,8 @@ namespace SGReactiveUI.SourceGenerators.Test;
 [DataContract]
 public partial class TestViewModel : ReactiveObject
 {
+    private readonly IObservable<bool> _observable = Observable.Return(true);
+
     [JsonInclude]
     [DataMember]
     [ObservableAsProperty]
@@ -67,6 +69,7 @@ public partial class TestViewModel : ReactiveObject
         cancel?.Dispose();
 
         Test10AsyncCommand?.Execute(200).Subscribe(r => Console.Out.WriteLine(r));
+        TestPrivateCanExecuteCommand?.Execute().Subscribe();
 
         Console.ReadLine();
     }
@@ -171,4 +174,7 @@ public partial class TestViewModel : ReactiveObject
 
     [ReactiveCommand]
     private async Task<Point> Test10Async(int size, CancellationToken ct) => await Task.FromResult(new Point(size, size));
+
+    [ReactiveCommand(CanExecute = nameof(_observable))]
+    private void TestPrivateCanExecute() => Console.Out.WriteLine("TestPrivateCanExecute");
 }
