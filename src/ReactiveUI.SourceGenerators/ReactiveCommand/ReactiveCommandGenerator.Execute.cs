@@ -37,9 +37,7 @@ public partial class ReactiveCommandGenerator
     /// </summary>
     internal static class Execute
     {
-        internal static MethodDeclarationSyntax GetCommandInitiliser()
-        {
-            return MethodDeclaration(
+        internal static MethodDeclarationSyntax GetCommandInitiliser() => MethodDeclaration(
                     PredefinedType(Token(SyntaxKind.VoidKeyword)),
                     Identifier("InitializeCommands"))
                 .AddAttributeLists(
@@ -54,7 +52,6 @@ public partial class ReactiveCommandGenerator
                             AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(ObsoleteReason)))))))
                 .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword)))
                 .WithBody(Block());
-        }
 
         internal static MemberDeclarationSyntax[] GetCommandProperty(CommandInfo commandExtensionInfo)
         {
@@ -470,9 +467,7 @@ public partial class ReactiveCommandGenerator
             return $"{char.ToUpper(commandName[0], CultureInfo.InvariantCulture)}{commandName.Substring(1)}Command";
         }
 
-        internal static string GetGeneratedFieldName(string generatedCommandName)
-        {
-            return $"_{char.ToLower(generatedCommandName[0], CultureInfo.InvariantCulture)}{generatedCommandName.Substring(1)}";
-        }
+        internal static string GetGeneratedFieldName(string generatedCommandName) =>
+            $"_{char.ToLower(generatedCommandName[0], CultureInfo.InvariantCulture)}{generatedCommandName.Substring(1)}";
     }
 }

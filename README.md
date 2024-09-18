@@ -176,11 +176,6 @@ using ReactiveUI.SourceGenerators;
 
 public partial class MyReactiveClass
 {
-    public MyReactiveClass()
-    {
-        InitializeCommands();
-    }
-
     [ReactiveCommand]
     private void Execute() { }
 }
@@ -192,11 +187,6 @@ using ReactiveUI.SourceGenerators;
 
 public partial class MyReactiveClass
 {
-    public MyReactiveClass()
-    {
-        InitializeCommands();
-    }
-
     [ReactiveCommand]
     private void Execute(string parameter) { }
 }
@@ -208,11 +198,6 @@ using ReactiveUI.SourceGenerators;
 
 public partial class MyReactiveClass
 {
-    public MyReactiveClass()
-    {
-        InitializeCommands();
-    }
-
     [ReactiveCommand]
     private string Execute(string parameter) => parameter;
 }
@@ -224,11 +209,6 @@ using ReactiveUI.SourceGenerators;
 
 public partial class MyReactiveClass
 {
-    public MyReactiveClass()
-    {
-        InitializeCommands();
-    }
-
     [ReactiveCommand]
     private async Task<string> Execute(string parameter) => await Task.FromResult(parameter);
 }
@@ -240,11 +220,6 @@ using ReactiveUI.SourceGenerators;
 
 public partial class MyReactiveClass
 {
-    public MyReactiveClass()
-    {
-        InitializeCommands();
-    }
-
     [ReactiveCommand]
     private IObservable<string> Execute(string parameter) => Observable.Return(parameter);
 }
@@ -256,11 +231,6 @@ using ReactiveUI.SourceGenerators;
 
 public partial class MyReactiveClass
 {
-    public MyReactiveClass()
-    {
-        InitializeCommands();
-    }
-
     [ReactiveCommand]
     private async Task Execute(CancellationToken token) => await Task.Delay(1000, token);
 }
@@ -272,11 +242,6 @@ using ReactiveUI.SourceGenerators;
 
 public partial class MyReactiveClass
 {
-    public MyReactiveClass()
-    {
-        InitializeCommands();
-    }
-
     [ReactiveCommand]
     private async Task<string> Execute(string parameter, CancellationToken token)
     {
@@ -302,7 +267,6 @@ public partial class MyReactiveClass
 
     public MyReactiveClass()
     {
-        InitializeCommands();
         _canExecute = this.WhenAnyValue(x => x.MyProperty1, x => x.MyProperty2, (x, y) => !string.IsNullOrEmpty(x) && !string.IsNullOrEmpty(y));
     }
 
@@ -327,7 +291,6 @@ public partial class MyReactiveClass
 
     public MyReactiveClass()
     {
-        InitializeCommands();
         _canExecute = this.WhenAnyValue(x => x.MyProperty1, x => x.MyProperty2, (x, y) => !string.IsNullOrEmpty(x) && !string.IsNullOrEmpty(y));
     }
 

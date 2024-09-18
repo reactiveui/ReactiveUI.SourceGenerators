@@ -33,7 +33,6 @@ public partial class TestViewModel : ReactiveObject
     /// </summary>
     public TestViewModel()
     {
-        InitializeCommands();
         InitializeOAPH();
 
         Console.Out.WriteLine(Test1Command);
