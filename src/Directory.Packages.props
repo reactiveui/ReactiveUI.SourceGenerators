@@ -19,7 +19,7 @@
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.6.143" />
     <PackageVersion Include="stylecop.analyzers" Version="1.2.0-beta.556" />
     <PackageVersion Include="Roslynator.Analyzers" Version="4.12.4" />
-    <PackageVersion Include="ReactiveUI" Version="20.1.1" />
+    <PackageVersion Include="ReactiveUI" Version="20.1.52" />
     <PackageVersion Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
     <PackageVersion Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" />
