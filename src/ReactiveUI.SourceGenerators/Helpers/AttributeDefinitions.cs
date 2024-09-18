@@ -11,6 +11,7 @@ internal static class AttributeDefinitions
 {
     public const string GeneratedCode = "global::System.CodeDom.Compiler.GeneratedCode";
     public const string ExcludeFromCodeCoverage = "global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage";
+    public const string Obsolete = "global::System.Obsolete";
     public const string ReactiveObjectAttribute = """
 // Copyright (c) 2024 .NET Foundation and Contributors. All rights reserved.
 // Licensed to the .NET Foundation under one or more agreements.
