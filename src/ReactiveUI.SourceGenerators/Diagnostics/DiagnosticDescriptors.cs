@@ -259,7 +259,7 @@ internal static class DiagnosticDescriptors
         id: "RXUISG0016",
         title: "Property To Reactive Field, change to [Reactive] private type _fieldName;",
         messageFormat: "Replace the property with a INPC Reactive Property for ReactiveUI",
-        category: typeof(PropertyToReactiveFieldCodeFixProvider).FullName,
+        category: typeof(PropertyToReactiveFieldAnalyzer).FullName,
         defaultSeverity: DiagnosticSeverity.Info,
         isEnabledByDefault: true,
         description: "Used to create a Read Write INPC Reactive Property for ReactiveUI, annotated with [Reactive].",

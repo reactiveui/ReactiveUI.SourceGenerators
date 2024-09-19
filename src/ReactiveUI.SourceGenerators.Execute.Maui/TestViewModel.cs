@@ -33,8 +33,6 @@ public partial class TestViewModel : ReactiveObject
     /// </summary>
     public TestViewModel()
     {
-        InitializeCommands();
-
         Console.Out.WriteLine(Test1Command);
         Console.Out.WriteLine(Test2Command);
         Console.Out.WriteLine(Test3AsyncCommand);
