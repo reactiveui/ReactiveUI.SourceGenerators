@@ -8,5 +8,6 @@ namespace ReactiveUI.SourceGenerators.Input.Models;
 internal enum CanExecuteTypeInfo
 {
     PropertyObservable,
-    MethodObservable
+    MethodObservable,
+    FieldObservable,
 }
