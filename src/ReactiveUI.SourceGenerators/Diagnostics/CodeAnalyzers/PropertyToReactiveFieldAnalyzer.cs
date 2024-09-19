@@ -45,8 +45,12 @@ namespace ReactiveUI.SourceGenerators.CodeAnalyzers
         }
 
         private void AnalyzeNode(SyntaxNodeAnalysisContext context)
+        {
+            if (context.Node is not PropertyDeclarationSyntax propertyDeclaration)
             {
-            var propertyDeclaration = (PropertyDeclarationSyntax)context.Node;
+                return;
+            }
+
             var isAutoProperty = propertyDeclaration.ExpressionBody == null && (propertyDeclaration.AccessorList?.Accessors.All(a => a.Body == null && a.ExpressionBody == null) != false);
 
             if (isAutoProperty && propertyDeclaration.Modifiers.Any(SyntaxKind.PublicKeyword) && !propertyDeclaration.Modifiers.Any(SyntaxKind.StaticKeyword))

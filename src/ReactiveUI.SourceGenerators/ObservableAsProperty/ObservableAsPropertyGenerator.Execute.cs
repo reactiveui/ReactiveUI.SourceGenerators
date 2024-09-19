@@ -25,8 +25,6 @@ namespace ReactiveUI.SourceGenerators;
 /// <seealso cref="IIncrementalGenerator" />
 public partial class ObservableAsPropertyGenerator
 {
-    private const string GeneratedCode = "global::System.CodeDom.Compiler.GeneratedCode";
-    private const string ExcludeFromCodeCoverage = "global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage";
     /// <summary>
     /// A container for all the logic for <see cref="ObservableAsPropertyGenerator"/>.
     /// </summary>
@@ -88,7 +86,7 @@ public partial class ObservableAsPropertyGenerator
                 .AddDeclarationVariables(VariableDeclarator(getterFieldIdentifierName + "Helper"))
                 .AddAttributeLists(
                     AttributeList(SingletonSeparatedList(
-                        Attribute(IdentifierName(GeneratedCode))
+                        Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
                         .AddArgumentListArguments(
                             AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).FullName))),
                             AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).Assembly.GetName().Version.ToString()))))))
@@ -99,12 +97,12 @@ public partial class ObservableAsPropertyGenerator
                     PropertyDeclaration(propertyType, Identifier(propertyInfo.PropertyName))
                 .AddAttributeLists(
                     AttributeList(SingletonSeparatedList(
-                        Attribute(IdentifierName(GeneratedCode))
+                        Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
                         .AddArgumentListArguments(
                             AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).FullName))),
                             AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).Assembly.GetName().Version.ToString()))))))
                     .WithOpenBracketToken(Token(TriviaList(Comment($"/// <inheritdoc cref=\"{getterFieldIdentifierName}\"/>")), SyntaxKind.OpenBracketToken, TriviaList())),
-                    AttributeList(SingletonSeparatedList(Attribute(IdentifierName(ExcludeFromCodeCoverage)))))
+                    AttributeList(SingletonSeparatedList(Attribute(IdentifierName(AttributeDefinitions.ExcludeFromCodeCoverage)))))
                 .AddAttributeLists([.. forwardedAttributes])
                 .AddModifiers(Token(SyntaxKind.PublicKeyword))
                 .AddAccessorListAccessors(

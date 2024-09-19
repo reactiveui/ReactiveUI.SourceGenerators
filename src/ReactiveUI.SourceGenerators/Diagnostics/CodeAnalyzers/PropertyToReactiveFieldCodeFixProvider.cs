@@ -28,7 +28,8 @@ namespace ReactiveUI.SourceGenerators.CodeAnalyzers
         /// <summary>
         /// Gets a list of diagnostic IDs that this provider can provide fixes for.
         /// </summary>
-        public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(DiagnosticDescriptors.PropertyToReactiveFieldRule.Id);
+        public sealed override ImmutableArray<string> FixableDiagnosticIds =>
+            ImmutableArray.Create(DiagnosticDescriptors.PropertyToReactiveFieldRule.Id);
 
         /// <summary>
         /// Gets an optional <see cref="T:Microsoft.CodeAnalysis.CodeFixes.FixAllProvider" /> that can fix all/multiple occurrences of diagnostics fixed by this code fix provider.
@@ -77,7 +78,10 @@ namespace ReactiveUI.SourceGenerators.CodeAnalyzers
 
             // Apply the code fix
             context.RegisterCodeFix(
-                CodeAction.Create("Convert to Reactive field", c => Task.FromResult(context.Document.WithSyntaxRoot(newRoot!)), "Convert to Reactive field"),
+                CodeAction.Create(
+                    "Convert to Reactive field",
+                    c => Task.FromResult(context.Document.WithSyntaxRoot(newRoot!)),
+                    "Convert to Reactive field"),
                 diagnostic);
         }
     }
