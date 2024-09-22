@@ -15,7 +15,4 @@ jobs:
     with:
       configuration: Release
       productNamespacePrefix: "SourceGenerators"
-      useVisualStudioPreview: false
-      useMauiCheckDotNetTool: false
       installWorkflows: false
-      dotNetBuild: true
