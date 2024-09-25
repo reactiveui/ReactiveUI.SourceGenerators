@@ -153,7 +153,7 @@ namespace ReactiveUI.SourceGenerators;
 /// <param name="viewModelType">Type of the view model.</param>
 [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.IViewForGenerator", "1.1.0.0")]
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-internal sealed class IViewForAttribute(string? viewModelType) : Attribute;
+internal sealed class IViewForAttribute<T> : Attribute;
 #nullable restore
 #pragma warning restore
 """;

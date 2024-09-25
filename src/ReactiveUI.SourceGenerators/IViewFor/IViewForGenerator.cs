@@ -3,6 +3,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System;
 using System.CodeDom.Compiler;
 using System.Collections.Immutable;
 using System.IO;
@@ -57,8 +58,11 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
                             var classSymbol = symbol as INamedTypeSymbol;
                             var classNamespace = classSymbol?.ContainingNamespace.ToString();
                             var className = declaredClass.Identifier.ValueText;
-                            var constructorArgument = attributeData.GetConstructorArguments<string>().First();
-                            if (constructorArgument is string viewModelTypeName)
+                            token.ThrowIfCancellationRequested();
+
+                            var genericArgument = GetGenericType(attributeData);
+                            token.ThrowIfCancellationRequested();
+                            if (genericArgument is string viewModelTypeName && viewModelTypeName.Length > 0)
                             {
                                 token.ThrowIfCancellationRequested();
                                 GatherForwardedAttributes(attributeData, semanticModel, declaredClass, token, out var classAttributesInfo);
@@ -192,5 +196,12 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
         GatherForwardedAttributes(attributeData, semanticModel, classDeclaration, token, classAttributesInfoBuilder);
 
         classAttributesInfo = classAttributesInfoBuilder.ToImmutable();
+    }
+
+    private static string? GetGenericType(AttributeData attributeData)
+    {
+        var success = attributeData?.AttributeClass?.ToDisplayString();
+        var start = success?.IndexOf('<') + 1 ?? 0;
+        return success?.Substring(start, success.Length - start - 1);
     }
 }

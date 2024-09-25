@@ -208,7 +208,7 @@ internal static class ITypeSymbolExtensions
 
         symbol.AppendFullyQualifiedMetadataName(builder);
 
-        return builder.WrittenSpan.SequenceEqual(name.AsSpan());
+        return builder.WrittenSpan.StartsWith(name.AsSpan());
     }
 
     public static bool ContainsFullyQualifiedMetadataName(this ITypeSymbol symbol, string name)

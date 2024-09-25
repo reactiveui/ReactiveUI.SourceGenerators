@@ -12,7 +12,7 @@ namespace SGReactiveUI.SourceGenerators.Test;
 /// <summary>
 /// TestView.
 /// </summary>
-[IViewFor(nameof(TestViewModel))]
+[IViewFor<TestViewModel>]
 public partial class TestViewWpf : Window
 {
     /// <summary>
