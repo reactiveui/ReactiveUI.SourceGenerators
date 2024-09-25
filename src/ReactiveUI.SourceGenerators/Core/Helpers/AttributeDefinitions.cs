@@ -31,7 +31,7 @@ namespace ReactiveUI.SourceGenerators;
 /// <seealso cref="System.Attribute" />
 [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.IViewForGenerator", "1.1.0.0")]
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-public sealed class ReactiveObjectAttribute : Attribute;
+internal sealed class ReactiveObjectAttribute : Attribute;
 #nullable restore
 #pragma warning restore
 """;
@@ -56,7 +56,7 @@ namespace ReactiveUI.SourceGenerators;
 /// <seealso cref="Attribute" />
 [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveCommandGenerator", "1.1.0.0")]
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-public sealed class ReactiveCommandAttribute : Attribute
+internal sealed class ReactiveCommandAttribute : Attribute
 {
     /// <summary>
     /// Gets the can execute method or property.
@@ -90,7 +90,7 @@ namespace ReactiveUI.SourceGenerators;
 /// <seealso cref="Attribute" />
 [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveGenerator", "1.1.0.0")]
 [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
-public sealed class ReactiveAttribute : Attribute;
+internal sealed class ReactiveAttribute : Attribute;
 #nullable restore
 #pragma warning restore
 """;
@@ -115,7 +115,7 @@ namespace ReactiveUI.SourceGenerators;
 /// <seealso cref="Attribute" />
 [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "1.1.0.0")]
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-public sealed class ObservableAsPropertyAttribute : Attribute
+internal sealed class ObservableAsPropertyAttribute : Attribute
 {
     /// <summary>
     /// Gets the name of the property.
@@ -153,7 +153,7 @@ namespace ReactiveUI.SourceGenerators;
 /// <param name="viewModelType">Type of the view model.</param>
 [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.IViewForGenerator", "1.1.0.0")]
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-public sealed class IViewForAttribute(string? viewModelType) : Attribute;
+internal sealed class IViewForAttribute(string? viewModelType) : Attribute;
 #nullable restore
 #pragma warning restore
 """;
@@ -182,7 +182,7 @@ namespace ReactiveUI.SourceGenerators.WinForms;
 /// <param name="viewModelType">Type of the view model.</param>
 [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ViewModelControlHostGenerator", "1.1.0.0")]
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-public sealed class ViewModelControlHostAttribute(string? baseType) : Attribute;
+internal sealed class ViewModelControlHostAttribute(string? baseType) : Attribute;
 #nullable restore
 #pragma warning restore
 """;
@@ -211,7 +211,7 @@ namespace ReactiveUI.SourceGenerators.WinForms;
 /// <param name="viewModelType">Type of the view model.</param>
 [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.RoutedControlHostGenerator", "1.1.0.0")]
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-public sealed class RoutedControlHostAttribute(string? baseType) : Attribute;
+internal sealed class RoutedControlHostAttribute(string? baseType) : Attribute;
 #nullable restore
 #pragma warning restore
 """;
