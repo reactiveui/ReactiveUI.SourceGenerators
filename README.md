@@ -304,8 +304,8 @@ public partial class MyReactiveClass
 
 ### IViewFor usage
 
-IVIewFor is used to link a View to a ViewModel, this is used to link the ViewModel to the View in a way that ReactiveUI can use it to bind the ViewModel to the View.
-The ViewModel is passed as a string to the IViewFor Attribute.
+IViewFor is used to link a View to a ViewModel, this is used to link the ViewModel to the View in a way that ReactiveUI can use it to bind the ViewModel to the View.
+The ViewModel is passed as a type to the IViewFor Attribute using generics.
 The class must inherit from a UI Control from any of the following platforms and namespaces:
 - Maui (Microsoft.Maui)
 - WinUI (Microsoft.UI.Xaml)
@@ -317,7 +317,7 @@ The class must inherit from a UI Control from any of the following platforms and
 ```csharp
 using ReactiveUI.SourceGenerators;
 
-[IViewFor(nameof(MyReactiveClass))]
+[IViewFor<MyReactiveClass>]
 public partial class MyReactiveControl : UserControl
 {
     public MyReactiveControl()

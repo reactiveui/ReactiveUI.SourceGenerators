@@ -11,6 +11,6 @@ namespace SGReactiveUI.SourceGenerators.Test.Maui
     /// IViewForTest.
     /// </summary>
     /// <seealso cref="NavigationPage" />
-    [IViewFor(nameof(TestViewModel))]
+    [IViewFor<TestViewModel>]
     public partial class IViewForTest : Shell;
 }
