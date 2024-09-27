@@ -93,7 +93,7 @@ public partial class IViewForGenerator
             writer.WriteLine("DependencyProperty.Register(");
             writer.WriteLine("nameof(ViewModel),");
             writer.WriteLine($"typeof({iViewForInfo.ViewModelTypeName}),");
-            writer.WriteLine($"typeof(IViewFor<{iViewForInfo.ViewModelTypeName}>),");
+            writer.WriteLine($"typeof({iViewForInfo.ClassName}),");
             writer.WriteLine("new PropertyMetadata(null));");
             writer.WriteLine();
 
@@ -213,6 +213,7 @@ public partial class IViewForGenerator
                 [
                     UsingDirective(ParseName("System")),
                     UsingDirective(ParseName("ReactiveUI")),
+                    UsingDirective(ParseName("Avalonia")),
                     UsingDirective(ParseName("Avalonia.Controls")),
                 ];
 
@@ -258,7 +259,7 @@ public partial class IViewForGenerator
             writer.WriteLine($"public static readonly StyledProperty<{iViewForInfo.ViewModelTypeName}?> ViewModelProperty =");
             writer.Indent++;
             writer.WriteLine("AvaloniaProperty");
-            writer.WriteLine($".Register<IViewFor<{iViewForInfo.ViewModelTypeName}>, {iViewForInfo.ViewModelTypeName}?>(nameof(ViewModel));");
+            writer.WriteLine($".Register<{iViewForInfo.ClassName}, {iViewForInfo.ViewModelTypeName}?>(nameof(ViewModel));");
 
             writer.Indent--;
             writer.WriteLine("/// <summary>");
@@ -286,28 +287,31 @@ public partial class IViewForGenerator
             writer.Indent--;
             writer.WriteLine(Token(SyntaxKind.CloseBraceToken));
             writer.WriteLine();
-            writer.WriteLine(@"
-                protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
-                        {
-                            base.OnPropertyChanged(change);
+            writer.WriteLine(
+                $$"""
 
-                            if (change.Property == DataContextProperty)
-                            {
-                                if (ReferenceEquals(change.OldValue, ViewModel)
-                                    && change.NewValue is null or TViewModel)
-                                {
-                                    SetCurrentValue(ViewModelProperty, change.NewValue);
-                                }
-                            }
-                            else if (change.Property == ViewModelProperty)
-                            {
-                                if (ReferenceEquals(change.OldValue, DataContext))
-                                {
-                                    SetCurrentValue(DataContextProperty, change.NewValue);
-                                }
-                            }
-                        }
-                ");
+                                protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+                                        {
+                                            base.OnPropertyChanged(change);
+
+                                            if (change.Property == DataContextProperty)
+                                            {
+                                                if (ReferenceEquals(change.OldValue, ViewModel)
+                                                    && change.NewValue is null or {{iViewForInfo.ViewModelTypeName}})
+                                                {
+                                                    SetCurrentValue(ViewModelProperty, change.NewValue);
+                                                }
+                                            }
+                                            else if (change.Property == ViewModelProperty)
+                                            {
+                                                if (ReferenceEquals(change.OldValue, DataContext))
+                                                {
+                                                    SetCurrentValue(DataContextProperty, change.NewValue);
+                                                }
+                                            }
+                                        }
+                                
+                """);
             writer.Indent--;
             writer.WriteLine(Token(SyntaxKind.CloseBraceToken));
             writer.Indent--;

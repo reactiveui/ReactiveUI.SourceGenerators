@@ -9,7 +9,25 @@
     <File Path="Directory.Packages.props" />
     <File Path="stylecop.json" />
   </Folder>
-  <Project Path="ReactiveUI.SourceGenerators.Execute.Maui\ReactiveUI.SourceGenerators.Execute.Maui.csproj" Type="Classic C#" />
+  <Project Path="ReactiveUI.SourceGenerators.Execute.Maui\ReactiveUI.SourceGenerators.Execute.Maui.csproj" />
   <Project Path="ReactiveUI.SourceGenerators.Execute\ReactiveUI.SourceGenerators.Execute.csproj" />
   <Project Path="ReactiveUI.SourceGenerators\ReactiveUI.SourceGenerators.csproj" />
+  <Folder Name="/TestApps/">
+    <Project Path="TestApps\TestWpfApplication\TestWpfApplication.csproj" />
+    <Project Path="D:\Projects\GitHub\ReactiveUI\ReactiveUI.SourceGenerators\src\TestApps\TestWinFormsApplication\TestWinFormsApplication.csproj" />
+    <Project Path="D:\Projects\GitHub\ReactiveUI\ReactiveUI.SourceGenerators\src\TestApps\TestWpfApplication\TestWpfApplication.csproj" />
+    <Project Path="TestApps\TestWinFormsApplication\TestWinFormsApplication.csproj" />
+    <Project Path="D:\Projects\GitHub\ReactiveUI\ReactiveUI.SourceGenerators\src\TestApps\TestAvaloniaApplication\TestAvaloniaApplication.csproj" />
+    <Project Path="TestApps\TestAvaloniaApplication\TestAvaloniaApplication.csproj" />
+    <Project Path="TestApps\TestAvaloniaApplication.Desktop\TestAvaloniaApplication.Desktop.csproj" />
+    <Project Path="TestApps\TestMauiApplication\TestMauiApplication.csproj">
+      <Deploy />
+    </Project>
+  </Folder>
+  <Properties Name="Visual Studio">
+    <Property Name="OpenWith" Value="17" />
+  </Properties>
+  <Project Path="D:\Projects\GitHub\ReactiveUI\ReactiveUI.SourceGenerators\src\ReactiveUI.SourceGenerators.Execute.Maui\ReactiveUI.SourceGenerators.Execute.Maui.csproj" />
+  <Project Path="D:\Projects\GitHub\ReactiveUI\ReactiveUI.SourceGenerators\src\ReactiveUI.SourceGenerators.Execute\ReactiveUI.SourceGenerators.Execute.csproj" />
+  <Project Path="D:\Projects\GitHub\ReactiveUI\ReactiveUI.SourceGenerators\src\ReactiveUI.SourceGenerators\ReactiveUI.SourceGenerators.csproj" />
 </Solution>
