@@ -7,6 +7,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
+using System.Windows.Media.TextFormatting;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
 
@@ -26,7 +27,7 @@ public partial class TestViewModel : ReactiveObject
     private double _test2Property = 1.1d;
 
     [JsonInclude]
-    [Reactive]
+    [Reactive(SetModifier = AccessModifier.Protected)]
     [DataMember]
     private int _test1Property = 10;
 

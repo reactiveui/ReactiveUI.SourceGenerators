@@ -80,10 +80,22 @@ public partial class ReactiveGenerator
                         setterFieldExpression,
                         IdentifierName("value"))));
 
+            SyntaxToken[] syntaxKinds = propertyInfo.AccessModifier switch
+            {
+                "public" => [],
+                "protected" => [Token(SyntaxKind.ProtectedKeyword)],
+                "internal" => [Token(SyntaxKind.InternalKeyword)],
+                "private" => [Token(SyntaxKind.PrivateKeyword)],
+                "internal protected" => [Token(SyntaxKind.InternalKeyword), Token(SyntaxKind.ProtectedKeyword)],
+                "private protected" => [Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.ProtectedKeyword)],
+                _ => [],
+            };
+
             // Create the setter for the generated property:
-            //
+            // Literal(propertyInfo.AccessModifier)
             // set => this.RaiseAndSetIfChanged(ref <FIELD_NAME>, value);
             var setAccessor = AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+                .AddModifiers(syntaxKinds)
                 .WithExpressionBody(ArrowExpressionClause(ParseExpression($"this.RaiseAndSetIfChanged(ref {getterFieldIdentifierName}, {IdentifierName("value")});")));
 
             // Add the [MemberNotNull] attribute if needed:
@@ -167,6 +179,29 @@ public partial class ReactiveGenerator
             var fieldName = fieldSymbol.Name;
             var propertyName = GetGeneratedPropertyName(fieldSymbol);
             var initializer = fieldSyntax.Declaration.Variables.FirstOrDefault()?.Initializer;
+
+            if (!fieldSymbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ReactiveAttributeType, out var attributeData1))
+            {
+                propertyInfo = null;
+                diagnostics = builder.ToImmutable();
+
+                return false;
+            }
+
+            token.ThrowIfCancellationRequested();
+
+            // Get AccessModifier enum value from the attribute
+            attributeData1.TryGetNamedArgument("SetModifier", out int? accessModifierArgument);
+            var accessModifier = accessModifierArgument switch
+            {
+                0 => "public",
+                1 => "protected",
+                2 => "internal",
+                3 => "private",
+                4 => "internal protected",
+                5 => "private protected",
+                _ => "public",
+            };
 
             // Check for name collisions
             if (fieldName == propertyName)
@@ -298,7 +333,8 @@ public partial class ReactiveGenerator
                 initializer,
                 isReferenceTypeOrUnconstraindTypeParameter,
                 includeMemberNotNullOnSetAccessor,
-                forwardedAttributes.ToImmutable());
+                forwardedAttributes.ToImmutable(),
+                accessModifier);
 
             diagnostics = builder.ToImmutable();
 

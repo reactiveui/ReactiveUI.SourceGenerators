@@ -3,6 +3,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ReactiveUI.SourceGenerators.Helpers;
 
@@ -18,4 +19,5 @@ internal sealed record PropertyInfo(
     EqualsValueClauseSyntax? Initializer,
     bool IsReferenceTypeOrUnconstraindTypeParameter,
     bool IncludeMemberNotNullOnSetAccessor,
-    EquatableArray<AttributeInfo> ForwardedAttributes);
+    EquatableArray<AttributeInfo> ForwardedAttributes,
+    string AccessModifier);
