@@ -79,7 +79,7 @@ using ReactiveUI.SourceGenerators;
 
 public partial class MyReactiveClass : ReactiveObject
 {
-    [Reactive(AccessModifier = AccessModifier.Protected)]
+    [Reactive(SetModifier = AccessModifier.Protected)]
     private string _myProperty;
 }
 ```
