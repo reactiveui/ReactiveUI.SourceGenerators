@@ -272,7 +272,8 @@ public partial class ObservableAsPropertyGenerator
                 initializer,
                 isReferenceTypeOrUnconstraindTypeParameter,
                 includeMemberNotNullOnSetAccessor,
-                forwardedAttributes.ToImmutable());
+                forwardedAttributes.ToImmutable(),
+                "public");
 
             diagnostics = builder.ToImmutable();
 

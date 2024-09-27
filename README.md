@@ -73,6 +73,17 @@ public partial class MyReactiveClass : ReactiveObject
 }
 ```
 
+### Usage Reactive property with set Access Modifier
+```csharp
+using ReactiveUI.SourceGenerators;
+
+public partial class MyReactiveClass : ReactiveObject
+{
+    [Reactive(AccessModifier = AccessModifier.Protected)]
+    private string _myProperty;
+}
+```
+
 ## Usage ObservableAsPropertyHelper `[ObservableAsProperty]`
 
 ### Usage ObservableAsPropertyHelper with Field

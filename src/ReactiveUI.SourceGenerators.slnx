@@ -23,6 +23,10 @@
     <Project Path="TestApps\TestMauiApplication\TestMauiApplication.csproj">
       <Deploy />
     </Project>
+    <Project Path="D:\Projects\GitHub\ReactiveUI\ReactiveUI.SourceGenerators\src\TestApps\TestAvaloniaApplication.Desktop\TestAvaloniaApplication.Desktop.csproj" />
+    <Project Path="D:\Projects\GitHub\ReactiveUI\ReactiveUI.SourceGenerators\src\TestApps\TestMauiApplication\TestMauiApplication.csproj">
+      <Deploy />
+    </Project>
   </Folder>
   <Properties Name="Visual Studio">
     <Property Name="OpenWith" Value="17" />
