@@ -62,7 +62,16 @@ public partial class ObservableAsPropertyGenerator
                 getterFieldIdentifierName = propertyInfo.FieldName;
             }
 
-            var getterArrowExpression = ArrowExpressionClause(ParseExpression($"{getterFieldIdentifierName} = ({getterFieldIdentifierName}Helper?.Value ?? {getterFieldIdentifierName})"));
+            ArrowExpressionClauseSyntax getterArrowExpression;
+
+            if (propertyInfo.TypeNameWithNullabilityAnnotations.EndsWith("?"))
+            {
+                getterArrowExpression = ArrowExpressionClause(ParseExpression($"{getterFieldIdentifierName} = ({getterFieldIdentifierName}Helper == null ? {getterFieldIdentifierName} : {getterFieldIdentifierName}Helper.Value)"));
+            }
+            else
+            {
+                getterArrowExpression = ArrowExpressionClause(ParseExpression($"{getterFieldIdentifierName} = {getterFieldIdentifierName}Helper?.Value ?? {getterFieldIdentifierName}"));
+            }
 
             // Prepare the forwarded attributes, if any
             var forwardedAttributes =
@@ -83,32 +92,32 @@ public partial class ObservableAsPropertyGenerator
             return
                 ImmutableArray.Create<MemberDeclarationSyntax>(
                     FieldDeclaration(VariableDeclaration(ParseTypeName($"ReactiveUI.ObservableAsPropertyHelper<{propertyType}>")))
-                .AddDeclarationVariables(VariableDeclarator(getterFieldIdentifierName + "Helper"))
-                .AddAttributeLists(
-                    AttributeList(SingletonSeparatedList(
-                        Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
-                        .AddArgumentListArguments(
-                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).FullName))),
-                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).Assembly.GetName().Version.ToString()))))))
-                    .WithOpenBracketToken(Token(TriviaList(Comment($"/// <inheritdoc cref=\"{propertyInfo.FieldName + "Helper"}\"/>")), SyntaxKind.OpenBracketToken, TriviaList())))
-                    .AddModifiers(
-                        Token(SyntaxKind.PrivateKeyword),
-                        Token(SyntaxKind.ReadOnlyKeyword)),
+                        .AddDeclarationVariables(VariableDeclarator(getterFieldIdentifierName + "Helper"))
+                        .AddAttributeLists(
+                            AttributeList(SingletonSeparatedList(
+                                Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
+                                .AddArgumentListArguments(
+                                    AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).FullName))),
+                                    AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).Assembly.GetName().Version.ToString()))))))
+                            .WithOpenBracketToken(Token(TriviaList(Comment($"/// <inheritdoc cref=\"{propertyInfo.FieldName + "Helper"}\"/>")), SyntaxKind.OpenBracketToken, TriviaList())))
+                            .AddModifiers(
+                                Token(SyntaxKind.PrivateKeyword),
+                                Token(SyntaxKind.ReadOnlyKeyword)),
                     PropertyDeclaration(propertyType, Identifier(propertyInfo.PropertyName))
-                .AddAttributeLists(
-                    AttributeList(SingletonSeparatedList(
-                        Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
-                        .AddArgumentListArguments(
-                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).FullName))),
-                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).Assembly.GetName().Version.ToString()))))))
-                    .WithOpenBracketToken(Token(TriviaList(Comment($"/// <inheritdoc cref=\"{getterFieldIdentifierName}\"/>")), SyntaxKind.OpenBracketToken, TriviaList())),
-                    AttributeList(SingletonSeparatedList(Attribute(IdentifierName(AttributeDefinitions.ExcludeFromCodeCoverage)))))
-                .AddAttributeLists([.. forwardedAttributes])
-                .AddModifiers(Token(SyntaxKind.PublicKeyword))
-                .AddAccessorListAccessors(
-                    AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-                    .WithExpressionBody(getterArrowExpression)
-                    .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))));
+                        .AddAttributeLists(
+                            AttributeList(SingletonSeparatedList(
+                                Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
+                                .AddArgumentListArguments(
+                                    AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).FullName))),
+                                    AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).Assembly.GetName().Version.ToString()))))))
+                            .WithOpenBracketToken(Token(TriviaList(Comment($"/// <inheritdoc cref=\"{getterFieldIdentifierName}\"/>")), SyntaxKind.OpenBracketToken, TriviaList())),
+                            AttributeList(SingletonSeparatedList(Attribute(IdentifierName(AttributeDefinitions.ExcludeFromCodeCoverage)))))
+                        .AddAttributeLists([.. forwardedAttributes])
+                        .AddModifiers(Token(SyntaxKind.PublicKeyword))
+                        .AddAccessorListAccessors(
+                            AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                            .WithExpressionBody(getterArrowExpression)
+                            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))));
         }
 
         internal static bool GetFieldInfoFromClass(
