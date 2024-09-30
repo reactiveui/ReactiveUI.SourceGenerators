@@ -5,9 +5,9 @@
 
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
-using System.Windows.Media.TextFormatting;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
 
@@ -17,25 +17,45 @@ namespace SGReactiveUI.SourceGenerators.Test;
 /// TestClass.
 /// </summary>
 [DataContract]
-public partial class TestViewModel : ReactiveObject
+public partial class TestViewModel : ReactiveObject, IDisposable
 {
     private readonly IObservable<bool> _observable = Observable.Return(true);
+    private readonly Subject<double?> _testSubject = new();
+    private readonly Subject<double> _testNonNullSubject = new();
 
     [JsonInclude]
     [DataMember]
     [ObservableAsProperty]
-    private double _test2Property = 1.1d;
+    private double? _test2Property = 1.1d;
 
     [JsonInclude]
     [Reactive(SetModifier = AccessModifier.Protected)]
     [DataMember]
     private int _test1Property = 10;
+    private bool _disposedValue;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TestViewModel"/> class.
     /// </summary>
     public TestViewModel()
     {
+        Console.Out.WriteLine("MyReadOnlyProperty before init");
+
+        // only settable prior to init, after init it will be ignored.
+        _myReadOnlyProperty = -1.0;
+        Console.Out.WriteLine(MyReadOnlyProperty);
+        Console.Out.WriteLine(_myReadOnlyProperty);
+
+        Console.Out.WriteLine("MyReadOnlyNonNullProperty before init");
+
+        // only settable prior to init, after init it will be ignored.
+        _myReadOnlyNonNullProperty = -5.0;
+        Console.Out.WriteLine(MyReadOnlyNonNullProperty);
+        Console.Out.WriteLine(_myReadOnlyNonNullProperty);
+
+        _observableAsPropertyTest2Property = 11223344;
+        Console.Out.WriteLine(ObservableAsPropertyTest2Property);
+        Console.Out.WriteLine(_observableAsPropertyTest2Property);
         InitializeOAPH();
 
         Console.Out.WriteLine(Test1Command);
@@ -59,11 +79,49 @@ public partial class TestViewModel : ReactiveObject
         Console.Out.WriteLine($"Test2Property default Value: {Test2Property}");
         _test2PropertyHelper = Test8ObservableCommand!.ToProperty(this, x => x.Test2Property);
 
-        Test8ObservableCommand?.Execute(100).Subscribe(Console.Out.WriteLine);
+        Test8ObservableCommand?.Execute(100).Subscribe(d => Console.Out.WriteLine(d));
         Console.Out.WriteLine($"Test2Property Value: {Test2Property}");
         Console.Out.WriteLine($"Test2Property underlying Value: {_test2Property}");
         Console.Out.WriteLine(ObservableAsPropertyTest2Property);
+
+        Console.Out.WriteLine("MyReadOnlyProperty After Init");
+
+        // setting this value should not update the _myReadOnlyPropertyHelper as the _testSubject has not been updated yet but the _myReadOnlyPropertyHelper should be updated with null upon init.
+        _myReadOnlyProperty = -2.0;
+
+        // null value expected as the _testSubject has not been updated yet, ignoring the private variable.
         Console.Out.WriteLine(MyReadOnlyProperty);
+        Console.Out.WriteLine(_myReadOnlyProperty);
+        _testSubject.OnNext(10.0);
+
+        // expected value 10 as the _testSubject has been updated.
+        Console.Out.WriteLine(MyReadOnlyProperty);
+        Console.Out.WriteLine(_myReadOnlyProperty);
+        _testSubject.OnNext(null);
+
+        // expected value null as the _testSubject has been updated.
+        Console.Out.WriteLine(MyReadOnlyProperty);
+        Console.Out.WriteLine(_myReadOnlyProperty);
+
+        Console.Out.WriteLine("MyReadOnlyNonNullProperty After Init");
+
+        // setting this value should not update the _myReadOnlyNonNullProperty as the _testNonNullSubject has not been updated yet but the _myReadOnlyNonNullPropertyHelper should be updated with null upon init.
+        _myReadOnlyNonNullProperty = -2.0;
+
+        // 0 value expected as the _testNonNullSubject has not been updated yet, ignoring the private variable.
+        Console.Out.WriteLine(MyReadOnlyNonNullProperty);
+        Console.Out.WriteLine(_myReadOnlyNonNullProperty);
+        _testNonNullSubject.OnNext(11.0);
+
+        // expected value 11 as the _testNonNullSubject has been updated.
+        Console.Out.WriteLine(MyReadOnlyNonNullProperty);
+        Console.Out.WriteLine(_myReadOnlyNonNullProperty);
+        _testNonNullSubject.OnNext(default);
+
+        // expected value 0 as the _testNonNullSubject has been updated.
+        Console.Out.WriteLine(MyReadOnlyNonNullProperty);
+        Console.Out.WriteLine(_myReadOnlyNonNullProperty);
+
         Test9AsyncCommand?.ThrownExceptions.Subscribe(Console.Out.WriteLine);
         var cancel = Test9AsyncCommand?.Execute().Subscribe();
         Task.Delay(1000).Wait();
@@ -116,7 +174,42 @@ public partial class TestViewModel : ReactiveObject
     /// Observable of double.
     /// </returns>
     [ObservableAsProperty(PropertyName = "MyReadOnlyProperty")]
-    public IObservable<double> ObservableAsPropertyTest() => Observable.Return(10.0);
+    public IObservable<double?> ObservableAsPropertyTest() => _testSubject;
+
+    /// <summary>
+    /// Observables as property test non null.
+    /// </summary>
+    /// <returns>Observable of double.</returns>
+    [ObservableAsProperty(PropertyName = "MyReadOnlyNonNullProperty")]
+    public IObservable<double> ObservableAsPropertyTestNonNull() => _testNonNullSubject;
+
+    /// <summary>
+    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+    /// </summary>
+    public void Dispose()
+    {
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    /// Releases unmanaged and - optionally - managed resources.
+    /// </summary>
+    /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposedValue)
+        {
+            if (disposing)
+            {
+                _testSubject.Dispose();
+                _testNonNullSubject.Dispose();
+            }
+
+            _disposedValue = true;
+        }
+    }
 
     /// <summary>
     /// Test1s this instance.
@@ -168,7 +261,7 @@ public partial class TestViewModel : ReactiveObject
     /// <param name="i">The i.</param>
     /// <returns>An Observable of int.</returns>
     [ReactiveCommand]
-    private IObservable<double> Test8Observable(int i) => Observable.Return(i + 10.0);
+    private IObservable<double?> Test8Observable(int i) => Observable.Return<double?>(i + 10.0);
 
     [ReactiveCommand]
     private async Task Test9Async(CancellationToken ct) => await Task.Delay(2000, ct);

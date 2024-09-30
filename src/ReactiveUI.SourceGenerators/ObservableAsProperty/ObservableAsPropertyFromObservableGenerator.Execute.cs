@@ -29,7 +29,18 @@ public partial class ObservableAsPropertyFromObservableGenerator
         {
             var getterFieldIdentifierName = GetGeneratedFieldName(propertyInfo);
 
-            var getterArrowExpression = ArrowExpressionClause(ParseExpression($"{getterFieldIdentifierName}Helper?.Value ?? default"));
+            // Get the property type syntax
+            TypeSyntax propertyType = IdentifierName(propertyInfo.GetObservableTypeText());
+
+            ArrowExpressionClauseSyntax getterArrowExpression;
+            if (propertyType.ToFullString().EndsWith("?"))
+            {
+                getterArrowExpression = ArrowExpressionClause(ParseExpression($"{getterFieldIdentifierName} = ({getterFieldIdentifierName}Helper == null ? {getterFieldIdentifierName} : {getterFieldIdentifierName}Helper.Value)"));
+            }
+            else
+            {
+                getterArrowExpression = ArrowExpressionClause(ParseExpression($"{getterFieldIdentifierName} = {getterFieldIdentifierName}Helper?.Value ?? {getterFieldIdentifierName}"));
+            }
 
             // Prepare the forwarded attributes, if any
             var forwardedAttributes =
@@ -37,35 +48,44 @@ public partial class ObservableAsPropertyFromObservableGenerator
                 .Select(static a => AttributeList(SingletonSeparatedList(a.GetSyntax())))
                 .ToImmutableArray();
 
-            // Get the property type syntax
-            TypeSyntax propertyType = IdentifierName(propertyInfo.GetObservableTypeText());
             return ImmutableArray.Create<MemberDeclarationSyntax>(
-                    FieldDeclaration(VariableDeclaration(ParseTypeName($"ReactiveUI.ObservableAsPropertyHelper<{propertyType}>?")))
-                .AddDeclarationVariables(VariableDeclarator(getterFieldIdentifierName + "Helper"))
-                .AddAttributeLists(
-                    AttributeList(SingletonSeparatedList(
-                        Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
-                        .AddArgumentListArguments(
-                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyFromObservableGenerator).FullName))),
-                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyFromObservableGenerator).Assembly.GetName().Version.ToString()))))))
-                    .WithOpenBracketToken(Token(TriviaList(Comment($"/// <inheritdoc cref=\"{getterFieldIdentifierName + "Helper"}\"/>")), SyntaxKind.OpenBracketToken, TriviaList())))
-                    .AddModifiers(
-                        Token(SyntaxKind.PrivateKeyword)),
-                    PropertyDeclaration(propertyType, Identifier(propertyInfo.PropertyName))
-                .AddAttributeLists(
-                    AttributeList(SingletonSeparatedList(
-                        Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
-                        .AddArgumentListArguments(
-                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyFromObservableGenerator).FullName))),
-                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyFromObservableGenerator).Assembly.GetName().Version.ToString()))))))
-                    .WithOpenBracketToken(Token(TriviaList(Comment($"/// <inheritdoc cref=\"{getterFieldIdentifierName}\"/>")), SyntaxKind.OpenBracketToken, TriviaList())),
-                    AttributeList(SingletonSeparatedList(Attribute(IdentifierName(AttributeDefinitions.ExcludeFromCodeCoverage)))))
-                .AddAttributeLists([.. forwardedAttributes])
-                .AddModifiers(Token(SyntaxKind.PublicKeyword))
-                .AddAccessorListAccessors(
-                    AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-                    .WithExpressionBody(getterArrowExpression)
-                    .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))));
+                FieldDeclaration(VariableDeclaration(propertyType))
+                        .AddDeclarationVariables(VariableDeclarator(getterFieldIdentifierName))
+                        .AddAttributeLists(
+                            AttributeList(SingletonSeparatedList(
+                                Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
+                                .AddArgumentListArguments(
+                                    AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).FullName))),
+                                    AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).Assembly.GetName().Version.ToString()))))))
+                            .WithOpenBracketToken(Token(TriviaList(Comment($"/// <inheritdoc cref=\"{propertyInfo.PropertyName}\"/>")), SyntaxKind.OpenBracketToken, TriviaList())))
+                            .AddModifiers(
+                                Token(SyntaxKind.PrivateKeyword)),
+                FieldDeclaration(VariableDeclaration(ParseTypeName($"ReactiveUI.ObservableAsPropertyHelper<{propertyType}>?")))
+                    .AddDeclarationVariables(VariableDeclarator(getterFieldIdentifierName + "Helper"))
+                    .AddAttributeLists(
+                        AttributeList(SingletonSeparatedList(
+                            Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
+                            .AddArgumentListArguments(
+                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyFromObservableGenerator).FullName))),
+                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyFromObservableGenerator).Assembly.GetName().Version.ToString()))))))
+                        .WithOpenBracketToken(Token(TriviaList(Comment($"/// <inheritdoc cref=\"{getterFieldIdentifierName + "Helper"}\"/>")), SyntaxKind.OpenBracketToken, TriviaList())))
+                        .AddModifiers(
+                            Token(SyntaxKind.PrivateKeyword)),
+                PropertyDeclaration(propertyType, Identifier(propertyInfo.PropertyName))
+                    .AddAttributeLists(
+                        AttributeList(SingletonSeparatedList(
+                            Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
+                            .AddArgumentListArguments(
+                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyFromObservableGenerator).FullName))),
+                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyFromObservableGenerator).Assembly.GetName().Version.ToString()))))))
+                        .WithOpenBracketToken(Token(TriviaList(Comment($"/// <inheritdoc cref=\"{getterFieldIdentifierName}\"/>")), SyntaxKind.OpenBracketToken, TriviaList())),
+                        AttributeList(SingletonSeparatedList(Attribute(IdentifierName(AttributeDefinitions.ExcludeFromCodeCoverage)))))
+                    .AddAttributeLists([.. forwardedAttributes])
+                    .AddModifiers(Token(SyntaxKind.PublicKeyword))
+                    .AddAccessorListAccessors(
+                        AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                        .WithExpressionBody(getterArrowExpression)
+                        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))));
         }
 
         internal static MethodDeclarationSyntax GetPropertyInitiliser(ObservableMethodInfo[] propertyInfos)

@@ -86,6 +86,12 @@ public partial class MyReactiveClass : ReactiveObject
 
 ## Usage ObservableAsPropertyHelper `[ObservableAsProperty]`
 
+ObservableAsPropertyHelper is used to create a read-only property from an IObservable. The generated code will create a backing field and a property that returns the value of the backing field. The backing field is initialized with the value of the IObservable when the class is instantiated.
+
+A private field is created with the name of the property prefixed with an underscore. The field is initialized with the value of the IObservable when the class is instantiated. The property is created with the same name as the field without the underscore. The property returns the value of the field until initialized, then it returns the value of the IObservable.
+
+You can define the name of the property by using the PropertyName parameter. If you do not define the PropertyName, the property name will be the same as the field name without the underscore.
+
 ### Usage ObservableAsPropertyHelper with Field
 ```csharp
 using ReactiveUI.SourceGenerators;
@@ -112,7 +118,10 @@ using ReactiveUI.SourceGenerators;
 public partial class MyReactiveClass : ReactiveObject
 {    
     public MyReactiveClass()
-    { 
+    {
+        // default value for MyObservableProperty prior to initialization.
+        _myObservable = "Test Value Pre Init";
+
         // Initialize generated _myObservablePropertyHelper
         // for the generated MyObservableProperty
         InitializeOAPH();
@@ -130,7 +139,10 @@ using ReactiveUI.SourceGenerators;
 public partial class MyReactiveClass : ReactiveObject
 {    
     public MyReactiveClass()
-    { 
+    {
+        // default value for TestValueProperty prior to initialization.
+        _testValueProperty = "Test Value Pre Init";
+
         // Initialize generated _testValuePropertyHelper
         // for the generated TestValueProperty
         InitializeOAPH();
@@ -143,7 +155,7 @@ public partial class MyReactiveClass : ReactiveObject
 
 ### Usage ObservableAsPropertyHelper with Observable Method
 
-NOTE: This does not support methods with parameters
+NOTE: This does not currently support methods with parameters
 ```csharp
 using ReactiveUI.SourceGenerators;
 
