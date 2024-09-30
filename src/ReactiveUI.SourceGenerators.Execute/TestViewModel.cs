@@ -142,13 +142,47 @@ public partial class TestViewModel : ReactiveObject, IDisposable
     public static TestViewModel Instance { get; } = new();
 
     /// <summary>
-    /// Gets or sets the test property.
+    /// Gets the internal test property. Should not prompt to replace with INPC Reactive Property.
     /// </summary>
     /// <value>
     /// The test property.
     /// </value>
     [JsonInclude]
-    public string? TestProperty { get; set; } = "Test";
+    public string? TestInternalSetProperty { get; internal set; } = "Test";
+
+    /// <summary>
+    /// Gets the test private set property. Should not prompt to replace with INPC Reactive Property.
+    /// </summary>
+    /// <value>
+    /// The test private set property.
+    /// </value>
+    [JsonInclude]
+    public string? TestPrivateSetProperty { get; private set; } = "Test";
+
+    /// <summary>
+    /// Gets or sets the test automatic property.
+    /// </summary>
+    /// <value>
+    /// The test automatic property.
+    /// </value>
+    [JsonInclude]
+    public string? TestAutoProperty { get; set; } = "Test, should prompt to replace with INPC Reactive Property";
+
+    /// <summary>
+    /// Gets or sets the reactive command test property. Should not prompt to replace with INPC Reactive Property.
+    /// </summary>
+    /// <value>
+    /// The reactive command test property.
+    /// </value>
+    public ReactiveCommand<Unit, Unit>? ReactiveCommandTestProperty { get; set; }
+
+    /// <summary>
+    /// Gets or sets the reactive property test property. Should not prompt to replace with INPC Reactive Property.
+    /// </summary>
+    /// <value>
+    /// The reactive property test property.
+    /// </value>
+    public ReactiveProperty<int>? ReactivePropertyTestProperty { get; set; }
 
     /// <summary>
     /// Gets the can execute test1.
