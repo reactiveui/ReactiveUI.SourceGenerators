@@ -52,8 +52,12 @@ namespace ReactiveUI.SourceGenerators.CodeAnalyzers
             }
 
             var isAutoProperty = propertyDeclaration.ExpressionBody == null && (propertyDeclaration.AccessorList?.Accessors.All(a => a.Body == null && a.ExpressionBody == null) != false);
+            var hasCorrectModifiers = propertyDeclaration.Modifiers.Any(SyntaxKind.PublicKeyword) && !propertyDeclaration.Modifiers.Any(SyntaxKind.StaticKeyword);
+            var doesNotHavePrivateSetOrInternalSet = propertyDeclaration.AccessorList?.Accessors.Any(a => a.Modifiers.Any(SyntaxKind.PrivateKeyword) || a.Modifiers.Any(SyntaxKind.InternalKeyword)) == false;
+            var isNotReactiveCommand = !propertyDeclaration.Type.ToString().Contains("ReactiveCommand");
+            var isNotReactiveProperty = !propertyDeclaration.Type.ToString().Contains("ReactiveProperty");
 
-            if (isAutoProperty && propertyDeclaration.Modifiers.Any(SyntaxKind.PublicKeyword) && !propertyDeclaration.Modifiers.Any(SyntaxKind.StaticKeyword))
+            if (isAutoProperty && hasCorrectModifiers && doesNotHavePrivateSetOrInternalSet && isNotReactiveCommand && isNotReactiveProperty)
             {
                 var diagnostic = Diagnostic.Create(DiagnosticDescriptors.PropertyToReactiveFieldRule, propertyDeclaration.GetLocation());
                 context.ReportDiagnostic(diagnostic);
