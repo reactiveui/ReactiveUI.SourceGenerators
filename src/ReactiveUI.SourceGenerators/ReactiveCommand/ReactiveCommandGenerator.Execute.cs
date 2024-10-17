@@ -57,7 +57,7 @@ public partial class ReactiveCommandGenerator
         {
             var outputType = commandExtensionInfo.GetOutputTypeText();
             var inputType = commandExtensionInfo.GetInputTypeText();
-            var commandName = GetGeneratedCommandName(commandExtensionInfo.MethodName);
+            var commandName = GetGeneratedCommandName(commandExtensionInfo.MethodName, commandExtensionInfo.IsTask);
             var fieldName = GetGeneratedFieldName(commandName);
 
             ExpressionSyntax initializer;
@@ -463,7 +463,7 @@ public partial class ReactiveCommandGenerator
             propertyAttributes = propertyAttributesInfo.ToImmutable();
         }
 
-        internal static string GetGeneratedCommandName(string methodName)
+        internal static string GetGeneratedCommandName(string methodName, bool isAsync)
         {
             var commandName = methodName;
 
@@ -474,6 +474,11 @@ public partial class ReactiveCommandGenerator
             else if (commandName.StartsWith("_"))
             {
                 commandName = commandName.TrimStart('_');
+            }
+
+            if (commandName.EndsWith("Async") && isAsync)
+            {
+                commandName = commandName.Substring(0, commandName.Length - "Async".Length);
             }
 
             return $"{char.ToUpper(commandName[0], CultureInfo.InvariantCulture)}{commandName.Substring(1)}Command";

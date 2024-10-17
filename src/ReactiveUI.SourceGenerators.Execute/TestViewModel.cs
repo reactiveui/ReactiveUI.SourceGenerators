@@ -60,18 +60,18 @@ public partial class TestViewModel : ReactiveObject, IDisposable
 
         Console.Out.WriteLine(Test1Command);
         Console.Out.WriteLine(Test2Command);
-        Console.Out.WriteLine(Test3AsyncCommand);
-        Console.Out.WriteLine(Test4AsyncCommand);
+        Console.Out.WriteLine(Test3Command);
+        Console.Out.WriteLine(Test4Command);
         Console.Out.WriteLine(Test5StringToIntCommand);
         Console.Out.WriteLine(Test6ArgOnlyCommand);
         Console.Out.WriteLine(Test7ObservableCommand);
         Console.Out.WriteLine(Test8ObservableCommand);
-        Console.Out.WriteLine(Test9AsyncCommand);
-        Console.Out.WriteLine(Test10AsyncCommand);
+        Console.Out.WriteLine(Test9Command);
+        Console.Out.WriteLine(Test10Command);
         Test1Command?.Execute().Subscribe();
         Test2Command?.Execute().Subscribe(r => Console.Out.WriteLine(r));
-        Test3AsyncCommand?.Execute().Subscribe();
-        Test4AsyncCommand?.Execute().Subscribe(r => Console.Out.WriteLine(r));
+        Test3Command?.Execute().Subscribe();
+        Test4Command?.Execute().Subscribe(r => Console.Out.WriteLine(r));
         Test5StringToIntCommand?.Execute("100").Subscribe(Console.Out.WriteLine);
         Test6ArgOnlyCommand?.Execute("Hello World").Subscribe();
         Test7ObservableCommand?.Execute().Subscribe();
@@ -122,12 +122,12 @@ public partial class TestViewModel : ReactiveObject, IDisposable
         Console.Out.WriteLine(MyReadOnlyNonNullProperty);
         Console.Out.WriteLine(_myReadOnlyNonNullProperty);
 
-        Test9AsyncCommand?.ThrownExceptions.Subscribe(Console.Out.WriteLine);
-        var cancel = Test9AsyncCommand?.Execute().Subscribe();
+        Test9Command?.ThrownExceptions.Subscribe(Console.Out.WriteLine);
+        var cancel = Test9Command?.Execute().Subscribe();
         Task.Delay(1000).Wait();
         cancel?.Dispose();
 
-        Test10AsyncCommand?.Execute(200).Subscribe(r => Console.Out.WriteLine(r));
+        Test10Command?.Execute(200).Subscribe(r => Console.Out.WriteLine(r));
         TestPrivateCanExecuteCommand?.Execute().Subscribe();
 
         Console.ReadLine();
