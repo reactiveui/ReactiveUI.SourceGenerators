@@ -233,7 +233,9 @@ using ReactiveUI.SourceGenerators;
 public partial class MyReactiveClass
 {
     [ReactiveCommand]
-    private async Task<string> Execute(string parameter) => await Task.FromResult(parameter);
+    private async Task<string> ExecuteAsync(string parameter) => await Task.FromResult(parameter);
+
+    // Generates the following code ExecuteCommand, Note the Async suffix is removed
 }
 ```
 
