@@ -161,6 +161,14 @@ internal sealed class ObservableAsPropertyAttribute : Attribute
     /// The name of the property.
     /// </value>
     public string? PropertyName { get; init; }
+
+    /// <summary>
+    /// Gets the Readonly state of the OAPH property.
+    /// </summary>
+    /// <value>
+    /// The is read only of the OAPH property.
+    /// </value>
+    public bool ReadOnly { get; init; } = true;
 }
 #nullable restore
 #pragma warning restore

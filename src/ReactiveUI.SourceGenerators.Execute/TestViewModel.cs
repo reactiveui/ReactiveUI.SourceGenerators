@@ -4,6 +4,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Runtime.Serialization;
@@ -16,8 +17,11 @@ namespace SGReactiveUI.SourceGenerators.Test;
 /// <summary>
 /// TestClass.
 /// </summary>
+/// <seealso cref="ReactiveUI.ReactiveObject" />
+/// <seealso cref="ReactiveUI.IActivatableViewModel" />
+/// <seealso cref="System.IDisposable" />
 [DataContract]
-public partial class TestViewModel : ReactiveObject, IDisposable
+public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDisposable
 {
     private readonly IObservable<bool> _observable = Observable.Return(true);
     private readonly Subject<double?> _testSubject = new();
@@ -27,6 +31,12 @@ public partial class TestViewModel : ReactiveObject, IDisposable
     [DataMember]
     [ObservableAsProperty]
     private double? _test2Property = 1.1d;
+
+    [ObservableAsProperty(ReadOnly = false)]
+    private double? _test11Property = 11.1d;
+
+    [Reactive]
+    private double? _test12Property = 12.1d;
 
     [JsonInclude]
     [Reactive(SetModifier = AccessModifier.Protected)]
@@ -39,6 +49,12 @@ public partial class TestViewModel : ReactiveObject, IDisposable
     /// </summary>
     public TestViewModel()
     {
+        this.WhenActivated(disposables =>
+        {
+            Console.Out.WriteLine("Activated");
+            _test11PropertyHelper = this.WhenAnyValue(x => x.Test12Property).ToProperty(this, x => x.Test11Property, out _).DisposeWith(disposables);
+        });
+
         Console.Out.WriteLine("MyReadOnlyProperty before init");
 
         // only settable prior to init, after init it will be ignored.
@@ -200,6 +216,11 @@ public partial class TestViewModel : ReactiveObject, IDisposable
     /// </value>
     [ObservableAsProperty]
     public IObservable<int> ObservableAsPropertyTest2 => Observable.Return(9);
+
+    /// <summary>
+    /// Gets the Activator which will be used by the View when Activation/Deactivation occurs.
+    /// </summary>
+    public ViewModelActivator Activator { get; } = new();
 
     /// <summary>
     /// Gets observables as property test.
