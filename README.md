@@ -111,24 +111,29 @@ public partial class MyReactiveClass : ReactiveObject
 }
 ```
 
+### Usage ObservableAsPropertyHelper with Field and non readonly nullable OAPH field
+```csharp
+
 ### Usage ObservableAsPropertyHelper with Observable Property
 ```csharp
 using ReactiveUI.SourceGenerators;
 
-public partial class MyReactiveClass : ReactiveObject
-{    
+public partial class MyReactiveClass : ReactiveObject, IActivatableViewModel
+{
+    [ObservableAsProperty(ReadOnly = false)]
+    private string _myProperty = "Default Value";
+
     public MyReactiveClass()
     {
-        // default value for MyObservableProperty prior to initialization.
-        _myObservable = "Test Value Pre Init";
-
-        // Initialize generated _myObservablePropertyHelper
-        // for the generated MyObservableProperty
-        InitializeOAPH();
+        this.WhenActivated(disposables =>
+        {
+            _myPrpertyHelper = MyPropertyObservable()
+                .ToProperty(this, x => x.MyProperty)
+                .DisposeWith(disposables);
+        });
     }
 
-    [ObservableAsProperty]
-    IObservable<string> MyObservable => Observable.Return("Test Value");
+    IObservable<string> MyPropertyObservable() => Observable.Return("Test Value");
 }
 ```
 
@@ -233,7 +238,9 @@ using ReactiveUI.SourceGenerators;
 public partial class MyReactiveClass
 {
     [ReactiveCommand]
-    private async Task<string> Execute(string parameter) => await Task.FromResult(parameter);
+    private async Task<string> ExecuteAsync(string parameter) => await Task.FromResult(parameter);
+
+    // Generates the following code ExecuteCommand, Note the Async suffix is removed
 }
 ```
 

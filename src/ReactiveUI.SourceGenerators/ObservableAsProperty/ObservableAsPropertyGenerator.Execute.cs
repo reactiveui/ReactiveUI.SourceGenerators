@@ -3,6 +3,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -79,6 +80,19 @@ public partial class ObservableAsPropertyGenerator
                 .Select(static a => AttributeList(SingletonSeparatedList(a.GetSyntax())))
                 .ToImmutableArray();
 
+            var modifiers = new List<SyntaxToken>();
+            var helperTypeName = $"ReactiveUI.ObservableAsPropertyHelper<{propertyType}>";
+            if (propertyInfo.AccessModifier == "readonly")
+            {
+                modifiers.Add(Token(SyntaxKind.PrivateKeyword));
+                modifiers.Add(Token(SyntaxKind.ReadOnlyKeyword));
+            }
+            else
+            {
+                helperTypeName = $"ReactiveUI.ObservableAsPropertyHelper<{propertyType}>?";
+                modifiers.Add(Token(SyntaxKind.PrivateKeyword));
+            }
+
             // Construct the generated property as follows:
             //
             // /// <inheritdoc cref="<FIELD_NAME>"/>
@@ -91,7 +105,7 @@ public partial class ObservableAsPropertyGenerator
             // }
             return
                 ImmutableArray.Create<MemberDeclarationSyntax>(
-                    FieldDeclaration(VariableDeclaration(ParseTypeName($"ReactiveUI.ObservableAsPropertyHelper<{propertyType}>")))
+                    FieldDeclaration(VariableDeclaration(ParseTypeName(helperTypeName)))
                         .AddDeclarationVariables(VariableDeclarator(getterFieldIdentifierName + "Helper"))
                         .AddAttributeLists(
                             AttributeList(SingletonSeparatedList(
@@ -100,9 +114,7 @@ public partial class ObservableAsPropertyGenerator
                                     AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).FullName))),
                                     AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).Assembly.GetName().Version.ToString()))))))
                             .WithOpenBracketToken(Token(TriviaList(Comment($"/// <inheritdoc cref=\"{propertyInfo.FieldName + "Helper"}\"/>")), SyntaxKind.OpenBracketToken, TriviaList())))
-                            .AddModifiers(
-                                Token(SyntaxKind.PrivateKeyword),
-                                Token(SyntaxKind.ReadOnlyKeyword)),
+                            .AddModifiers([.. modifiers]),
                     PropertyDeclaration(propertyType, Identifier(propertyInfo.PropertyName))
                         .AddAttributeLists(
                             AttributeList(SingletonSeparatedList(
@@ -124,6 +136,7 @@ public partial class ObservableAsPropertyGenerator
             FieldDeclarationSyntax fieldSyntax,
             IFieldSymbol fieldSymbol,
             SemanticModel semanticModel,
+            bool? isReadonly,
             CancellationToken token,
             [NotNullWhen(true)] out PropertyInfo? propertyInfo,
             out ImmutableArray<DiagnosticInfo> diagnostics)
@@ -282,7 +295,7 @@ public partial class ObservableAsPropertyGenerator
                 isReferenceTypeOrUnconstraindTypeParameter,
                 includeMemberNotNullOnSetAccessor,
                 forwardedAttributes.ToImmutable(),
-                "public");
+                isReadonly == false ? string.Empty : "readonly");
 
             diagnostics = builder.ToImmutable();
 
