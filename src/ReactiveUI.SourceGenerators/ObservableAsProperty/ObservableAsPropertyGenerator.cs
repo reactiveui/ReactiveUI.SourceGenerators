@@ -35,6 +35,18 @@ public sealed partial class ObservableAsPropertyGenerator : IIncrementalGenerato
                 static (node, _) => node is VariableDeclaratorSyntax { Parent: VariableDeclarationSyntax { Parent: FieldDeclarationSyntax { Parent: ClassDeclarationSyntax or RecordDeclarationSyntax, AttributeLists.Count: > 0 } } },
                 static (context, token) =>
                 {
+                    var symbol = ModelExtensions.GetDeclaredSymbol(context.SemanticModel, context.TargetNode, token)!;
+                    token.ThrowIfCancellationRequested();
+
+                    // Skip symbols without the target attribute
+                    if (!symbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ObservableAsPropertyAttributeType, out var attributeData))
+                    {
+                        return default;
+                    }
+
+                    // Get the can PropertyName member, if any
+                    attributeData.TryGetNamedArgument("ReadOnly", out bool? isReadonly);
+
                     var fieldDeclaration = (FieldDeclarationSyntax)context.TargetNode.Parent!.Parent!;
                     var fieldSymbol = (IFieldSymbol)context.TargetSymbol;
 
@@ -43,7 +55,7 @@ public sealed partial class ObservableAsPropertyGenerator : IIncrementalGenerato
 
                     token.ThrowIfCancellationRequested();
 
-                    Execute.GetFieldInfoFromClass(fieldDeclaration, fieldSymbol, context.SemanticModel, token, out var propertyInfo, out var diagnostics);
+                    Execute.GetFieldInfoFromClass(fieldDeclaration, fieldSymbol, context.SemanticModel, isReadonly, token, out var propertyInfo, out var diagnostics);
 
                     token.ThrowIfCancellationRequested();
                     return (Hierarchy: hierarchy, new Result<PropertyInfo?>(propertyInfo, diagnostics));
