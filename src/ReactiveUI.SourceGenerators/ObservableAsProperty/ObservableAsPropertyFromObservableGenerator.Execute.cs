@@ -97,11 +97,11 @@ public partial class ObservableAsPropertyFromObservableGenerator
                 var fieldIdentifierName = GetGeneratedFieldName(propertyInfo);
                 if (propertyInfo.IsProperty)
                 {
-                    propertyInitilisers.Add(ParseStatement($"{fieldIdentifierName}Helper = {propertyInfo.MethodName}!.ToProperty(this, x => x.{propertyInfo.PropertyName});"));
+                    propertyInitilisers.Add(ParseStatement($"{fieldIdentifierName}Helper = {propertyInfo.MethodName}!.ToProperty(this, nameof({propertyInfo.PropertyName}));"));
                 }
                 else
                 {
-                    propertyInitilisers.Add(ParseStatement($"{fieldIdentifierName}Helper = {propertyInfo.MethodName}()!.ToProperty(this, x => x.{propertyInfo.PropertyName});"));
+                    propertyInitilisers.Add(ParseStatement($"{fieldIdentifierName}Helper = {propertyInfo.MethodName}()!.ToProperty(this, nameof({propertyInfo.PropertyName}));"));
                 }
             }
 
