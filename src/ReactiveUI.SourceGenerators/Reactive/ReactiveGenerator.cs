@@ -33,6 +33,9 @@ public sealed partial class ReactiveGenerator : IIncrementalGenerator
 
             // Add the ReactiveAttribute to the compilation
             ctx.AddSource($"{AttributeDefinitions.ReactiveAttributeType}.g.cs", SourceText.From(AttributeDefinitions.ReactiveAttribute, Encoding.UTF8));
+
+            // Add the IsExternalInit type to the compilation
+            ctx.AddSource($"{AttributeDefinitions.IsExternalInitType}.g.cs", SourceText.From(AttributeDefinitions.IsExternalInit, Encoding.UTF8));
         });
 
         // Gather info for all annotated command methods (starting from method declarations with at least one attribute)
