@@ -49,6 +49,26 @@ public sealed class TestHelper(ITestOutputHelper testOutput) : IDisposable
     private EventBuilderCompiler? _eventCompiler;
 
     /// <summary>
+    /// Verifieds the file path.
+    /// </summary>
+    /// <typeparam name="T">the type.</typeparam>
+    /// <returns>
+    /// A string.
+    /// </returns>
+    public static string VerifiedFilePath<T>()
+        where T : Attribute
+    {
+        var name = typeof(T).Name;
+        return name switch
+        {
+            "ReactiveAttribute" => "REACTIVE",
+            "ReactiveCommandAttribute" => "REACTIVECMD",
+            "ObservableAsPropertyAttribute" => "OAPH",
+            _ => name,
+        };
+    }
+
+    /// <summary>
     /// Asynchronously initializes the source generator helper by downloading required packages.
     /// </summary>
     /// <returns>A task representing the asynchronous initialization operation.</returns>
@@ -104,25 +124,22 @@ public sealed class TestHelper(ITestOutputHelper testOutput) : IDisposable
     /// </summary>
     /// <typeparam name="T">The type of the incremental generator being tested.</typeparam>
     /// <param name="source">The source code to test.</param>
-    /// <param name="contractParameter">The parameter to be used in the test.</param>
-    /// <param name="callerType">The type that called this test method.</param>
-    /// <param name="file">The path of the calling file (auto-populated).</param>
-    /// <param name="memberName">The name of the calling member (auto-populated).</param>
-    /// <returns>The driver.</returns>
+    /// <param name="ignoreConditional">The ignore conditional.</param>
+    /// <returns>
+    /// The driver.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">callerType.</exception>
     public GeneratorDriver TestPass<T>(
         string source,
-        string contractParameter,
-        Type callerType,
-        [CallerFilePath] string file = "",
-        [CallerMemberName] string memberName = "")
+        Func<Diagnostic, bool>? ignoreConditional = null)
         where T : IIncrementalGenerator, new()
     {
-        if (callerType is null)
+        if (_eventCompiler is null)
         {
-            throw new ArgumentNullException(nameof(callerType));
+            throw new InvalidOperationException("Must have valid compiler instance.");
         }
 
-        return RunGeneratorAndCheck<T>(source);
+        return RunGeneratorAndCheck<T>(source, ignoreConditional);
     }
 
     /// <inheritdoc/>
@@ -150,29 +167,41 @@ public sealed class TestHelper(ITestOutputHelper testOutput) : IDisposable
             throw new InvalidOperationException("Must have a valid compiler instance.");
         }
 
+        // Add this assembly as a reference.
+        IEnumerable<MetadataReference> thisAssembly = [MetadataReference.CreateFromFile(typeof(TestHelper).Assembly.Location)];
+
         // Collect required assembly references.
         var assemblies = new HashSet<MetadataReference>(
             Basic.Reference.Assemblies.Net80.References.All
+            .Concat(thisAssembly)
             .Concat(_eventCompiler.Modules.Select(x => MetadataReference.CreateFromFile(x.PEFile!.FileName)))
             .Concat(_eventCompiler.ReferencedModules.Select(x => MetadataReference.CreateFromFile(x.PEFile!.FileName)))
             .Concat(_eventCompiler.NeededModules.Select(x => MetadataReference.CreateFromFile(x.PEFile!.FileName))));
 
+        var syntaxTree = CSharpSyntaxTree.ParseText(code, CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp10));
+
         // Create a compilation with the provided source code.
         var compilation = CSharpCompilation.Create(
             "TestProject",
-            [CSharpSyntaxTree.ParseText(code)],
+            [syntaxTree],
             assemblies,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, deterministic: true));
 
-        // Optionally validate diagnostics before running the generator.
+        // Validate diagnostics before running the generator.
+        var prediagnostics = compilation.GetDiagnostics()
+                .Where(d => d.Severity > DiagnosticSeverity.Warning)
+                .ToList();
         if (ignoreConditional is not null)
         {
-            var diagnostics = compilation.GetDiagnostics().ToList();
-            diagnostics.Where(x => !ignoreConditional(x)).Should().BeEmpty();
+            prediagnostics.Where(x => !ignoreConditional(x)).Should().BeEmpty();
+        }
+        else
+        {
+            prediagnostics.Should().BeEmpty();
         }
 
         var generator = new T();
-        var driver = CSharpGeneratorDriver.Create(generator.AsSourceGenerator());
+        var driver = CSharpGeneratorDriver.Create(generator).WithUpdatedParseOptions((CSharpParseOptions)syntaxTree.Options);
 
         if (rerunCompilation)
         {
