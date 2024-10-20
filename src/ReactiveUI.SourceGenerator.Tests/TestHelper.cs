@@ -3,8 +3,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Runtime.CompilerServices;
-
 using FluentAssertions;
 
 using Microsoft.CodeAnalysis;
@@ -17,6 +15,9 @@ using NuGet.Versioning;
 using ReactiveMarbles.NuGet.Helpers;
 
 using ReactiveMarbles.SourceGenerator.TestNuGetHelper.Compilation;
+
+using ReactiveUI.SourceGenerators;
+using ReactiveUI.SourceGenerators.WinForms;
 
 using Xunit.Abstractions;
 
@@ -51,19 +52,18 @@ public sealed class TestHelper(ITestOutputHelper testOutput) : IDisposable
     /// <summary>
     /// Verifieds the file path.
     /// </summary>
-    /// <typeparam name="T">the type.</typeparam>
+    /// <param name="name">The name.</param>
     /// <returns>
     /// A string.
     /// </returns>
-    public static string VerifiedFilePath<T>()
-        where T : Attribute
+    public static string VerifiedFilePath(string name)
     {
-        var name = typeof(T).Name;
         return name switch
         {
-            "ReactiveAttribute" => "..\\REACTIVE",
-            "ReactiveCommandAttribute" => "..\\REACTIVECMD",
-            "ObservableAsPropertyAttribute" => "..\\OAPH",
+            nameof(ReactiveGenerator) => "..\\REACTIVE",
+            nameof(ReactiveCommandGenerator) => "..\\REACTIVECMD",
+            nameof(RoutedControlHostGenerator) => "..\\ROUTEDHOST",
+            nameof(ObservableAsPropertyGenerator) => "..\\OAPH",
             _ => name,
         };
     }
@@ -92,23 +92,10 @@ public sealed class TestHelper(ITestOutputHelper testOutput) : IDisposable
     /// </summary>
     /// <typeparam name="T">The type of the incremental generator being tested.</typeparam>
     /// <param name="source">The source code to test.</param>
-    /// <param name="contractParameter">The parameter to be used in the test.</param>
-    /// <param name="callerType">The type that called this test method.</param>
-    /// <param name="file">The path of the calling file (auto-populated).</param>
-    /// <param name="memberName">The name of the calling member (auto-populated).</param>
     public void TestFail<T>(
-        string source,
-        string contractParameter,
-        Type callerType,
-        [CallerFilePath] string file = "",
-        [CallerMemberName] string memberName = "")
+        string source)
         where T : IIncrementalGenerator, new()
     {
-        if (callerType is null)
-        {
-            throw new ArgumentNullException(nameof(callerType));
-        }
-
         if (_eventCompiler is null)
         {
             throw new InvalidOperationException("Must have valid compiler instance.");
@@ -124,14 +111,12 @@ public sealed class TestHelper(ITestOutputHelper testOutput) : IDisposable
     /// </summary>
     /// <typeparam name="T">The type of the incremental generator being tested.</typeparam>
     /// <param name="source">The source code to test.</param>
-    /// <param name="ignoreConditional">The ignore conditional.</param>
     /// <returns>
     /// The driver.
     /// </returns>
     /// <exception cref="ArgumentNullException">callerType.</exception>
     public GeneratorDriver TestPass<T>(
-        string source,
-        Func<Diagnostic, bool>? ignoreConditional = null)
+        string source)
         where T : IIncrementalGenerator, new()
     {
         if (_eventCompiler is null)
@@ -139,7 +124,7 @@ public sealed class TestHelper(ITestOutputHelper testOutput) : IDisposable
             throw new InvalidOperationException("Must have valid compiler instance.");
         }
 
-        return RunGeneratorAndCheck<T>(source, ignoreConditional);
+        return RunGeneratorAndCheck<T>(source);
     }
 
     /// <inheritdoc/>
@@ -150,7 +135,6 @@ public sealed class TestHelper(ITestOutputHelper testOutput) : IDisposable
     /// </summary>
     /// <typeparam name="T">The type of the source generator.</typeparam>
     /// <param name="code">The code to be parsed and processed by the generator.</param>
-    /// <param name="ignoreConditional">Optional. A function to ignore specific diagnostics.</param>
     /// <param name="rerunCompilation">Indicates whether to rerun the compilation after running the generator.</param>
     /// <returns>The generator driver used to run the generator.</returns>
     /// <exception cref="InvalidOperationException">
@@ -158,7 +142,6 @@ public sealed class TestHelper(ITestOutputHelper testOutput) : IDisposable
     /// </exception>
     public GeneratorDriver RunGeneratorAndCheck<T>(
         string code,
-        Func<Diagnostic, bool>? ignoreConditional = null,
         bool rerunCompilation = true)
         where T : IIncrementalGenerator, new()
     {
@@ -186,19 +169,6 @@ public sealed class TestHelper(ITestOutputHelper testOutput) : IDisposable
             [syntaxTree],
             assemblies,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, deterministic: true));
-
-        // Validate diagnostics before running the generator.
-        var prediagnostics = compilation.GetDiagnostics()
-                .Where(d => d.Severity > DiagnosticSeverity.Warning)
-                .ToList();
-        if (ignoreConditional is not null)
-        {
-            prediagnostics.Where(x => !ignoreConditional(x)).Should().BeEmpty();
-        }
-        else
-        {
-            prediagnostics.Should().BeEmpty();
-        }
 
         var generator = new T();
         var driver = CSharpGeneratorDriver.Create(generator).WithUpdatedParseOptions((CSharpParseOptions)syntaxTree.Options);

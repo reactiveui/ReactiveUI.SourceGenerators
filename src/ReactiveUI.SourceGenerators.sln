@@ -20,7 +20,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveUI.SourceGenerators
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveUI.SourceGenerators.Execute.Maui", "ReactiveUI.SourceGenerators.Execute.Maui\ReactiveUI.SourceGenerators.Execute.Maui.csproj", "{849CACF4-B85F-47B5-84B3-7C94DE864E7E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveUI.SourceGenerator.Tests", "ReactiveUI.SourceGenerator.Tests\ReactiveUI.SourceGenerator.Tests.csproj", "{60C7C031-8765-46D7-8E0D-88CD4949F25B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveUI.SourceGenerators.Tests", "ReactiveUI.SourceGenerator.Tests\ReactiveUI.SourceGenerators.Tests.csproj", "{60C7C031-8765-46D7-8E0D-88CD4949F25B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

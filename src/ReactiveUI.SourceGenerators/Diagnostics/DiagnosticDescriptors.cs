@@ -272,7 +272,7 @@ internal static class DiagnosticDescriptors
         id: "RXUISG0017",
         title: "Invalid generated property declaration",
         messageFormat: "The method {0} cannot be used to generate an observable As property, as it has parameters",
-        category: typeof(ObservableAsPropertyFromObservableGenerator).FullName,
+        category: typeof(ObservableAsPropertyGenerator).FullName,
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "The method annotated with [ObservableAsProperty] cannot currently initialize methods with parameters.",

@@ -24,12 +24,12 @@ namespace ReactiveUI.SourceGenerators;
 /// ReactiveGenerator.
 /// </summary>
 /// <seealso cref="IIncrementalGenerator" />
-public partial class ObservableAsPropertyGenerator
+public sealed partial class ObservableAsPropertyGenerator
 {
     /// <summary>
     /// A container for all the logic for <see cref="ObservableAsPropertyGenerator"/>.
     /// </summary>
-    internal static class Execute
+    internal static partial class Execute
     {
         /// <summary>
         /// Gets the <see cref="MemberDeclarationSyntax"/> instance for the input field.

@@ -5,9 +5,13 @@
 
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
+
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Models;
@@ -20,11 +24,9 @@ namespace ReactiveUI.SourceGenerators;
 /// <summary>
 /// A source generator for generating reative properties.
 /// </summary>
-[Generator(LanguageNames.CSharp)]
-public sealed partial class ObservableAsPropertyFromObservableGenerator : IIncrementalGenerator
+public sealed partial class ObservableAsPropertyGenerator
 {
-    /// <inheritdoc/>
-    public void Initialize(IncrementalGeneratorInitializationContext context)
+    private static void RunObservablePropertyAsFromObservable(in IncrementalGeneratorInitializationContext context)
     {
         // Gather info for all annotated command methods (starting from method declarations with at least one attribute)
         IncrementalValuesProvider<(HierarchyInfo Hierarchy, Result<ObservableMethodInfo> Info)> propertyInfoWithErrors =
@@ -34,14 +36,10 @@ public sealed partial class ObservableAsPropertyFromObservableGenerator : IIncre
                 static (node, _) => node is MethodDeclarationSyntax or PropertyDeclarationSyntax { Parent: ClassDeclarationSyntax or RecordDeclarationSyntax, AttributeLists.Count: > 0 },
                 static (context, token) =>
                 {
-                    var symbol = ModelExtensions.GetDeclaredSymbol(context.SemanticModel, context.TargetNode, token)!;
+                    var symbol = context.TargetSymbol;
                     token.ThrowIfCancellationRequested();
 
-                    // Skip symbols without the target attribute
-                    if (!symbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ObservableAsPropertyAttributeType, out var attributeData))
-                    {
-                        return default;
-                    }
+                    var attributeData = context.Attributes[0];
 
                     // Get the can PropertyName member, if any
                     attributeData.TryGetNamedArgument("PropertyName", out string? propertyName);
