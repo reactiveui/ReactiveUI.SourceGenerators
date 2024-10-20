@@ -30,7 +30,7 @@
       System.Range;
     </PolySharpIncludeGeneratedTypes>
   </PropertyGroup>
-
+  
   <!-- Include PolySharp to generate polyfills for all projects (on their .NET Standard 2.x targets) -->
   <ItemGroup>
     <PackageReference Include="PolySharp">
