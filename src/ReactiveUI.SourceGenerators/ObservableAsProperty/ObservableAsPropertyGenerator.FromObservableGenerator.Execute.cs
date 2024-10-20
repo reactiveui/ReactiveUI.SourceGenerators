@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.ObservableAsProperty.Models;
+
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace ReactiveUI.SourceGenerators;
@@ -21,9 +22,9 @@ namespace ReactiveUI.SourceGenerators;
 /// Observable As Property From Observable Generator.
 /// </summary>
 /// <seealso cref="Microsoft.CodeAnalysis.IIncrementalGenerator" />
-public partial class ObservableAsPropertyFromObservableGenerator
+public sealed partial class ObservableAsPropertyGenerator
 {
-    internal static class Execute
+    internal static partial class Execute
     {
         internal static ImmutableArray<MemberDeclarationSyntax> GetPropertySyntax(ObservableMethodInfo propertyInfo)
         {
@@ -66,8 +67,8 @@ public partial class ObservableAsPropertyFromObservableGenerator
                         AttributeList(SingletonSeparatedList(
                             Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
                             .AddArgumentListArguments(
-                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyFromObservableGenerator).FullName))),
-                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyFromObservableGenerator).Assembly.GetName().Version.ToString()))))))
+                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).FullName))),
+                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).Assembly.GetName().Version.ToString()))))))
                         .WithOpenBracketToken(Token(TriviaList(Comment($"/// <inheritdoc cref=\"{getterFieldIdentifierName + "Helper"}\"/>")), SyntaxKind.OpenBracketToken, TriviaList())))
                         .AddModifiers(
                             Token(SyntaxKind.PrivateKeyword)),
@@ -76,8 +77,8 @@ public partial class ObservableAsPropertyFromObservableGenerator
                         AttributeList(SingletonSeparatedList(
                             Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
                             .AddArgumentListArguments(
-                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyFromObservableGenerator).FullName))),
-                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyFromObservableGenerator).Assembly.GetName().Version.ToString()))))))
+                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).FullName))),
+                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).Assembly.GetName().Version.ToString()))))))
                         .WithOpenBracketToken(Token(TriviaList(Comment($"/// <inheritdoc cref=\"{getterFieldIdentifierName}\"/>")), SyntaxKind.OpenBracketToken, TriviaList())),
                         AttributeList(SingletonSeparatedList(Attribute(IdentifierName(AttributeDefinitions.ExcludeFromCodeCoverage)))))
                     .AddAttributeLists([.. forwardedAttributes])
@@ -112,8 +113,8 @@ public partial class ObservableAsPropertyFromObservableGenerator
                     AttributeList(SingletonSeparatedList(
                         Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
                         .AddArgumentListArguments(
-                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyFromObservableGenerator).FullName))),
-                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyFromObservableGenerator).Assembly.GetName().Version.ToString())))))),
+                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).FullName))),
+                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).Assembly.GetName().Version.ToString())))))),
                     AttributeList(SingletonSeparatedList(Attribute(IdentifierName(AttributeDefinitions.ExcludeFromCodeCoverage)))))
                 .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword)))
                 .WithBody(Block(propertyInitilisers.ToImmutable()));

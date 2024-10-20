@@ -12,7 +12,7 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// Unit tests for the ObservableAsProperty generator.
 /// </summary>
 /// <param name="output">The output helper.</param>
-public class OAPGenerator(ITestOutputHelper output) : TestBase(output)
+public class OAPGeneratorTests(ITestOutputHelper output) : TestBase(output)
 {
     /// <summary>
     /// Tests that the source generator correctly generates observable properties.
@@ -38,10 +38,10 @@ public class OAPGenerator(ITestOutputHelper output) : TestBase(output)
             """;
 
         // Act: Initialize the helper and run the generator.
-        var driver = TestHelper.TestPass<ObservableAsPropertyGenerator>(sourceCode, d => d.Id.Equals("CS0122"));
+        var driver = TestHelper.TestPass<ObservableAsPropertyGenerator>(sourceCode);
 
         // Assert: Verify the generated code.
-        return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath<ObservableAsPropertyAttribute>());
+        return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath(nameof(ObservableAsPropertyGenerator)));
     }
 
     /// <summary>
@@ -68,10 +68,10 @@ public class OAPGenerator(ITestOutputHelper output) : TestBase(output)
             """;
 
         // Act: Initialize the helper and run the generator.
-        var driver = TestHelper.TestPass<ObservableAsPropertyGenerator>(sourceCode, d => d.Id.Equals("CS0122"));
+        var driver = TestHelper.TestPass<ObservableAsPropertyGenerator>(sourceCode);
 
         // Assert: Verify the generated code.
-        return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath<ObservableAsPropertyAttribute>());
+        return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath(nameof(ObservableAsPropertyGenerator)));
     }
 
     /// <summary>
@@ -98,9 +98,9 @@ public class OAPGenerator(ITestOutputHelper output) : TestBase(output)
             """;
 
         // Act: Initialize the helper and run the generator.
-        var driver = TestHelper.TestPass<ObservableAsPropertyGenerator>(sourceCode, d => d.Id.Equals("CS0122"));
+        var driver = TestHelper.TestPass<ObservableAsPropertyGenerator>(sourceCode);
 
         // Assert: Verify the generated code.
-        return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath<ObservableAsPropertyAttribute>());
+        return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath(nameof(ObservableAsPropertyGenerator)));
     }
 }

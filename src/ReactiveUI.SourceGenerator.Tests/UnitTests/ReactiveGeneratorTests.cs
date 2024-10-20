@@ -12,7 +12,7 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// Unit tests for the Reactive generator.
 /// </summary>
 /// <param name="output">The output helper.</param>
-public class ReactiveGenerator(ITestOutputHelper output) : TestBase(output)
+public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase(output)
 {
     /// <summary>
     /// Tests that the source generator correctly generates reactive properties.
@@ -38,10 +38,10 @@ public class ReactiveGenerator(ITestOutputHelper output) : TestBase(output)
             """;
 
         // Act: Initialize the helper and run the generator.
-        var driver = TestHelper.TestPass<SourceGenerators.ReactiveGenerator>(sourceCode, d => d.Id.Equals("CS0122"));
+        var driver = TestHelper.TestPass<ReactiveGenerator>(sourceCode);
 
         // Assert: Verify the generated code.
-        return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath<ReactiveAttribute>());
+        return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath(nameof(ReactiveGenerator)));
     }
 
     /// <summary>
@@ -68,9 +68,9 @@ public class ReactiveGenerator(ITestOutputHelper output) : TestBase(output)
             """;
 
         // Act: Initialize the helper and run the generator.
-        var driver = TestHelper.TestPass<SourceGenerators.ReactiveGenerator>(sourceCode, d => d.Id.Equals("CS0122"));
+        var driver = TestHelper.TestPass<ReactiveGenerator>(sourceCode);
 
         // Assert: Verify the generated code.
-        return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath<ReactiveAttribute>());
+        return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath(nameof(ReactiveGenerator)));
     }
 }
