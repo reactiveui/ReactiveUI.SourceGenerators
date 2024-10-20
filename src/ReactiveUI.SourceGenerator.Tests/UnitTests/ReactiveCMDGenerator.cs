@@ -19,7 +19,7 @@ public class ReactiveCMDGenerator(ITestOutputHelper output) : TestBase(output)
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Fact]
-    public Task Generates_ReactiveCommandCorrectly()
+    public Task FromReactiveCommand()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
@@ -53,7 +53,7 @@ public class ReactiveCMDGenerator(ITestOutputHelper output) : TestBase(output)
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Fact]
-    public Task Generates_ReactiveCommandWithParameterCorrectly()
+    public Task FromReactiveCommandWithParameter()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
@@ -87,7 +87,7 @@ public class ReactiveCMDGenerator(ITestOutputHelper output) : TestBase(output)
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Fact]
-    public Task Generates_ReactiveAsyncCommandCorrectly()
+    public Task FromReactiveAsyncCommand()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
@@ -121,7 +121,7 @@ public class ReactiveCMDGenerator(ITestOutputHelper output) : TestBase(output)
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Fact]
-    public Task Generates_ReactiveAsyncCommandWithParameterCorrectly()
+    public Task FromReactiveAsyncCommandWithParameter()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """

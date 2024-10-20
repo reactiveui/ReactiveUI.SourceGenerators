@@ -19,7 +19,7 @@ public class OAPGenerator(ITestOutputHelper output) : TestBase(output)
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Fact]
-    public Task Generates_ObservablePropertiesCorrectly()
+    public Task FromField()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
@@ -49,7 +49,7 @@ public class OAPGenerator(ITestOutputHelper output) : TestBase(output)
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Fact]
-    public Task Generates_NonReadOnlyObservablePropertiesCorrectly()
+    public Task NonReadOnlyFromField()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
@@ -79,7 +79,7 @@ public class OAPGenerator(ITestOutputHelper output) : TestBase(output)
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Fact]
-    public Task Generates_NamedObservablePropertiesCorrectly()
+    public Task NamedFromField()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """

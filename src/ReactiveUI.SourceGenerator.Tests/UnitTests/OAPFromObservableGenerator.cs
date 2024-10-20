@@ -19,7 +19,7 @@ public class OAPFromObservableGenerator(ITestOutputHelper output) : TestBase(out
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Fact]
-    public Task Generates_ObservablePropertiesCorrectly()
+    public Task FromObservableProp()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
@@ -49,7 +49,7 @@ public class OAPFromObservableGenerator(ITestOutputHelper output) : TestBase(out
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Fact]
-    public Task Generates_ObservableMethodsCorrectly()
+    public Task FromObservableMethods()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
@@ -79,7 +79,7 @@ public class OAPFromObservableGenerator(ITestOutputHelper output) : TestBase(out
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Fact]
-    public Task Generates_ObservableMethodsWithNameCorrectly()
+    public Task FromObservableMethodsWithName()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
@@ -109,7 +109,7 @@ public class OAPFromObservableGenerator(ITestOutputHelper output) : TestBase(out
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Fact]
-    public Task Generates_ObservablePropertiesWithNameCorrectly()
+    public Task FromObservablePropertiesWithName()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """

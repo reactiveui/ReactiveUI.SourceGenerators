@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ReactiveUI.SourceGenerators\ReactiveUI.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
+    <ProjectReference Include="..\ReactiveUI.SourceGenerators\ReactiveUI.SourceGenerators.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -61,9 +61,9 @@ public sealed class TestHelper(ITestOutputHelper testOutput) : IDisposable
         var name = typeof(T).Name;
         return name switch
         {
-            "ReactiveAttribute" => "REACTIVE",
-            "ReactiveCommandAttribute" => "REACTIVECMD",
-            "ObservableAsPropertyAttribute" => "OAPH",
+            "ReactiveAttribute" => "..\\REACTIVE",
+            "ReactiveCommandAttribute" => "..\\REACTIVECMD",
+            "ObservableAsPropertyAttribute" => "..\\OAPH",
             _ => name,
         };
     }

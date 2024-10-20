@@ -19,7 +19,7 @@ public class ReactiveGenerator(ITestOutputHelper output) : TestBase(output)
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Fact]
-    public Task Generates_ReactivePropertiesCorrectly()
+    public Task FromReactiveProperties()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
@@ -49,7 +49,7 @@ public class ReactiveGenerator(ITestOutputHelper output) : TestBase(output)
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Fact]
-    public Task Generates_ReactivePropertiesWithAccessCorrectly()
+    public Task FromReactivePropertiesWithAccess()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
