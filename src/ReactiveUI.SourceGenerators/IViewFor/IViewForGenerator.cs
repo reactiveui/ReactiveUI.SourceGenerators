@@ -94,6 +94,11 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
                                     viewForBaseType = IViewForBaseType.Uno;
                                 }
 
+                                if (viewForBaseType == IViewForBaseType.None)
+                                {
+                                    return (Hierarchy: hierarchy, new Result<IViewForInfo?>(null, ImmutableArray<DiagnosticInfo>.Empty));
+                                }
+
                                 iViewForInfo = new IViewForInfo(
                                     classNamespace!,
                                     className,
