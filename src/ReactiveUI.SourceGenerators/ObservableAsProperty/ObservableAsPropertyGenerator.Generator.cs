@@ -20,7 +20,7 @@ namespace ReactiveUI.SourceGenerators;
 /// </summary>
 public sealed partial class ObservableAsPropertyGenerator
 {
-    private static void RunGenerator(in IncrementalGeneratorInitializationContext context)
+    private static void RunObservableAsProperty(in IncrementalGeneratorInitializationContext context)
     {
         // Gather info for all annotated command methods (starting from method declarations with at least one attribute)
         IncrementalValuesProvider<(HierarchyInfo Hierarchy, Result<PropertyInfo> Info)> propertyInfoWithErrors =
@@ -39,7 +39,7 @@ public sealed partial class ObservableAsPropertyGenerator
                         return default;
                     }
 
-                    // Get the can PropertyName member, if any
+                    // Get the can ReadOnly member, if any
                     attributeData.TryGetNamedArgument("ReadOnly", out bool? isReadonly);
 
                     var fieldDeclaration = (FieldDeclarationSyntax)context.TargetNode.Parent!.Parent!;

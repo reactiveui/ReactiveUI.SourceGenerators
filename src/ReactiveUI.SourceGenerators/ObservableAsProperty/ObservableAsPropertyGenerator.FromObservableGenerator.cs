@@ -5,12 +5,10 @@
 
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
 
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
@@ -26,7 +24,7 @@ namespace ReactiveUI.SourceGenerators;
 /// </summary>
 public sealed partial class ObservableAsPropertyGenerator
 {
-    private static void RunObservablePropertyAsFromObservable(in IncrementalGeneratorInitializationContext context)
+    private static void RunObservableAsPropertyFromObservable(in IncrementalGeneratorInitializationContext context)
     {
         // Gather info for all annotated command methods (starting from method declarations with at least one attribute)
         IncrementalValuesProvider<(HierarchyInfo Hierarchy, Result<ObservableMethodInfo> Info)> propertyInfoWithErrors =

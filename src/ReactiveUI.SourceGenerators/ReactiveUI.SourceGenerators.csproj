@@ -30,6 +30,12 @@
       System.Range;
     </PolySharpIncludeGeneratedTypes>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="ObservableAsProperty\NewFolder\**" />
+    <EmbeddedResource Remove="ObservableAsProperty\NewFolder\**" />
+    <None Remove="ObservableAsProperty\NewFolder\**" />
+  </ItemGroup>
   
   <!-- Include PolySharp to generate polyfills for all projects (on their .NET Standard 2.x targets) -->
   <ItemGroup>
@@ -53,6 +59,5 @@
   <!-- Include PolySharp generated code -->
   <ItemGroup>
     <Folder Include="Generated\" />
-    <Folder Include="ObservableAsProperty\NewFolder\" />
   </ItemGroup>
 </Project>

@@ -56,17 +56,14 @@ public sealed class TestHelper(ITestOutputHelper testOutput) : IDisposable
     /// <returns>
     /// A string.
     /// </returns>
-    public static string VerifiedFilePath(string name)
+    public static string VerifiedFilePath(string name) => name switch
     {
-        return name switch
-        {
-            nameof(ReactiveGenerator) => "..\\REACTIVE",
-            nameof(ReactiveCommandGenerator) => "..\\REACTIVECMD",
-            nameof(RoutedControlHostGenerator) => "..\\ROUTEDHOST",
-            nameof(ObservableAsPropertyGenerator) => "..\\OAPH",
-            _ => name,
-        };
-    }
+        nameof(ReactiveGenerator) => "..\\REACTIVE",
+        nameof(ReactiveCommandGenerator) => "..\\REACTIVECMD",
+        nameof(RoutedControlHostGenerator) => "..\\ROUTEDHOST",
+        nameof(ObservableAsPropertyGenerator) => "..\\OAPH",
+        _ => name,
+    };
 
     /// <summary>
     /// Asynchronously initializes the source generator helper by downloading required packages.
