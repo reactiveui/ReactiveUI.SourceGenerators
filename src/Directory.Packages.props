@@ -8,7 +8,7 @@
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.6.143" />
     <PackageVersion Include="stylecop.analyzers" Version="1.2.0-beta.556" />
-    <PackageVersion Include="Roslynator.Analyzers" Version="4.12.7" />
+    <PackageVersion Include="Roslynator.Analyzers" Version="4.12.8" />
     <PackageVersion Include="ReactiveUI" Version="20.1.63" />
     <PackageVersion Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
     <PackageVersion Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
