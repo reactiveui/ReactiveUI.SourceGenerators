@@ -27,8 +27,11 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// A helper class to facilitate the testing of incremental source generators.
 /// It provides utilities to initialize dependencies, run generators, and verify the output.
 /// </summary>
+/// <typeparam name="T">Type of Incremental Generator.</typeparam>
+/// <seealso cref="System.IDisposable" />
 /// <param name="testOutput">The test output helper for capturing test logs.</param>
-public sealed class TestHelper(ITestOutputHelper testOutput) : IDisposable
+public sealed class TestHelper<T>(ITestOutputHelper testOutput) : IDisposable
+        where T : IIncrementalGenerator, new()
 {
     /// <summary>
     /// Represents the NuGet library dependency for the Splat library.
@@ -44,6 +47,20 @@ public sealed class TestHelper(ITestOutputHelper testOutput) : IDisposable
         new("ReactiveUI", VersionRange.AllStableFloating, LibraryDependencyTarget.Package);
 #pragma warning restore CS0618 // Type or member is obsolete
 
+    private static readonly MetadataReference[] References =
+    [
+        MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+        MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
+        MetadataReference.CreateFromFile(typeof(T).Assembly.Location),
+        MetadataReference.CreateFromFile(typeof(TestHelper<T>).Assembly.Location),
+
+        // Wpf references
+        ////MetadataReference.CreateFromFile(Assembly.Load("PresentationCore").Location),
+        ////MetadataReference.CreateFromFile(Assembly.Load("PresentationFramework").Location),
+        ////MetadataReference.CreateFromFile(Assembly.Load("WindowsBase").Location),
+        ////MetadataReference.CreateFromFile(Assembly.Load("System.Xaml").Location),
+    ];
+
     /// <summary>
     /// Holds the compiler instance used for event-related code generation.
     /// </summary>
@@ -52,18 +69,20 @@ public sealed class TestHelper(ITestOutputHelper testOutput) : IDisposable
     /// <summary>
     /// Verifieds the file path.
     /// </summary>
-    /// <param name="name">The name.</param>
     /// <returns>
     /// A string.
     /// </returns>
-    public static string VerifiedFilePath(string name)
+    public string VerifiedFilePath()
     {
+        var name = typeof(T).Name;
         return name switch
         {
             nameof(ReactiveGenerator) => "..\\REACTIVE",
             nameof(ReactiveCommandGenerator) => "..\\REACTIVECMD",
-            nameof(RoutedControlHostGenerator) => "..\\ROUTEDHOST",
             nameof(ObservableAsPropertyGenerator) => "..\\OAPH",
+            nameof(IViewForGenerator) => "..\\IVIEWFOR",
+            nameof(RoutedControlHostGenerator) => "..\\ROUTEDHOST",
+            nameof(ViewModelControlHostGenerator) => "..\\CONTROLHOST",
             _ => name,
         };
     }
@@ -90,11 +109,9 @@ public sealed class TestHelper(ITestOutputHelper testOutput) : IDisposable
     /// <summary>
     /// Tests a generator expecting it to fail by throwing an <see cref="InvalidOperationException"/>.
     /// </summary>
-    /// <typeparam name="T">The type of the incremental generator being tested.</typeparam>
     /// <param name="source">The source code to test.</param>
-    public void TestFail<T>(
+    public void TestFail(
         string source)
-        where T : IIncrementalGenerator, new()
     {
         if (_eventCompiler is null)
         {
@@ -103,28 +120,26 @@ public sealed class TestHelper(ITestOutputHelper testOutput) : IDisposable
 
         var utility = new SourceGeneratorUtility(x => testOutput.WriteLine(x));
 
-        Assert.Throws<InvalidOperationException>(() => RunGeneratorAndCheck<T>(source));
+        Assert.Throws<InvalidOperationException>(() => RunGeneratorAndCheck(source));
     }
 
     /// <summary>
     /// Tests a generator expecting it to pass successfully.
     /// </summary>
-    /// <typeparam name="T">The type of the incremental generator being tested.</typeparam>
     /// <param name="source">The source code to test.</param>
     /// <returns>
     /// The driver.
     /// </returns>
     /// <exception cref="ArgumentNullException">callerType.</exception>
-    public GeneratorDriver TestPass<T>(
+    public GeneratorDriver TestPass(
         string source)
-        where T : IIncrementalGenerator, new()
     {
         if (_eventCompiler is null)
         {
             throw new InvalidOperationException("Must have valid compiler instance.");
         }
 
-        return RunGeneratorAndCheck<T>(source);
+        return RunGeneratorAndCheck(source);
     }
 
     /// <inheritdoc/>
@@ -133,35 +148,30 @@ public sealed class TestHelper(ITestOutputHelper testOutput) : IDisposable
     /// <summary>
     /// Runs the specified source generator and validates the generated code.
     /// </summary>
-    /// <typeparam name="T">The type of the source generator.</typeparam>
     /// <param name="code">The code to be parsed and processed by the generator.</param>
     /// <param name="rerunCompilation">Indicates whether to rerun the compilation after running the generator.</param>
     /// <returns>The generator driver used to run the generator.</returns>
     /// <exception cref="InvalidOperationException">
     /// Thrown if the compiler instance is not valid or if the compilation fails.
     /// </exception>
-    public GeneratorDriver RunGeneratorAndCheck<T>(
+    public GeneratorDriver RunGeneratorAndCheck(
         string code,
         bool rerunCompilation = true)
-        where T : IIncrementalGenerator, new()
     {
         if (_eventCompiler is null)
         {
             throw new InvalidOperationException("Must have a valid compiler instance.");
         }
 
-        // Add this assembly as a reference.
-        IEnumerable<MetadataReference> thisAssembly = [MetadataReference.CreateFromFile(typeof(TestHelper).Assembly.Location)];
-
         // Collect required assembly references.
         var assemblies = new HashSet<MetadataReference>(
             Basic.Reference.Assemblies.Net80.References.All
-            .Concat(thisAssembly)
+            .Concat(References)
             .Concat(_eventCompiler.Modules.Select(x => MetadataReference.CreateFromFile(x.PEFile!.FileName)))
             .Concat(_eventCompiler.ReferencedModules.Select(x => MetadataReference.CreateFromFile(x.PEFile!.FileName)))
             .Concat(_eventCompiler.NeededModules.Select(x => MetadataReference.CreateFromFile(x.PEFile!.FileName))));
 
-        var syntaxTree = CSharpSyntaxTree.ParseText(code, CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp10));
+        var syntaxTree = CSharpSyntaxTree.ParseText(code, CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp12));
 
         // Create a compilation with the provided source code.
         var compilation = CSharpCompilation.Create(
@@ -169,6 +179,12 @@ public sealed class TestHelper(ITestOutputHelper testOutput) : IDisposable
             [syntaxTree],
             assemblies,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, deterministic: true));
+
+        // Validate diagnostics before running the generator.
+        ////var prediagnostics = compilation.GetDiagnostics()
+        ////        .Where(d => !d.Id.Contains("CS0518") && d.Severity > DiagnosticSeverity.Warning)
+        ////        .ToList();
+        ////prediagnostics.Should().BeEmpty();
 
         var generator = new T();
         var driver = CSharpGeneratorDriver.Create(generator).WithUpdatedParseOptions((CSharpParseOptions)syntaxTree.Options);

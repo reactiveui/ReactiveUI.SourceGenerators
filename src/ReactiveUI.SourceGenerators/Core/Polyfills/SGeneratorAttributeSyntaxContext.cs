@@ -3,8 +3,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-#if !ROSLYN_4_3_1_OR_GREATER
-
 using System.Collections.Immutable;
 
 namespace Microsoft.CodeAnalysis;
@@ -12,17 +10,17 @@ namespace Microsoft.CodeAnalysis;
 /// <summary>
 /// A type containing information for a match from <see cref="SyntaxValueProviderExtensions.ForAttributeWithMetadataName"/>.
 /// </summary>
-internal readonly struct GeneratorAttributeSyntaxContext
+internal readonly struct SGeneratorAttributeSyntaxContext
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="GeneratorAttributeSyntaxContext"/> struct.
-    /// Creates a new <see cref="GeneratorAttributeSyntaxContext"/> instance with the specified parameters.
+    /// Initializes a new instance of the <see cref="SGeneratorAttributeSyntaxContext"/> struct.
+    /// Creates a new <see cref="SGeneratorAttributeSyntaxContext"/> instance with the specified parameters.
     /// </summary>
     /// <param name="targetNode">The syntax node the attribute is attached to.</param>
     /// <param name="targetSymbol">The symbol that the attribute is attached to.</param>
     /// <param name="semanticModel">Semantic model for the file that <see cref="TargetNode"/> is contained within.</param>
     /// <param name="attributes">The collection of matching attributes.</param>
-    internal GeneratorAttributeSyntaxContext(
+    internal SGeneratorAttributeSyntaxContext(
         SyntaxNode targetNode,
         ISymbol targetSymbol,
         SemanticModel semanticModel,
@@ -59,5 +57,3 @@ internal readonly struct GeneratorAttributeSyntaxContext
     /// </summary>
     public ImmutableArray<AttributeData> Attributes { get; }
 }
-
-#endif

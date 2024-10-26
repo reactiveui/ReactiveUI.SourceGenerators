@@ -11,6 +11,7 @@ namespace TestNs
         /// <inheritdoc cref="_test2"/>
         [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveGenerator", "1.1.0.0")]
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        public int Test2 { get => _test2; protected set => this.RaiseAndSetIfChanged(ref _test2, value) ; }
+        public int Test2 { get => _test2; [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_test2")]
+            set => this.RaiseAndSetIfChanged(ref _test2, value) ; }
     }
 }

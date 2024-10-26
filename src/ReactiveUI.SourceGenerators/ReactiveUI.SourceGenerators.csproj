@@ -53,6 +53,5 @@
   <!-- Include PolySharp generated code -->
   <ItemGroup>
     <Folder Include="Generated\" />
-    <Folder Include="ObservableAsProperty\NewFolder\" />
   </ItemGroup>
 </Project>

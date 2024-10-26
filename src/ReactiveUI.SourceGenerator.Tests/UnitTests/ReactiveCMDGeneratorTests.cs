@@ -12,7 +12,7 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// Unit tests for the ReactiveCommand generator.
 /// </summary>
 /// <param name="output">The output helper.</param>
-public class ReactiveCMDGeneratorTests(ITestOutputHelper output) : TestBase(output)
+public class ReactiveCMDGeneratorTests(ITestOutputHelper output) : TestBase<ReactiveCommandGenerator>(output)
 {
     /// <summary>
     /// Tests that the source generator correctly generates ReactiveCommands.
@@ -42,10 +42,10 @@ public class ReactiveCMDGeneratorTests(ITestOutputHelper output) : TestBase(outp
             """;
 
         // Act: Initialize the helper and run the generator.
-        var driver = TestHelper.TestPass<ReactiveCommandGenerator>(sourceCode);
+        var driver = TestHelper.TestPass(sourceCode);
 
         // Assert: Verify the generated code.
-        return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath(nameof(ReactiveCommandGenerator)));
+        return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath());
     }
 
     /// <summary>
@@ -76,10 +76,10 @@ public class ReactiveCMDGeneratorTests(ITestOutputHelper output) : TestBase(outp
             """;
 
         // Act: Initialize the helper and run the generator.
-        var driver = TestHelper.TestPass<ReactiveCommandGenerator>(sourceCode);
+        var driver = TestHelper.TestPass(sourceCode);
 
         // Assert: Verify the generated code.
-        return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath(nameof(ReactiveCommandGenerator)));
+        return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath());
     }
 
     /// <summary>
@@ -110,10 +110,10 @@ public class ReactiveCMDGeneratorTests(ITestOutputHelper output) : TestBase(outp
             """;
 
         // Act: Initialize the helper and run the generator.
-        var driver = TestHelper.TestPass<ReactiveCommandGenerator>(sourceCode);
+        var driver = TestHelper.TestPass(sourceCode);
 
         // Assert: Verify the generated code.
-        return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath(nameof(ReactiveCommandGenerator)));
+        return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath());
     }
 
     /// <summary>
@@ -145,9 +145,9 @@ public class ReactiveCMDGeneratorTests(ITestOutputHelper output) : TestBase(outp
             """;
 
         // Act: Initialize the helper and run the generator.
-        var driver = TestHelper.TestPass<ReactiveCommandGenerator>(sourceCode);
+        var driver = TestHelper.TestPass(sourceCode);
 
         // Assert: Verify the generated code.
-        return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath(nameof(ReactiveCommandGenerator)));
+        return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath());
     }
 }
