@@ -3,6 +3,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -97,29 +98,37 @@ public sealed partial class ReactiveCommandGenerator : IIncrementalGenerator
                             context.SemanticModel,
                             methodSyntax,
                             token,
-                            out var propertyAttributes);
+                            out var forwardedAttributes);
+
+                        token.ThrowIfCancellationRequested();
+
+                        // Get the containing type info
+                        var targetInfo = TargetInfo.From(methodSymbol.ContainingType);
 
                         token.ThrowIfCancellationRequested();
 
                         commandExtensionInfos = new(
+                            targetInfo.FileHintName,
+                            targetInfo.TargetName,
+                            targetInfo.TargetNamespace,
+                            targetInfo.TargetNamespaceWithNamespace,
+                            targetInfo.TargetVisibility,
+                            targetInfo.TargetType,
                             methodSymbol.Name,
-                            realReturnType,
-                            methodParameters.SingleOrDefault()?.Type,
+                            realReturnType.GetFullyQualifiedNameWithNullabilityAnnotations(),
+                            methodParameters?.SingleOrDefault()?.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                             isTask,
                             isReturnTypeVoid,
                             isObservable,
                             canExecuteMemberName,
                             canExecuteTypeInfo,
-                            propertyAttributes);
+                            forwardedAttributes);
                     }
 
                     token.ThrowIfCancellationRequested();
                     return (Hierarchy: hierarchy, new Result<CommandInfo?>(commandExtensionInfos, diagnostics.ToImmutable()));
                 })
             .Where(static item => item.Hierarchy is not null)!;
-
-        ////// Output the diagnostics
-        ////context.ReportDiagnostics(propertyInfoWithErrors.Select(static (item, _) => item.Info.Errors));
 
         // Get the filtered sequence to enable caching
         var propertyInfo =
