@@ -26,7 +26,7 @@ internal static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "The source generator features from ReactiveUI require consuming projects to set the C# language version to at least C# 9.0. Make sure to add <LangVersion>9.0</LangVersion> (or above) to your .csproj file.",
-        helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0001");
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>
     /// Gets a <see cref="DiagnosticDescriptor"/> indicating when an annotated method to generate a command for has an invalid signature.
@@ -42,7 +42,7 @@ internal static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "Cannot apply [ReactiveCommand] to methods with a signature that doesn't match any of the existing reactive command types.",
-        helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0002");
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>
     /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a specified <c>CanExecute</c> name has no matching member.
@@ -58,7 +58,7 @@ internal static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "The CanExecute name in [ReactiveCommand] must refer to a valid member in its parent type.",
-        helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0003");
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>
     /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a specified <c>CanExecute</c> name maps to multiple members.
@@ -74,7 +74,7 @@ internal static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "Cannot set the CanExecute name in [ReactiveCommand] to one that has multiple matches in its parent type (it must refer to a single compatible member).",
-        helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0004");
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>
     /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a a specified <c>CanExecute</c> name maps to an invalid member.
@@ -90,7 +90,7 @@ internal static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "The CanExecute name in [ReactiveCommand] must refer to a compatible member (either a property or a method) to be used in a generated command.",
-        helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0005");
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>
     /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a method with <c>[ReactiveCommand]</c> is using an invalid attribute targeting the field or property.
@@ -106,7 +106,7 @@ internal static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "All attributes targeting the generated field or property for a method annotated with [ReactiveCommand] must correctly be resolved to valid types.",
-        helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0006");
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>
     /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a method with <c>[ReactiveCommand]</c> is using an invalid attribute targeting the field or property.
@@ -122,7 +122,7 @@ internal static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "All attributes targeting the generated field or property for a method annotated with [ReactiveCommand] must be using valid expressions.",
-        helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0007");
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>
     /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a method with <c>[ReactiveCommand]</c> is async void.
@@ -138,7 +138,7 @@ internal static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "All asynchronous methods annotated with [ReactiveCommand] should return a Task type, to benefit from the additional support provided by ReactiveCommand.FromTask.",
-        helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0008");
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>
     /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a generated property created with <c>[Reactive]</c> would collide with the source field.
@@ -154,7 +154,7 @@ internal static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "The name of fields annotated with [Reactive] should use \"lowerCamel\", \"_lowerCamel\" or \"m_lowerCamel\" pattern to avoid collisions with the generated properties.",
-        helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0009");
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>
     /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a field with <c>[Reactive]</c> is using an invalid attribute targeting the property.
@@ -170,7 +170,7 @@ internal static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "All attributes targeting the generated property for a field annotated with [Reactive] must correctly be resolved to valid types.",
-        helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0010");
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>
     /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a field with <c>[Reactive]</c> is using an invalid attribute expression targeting the property.
@@ -186,7 +186,7 @@ internal static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "All attributes targeting the generated property for a field annotated with [Reactive] must be using valid expressions.",
-        helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0011");
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>
     /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a field with <c>[ObservableAsProperty]</c> is using an invalid attribute targeting the property.
@@ -202,7 +202,7 @@ internal static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "All attributes targeting the generated property for a field annotated with [ObservableAsProperty] must correctly be resolved to valid types.",
-        helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0012");
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>
     /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a field with <c>[ObservableAsProperty]</c> is using an invalid attribute expression targeting the property.
@@ -218,7 +218,7 @@ internal static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "All attributes targeting the generated property for a field annotated with [ObservableAsProperty] must be using valid expressions.",
-        helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0013");
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>
     /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a generated property created with <c>[ObservableAsProperty]</c> would cause conflicts with other generated members.
@@ -234,7 +234,7 @@ internal static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "The fields annotated with [ObservableAsProperty] cannot result in a property name or have a type that would cause conflicts with other generated members.",
-        helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0014");
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>
     /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a generated property created with <c>[Reactive]</c> would cause conflicts with other generated members.
@@ -250,7 +250,7 @@ internal static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "The fields annotated with [Reactive] cannot result in a property name or have a type that would cause conflicts with other generated members.",
-        helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0015");
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>
     /// The property to field rule.
@@ -263,7 +263,7 @@ internal static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Info,
         isEnabledByDefault: true,
         description: "Used to create a Read Write INPC Reactive Property for ReactiveUI, annotated with [Reactive].",
-        helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0016");
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>
     /// The observable as property method has parameters error.
@@ -276,5 +276,5 @@ internal static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "The method annotated with [ObservableAsProperty] cannot currently initialize methods with parameters.",
-        helpLinkUri: "https://www.reactiveui.net/errors/RXUISG0017");
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 }
