@@ -10,10 +10,10 @@ These Source Generators were designed to work in full with ReactiveUI V19.5.31 a
 - [ReactiveCommand][property: AttribueToAddToCommand] with Attribute passthrough
 - [IViewFor(nameof(ViewModelName))]
 
-Versions older than V19.5.31 to this:
-- [Reactive] fully supported, 
-- [ObservableAsProperty] fully supported, 
+Versions older than V19.5.31 to this: 
 - [ReactiveCommand] all options supported except Cancellation Token asnyc methods.
+
+[analyzer codes](https://github.com/reactiveui/ReactiveUI.SourceGenerators/blob/main/src/ReactiveUI.SourceGenerators/AnalyzerReleases.Shipped.md)
 
 # Historical ways
 ## Read-write properties
