@@ -3,21 +3,25 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using ReactiveUI.SourceGenerators.Helpers;
 
-namespace ReactiveUI.SourceGenerators.Models;
+namespace ReactiveUI.SourceGenerators.Reactive.Models;
 
 /// <summary>
 /// A model with gathered info on a given field.
 /// </summary>
 internal sealed record PropertyInfo(
+    string FileHintName,
+    string TargetName,
+    string TargetNamespace,
+    string TargetNamespaceWithNamespace,
+    string TargetVisibility,
+    string TargetType,
     string TypeNameWithNullabilityAnnotations,
     string FieldName,
     string PropertyName,
-    EqualsValueClauseSyntax? Initializer,
+    EqualsValueClauseSyntax? Initializer, // TODO: Remove Initializer when ObservableAsPropertyHelper is updated
     bool IsReferenceTypeOrUnconstraindTypeParameter,
     bool IncludeMemberNotNullOnSetAccessor,
-    EquatableArray<AttributeInfo> ForwardedAttributes,
+    ForwardAttributes ForwardedAttributes,
     string AccessModifier);

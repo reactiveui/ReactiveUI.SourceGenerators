@@ -21,3 +21,5 @@ internal enum AccessModifier
     InternalProtected,
     PrivateProtected,
 }
+#nullable restore
+#pragma warning restore

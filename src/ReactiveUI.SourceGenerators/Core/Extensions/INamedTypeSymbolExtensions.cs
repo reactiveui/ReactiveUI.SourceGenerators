@@ -3,6 +3,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 
@@ -44,5 +45,30 @@ internal static class INamedTypeSymbolExtensions
                 yield return memberSymbol;
             }
         }
+    }
+
+    /// <summary>
+    /// Returns a string representation of the type, such as "class", "struct", or "interface".
+    /// </summary>
+    /// <param name="namedTypeSymbol">The type symbol to analyze.</param>
+    /// <returns>A string representing the type kind.</returns>
+    public static string GetTypeString(this INamedTypeSymbol namedTypeSymbol)
+    {
+        if (namedTypeSymbol.TypeKind == TypeKind.Interface)
+        {
+            return "interface";
+        }
+
+        if (namedTypeSymbol.TypeKind == TypeKind.Struct)
+        {
+            return namedTypeSymbol.IsRecord ? "record struct" : "struct";
+        }
+
+        if (namedTypeSymbol.TypeKind == TypeKind.Class)
+        {
+            return namedTypeSymbol.IsRecord ? "record" : "class";
+        }
+
+        throw new InvalidOperationException("Unknown type kind.");
     }
 }

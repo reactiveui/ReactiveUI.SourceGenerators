@@ -366,7 +366,7 @@ public partial class ReactiveCommandGenerator
                 }
 
                 // Get the target property name either directly or matching the generated one
-                var propertyName = ReactiveGenerator.Execute.GetGeneratedPropertyName(fieldSymbol);
+                var propertyName = fieldSymbol.GetGeneratedPropertyName();
 
                 // If the generated property name matches, get the right expression type
                 if (memberName == propertyName)

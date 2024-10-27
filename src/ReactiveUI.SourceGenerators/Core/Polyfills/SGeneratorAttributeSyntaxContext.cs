@@ -8,7 +8,7 @@ using System.Collections.Immutable;
 namespace Microsoft.CodeAnalysis;
 
 /// <summary>
-/// A type containing information for a match from <see cref="SyntaxValueProviderExtensions.ForAttributeWithMetadataName"/>.
+/// A type containing information for a match from <see cref="SyntaxValueProviderExtensions.ForAttributeWithMetadataNameInternal"/>.
 /// </summary>
 internal readonly struct SGeneratorAttributeSyntaxContext
 {
@@ -50,7 +50,7 @@ internal readonly struct SGeneratorAttributeSyntaxContext
     /// <summary>
     /// <see cref="AttributeData"/>Gets s for any matching attributes on <see cref="TargetSymbol"/>. Always non-empty. All
     /// these attributes will have an <see cref="AttributeData.AttributeClass"/> whose fully qualified name metadata
-    /// name matches the name requested in <see cref="SyntaxValueProviderExtensions.ForAttributeWithMetadataName"/>.
+    /// name matches the name requested in <see cref="SyntaxValueProviderExtensions.ForAttributeWithMetadataNameInternal"/>.
     /// <para>
     /// To get the entire list of attributes, use <see cref="ISymbol.GetAttributes"/> on <see cref="TargetSymbol"/>.
     /// </para>

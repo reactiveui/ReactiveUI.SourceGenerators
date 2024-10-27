@@ -15,6 +15,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Models;
+using ReactiveUI.SourceGenerators.Reactive.Models;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static ReactiveUI.SourceGenerators.Diagnostics.DiagnosticDescriptors;
 
@@ -74,11 +75,11 @@ public sealed partial class ObservableAsPropertyGenerator
                 getterArrowExpression = ArrowExpressionClause(ParseExpression($"{getterFieldIdentifierName} = {getterFieldIdentifierName}Helper?.Value ?? {getterFieldIdentifierName}"));
             }
 
-            // Prepare the forwarded attributes, if any
-            var forwardedAttributes =
-                propertyInfo.ForwardedAttributes
-                .Select(static a => AttributeList(SingletonSeparatedList(a.GetSyntax())))
-                .ToImmutableArray();
+            ////// Prepare the forwarded attributes, if any
+            ////var forwardedAttributes =
+            ////    propertyInfo.ForwardedAttributes
+            ////    .Select(static a => AttributeList(SingletonSeparatedList(a.GetSyntax())))
+            ////    .ToImmutableArray();
 
             var modifiers = new List<SyntaxToken>();
             var helperTypeName = $"ReactiveUI.ObservableAsPropertyHelper<{propertyType}>";
@@ -124,7 +125,7 @@ public sealed partial class ObservableAsPropertyGenerator
                                     AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).Assembly.GetName().Version.ToString()))))))
                             .WithOpenBracketToken(Token(TriviaList(Comment($"/// <inheritdoc cref=\"{getterFieldIdentifierName}\"/>")), SyntaxKind.OpenBracketToken, TriviaList())),
                             AttributeList(SingletonSeparatedList(Attribute(IdentifierName(AttributeDefinitions.ExcludeFromCodeCoverage)))))
-                        .AddAttributeLists([.. forwardedAttributes])
+                        ////.AddAttributeLists([.. forwardedAttributes])
                         .AddModifiers(Token(SyntaxKind.PublicKeyword))
                         .AddAccessorListAccessors(
                             AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
@@ -286,15 +287,22 @@ public sealed partial class ObservableAsPropertyGenerator
                 out var includeMemberNotNullOnSetAccessor);
 
             token.ThrowIfCancellationRequested();
+            PropertyAttributeData[] pd = [new(string.Empty, string.Empty)];
 
             propertyInfo = new PropertyInfo(
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
                 typeNameWithNullabilityAnnotations,
                 fieldName,
                 propertyName,
                 initializer,
                 isReferenceTypeOrUnconstraindTypeParameter,
                 includeMemberNotNullOnSetAccessor,
-                forwardedAttributes.ToImmutable(),
+                new(pd),
                 isReadonly == false ? string.Empty : "readonly");
 
             diagnostics = builder.ToImmutable();

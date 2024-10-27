@@ -73,4 +73,38 @@ public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase<Reactiv
         // Assert: Verify the generated code.
         return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath());
     }
+
+    /// <summary>
+    /// Froms the reactive properies with attributes.
+    /// </summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Fact]
+    public Task FromReactiveProperiesWithAttributes()
+    {
+        // Arrange: Setup the source code that matches the generator input expectations.
+        const string sourceCode = @"
+                using System;
+                using System.Runtime.Serialization;
+                using System.Text.Json.Serialization;
+                using ReactiveUI;
+                using ReactiveUI.SourceGenerators;
+                using System.Reactive.Linq;
+
+                namespace TestNs;
+
+                public partial class TestVM : ReactiveObject
+                {
+                    [JsonInclude]
+                    [DataMember]
+                    [Reactive]
+                    private int _test3 = 10;
+                }
+            ";
+
+        // Act: Initialize the helper and run the generator.
+        var driver = TestHelper.TestPass(sourceCode);
+
+        // Assert: Verify the generated code.
+        return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath());
+    }
 }
