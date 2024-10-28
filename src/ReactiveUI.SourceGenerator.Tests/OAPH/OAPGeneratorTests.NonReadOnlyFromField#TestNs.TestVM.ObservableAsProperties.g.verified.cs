@@ -9,7 +9,7 @@ namespace TestNs
     {
         /// <inheritdoc cref="_test2Helper"/>
         [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "1.1.0.0")]
-        private ReactiveUI.ObservableAsPropertyHelper<int>? _test2Helper;
+        private readonly ReactiveUI.ObservableAsPropertyHelper<int> _test2Helper;
         /// <inheritdoc cref="_test2"/>
         [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "1.1.0.0")]
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]

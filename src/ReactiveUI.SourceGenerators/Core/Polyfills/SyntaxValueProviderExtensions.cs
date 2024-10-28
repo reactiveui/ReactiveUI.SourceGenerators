@@ -3,8 +3,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-#if !ROSLYN_4_3_1_OR_GREATER
-
 using System;
 using System.Collections.Immutable;
 using System.Threading;
@@ -28,17 +26,17 @@ internal static class SyntaxValueProviderExtensions
     /// <param name="syntaxValueProvider">The source <see cref="SyntaxValueProvider"/> instance to use.</param>
     /// <param name="fullyQualifiedMetadataName">The fully qualified metadata name of the attribute to look for.</param>
     /// <param name="predicate">A function that determines if the given <see cref="SyntaxNode"/> attribute target (<see
-    /// cref="GeneratorAttributeSyntaxContext.TargetNode"/>) should be transformed.  Nodes that do not pass this
+    /// cref="SGeneratorAttributeSyntaxContext.TargetNode"/>) should be transformed.  Nodes that do not pass this
     /// predicate will not have their attributes looked at all.</param>
     /// <param name="transform">A function that performs the transform. This will only be passed nodes that return <see
     /// langword="true"/> for <paramref name="predicate"/> and which have a matching <see cref="AttributeData"/> whose
     /// <see cref="AttributeData.AttributeClass"/> has the same fully qualified, metadata name as <paramref
     /// name="fullyQualifiedMetadataName"/>.</param>
-    public static IncrementalValuesProvider<T> ForAttributeWithMetadataName<T>(
+    public static IncrementalValuesProvider<T> ForAttributeWithMetadataNameInternal<T>(
         this SyntaxValueProvider syntaxValueProvider,
         string fullyQualifiedMetadataName,
         Func<SyntaxNode, CancellationToken, bool> predicate,
-        Func<GeneratorAttributeSyntaxContext, CancellationToken, T> transform) => syntaxValueProvider
+        Func<SGeneratorAttributeSyntaxContext, CancellationToken, T> transform) => syntaxValueProvider
             .CreateSyntaxProvider(
                 predicate,
                 (context, token) =>
@@ -67,14 +65,14 @@ internal static class SyntaxValueProviderExtensions
                         return null;
                     }
 
-                    if (!context.SemanticModel.Compilation.HasLanguageVersionAtLeastEqualTo(LanguageVersion.CSharp9))
+                    if (!context.SemanticModel.Compilation.HasLanguageVersionAtLeastEqualTo(LanguageVersion.CSharp11))
                     {
                         return null;
                     }
 
                     // Create the GeneratorAttributeSyntaxContext value to pass to the input transform. The attributes array
                     // will only ever have a single value, but that's fine with the attributes the various generators look for.
-                    GeneratorAttributeSyntaxContext syntaxContext = new(
+                    SGeneratorAttributeSyntaxContext syntaxContext = new(
                         targetNode: context.Node,
                         targetSymbol: symbol,
                         semanticModel: context.SemanticModel,
@@ -111,7 +109,7 @@ internal static class SyntaxValueProviderExtensions
                         return null;
                     }
 
-                    if (!context.SemanticModel.Compilation.HasLanguageVersionAtLeastEqualTo(LanguageVersion.CSharp9))
+                    if (!context.SemanticModel.Compilation.HasLanguageVersionAtLeastEqualTo(LanguageVersion.CSharp11))
                     {
                         return null;
                     }
@@ -128,5 +126,3 @@ internal static class SyntaxValueProviderExtensions
     /// <param name="Value">The wrapped value, if it exists.</param>
     private sealed record Option<T>(T? Value);
 }
-
-#endif

@@ -3,10 +3,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System;
-using System.CodeDom.Compiler;
 using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -36,7 +33,7 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
         // Gather info for all annotated IViewFor Classes
         IncrementalValuesProvider<(HierarchyInfo Hierarchy, Result<IViewForInfo> Info)> iViewForInfoWithErrors =
             context.SyntaxProvider
-            .ForAttributeWithMetadataName(
+            .ForAttributeWithMetadataNameInternal(
                 AttributeDefinitions.IViewForAttributeType,
                 static (node, _) => node is ClassDeclarationSyntax { AttributeLists.Count: > 0 },
                 static (context, token) =>

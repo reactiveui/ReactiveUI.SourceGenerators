@@ -30,7 +30,7 @@ public sealed partial class RoutedControlHostGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(ctx =>
-            ctx.AddSource($"{AttributeDefinitions.RoutedControlHostAttributeType}.g.cs", SourceText.From(AttributeDefinitions.RoutedControlHostAttribute, Encoding.UTF8)));
+            ctx.AddSource($"{AttributeDefinitions.RoutedControlHostAttributeType}.g.cs", SourceText.From(AttributeDefinitions.GetRoutedControlHostAttribute(), Encoding.UTF8)));
 
         // Gather info for all annotated IViewFor Classes
         IncrementalValuesProvider<(HierarchyInfo Hierarchy, Result<RoutedControlHostInfo> Info)> rchInfoWithErrors =

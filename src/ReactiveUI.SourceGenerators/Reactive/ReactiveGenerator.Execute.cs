@@ -3,19 +3,15 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Models;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static ReactiveUI.SourceGenerators.Diagnostics.DiagnosticDescriptors;
+using ReactiveUI.SourceGenerators.Reactive.Models;
 
 namespace ReactiveUI.SourceGenerators;
 
@@ -23,399 +19,243 @@ namespace ReactiveUI.SourceGenerators;
 /// ReactiveGenerator.
 /// </summary>
 /// <seealso cref="IIncrementalGenerator" />
-public partial class ReactiveGenerator
+public sealed partial class ReactiveGenerator
 {
+    internal static readonly string GeneratorName = typeof(ReactiveGenerator).FullName!;
+    internal static readonly string GeneratorVersion = typeof(ReactiveGenerator).Assembly.GetName().Version.ToString();
+
+    private static readonly string[] excludeFromCodeCoverage = ["[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]"];
+
     /// <summary>
-    /// A container for all the logic for <see cref="ReactiveCommandGenerator"/>.
+    /// Gets the observable method information.
     /// </summary>
-    internal static class Execute
+    /// <param name="context">The context.</param>
+    /// <param name="token">The token.</param>
+    /// <returns>The value.</returns>
+    private static PropertyInfo? GetVariableInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
-        /// <summary>
-        /// Gets the <see cref="MemberDeclarationSyntax"/> instance for the input field.
-        /// </summary>
-        /// <param name="propertyInfo">The input <see cref="PropertyInfo"/> instance to process.</param>
-        /// <returns>The generated <see cref="MemberDeclarationSyntax"/> instance for <paramref name="propertyInfo"/>.</returns>
-        internal static MemberDeclarationSyntax GetPropertySyntax(PropertyInfo propertyInfo)
+        var symbol = context.TargetSymbol;
+
+        if (!symbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ReactiveAttributeType, out var attributeData))
         {
-            using var setterStatements = ImmutableArrayBuilder<StatementSyntax>.Rent();
+            return default;
+        }
 
-            // Get the property type syntax
-            TypeSyntax propertyType = IdentifierName(propertyInfo.TypeNameWithNullabilityAnnotations);
+        if (symbol is not IFieldSymbol fieldSymbol)
+        {
+            return default;
+        }
 
-            string getterFieldIdentifierName;
-            ExpressionSyntax getterFieldExpression;
-            ExpressionSyntax setterFieldExpression;
+        if (!IsTargetTypeValid(fieldSymbol))
+        {
+            return default;
+        }
 
-            // In case the backing field is exactly named "value", we need to add the "this." prefix to ensure that comparisons and assignments
-            // with it in the generated setter body are executed correctly and without conflicts with the implicit value parameter.
-            if (propertyInfo.FieldName == "value")
-            {
-                // We only need to add "this." when referencing the field in the setter (getter and XML docs are not ambiguous)
-                getterFieldIdentifierName = "value";
-                getterFieldExpression = IdentifierName(getterFieldIdentifierName);
-                setterFieldExpression = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, ThisExpression(), (IdentifierNameSyntax)getterFieldExpression);
-            }
-            else if (SyntaxFacts.GetKeywordKind(propertyInfo.FieldName) != SyntaxKind.None ||
-                     SyntaxFacts.GetContextualKeywordKind(propertyInfo.FieldName) != SyntaxKind.None)
-            {
-                // If the identifier for the field could potentially be a keyword, we must escape it.
-                // This usually happens if the annotated field was escaped as well (eg. "@event").
-                // In this case, we must always escape the identifier, in all cases.
-                getterFieldIdentifierName = $"@{propertyInfo.FieldName}";
-                getterFieldExpression = setterFieldExpression = IdentifierName(getterFieldIdentifierName);
-            }
-            else
-            {
-                getterFieldIdentifierName = propertyInfo.FieldName;
-                getterFieldExpression = setterFieldExpression = IdentifierName(getterFieldIdentifierName);
-            }
+        token.ThrowIfCancellationRequested();
 
-            // Add the assignment statement:
-            //
-            // <FIELD_EXPRESSION> = value;
-            setterStatements.Add(
-                ExpressionStatement(
-                    AssignmentExpression(
-                        SyntaxKind.SimpleAssignmentExpression,
-                        setterFieldExpression,
-                        IdentifierName("value"))));
+        // Get AccessModifier enum value from the attribute
+        attributeData.TryGetNamedArgument("SetModifier", out int? accessModifierArgument);
+        var accessModifier = accessModifierArgument switch
+        {
+            0 => "public",
+            1 => "protected",
+            2 => "internal",
+            3 => "private",
+            4 => "internal protected",
+            5 => "private protected",
+            _ => "public",
+        };
 
-            SyntaxToken[] syntaxKinds = propertyInfo.AccessModifier switch
-            {
-                "public" => [],
-                "protected" => [Token(SyntaxKind.ProtectedKeyword)],
-                "internal" => [Token(SyntaxKind.InternalKeyword)],
-                "private" => [Token(SyntaxKind.PrivateKeyword)],
-                "internal protected" => [Token(SyntaxKind.InternalKeyword), Token(SyntaxKind.ProtectedKeyword)],
-                "private protected" => [Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.ProtectedKeyword)],
-                _ => [],
-            };
+        token.ThrowIfCancellationRequested();
 
-            // Create the setter for the generated property:
-            // Literal(propertyInfo.AccessModifier)
-            // set => this.RaiseAndSetIfChanged(ref <FIELD_NAME>, value);
-            var setAccessor = AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
-                .AddModifiers(syntaxKinds)
-                .WithExpressionBody(ArrowExpressionClause(ParseExpression($"this.RaiseAndSetIfChanged(ref {getterFieldIdentifierName}, {IdentifierName("value")});")));
+        // Get the property type and name
+        var typeNameWithNullabilityAnnotations = fieldSymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations();
+        var fieldName = fieldSymbol.Name;
+        var propertyName = fieldSymbol.GetGeneratedPropertyName();
 
-            // Add the [MemberNotNull] attribute if needed:
-            //
-            // [MemberNotNull("<FIELD_NAME>")]
-            // <SET_ACCESSOR>
-            if (propertyInfo.IncludeMemberNotNullOnSetAccessor)
-            {
-                setAccessor = setAccessor.AddAttributeLists(
-                    AttributeList(SingletonSeparatedList(
-                        Attribute(IdentifierName("global::System.Diagnostics.CodeAnalysis.MemberNotNull"))
-                        .AddArgumentListArguments(
-                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(propertyInfo.FieldName)))))));
-            }
+        token.ThrowIfCancellationRequested();
 
-            // Prepare the forwarded attributes, if any
-            var forwardedAttributes =
-                propertyInfo.ForwardedAttributes
-                .Select(static a => AttributeList(SingletonSeparatedList(a.GetSyntax())))
-                .ToImmutableArray();
+        // Get the nullability info for the property
+        GetNullabilityInfo(
+            fieldSymbol,
+            context.SemanticModel,
+            out var isReferenceTypeOrUnconstraindTypeParameter,
+            out var includeMemberNotNullOnSetAccessor);
 
-            // Construct the generated property as follows:
-            //
-            // /// <inheritdoc cref="<FIELD_NAME>"/>
-            // [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
-            // [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-            // <FORWARDED_ATTRIBUTES>
-            // public <FIELD_TYPE><NULLABLE_ANNOTATION?> <PROPERTY_NAME>
-            // {
-            //     get => <FIELD_NAME>;
-            //     <SET_ACCESSOR>
-            // }
+        // Get the attributes for the field
+        var attributes = fieldSymbol.GetAttributes()
+            .Where(x => x.AttributeClass?.HasFullyQualifiedMetadataName(AttributeDefinitions.ReactiveAttributeType) == false)
+            .ToImmutableArray();
+        PropertyAttributeData[] propertyAttributes = [];
+        if (attributes.Length > 0)
+        {
+            // Generate attribute list for fields.
+            propertyAttributes = attributes.GenerateAttributes(
+                AttributeTargets.Property,
+                token);
+        }
+
+        var forwardedAttributes = new ForwardAttributes(propertyAttributes);
+        token.ThrowIfCancellationRequested();
+
+        // Get the containing type info
+        var targetInfo = TargetInfo.From(fieldSymbol.ContainingType);
+
+        token.ThrowIfCancellationRequested();
+
+        return new(
+            targetInfo.FileHintName,
+            targetInfo.TargetName,
+            targetInfo.TargetNamespace,
+            targetInfo.TargetNamespaceWithNamespace,
+            targetInfo.TargetVisibility,
+            targetInfo.TargetType,
+            typeNameWithNullabilityAnnotations,
+            fieldName,
+            propertyName,
+            null,
+            isReferenceTypeOrUnconstraindTypeParameter,
+            includeMemberNotNullOnSetAccessor,
+            forwardedAttributes,
+            accessModifier);
+    }
+
+    /// <summary>
+    /// Generates the source code.
+    /// </summary>
+    /// <param name="containingTypeName">The contain type name.</param>
+    /// <param name="containingNamespace">The containing namespace.</param>
+    /// <param name="containingClassVisibility">The containing class visibility.</param>
+    /// <param name="containingType">The containing type.</param>
+    /// <param name="properties">The properties.</param>
+    /// <returns>The value.</returns>
+    private static string GenerateSource(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, PropertyInfo[] properties)
+    {
+        // Includes 2 tabs from the property declarations so no need to add them here.
+        var propertyDeclarations = string.Join("\n\r", properties.Select(GetPropertySyntax));
+
+        return
+$$"""
+// <auto-generated/>
+using ReactiveUI;
+
+#pragma warning disable
+#nullable enable
+
+namespace {{containingNamespace}}
+{
+{{AddTabs(1)}}/// <summary>
+{{AddTabs(1)}}/// Partial class for the {{containingTypeName}} which contains ReactiveUI Reactive property initialization.
+{{AddTabs(1)}}/// </summary>
+{{AddTabs(1)}}[global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
+{{AddTabs(1)}}{{containingClassVisibility}} partial {{containingType}} {{containingTypeName}}
+{{AddTabs(1)}}{
+{{propertyDeclarations}}
+{{AddTabs(1)}}}
+}
+#nullable restore
+#pragma warning restore
+""";
+    }
+
+    /// <summary>
+    /// Generates property declarations for the given observable method information.
+    /// </summary>
+    /// <param name="propertyInfo">Metadata about the observable property.</param>
+    /// <returns>A string containing the generated code for the property.</returns>
+    private static string GetPropertySyntax(PropertyInfo propertyInfo)
+    {
+        if (propertyInfo.PropertyName is null)
+        {
+            return string.Empty;
+        }
+
+        var setModifier = propertyInfo.AccessModifier + " ";
+        if (setModifier == "public ")
+        {
+            setModifier = string.Empty;
+        }
+
+        var propertyAttributes = string.Join("\n\t\t", excludeFromCodeCoverage.Concat(propertyInfo.ForwardedAttributes.Attributes.Select(x => x.FormatAttributes())));
+
+        if (propertyInfo.IncludeMemberNotNullOnSetAccessor)
+        {
             return
-                PropertyDeclaration(propertyType, Identifier(propertyInfo.PropertyName))
-                .AddAttributeLists(
-                    AttributeList(SingletonSeparatedList(
-                        Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
-                        .AddArgumentListArguments(
-                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ReactiveGenerator).FullName))),
-                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ReactiveGenerator).Assembly.GetName().Version.ToString()))))))
-                    .WithOpenBracketToken(Token(TriviaList(Comment($"/// <inheritdoc cref=\"{getterFieldIdentifierName}\"/>")), SyntaxKind.OpenBracketToken, TriviaList())),
-                    AttributeList(SingletonSeparatedList(Attribute(IdentifierName(AttributeDefinitions.ExcludeFromCodeCoverage)))))
-                .AddAttributeLists([.. forwardedAttributes])
-                .AddModifiers(Token(SyntaxKind.PublicKeyword))
-                .AddAccessorListAccessors(
-                    AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-                    .WithExpressionBody(ArrowExpressionClause(getterFieldExpression))
-                    .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
-                    setAccessor);
+$$"""
+{{AddTabs(2)}}/// <inheritdoc cref="{{propertyInfo.FieldName}}"/>
+{{AddTabs(2)}}{{propertyAttributes}}
+{{AddTabs(2)}}{{propertyInfo.TargetVisibility}} {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}}
+{{AddTabs(2)}}{ 
+{{AddTabs(3)}}get => {{propertyInfo.FieldName}};
+{{AddTabs(3)}}[global::System.Diagnostics.CodeAnalysis.MemberNotNull("{{propertyInfo.FieldName}}")]
+{{AddTabs(3)}}{{setModifier}}set => this.RaiseAndSetIfChanged(ref {{propertyInfo.FieldName}}, value);
+{{AddTabs(2)}}}
+""";
         }
 
-        internal static bool GetFieldInfoFromClass(
-            FieldDeclarationSyntax fieldSyntax,
-            IFieldSymbol fieldSymbol,
-            SemanticModel semanticModel,
-            CancellationToken token,
-            [NotNullWhen(true)] out PropertyInfo? propertyInfo,
-            out ImmutableArray<DiagnosticInfo> diagnostics)
-        {
-            using var builder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
+        return
+$$"""
+{{AddTabs(2)}}/// <inheritdoc cref="{{propertyInfo.FieldName}}"/>
+{{AddTabs(2)}}{{propertyAttributes}}
+{{AddTabs(2)}}{{propertyInfo.TargetVisibility}} {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} { get => {{propertyInfo.FieldName}}; {{setModifier}}set => this.RaiseAndSetIfChanged(ref {{propertyInfo.FieldName}}, value); }
+""";
+    }
 
-            // Validate the target type
-            if (!IsTargetTypeValid(fieldSymbol))
-            {
-                builder.Add(
-                    InvalidReactiveError,
-                    fieldSymbol,
-                    fieldSymbol.ContainingType,
-                    fieldSymbol.Name);
+    private static string AddTabs(int tabCount) => new('\t', tabCount);
 
-                propertyInfo = null;
-                diagnostics = builder.ToImmutable();
+    /// <summary>
+    /// Validates the containing type for a given field being annotated.
+    /// </summary>
+    /// <param name="fieldSymbol">The input <see cref="IFieldSymbol"/> instance to process.</param>
+    /// <returns>Whether or not the containing type for <paramref name="fieldSymbol"/> is valid.</returns>
+    private static bool IsTargetTypeValid(IFieldSymbol fieldSymbol)
+    {
+        var isObservableObject = fieldSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.ReactiveObject");
+        var isIObservableObject = fieldSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.IReactiveObject");
+        var hasObservableObjectAttribute = fieldSymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName("ReactiveUI.SourceGenerators.ReactiveObjectAttribute");
 
-                return false;
-            }
+        return isIObservableObject || isObservableObject || hasObservableObjectAttribute;
+    }
 
-            token.ThrowIfCancellationRequested();
+    /// <summary>
+    /// Gets the nullability info on the generated property.
+    /// </summary>
+    /// <param name="fieldSymbol">The input <see cref="IFieldSymbol"/> instance to process.</param>
+    /// <param name="semanticModel">The <see cref="SemanticModel"/> instance for the current run.</param>
+    /// <param name="isReferenceTypeOrUnconstraindTypeParameter">Whether the property type supports nullability.</param>
+    /// <param name="includeMemberNotNullOnSetAccessor">Whether MemberNotNullAttribute should be used on the setter.</param>
+    private static void GetNullabilityInfo(
+        IFieldSymbol fieldSymbol,
+        SemanticModel semanticModel,
+        out bool isReferenceTypeOrUnconstraindTypeParameter,
+        out bool includeMemberNotNullOnSetAccessor)
+    {
+        // We're using IsValueType here and not IsReferenceType to also cover unconstrained type parameter cases.
+        // This will cover both reference types as well T when the constraints are not struct or unmanaged.
+        // If this is true, it means the field storage can potentially be in a null state (even if not annotated).
+        isReferenceTypeOrUnconstraindTypeParameter = !fieldSymbol.Type.IsValueType;
 
-            // Get the property type and name
-            var typeNameWithNullabilityAnnotations = fieldSymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations();
-            var fieldName = fieldSymbol.Name;
-            var propertyName = GetGeneratedPropertyName(fieldSymbol);
-            var initializer = fieldSyntax.Declaration.Variables.FirstOrDefault()?.Initializer;
-
-            if (!fieldSymbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ReactiveAttributeType, out var attributeData1))
-            {
-                propertyInfo = null;
-                diagnostics = builder.ToImmutable();
-
-                return false;
-            }
-
-            token.ThrowIfCancellationRequested();
-
-            // Get AccessModifier enum value from the attribute
-            attributeData1.TryGetNamedArgument("SetModifier", out int? accessModifierArgument);
-            var accessModifier = accessModifierArgument switch
-            {
-                0 => "public",
-                1 => "protected",
-                2 => "internal",
-                3 => "private",
-                4 => "internal protected",
-                5 => "private protected",
-                _ => "public",
-            };
-
-            // Check for name collisions
-            if (fieldName == propertyName)
-            {
-                builder.Add(
-                    ReactivePropertyNameCollisionError,
-                    fieldSymbol,
-                    fieldSymbol.ContainingType,
-                    fieldSymbol.Name);
-
-                propertyInfo = null;
-                diagnostics = builder.ToImmutable();
-
-                // If the generated property would collide, skip generating it entirely. This makes sure that
-                // users only get the helpful diagnostic about the collision, and not the normal compiler error
-                // about a definition for "Property" already existing on the target type, which might be confusing.
-                return false;
-            }
-
-            token.ThrowIfCancellationRequested();
-
-            using var forwardedAttributes = ImmutableArrayBuilder<AttributeInfo>.Rent();
-
-            // Gather attributes info
-            foreach (var attributeData in fieldSymbol.GetAttributes())
-            {
-                token.ThrowIfCancellationRequested();
-
-                // Track the current attribute for forwarding if it is a validation attribute
-                if (attributeData.AttributeClass?.InheritsFromFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.ValidationAttribute") == true)
-                {
-                    forwardedAttributes.Add(AttributeInfo.Create(attributeData));
-                }
-
-                // Track the current attribute for forwarding if it is a Json Serialization attribute
-                if (attributeData.AttributeClass?.InheritsFromFullyQualifiedMetadataName("System.Text.Json.Serialization.JsonAttribute") == true)
-                {
-                    forwardedAttributes.Add(AttributeInfo.Create(attributeData));
-                }
-
-                // Also track the current attribute for forwarding if it is of any of the following types:
-                if (attributeData.AttributeClass?.HasOrInheritsFromFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.UIHintAttribute") == true ||
-                    attributeData.AttributeClass?.HasOrInheritsFromFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.ScaffoldColumnAttribute") == true ||
-                    attributeData.AttributeClass?.HasFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.DisplayAttribute") == true ||
-                    attributeData.AttributeClass?.HasFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.EditableAttribute") == true ||
-                    attributeData.AttributeClass?.HasFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.KeyAttribute") == true ||
-                    attributeData.AttributeClass?.HasFullyQualifiedMetadataName("System.Runtime.Serialization.DataMemberAttribute") == true ||
-                    attributeData.AttributeClass?.HasFullyQualifiedMetadataName("System.Runtime.Serialization.IgnoreDataMemberAttribute") == true)
-                {
-                    forwardedAttributes.Add(AttributeInfo.Create(attributeData));
-                }
-            }
-
-            token.ThrowIfCancellationRequested();
-
-            // Gather explicit forwarded attributes info
-            foreach (var attributeList in fieldSyntax.AttributeLists)
-            {
-                // Only look for attribute lists explicitly targeting the (generated) property. Roslyn will normally emit a
-                // CS0657 warning (invalid target), but that is automatically suppressed by a dedicated diagnostic suppressor
-                // that recognizes uses of this target specifically to support [Reactive].
-                if (attributeList.Target?.Identifier is not SyntaxToken(SyntaxKind.PropertyKeyword))
-                {
-                    continue;
-                }
-
-                token.ThrowIfCancellationRequested();
-
-                foreach (var attribute in attributeList.Attributes)
-                {
-                    // Roslyn ignores attributes in an attribute list with an invalid target, so we can't get the AttributeData as usual.
-                    // To reconstruct all necessary attribute info to generate the serialized model, we use the following steps:
-                    //   - We try to get the attribute symbol from the semantic model, for the current attribute syntax. In case this is not
-                    //     available (in theory it shouldn't, but it can be), we try to get it from the candidate symbols list for the node.
-                    //     If there are no candidates or more than one, we just issue a diagnostic and stop processing the current attribute.
-                    //     The returned symbols might be method symbols (constructor attribute) so in that case we can get the declaring type.
-                    //   - We then go over each attribute argument expression and get the operation for it. This will still be available even
-                    //     though the rest of the attribute is not validated nor bound at all. From the operation we can still retrieve all
-                    //     constant values to build the AttributeInfo model. After all, attributes only support constant values, typeof(T)
-                    //     expressions, or arrays of either these two types, or of other arrays with the same rules, recursively.
-                    //   - From the syntax, we can also determine the identifier names for named attribute arguments, if any.
-                    // There is no need to validate anything here: the attribute will be forwarded as is, and then Roslyn will validate on the
-                    // generated property. Users will get the same validation they'd have had directly over the field. The only drawback is the
-                    // lack of IntelliSense when constructing attributes over the field, but this is the best we can do from this end anyway.
-                    if (!semanticModel.GetSymbolInfo(attribute, token).TryGetAttributeTypeSymbol(out var attributeTypeSymbol))
-                    {
-                        builder.Add(
-                            InvalidPropertyTargetedAttributeOnReactiveField,
-                            attribute,
-                            fieldSymbol,
-                            attribute.Name);
-
-                        continue;
-                    }
-
-                    var attributeArguments = attribute.ArgumentList?.Arguments ?? Enumerable.Empty<AttributeArgumentSyntax>();
-
-                    // Try to extract the forwarded attribute
-                    if (!AttributeInfo.TryCreate(attributeTypeSymbol, semanticModel, attributeArguments, token, out var attributeInfo))
-                    {
-                        builder.Add(
-                            InvalidPropertyTargetedAttributeExpressionOnReactiveField,
-                            attribute,
-                            fieldSymbol,
-                            attribute.Name);
-
-                        continue;
-                    }
-
-                    forwardedAttributes.Add(attributeInfo);
-                }
-            }
-
-            token.ThrowIfCancellationRequested();
-
-            // Get the nullability info for the property
-            GetNullabilityInfo(
-                fieldSymbol,
-                semanticModel,
-                out var isReferenceTypeOrUnconstraindTypeParameter,
-                out var includeMemberNotNullOnSetAccessor);
-
-            token.ThrowIfCancellationRequested();
-
-            propertyInfo = new PropertyInfo(
-                typeNameWithNullabilityAnnotations,
-                fieldName,
-                propertyName,
-                initializer,
-                isReferenceTypeOrUnconstraindTypeParameter,
-                includeMemberNotNullOnSetAccessor,
-                forwardedAttributes.ToImmutable(),
-                accessModifier);
-
-            diagnostics = builder.ToImmutable();
-
-            return true;
-        }
-
-        /// <summary>
-        /// Get the generated property name for an input field.
-        /// </summary>
-        /// <param name="fieldSymbol">The input <see cref="IFieldSymbol"/> instance to process.</param>
-        /// <returns>The generated property name for <paramref name="fieldSymbol"/>.</returns>
-        internal static string GetGeneratedPropertyName(IFieldSymbol fieldSymbol)
-        {
-            var propertyName = fieldSymbol.Name;
-
-            if (propertyName.StartsWith("m_"))
-            {
-                propertyName = propertyName.Substring(2);
-            }
-            else if (propertyName.StartsWith("_"))
-            {
-                propertyName = propertyName.TrimStart('_');
-            }
-
-            return $"{char.ToUpper(propertyName[0], CultureInfo.InvariantCulture)}{propertyName.Substring(1)}";
-        }
-
-        /// <summary>
-        /// Validates the containing type for a given field being annotated.
-        /// </summary>
-        /// <param name="fieldSymbol">The input <see cref="IFieldSymbol"/> instance to process.</param>
-        /// <returns>Whether or not the containing type for <paramref name="fieldSymbol"/> is valid.</returns>
-        private static bool IsTargetTypeValid(IFieldSymbol fieldSymbol)
-        {
-            var isObservableObject = fieldSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.ReactiveObject");
-            var isIObservableObject = fieldSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.IReactiveObject");
-            var hasObservableObjectAttribute = fieldSymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName("ReactiveUI.SourceGenerators.ReactiveObjectAttribute");
-
-            return isIObservableObject || isObservableObject || hasObservableObjectAttribute;
-        }
-
-        /// <summary>
-        /// Gets the nullability info on the generated property.
-        /// </summary>
-        /// <param name="fieldSymbol">The input <see cref="IFieldSymbol"/> instance to process.</param>
-        /// <param name="semanticModel">The <see cref="SemanticModel"/> instance for the current run.</param>
-        /// <param name="isReferenceTypeOrUnconstraindTypeParameter">Whether the property type supports nullability.</param>
-        /// <param name="includeMemberNotNullOnSetAccessor">Whether MemberNotNullAttribute should be used on the setter.</param>
-        private static void GetNullabilityInfo(
-            IFieldSymbol fieldSymbol,
-            SemanticModel semanticModel,
-            out bool isReferenceTypeOrUnconstraindTypeParameter,
-            out bool includeMemberNotNullOnSetAccessor)
-        {
-            // We're using IsValueType here and not IsReferenceType to also cover unconstrained type parameter cases.
-            // This will cover both reference types as well T when the constraints are not struct or unmanaged.
-            // If this is true, it means the field storage can potentially be in a null state (even if not annotated).
-            isReferenceTypeOrUnconstraindTypeParameter = !fieldSymbol.Type.IsValueType;
-
-            // This is used to avoid nullability warnings when setting the property from a constructor, in case the field
-            // was marked as not nullable. Nullability annotations are assumed to always be enabled to make the logic simpler.
-            // Consider this example:
-            //
-            // partial class MyViewModel : ReactiveObject
-            // {
-            //    public MyViewModel()
-            //    {
-            //        Name = "Bob";
-            //    }
-            //
-            //    [Reactive]
-            //    private string name;
-            // }
-            //
-            // The [MemberNotNull] attribute is needed on the setter for the generated Name property so that when Name
-            // is set, the compiler can determine that the name backing field is also being set (to a non null value).
-            // Of course, this can only be the case if the field type is also of a type that could be in a null state.
-            includeMemberNotNullOnSetAccessor =
-                isReferenceTypeOrUnconstraindTypeParameter &&
-                fieldSymbol.Type.NullableAnnotation != NullableAnnotation.Annotated &&
-                semanticModel.Compilation.HasAccessibleTypeWithMetadataName("System.Diagnostics.CodeAnalysis.MemberNotNullAttribute");
-        }
+        // This is used to avoid nullability warnings when setting the property from a constructor, in case the field
+        // was marked as not nullable. Nullability annotations are assumed to always be enabled to make the logic simpler.
+        // Consider this example:
+        //
+        // partial class MyViewModel : ReactiveObject
+        // {
+        //    public MyViewModel()
+        //    {
+        //        Name = "Bob";
+        //    }
+        //
+        //    [Reactive]
+        //    private string _name;
+        // }
+        //
+        // The [MemberNotNull] attribute is needed on the setter for the generated Name property so that when Name
+        // is set, the compiler can determine that the name backing field is also being set (to a non null value).
+        // Of course, this can only be the case if the field type is also of a type that could be in a null state.
+        includeMemberNotNullOnSetAccessor =
+            isReferenceTypeOrUnconstraindTypeParameter &&
+            fieldSymbol.Type.NullableAnnotation != NullableAnnotation.Annotated &&
+            semanticModel.Compilation.HasAccessibleTypeWithMetadataName("System.Diagnostics.CodeAnalysis.MemberNotNullAttribute");
     }
 }

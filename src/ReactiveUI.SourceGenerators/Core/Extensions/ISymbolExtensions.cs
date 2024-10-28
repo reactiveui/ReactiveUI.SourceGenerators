@@ -3,6 +3,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 
@@ -166,4 +167,20 @@ internal static class ISymbolExtensions
             accessibility == Accessibility.Public ||
             (accessibility == Accessibility.Internal && symbol.ContainingAssembly.GivesAccessTo(assembly));
     }
+
+    /// <summary>
+    /// Gets the string representation of the accessibility level of the given symbol.
+    /// </summary>
+    /// <param name="symbol">The symbol to analyze.</param>
+    /// <returns>A string representing the accessibility level, such as "public" or "private".</returns>
+    public static string GetAccessibilityString(this ISymbol symbol) => symbol.DeclaredAccessibility switch
+    {
+        Accessibility.Public => "public",
+        Accessibility.Private => "private",
+        Accessibility.Internal => "internal",
+        Accessibility.Protected => "protected",
+        Accessibility.ProtectedAndInternal => "protected internal",
+        Accessibility.ProtectedOrInternal => "private protected",
+        _ => throw new InvalidOperationException("unknown accessibility")
+    };
 }

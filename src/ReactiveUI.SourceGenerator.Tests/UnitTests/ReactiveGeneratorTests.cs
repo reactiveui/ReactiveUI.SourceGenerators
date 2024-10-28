@@ -12,7 +12,7 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// Unit tests for the Reactive generator.
 /// </summary>
 /// <param name="output">The output helper.</param>
-public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase(output)
+public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase<ReactiveGenerator>(output)
 {
     /// <summary>
     /// Tests that the source generator correctly generates reactive properties.
@@ -38,10 +38,10 @@ public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase(output)
             """;
 
         // Act: Initialize the helper and run the generator.
-        var driver = TestHelper.TestPass<ReactiveGenerator>(sourceCode);
+        var driver = TestHelper.TestPass(sourceCode);
 
         // Assert: Verify the generated code.
-        return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath(nameof(ReactiveGenerator)));
+        return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath());
     }
 
     /// <summary>
@@ -68,9 +68,43 @@ public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase(output)
             """;
 
         // Act: Initialize the helper and run the generator.
-        var driver = TestHelper.TestPass<ReactiveGenerator>(sourceCode);
+        var driver = TestHelper.TestPass(sourceCode);
 
         // Assert: Verify the generated code.
-        return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath(nameof(ReactiveGenerator)));
+        return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath());
+    }
+
+    /// <summary>
+    /// Froms the reactive properies with attributes.
+    /// </summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Fact]
+    public Task FromReactiveProperiesWithAttributes()
+    {
+        // Arrange: Setup the source code that matches the generator input expectations.
+        const string sourceCode = @"
+                using System;
+                using System.Runtime.Serialization;
+                using System.Text.Json.Serialization;
+                using ReactiveUI;
+                using ReactiveUI.SourceGenerators;
+                using System.Reactive.Linq;
+
+                namespace TestNs;
+
+                public partial class TestVM : ReactiveObject
+                {
+                    [JsonInclude]
+                    [DataMember]
+                    [Reactive]
+                    private int _test3 = 10;
+                }
+            ";
+
+        // Act: Initialize the helper and run the generator.
+        var driver = TestHelper.TestPass(sourceCode);
+
+        // Assert: Verify the generated code.
+        return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath());
     }
 }

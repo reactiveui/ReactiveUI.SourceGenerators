@@ -41,8 +41,11 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     [JsonInclude]
     [Reactive(SetModifier = AccessModifier.Protected)]
     [DataMember]
-    private int _test1Property = 10;
+    private int _test1Property;
     private bool _disposedValue;
+
+    [Reactive]
+    private string _myStringProperty = "test";
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TestViewModel"/> class.

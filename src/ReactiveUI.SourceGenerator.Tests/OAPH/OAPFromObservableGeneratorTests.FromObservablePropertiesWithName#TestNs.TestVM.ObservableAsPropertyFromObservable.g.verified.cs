@@ -8,22 +8,22 @@ namespace TestNs
     /// <inheritdoc/>
     partial class TestVM
     {
-        /// <inheritdoc cref="MyNamedProperty"/>
+        /// <inheritdoc cref="Test4Property"/>
         [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "1.1.0.0")]
-        private int _myNamedProperty;
-        /// <inheritdoc cref="_myNamedPropertyHelper"/>
+        private int _test4Property;
+        /// <inheritdoc cref="_test4PropertyHelper"/>
         [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "1.1.0.0")]
-        private ReactiveUI.ObservableAsPropertyHelper<int>? _myNamedPropertyHelper;
-        /// <inheritdoc cref="_myNamedProperty"/>
+        private ReactiveUI.ObservableAsPropertyHelper<int>? _test4PropertyHelper;
+        /// <inheritdoc cref="_test4Property"/>
         [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "1.1.0.0")]
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        public int MyNamedProperty { get => _myNamedProperty = _myNamedPropertyHelper?.Value ?? _myNamedProperty; }
+        public int Test4Property { get => _test4Property = _test4PropertyHelper?.Value ?? _test4Property; }
 
         [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "1.1.0.0")]
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         protected void InitializeOAPH()
         {
-            _myNamedPropertyHelper = Test4!.ToProperty(this, nameof(MyNamedProperty));
+            _test4PropertyHelper = Test4!.ToProperty(this, nameof(Test4Property));
         }
     }
 }

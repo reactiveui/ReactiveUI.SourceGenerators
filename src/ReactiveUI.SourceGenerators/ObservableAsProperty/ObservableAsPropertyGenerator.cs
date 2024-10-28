@@ -3,8 +3,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System;
-using System.Collections.Generic;
 using System.Text;
 
 using Microsoft.CodeAnalysis;
@@ -27,6 +25,6 @@ public sealed partial class ObservableAsPropertyGenerator : IIncrementalGenerato
             ctx.AddSource($"{AttributeDefinitions.ObservableAsPropertyAttributeType}.g.cs", SourceText.From(AttributeDefinitions.ObservableAsPropertyAttribute, Encoding.UTF8)));
 
         RunObservablePropertyAsFromObservable(context);
-        RunGenerator(context);
+        RunObservableAsPropertyGenerator(context);
     }
 }

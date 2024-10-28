@@ -3,16 +3,20 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using Microsoft.CodeAnalysis;
 using ReactiveUI.SourceGenerators.Helpers;
-using ReactiveUI.SourceGenerators.Models;
 
 namespace ReactiveUI.SourceGenerators.Input.Models;
 
 internal record CommandInfo(
+    string FileHintName,
+    string TargetName,
+    string TargetNamespace,
+    string TargetNamespaceWithNamespace,
+    string TargetVisibility,
+    string TargetType,
     string MethodName,
-    ITypeSymbol MethodReturnType,
-    ITypeSymbol? ArgumentType,
+    string MethodReturnType,
+    string? ArgumentType,
     bool IsTask,
     bool IsReturnTypeVoid,
     bool IsObservable,
@@ -24,9 +28,9 @@ internal record CommandInfo(
 
     public string GetOutputTypeText() => IsReturnTypeVoid
             ? UnitTypeName
-            : MethodReturnType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            : MethodReturnType;
 
-    public string GetInputTypeText() => ArgumentType == null
+    public string GetInputTypeText() => string.IsNullOrWhiteSpace(ArgumentType)
             ? UnitTypeName
-            : ArgumentType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            : ArgumentType!;
 }

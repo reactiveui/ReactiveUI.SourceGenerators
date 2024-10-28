@@ -3,8 +3,15 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Threading;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ReactiveUI.SourceGenerators.Helpers;
+using ReactiveUI.SourceGenerators.Models;
 
 namespace ReactiveUI.SourceGenerators.Extensions;
 
@@ -128,5 +135,62 @@ internal static class AttributeDataExtensions
         }
 
         return Enumerate(attributeData.ConstructorArguments);
+    }
+
+    /// <summary>
+    /// Gets the attribute syntax as a string for generating code.
+    /// </summary>
+    /// <param name="attribute">The attribute data from the original code.</param>
+    /// <param name="token">The cancellation token for the operation.</param>
+    /// <returns>A class array containing the syntax and other relevant metadata.</returns>
+    public static PropertyAttributeData? GetAttributeSyntax(this AttributeData attribute, CancellationToken token)
+    {
+        // Retrieve the syntax from the attribute reference.
+        if (attribute.ApplicationSyntaxReference?.GetSyntax(token) is not AttributeSyntax syntax)
+        {
+            // If the syntax is not available, return an empty string.
+            return null;
+        }
+
+        // Normalize the syntax for correct formatting and return it as a string.
+        return new(attribute.AttributeClass?.ContainingNamespace?.ToDisplayString(SymbolHelpers.DefaultDisplay), syntax.NormalizeWhitespace().ToFullString());
+    }
+
+    /// <summary>
+    /// Generates a string containing the applicable attributes for a given target (e.g., field or property).
+    /// </summary>
+    /// <param name="attributes">The collection of attribute data to process.</param>
+    /// <param name="allowedTarget">The attribute target (e.g., property, field).</param>
+    /// <param name="token">The cancellation token.</param>
+    /// <returns>A class array containing the syntax and other relevant metadata.</returns>
+    public static PropertyAttributeData[] GenerateAttributes(
+        this IEnumerable<AttributeData> attributes,
+        AttributeTargets allowedTarget,
+        CancellationToken token)
+    {
+        // Filter and convert each attribute to its syntax form, ensuring it can target the given element type.
+        var applicableAttributes = attributes
+            .Where(attr => attr.AttributeClass.AttributeCanTarget(allowedTarget))
+            .Select(attr => attr.GetAttributeSyntax(token))
+            .Where(x => x is not null)
+            .Select(x => x!)
+            .ToImmutableArray();
+
+        return [.. applicableAttributes];
+    }
+
+    /// <summary>
+    /// Generates the formatted attributes for fields and properties.
+    /// </summary>
+    /// <param name="attr">The attribute to format.</param>
+    /// <returns>A formatted string of attributes.</returns>
+    public static string FormatAttributes(this PropertyAttributeData attr)
+    {
+        // If the attribute namespace is null, omit the dot (.) separator.
+        var namespacePrefix = string.IsNullOrEmpty(attr.AttributeNamespace)
+            ? string.Empty
+            : $"{attr.AttributeNamespace}.";
+
+        return $"[{namespacePrefix}{attr.AttributeSyntax}]";
     }
 }

@@ -34,6 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="IVIEWFOR\" />
     <Folder Include="OAPH\" />
     <Folder Include="REACTIVECMD\" />
     <Folder Include="REACTIVE\" />
