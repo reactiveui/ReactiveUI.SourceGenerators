@@ -131,4 +131,6 @@ internal sealed record AttributeInfo(
 
         return Attribute(IdentifierName(TypeName), AttributeArgumentList(SeparatedList(arguments.Concat(namedArguments))));
     }
+
+    public override string ToString() => $"[{GetSyntax()}]";
 }

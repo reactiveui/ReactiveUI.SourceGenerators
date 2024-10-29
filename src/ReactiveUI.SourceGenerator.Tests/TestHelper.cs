@@ -47,12 +47,19 @@ public sealed class TestHelper<T>(ITestOutputHelper testOutput) : IDisposable
         new("ReactiveUI", VersionRange.AllStableFloating, LibraryDependencyTarget.Package);
 #pragma warning restore CS0618 // Type or member is obsolete
 
+    private static readonly string mscorlibPath = Path.Combine(
+            System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory(),
+            "mscorlib.dll");
+
     private static readonly MetadataReference[] References =
     [
         MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
         MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
         MetadataReference.CreateFromFile(typeof(T).Assembly.Location),
         MetadataReference.CreateFromFile(typeof(TestHelper<T>).Assembly.Location),
+
+        // Create mscorlib Reference
+        MetadataReference.CreateFromFile(mscorlibPath)
 
         // Wpf references
         ////MetadataReference.CreateFromFile(Assembly.Load("PresentationCore").Location),
@@ -127,19 +134,22 @@ public sealed class TestHelper<T>(ITestOutputHelper testOutput) : IDisposable
     /// Tests a generator expecting it to pass successfully.
     /// </summary>
     /// <param name="source">The source code to test.</param>
+    /// <param name="withPreDiagnosics">if set to <c>true</c> [with pre diagnosics].</param>
     /// <returns>
     /// The driver.
     /// </returns>
+    /// <exception cref="InvalidOperationException">Must have valid compiler instance.</exception>
     /// <exception cref="ArgumentNullException">callerType.</exception>
     public GeneratorDriver TestPass(
-        string source)
+        string source,
+        bool withPreDiagnosics = false)
     {
         if (_eventCompiler is null)
         {
             throw new InvalidOperationException("Must have valid compiler instance.");
         }
 
-        return RunGeneratorAndCheck(source);
+        return RunGeneratorAndCheck(source, withPreDiagnosics);
     }
 
     /// <inheritdoc/>
@@ -149,13 +159,15 @@ public sealed class TestHelper<T>(ITestOutputHelper testOutput) : IDisposable
     /// Runs the specified source generator and validates the generated code.
     /// </summary>
     /// <param name="code">The code to be parsed and processed by the generator.</param>
+    /// <param name="withPreDiagnosics">if set to <c>true</c> [with pre diagnosics].</param>
     /// <param name="rerunCompilation">Indicates whether to rerun the compilation after running the generator.</param>
-    /// <returns>The generator driver used to run the generator.</returns>
-    /// <exception cref="InvalidOperationException">
-    /// Thrown if the compiler instance is not valid or if the compilation fails.
-    /// </exception>
+    /// <returns>
+    /// The generator driver used to run the generator.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">Thrown if the compiler instance is not valid or if the compilation fails.</exception>
     public GeneratorDriver RunGeneratorAndCheck(
         string code,
+        bool withPreDiagnosics = false,
         bool rerunCompilation = true)
     {
         if (_eventCompiler is null)
@@ -180,11 +192,14 @@ public sealed class TestHelper<T>(ITestOutputHelper testOutput) : IDisposable
             assemblies,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, deterministic: true));
 
-        // Validate diagnostics before running the generator.
-        ////var prediagnostics = compilation.GetDiagnostics()
-        ////        .Where(d => !d.Id.Contains("CS0518") && d.Severity > DiagnosticSeverity.Warning)
-        ////        .ToList();
-        ////prediagnostics.Should().BeEmpty();
+        if (withPreDiagnosics)
+        {
+            // Validate diagnostics before running the generator.
+            var prediagnostics = compilation.GetDiagnostics()
+                .Where(d => d.Severity > DiagnosticSeverity.Warning)
+                .ToList();
+            prediagnostics.Should().BeEmpty();
+        }
 
         var generator = new T();
         var driver = CSharpGeneratorDriver.Create(generator).WithUpdatedParseOptions((CSharpParseOptions)syntaxTree.Options);

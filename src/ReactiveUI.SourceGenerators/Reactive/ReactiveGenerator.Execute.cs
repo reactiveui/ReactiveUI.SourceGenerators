@@ -147,9 +147,9 @@ namespace {{containingNamespace}}
 {{AddTabs(1)}}/// <summary>
 {{AddTabs(1)}}/// Partial class for the {{containingTypeName}} which contains ReactiveUI Reactive property initialization.
 {{AddTabs(1)}}/// </summary>
-{{AddTabs(1)}}[global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
 {{AddTabs(1)}}{{containingClassVisibility}} partial {{containingType}} {{containingTypeName}}
 {{AddTabs(1)}}{
+{{AddTabs(2)}}[global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
 {{propertyDeclarations}}
 {{AddTabs(1)}}}
 }

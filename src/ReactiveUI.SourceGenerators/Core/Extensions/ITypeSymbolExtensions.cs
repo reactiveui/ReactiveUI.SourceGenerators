@@ -234,6 +234,66 @@ internal static class ITypeSymbolExtensions
         return builder.ToString();
     }
 
+    public static bool IsTaskReturnType(this ITypeSymbol? typeSymbol)
+    {
+        var nameFormat = SymbolDisplayFormat.FullyQualifiedFormat;
+        do
+        {
+            var typeName = typeSymbol?.ToDisplayString(nameFormat);
+            if (typeName == "global::System.Threading.Tasks.Task")
+            {
+                return true;
+            }
+
+            typeSymbol = typeSymbol?.BaseType;
+        }
+        while (typeSymbol != null);
+
+        return false;
+    }
+
+    public static bool IsObservableReturnType(this ITypeSymbol? typeSymbol)
+    {
+        var nameFormat = SymbolDisplayFormat.FullyQualifiedFormat;
+        do
+        {
+            var typeName = typeSymbol?.ToDisplayString(nameFormat);
+            if (typeName?.Contains("global::System.IObservable") == true)
+            {
+                return true;
+            }
+
+            typeSymbol = typeSymbol?.BaseType;
+        }
+        while (typeSymbol != null);
+
+        return false;
+    }
+
+    public static bool IsObservableBoolType(this ITypeSymbol? typeSymbol)
+    {
+        var nameFormat = SymbolDisplayFormat.FullyQualifiedFormat;
+        do
+        {
+            var typeName = typeSymbol?.ToDisplayString(nameFormat);
+            if (typeName?.Contains("global::System.IObservable<bool>") == true)
+            {
+                return true;
+            }
+
+            typeSymbol = typeSymbol?.BaseType;
+        }
+        while (typeSymbol != null);
+
+        return false;
+    }
+
+    public static ITypeSymbol GetTaskReturnType(this ITypeSymbol typeSymbol, Compilation compilation) => typeSymbol switch
+    {
+        INamedTypeSymbol { TypeArguments.Length: 1 } namedTypeSymbol => namedTypeSymbol.TypeArguments[0],
+        _ => compilation.GetSpecialType(SpecialType.System_Void)
+    };
+
     /// <summary>
     /// Appends the fully qualified metadata name for a given symbol to a target builder.
     /// </summary>
