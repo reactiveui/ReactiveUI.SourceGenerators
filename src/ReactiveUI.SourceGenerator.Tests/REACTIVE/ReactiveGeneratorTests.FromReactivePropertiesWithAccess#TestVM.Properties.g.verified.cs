@@ -10,9 +10,9 @@ namespace TestNs
 	/// <summary>
 	/// Partial class for the TestVM which contains ReactiveUI Reactive property initialization.
 	/// </summary>
-	[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveGenerator", "1.1.0.0")]
 	public partial class TestVM
 	{
+		[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveGenerator", "1.1.0.0")]
 		/// <inheritdoc cref="_test2"/>
 		[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 		public int Test2

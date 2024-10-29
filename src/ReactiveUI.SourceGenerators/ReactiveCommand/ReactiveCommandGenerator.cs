@@ -3,20 +3,14 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
-using ReactiveUI.SourceGenerators.Input.Models;
-using ReactiveUI.SourceGenerators.Models;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace ReactiveUI.SourceGenerators;
 
@@ -33,137 +27,44 @@ public sealed partial class ReactiveCommandGenerator : IIncrementalGenerator
             ctx.AddSource($"{AttributeDefinitions.ReactiveCommandAttributeType}.g.cs", SourceText.From(AttributeDefinitions.ReactiveCommandAttribute, Encoding.UTF8)));
 
         // Gather info for all annotated command methods (starting from method declarations with at least one attribute)
-        IncrementalValuesProvider<(HierarchyInfo Hierarchy, Result<CommandInfo> Info)> commandInfoWithErrors =
+        var commandInfo =
             context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 AttributeDefinitions.ReactiveCommandAttributeType,
                 static (node, _) => node is MethodDeclarationSyntax { Parent: ClassDeclarationSyntax or RecordDeclarationSyntax, AttributeLists.Count: > 0 },
-                static (context, token) =>
-                {
-                    CommandInfo? commandExtensionInfos = default;
-                    HierarchyInfo? hierarchy = default;
-                    using var diagnostics = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
-
-                    var methodSyntax = (MethodDeclarationSyntax)context.TargetNode;
-                    var symbol = ModelExtensions.GetDeclaredSymbol(context.SemanticModel, methodSyntax, token)!;
-                    token.ThrowIfCancellationRequested();
-
-                    // Skip symbols without the target attribute
-                    if (!symbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ReactiveCommandAttributeType, out var attributeData))
-                    {
-                        return default;
-                    }
-
-                    token.ThrowIfCancellationRequested();
-                    if (attributeData != null)
-                    {
-                        var compilation = context.SemanticModel.Compilation;
-                        var methodSymbol = (IMethodSymbol)symbol!;
-                        var isTask = Execute.IsTaskReturnType(methodSymbol.ReturnType);
-                        var isObservable = Execute.IsObservableReturnType(methodSymbol.ReturnType);
-                        var realReturnType = isTask || isObservable ? Execute.GetTaskReturnType(compilation, methodSymbol.ReturnType) : methodSymbol.ReturnType;
-                        var isReturnTypeVoid = SymbolEqualityComparer.Default.Equals(realReturnType, compilation.GetSpecialType(SpecialType.System_Void));
-                        var hasCancellationToken = isTask && methodSymbol.Parameters.Any(x => x.Type.ToDisplayString() == "System.Threading.CancellationToken");
-                        var methodParameters = new List<IParameterSymbol>();
-                        if (hasCancellationToken && methodSymbol.Parameters.Length == 2)
-                        {
-                            methodParameters.Add(methodSymbol.Parameters[0]);
-                        }
-                        else if (!hasCancellationToken)
-                        {
-                            methodParameters.AddRange(methodSymbol.Parameters);
-                        }
-
-                        if (methodParameters.Count > 1)
-                        {
-                            return default; // Too many parameters, continue
-                        }
-
-                        token.ThrowIfCancellationRequested();
-
-                        // Get the hierarchy info for the target symbol, and try to gather the command info
-                        hierarchy = HierarchyInfo.From(methodSymbol.ContainingType);
-
-                        // Get the CanExecute expression type, if any
-                        Execute.TryGetCanExecuteExpressionType(
-                            methodSymbol,
-                            attributeData,
-                            out var canExecuteMemberName,
-                            out var canExecuteTypeInfo);
-
-                        token.ThrowIfCancellationRequested();
-
-                        Execute.GatherForwardedAttributes(
-                            methodSymbol,
-                            context.SemanticModel,
-                            methodSyntax,
-                            token,
-                            out var forwardedAttributes);
-
-                        token.ThrowIfCancellationRequested();
-
-                        // Get the containing type info
-                        var targetInfo = TargetInfo.From(methodSymbol.ContainingType);
-
-                        token.ThrowIfCancellationRequested();
-
-                        commandExtensionInfos = new(
-                            targetInfo.FileHintName,
-                            targetInfo.TargetName,
-                            targetInfo.TargetNamespace,
-                            targetInfo.TargetNamespaceWithNamespace,
-                            targetInfo.TargetVisibility,
-                            targetInfo.TargetType,
-                            methodSymbol.Name,
-                            realReturnType.GetFullyQualifiedNameWithNullabilityAnnotations(),
-                            methodParameters?.SingleOrDefault()?.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-                            isTask,
-                            isReturnTypeVoid,
-                            isObservable,
-                            canExecuteMemberName,
-                            canExecuteTypeInfo,
-                            forwardedAttributes);
-                    }
-
-                    token.ThrowIfCancellationRequested();
-                    return (Hierarchy: hierarchy, new Result<CommandInfo?>(commandExtensionInfos, diagnostics.ToImmutable()));
-                })
-            .Where(static item => item.Hierarchy is not null)!;
-
-        // Get the filtered sequence to enable caching
-        var propertyInfo =
-            commandInfoWithErrors
-            .Where(static item => item.Info.Value is not null)!;
-
-        // Split and group by containing type
-        var groupedPropertyInfo =
-            propertyInfo
-            .GroupBy(static item => item.Left, static item => item.Right.Value);
+                static (context, token) => GetMethodInfo(context, token))
+            .Where(x => x != null)
+            .Select((x, _) => x!)
+            .Collect();
 
         // Generate the requested properties and methods
-        context.RegisterSourceOutput(groupedPropertyInfo, static (context, item) =>
+        context.RegisterSourceOutput(commandInfo, static (context, input) =>
         {
-            var commandInfos = item.Right.ToArray();
+            var groupedcommandInfo = input.GroupBy(
+                static info => (info.FileHintName, info.TargetName, info.TargetNamespace, info.TargetVisibility, info.TargetType),
+                static info => info)
+                .ToImmutableArray();
 
-            // Generate all member declarations for the current type
-            var propertyDeclarations =
-                commandInfos
-                .SelectMany(Execute.GetCommandProperty)
-                .ToList();
+            if (groupedcommandInfo.Length == 0)
+            {
+                return;
+            }
 
-            var c = Execute.GetCommandInitiliser();
-            propertyDeclarations.Add(c);
-            var memberDeclarations = propertyDeclarations.ToImmutableArray();
+            foreach (var grouping in groupedcommandInfo)
+            {
+                var items = grouping.ToImmutableArray();
 
-            // Insert all members into the same partial type declaration
-            var compilationUnit = item.Key.GetCompilationUnit(memberDeclarations)
-                .WithLeadingTrivia(TriviaList(
-                    Comment("// <auto-generated/>"),
-                    Trivia(PragmaWarningDirectiveTrivia(Token(SyntaxKind.DisableKeyword), true)),
-                    Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true)),
-                    CarriageReturn))
-                .NormalizeWhitespace();
-            context.AddSource($"{item.Key.FilenameHint}.ReactiveCommands.g.cs", compilationUnit);
+                if (items.Length == 0)
+                {
+                    continue;
+                }
+
+                var (fileHintName, targetName, targetNamespace, targetVisibility, targetType) = grouping.Key;
+
+                var source = GenerateSource(targetName, targetNamespace, targetVisibility, targetType, [.. grouping]);
+
+                context.AddSource($"{fileHintName}.ReactiveCommands.g.cs", source);
+            }
         });
     }
 }

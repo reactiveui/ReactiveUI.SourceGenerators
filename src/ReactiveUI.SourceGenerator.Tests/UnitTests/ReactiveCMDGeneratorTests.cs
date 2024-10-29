@@ -34,10 +34,7 @@ public class ReactiveCMDGeneratorTests(ITestOutputHelper output) : TestBase<Reac
                 public partial class TestVM : ReactiveObject
                 {
                     [ReactiveCommand]
-                    private void Test1()
-                    {
-                        var a = 10;
-                    }
+                    private int Test1() => 10;
                 }
             """;
 
@@ -68,10 +65,8 @@ public class ReactiveCMDGeneratorTests(ITestOutputHelper output) : TestBase<Reac
                 public partial class TestVM : ReactiveObject
                 {
                     [ReactiveCommand]
-                    private void Test3(string baseString)
-                    {
-                        var a = baseString;
-                    }
+                    [property: JsonInclude]
+                    private int Test3(string baseString) => int.Parse(baseString);
                 }
             """;
 
