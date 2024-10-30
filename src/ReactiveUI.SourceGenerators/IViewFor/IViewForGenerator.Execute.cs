@@ -3,14 +3,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.CodeDom.Compiler;
-using System.IO;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Input.Models;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using ReactiveUI.SourceGenerators.Models;
 
 namespace ReactiveUI.SourceGenerators;
 
@@ -20,411 +22,296 @@ namespace ReactiveUI.SourceGenerators;
 /// <seealso cref="IIncrementalGenerator" />
 public partial class IViewForGenerator
 {
-    internal static class Execute
+    internal static readonly string GeneratorName = typeof(IViewForGenerator).FullName!;
+    internal static readonly string GeneratorVersion = typeof(IViewForGenerator).Assembly.GetName().Version.ToString();
+
+    private static readonly string[] excludeFromCodeCoverage = ["[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]"];
+
+    private static IViewForInfo? GetClassInfo(in SGeneratorAttributeSyntaxContext context, CancellationToken token)
     {
-        internal static CompilationUnitSyntax GetIViewForWpfWinUiUno(IViewForInfo iViewForInfo)
+        if (!(context.TargetNode is ClassDeclarationSyntax declaredClass && declaredClass.Modifiers.Any(SyntaxKind.PartialKeyword)))
         {
-            UsingDirectiveSyntax[] usings = [];
-            if (iViewForInfo.BaseType == IViewForBaseType.Wpf)
+            return default;
+        }
+
+        var symbol = context.TargetSymbol;
+        token.ThrowIfCancellationRequested();
+
+        if (!symbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.IViewForAttributeType, out var attributeData))
+        {
+            return default;
+        }
+
+        token.ThrowIfCancellationRequested();
+        if (symbol is not INamedTypeSymbol classSymbol)
+        {
+            return default;
+        }
+
+        token.ThrowIfCancellationRequested();
+
+        var genericArgument = attributeData.GetGenericType();
+        token.ThrowIfCancellationRequested();
+        if (!(genericArgument is string viewModelTypeName && viewModelTypeName.Length > 0))
+        {
+            return default;
+        }
+
+        var compilation = context.SemanticModel.Compilation;
+        var semanticModel = compilation.GetSemanticModel(context.SemanticModel.SyntaxTree);
+        token.ThrowIfCancellationRequested();
+        attributeData.GatherForwardedAttributesFromClass(semanticModel, declaredClass, token, out var classAttributesInfo);
+        var forwardedClassAttributes = classAttributesInfo.Select(static a => a.ToString())
+            .Where(x => !x.Contains(AttributeDefinitions.IViewForAttributeType))
+            .ToImmutableArray();
+        token.ThrowIfCancellationRequested();
+
+        var viewForBaseType = IViewForBaseType.None;
+        if (classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("System.Windows.Forms"))
+        {
+            viewForBaseType = IViewForBaseType.WinForms;
+        }
+        else if (classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("System.Windows") || classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("System.Windows.Controls"))
+        {
+            viewForBaseType = IViewForBaseType.Wpf;
+        }
+        else if (classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("Microsoft.UI.Xaml") || classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("Microsoft.UI.Xaml.Controls"))
+        {
+            viewForBaseType = IViewForBaseType.WinUI;
+        }
+        else if (classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("Microsoft.Maui"))
+        {
+            viewForBaseType = IViewForBaseType.Maui;
+        }
+        else if (classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("Avalonia"))
+        {
+            viewForBaseType = IViewForBaseType.Avalonia;
+        }
+        else if (classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("Windows.UI.Xaml") || classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("Windows.UI.Xaml.Controls"))
+        {
+            viewForBaseType = IViewForBaseType.Uno;
+        }
+
+        // Get the containing type info
+        var targetInfo = TargetInfo.From(classSymbol);
+
+        token.ThrowIfCancellationRequested();
+
+        return new IViewForInfo(
+            targetInfo.FileHintName,
+            targetInfo.TargetName,
+            targetInfo.TargetNamespace,
+            targetInfo.TargetNamespaceWithNamespace,
+            targetInfo.TargetVisibility,
+            targetInfo.TargetType,
+            viewModelTypeName!,
+            viewForBaseType,
+            forwardedClassAttributes);
+    }
+
+    private static string GenerateSource(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, IViewForInfo iviewForInfo)
+    {
+        // Prepare any forwarded property attributes
+        var forwardedAttributesString = string.Join("\n\t\t", excludeFromCodeCoverage.Concat(iviewForInfo.ForwardedAttributes));
+
+        switch (iviewForInfo.BaseType)
+        {
+            case IViewForBaseType.None:
+                break;
+            case IViewForBaseType.Wpf:
+            case IViewForBaseType.WinUI:
+            case IViewForBaseType.Uno:
+                var usings = iviewForInfo.BaseType switch
+                {
+                    IViewForBaseType.Wpf => """
+                        using ReactiveUI;
+                        using System.Windows;
+                        """,
+                    IViewForBaseType.WinUI => """
+                        using ReactiveUI;
+                        using Microsoft.UI.Xaml;
+                        """,
+                    IViewForBaseType.Uno => """
+                        using ReactiveUI;
+                        using Windows.UI.Xaml;
+                        """,
+                    _ => string.Empty,
+                };
+                return
+$$"""
+// <auto-generated/>
+{{usings}}
+
+#pragma warning disable
+#nullable enable
+
+namespace {{containingNamespace}}
+{
+    /// <summary>
+    /// Partial class for the {{containingTypeName}} which contains ReactiveUI IViewFor initialization.
+    /// </summary>
+    {{forwardedAttributesString}}
+    {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}} : IViewFor<{{iviewForInfo.ViewModelTypeName}}>
+    {
+        /// <summary>
+        /// The view model dependency property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
+        public static readonly DependencyProperty ViewModelProperty = DependencyProperty.Register(nameof(ViewModel), typeof({{iviewForInfo.ViewModelTypeName}}), typeof({{containingTypeName}}), new PropertyMetadata(null));
+
+        /// <summary>
+        /// Gets the binding root view model.
+        /// </summary>
+        public {{iviewForInfo.ViewModelTypeName}} BindingRoot => ViewModel;
+
+        /// <inheritdoc/>
+        public {{iviewForInfo.ViewModelTypeName}} ViewModel { get => ({{iviewForInfo.ViewModelTypeName}})GetValue(ViewModelProperty); set => SetValue(ViewModelProperty, value); }
+
+        /// <inheritdoc/>
+        object? IViewFor.ViewModel { get => ViewModel; set => ViewModel = ({{iviewForInfo.ViewModelTypeName}})value; }
+    }
+}
+#nullable restore
+#pragma warning restore
+""";
+            case IViewForBaseType.WinForms:
+                return
+$$"""
+// <auto-generated/>
+using ReactiveUI;
+using System.ComponentModel;
+#nullable restore
+#pragma warning disable
+
+namespace {{containingNamespace}}
+{
+    /// <summary>
+    /// Partial class for the {{containingTypeName}} which contains ReactiveUI IViewFor initialization.
+    /// </summary>
+    {{forwardedAttributesString}}
+    partial class {{containingTypeName}} : IViewFor<{{iviewForInfo.ViewModelTypeName}}>
+    {
+        /// <inheritdoc/>
+        [Category("ReactiveUI")]
+        [Description("The ViewModel.")]
+        [Bindable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
+        public {{iviewForInfo.ViewModelTypeName}}? ViewModel {get; set; }
+
+        /// <inheritdoc/>
+        object? IViewFor.ViewModel {get => ViewModel; set => ViewModel = ({{iviewForInfo.ViewModelTypeName}}? )value; }
+    }
+}
+#nullable restore
+#pragma warning restore
+""";
+            case IViewForBaseType.Avalonia:
+                return
+$$"""
+// <auto-generated/>
+using System;
+using ReactiveUI;
+using Avalonia;
+using Avalonia.Controls;
+#nullable restore
+#pragma warning disable
+
+namespace {{containingNamespace}}
+{
+    /// <summary>
+    /// Partial class for the {{containingTypeName}} which contains ReactiveUI IViewFor initialization.
+    /// </summary>
+    {{forwardedAttributesString}}
+    public partial class {{containingTypeName}} : IViewFor<{{iviewForInfo.ViewModelTypeName}}>
+    {
+        /// <summary>
+        /// The view model dependency property.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("AvaloniaProperty", "AVP1002", Justification = "Generic avalonia property is expected here.")]
+        public static readonly StyledProperty<{{iviewForInfo.ViewModelTypeName}}?> ViewModelProperty = AvaloniaProperty.Register<{{containingTypeName}}, {{iviewForInfo.ViewModelTypeName}}>(nameof(ViewModel));
+
+        /// <summary>
+        /// Gets the binding root view model.
+        /// </summary>
+        public {{iviewForInfo.ViewModelTypeName}}? BindingRoot => ViewModel;
+
+        /// <inheritdoc/>
+        public {{iviewForInfo.ViewModelTypeName}}? ViewModel { get => ({{iviewForInfo.ViewModelTypeName}}?)GetValue(ViewModelProperty); set => SetValue(ViewModelProperty, value); }
+
+        /// <inheritdoc/>
+        object? IViewFor.ViewModel { get => ViewModel; set => ViewModel = ({{iviewForInfo.ViewModelTypeName}}?)value; }
+
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+        {
+            base.OnPropertyChanged(change);
+
+            if (change.Property == DataContextProperty)
             {
-                usings =
-                    [
-                        UsingDirective(ParseName("ReactiveUI")),
-                        UsingDirective(ParseName("System.Windows")),
-                    ];
+                if (ReferenceEquals(change.OldValue, ViewModel) && change.NewValue is null or {{iviewForInfo.ViewModelTypeName}})
+                {
+                    SetCurrentValue(ViewModelProperty, change.NewValue);
+                }
             }
-            else if (iViewForInfo.BaseType == IViewForBaseType.WinUI)
+            else if (change.Property == ViewModelProperty)
             {
-                usings =
-                    [
-                        UsingDirective(ParseName("ReactiveUI")),
-                        UsingDirective(ParseName("Microsoft.UI.Xaml")),
-                    ];
+                if (ReferenceEquals(change.OldValue, DataContext))
+                {
+                    SetCurrentValue(DataContextProperty, change.NewValue);
+                }
             }
-            else if (iViewForInfo.BaseType == IViewForBaseType.Uno)
-            {
-                usings =
-                    [
-                        UsingDirective(ParseName("ReactiveUI")),
-                        UsingDirective(ParseName("Windows.UI.Xaml")),
-                    ];
-            }
-
-            var code = CompilationUnit().AddMembers(
-                    NamespaceDeclaration(IdentifierName(iViewForInfo.ClassNamespace))
-                    .WithLeadingTrivia(TriviaList(
-                        Comment("// <auto-generated/>"),
-                        Trivia(PragmaWarningDirectiveTrivia(Token(SyntaxKind.DisableKeyword), true)),
-                        Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true))))
-                    .AddMembers(
-                        ClassDeclaration(iViewForInfo.ClassName)
-                        .AddBaseListTypes(
-                            SimpleBaseType(
-                                GenericName(Identifier("IViewFor"))
-                                .WithTypeArgumentList(
-                                    TypeArgumentList(
-                                        SingletonSeparatedList<TypeSyntax>(
-                                            IdentifierName(iViewForInfo.ViewModelTypeName))))))
-                        .AddModifiers([.. iViewForInfo.DeclarationSyntax.Modifiers])
-                        .AddAttributeLists(AttributeList(SingletonSeparatedList(
-                            Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
-                            .AddArgumentListArguments(
-                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(IViewForGenerator).FullName))),
-                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(IViewForGenerator).Assembly.GetName().Version.ToString())))))))))
-                .WithUsings(List(usings))
-                .NormalizeWhitespace().ToFullString();
-
-            // Remove the last 4 characters to remove the closing brackets
-            var baseCode = code.Remove(code.Length - 4);
-
-            // Prepare all necessary type names with type arguments
-            using var stringStream = new StringWriter();
-            using var writer = new IndentedTextWriter(stringStream, "\t");
-            writer.WriteLine(baseCode);
-            writer.Indent++;
-            writer.Indent++;
-
-            // Add the necessary properties and methods for IViewFor.
-            writer.WriteLine("/// <summary>");
-            writer.WriteLine("/// The view model dependency property.");
-            writer.WriteLine("/// </summary>");
-            writer.WriteLine("public static readonly DependencyProperty ViewModelProperty =");
-            writer.Indent++;
-            writer.WriteLine("DependencyProperty.Register(");
-            writer.WriteLine("nameof(ViewModel),");
-            writer.WriteLine($"typeof({iViewForInfo.ViewModelTypeName}),");
-            writer.WriteLine($"typeof({iViewForInfo.ClassName}),");
-            writer.WriteLine("new PropertyMetadata(null));");
-            writer.WriteLine();
-
-            writer.Indent--;
-            writer.WriteLine("/// <summary>");
-            writer.WriteLine("/// Gets the binding root view model.");
-            writer.WriteLine("/// </summary>");
-            writer.WriteLine($"public {iViewForInfo.ViewModelTypeName}? BindingRoot => ViewModel;");
-            writer.WriteLine();
-
-            writer.WriteLine("/// <inheritdoc/>");
-            writer.WriteLine($"public {iViewForInfo.ViewModelTypeName}? ViewModel");
-            writer.WriteLine(Token(SyntaxKind.OpenBraceToken));
-            writer.Indent++;
-            writer.WriteLine($"get => ({iViewForInfo.ViewModelTypeName}?)GetValue(ViewModelProperty);");
-            writer.WriteLine("set => SetValue(ViewModelProperty, value);");
-            writer.Indent--;
-            writer.WriteLine(Token(SyntaxKind.CloseBraceToken));
-            writer.WriteLine();
-
-            writer.WriteLine("/// <inheritdoc/>");
-            writer.WriteLine("object? IViewFor.ViewModel");
-            writer.WriteLine(Token(SyntaxKind.OpenBraceToken));
-            writer.Indent++;
-            writer.WriteLine("get => ViewModel;");
-            writer.WriteLine($"set => ViewModel = ({iViewForInfo.ViewModelTypeName}?)value;");
-            writer.Indent--;
-            writer.WriteLine(Token(SyntaxKind.CloseBraceToken));
-            writer.Indent--;
-            writer.WriteLine(Token(SyntaxKind.CloseBraceToken));
-            writer.Indent--;
-            writer.WriteLine(Token(SyntaxKind.CloseBraceToken));
-            writer.WriteLine(TriviaList(
-                                Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true)),
-                                Trivia(PragmaWarningDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true)))
-                                .NormalizeWhitespace());
-
-            var output = stringStream.ToString();
-            return ParseCompilationUnit(output).NormalizeWhitespace();
         }
+    }
+}
+#nullable restore
+#pragma warning restore
+""";
+            case IViewForBaseType.Maui:
+                return
+$$"""
+// <auto-generated/>
+using System;
+using ReactiveUI;
+using Microsoft.Maui.Controls;
+#nullable restore
+#pragma warning disable
 
-        internal static CompilationUnitSyntax GetIViewForWinForms(IViewForInfo iViewForInfo)
+namespace {{containingNamespace}}
+{
+    /// <summary>
+    /// Partial class for the {{containingTypeName}} which contains ReactiveUI IViewFor initialization.
+    /// </summary>
+    {{forwardedAttributesString}}
+    public partial class {{containingTypeName}} : IViewFor<{{iviewForInfo.ViewModelTypeName}}>
+    {
+        public static readonly BindableProperty ViewModelProperty = BindableProperty.Create(nameof(ViewModel), typeof({{iviewForInfo.ViewModelTypeName}}), typeof(IViewFor<{{iviewForInfo.ViewModelTypeName}}>), default({{iviewForInfo.ViewModelTypeName}}), BindingMode.OneWay, propertyChanged: OnViewModelChanged);
+
+        /// <summary>
+        /// Gets the binding root view model.
+        /// </summary>
+        public {{iviewForInfo.ViewModelTypeName}}? BindingRoot => ViewModel;
+
+        /// <inheritdoc/>
+        public {{iviewForInfo.ViewModelTypeName}}? ViewModel { get => ({{iviewForInfo.ViewModelTypeName}}?)GetValue(ViewModelProperty); set => SetValue(ViewModelProperty, value); }
+
+        /// <inheritdoc/>
+        object? IViewFor.ViewModel { get => ViewModel; set => ViewModel = ({{iviewForInfo.ViewModelTypeName}}?)value; }
+
+        /// <inheritdoc/>
+        protected override void OnBindingContextChanged()
         {
-            UsingDirectiveSyntax[] usings =
-                [
-                    UsingDirective(ParseName("ReactiveUI")),
-                    UsingDirective(ParseName("System.ComponentModel")),
-                ];
-
-            var code = CompilationUnit().AddMembers(
-                    NamespaceDeclaration(IdentifierName(iViewForInfo.ClassNamespace))
-                    .WithLeadingTrivia(TriviaList(
-                        Comment("// <auto-generated/>"),
-                        Trivia(PragmaWarningDirectiveTrivia(Token(SyntaxKind.DisableKeyword), true)),
-                        Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true))))
-                    .AddMembers(
-                        ClassDeclaration(iViewForInfo.ClassName)
-                        .AddBaseListTypes(
-                            SimpleBaseType(
-                                GenericName(Identifier("IViewFor"))
-                                .WithTypeArgumentList(
-                                    TypeArgumentList(
-                                        SingletonSeparatedList<TypeSyntax>(
-                                            IdentifierName(iViewForInfo.ViewModelTypeName))))))
-                        .AddModifiers([.. iViewForInfo.DeclarationSyntax.Modifiers])
-                        .AddAttributeLists(AttributeList(SingletonSeparatedList(
-                            Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
-                            .AddArgumentListArguments(
-                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(IViewForGenerator).FullName))),
-                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(IViewForGenerator).Assembly.GetName().Version.ToString())))))))))
-                .WithUsings(List(usings))
-                .NormalizeWhitespace().ToFullString();
-
-            // Remove the last 4 characters to remove the closing brackets
-            var baseCode = code.Remove(code.Length - 4);
-
-            // Prepare all necessary type names with type arguments
-            using var stringStream = new StringWriter();
-            using var writer = new IndentedTextWriter(stringStream, "\t");
-            writer.WriteLine(baseCode);
-            writer.Indent++;
-            writer.Indent++;
-
-            // Add the necessary properties and methods for IViewFor.
-            writer.WriteLine("/// <inheritdoc/>");
-            writer.WriteLine("[Category(\"ReactiveUI\")]");
-            writer.WriteLine("[Description(\"The ViewModel.\")]");
-            writer.WriteLine("[Bindable(true)]");
-            writer.WriteLine("[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]");
-            writer.WriteLine($"public {iViewForInfo.ViewModelTypeName}? ViewModel " + "{ get; set; }");
-            writer.WriteLine();
-
-            writer.WriteLine("/// <inheritdoc/>");
-            writer.WriteLine("object? IViewFor.ViewModel");
-            writer.WriteLine(Token(SyntaxKind.OpenBraceToken));
-            writer.Indent++;
-            writer.WriteLine("get => ViewModel;");
-            writer.WriteLine($"set => ViewModel = ({iViewForInfo.ViewModelTypeName}?)value;");
-            writer.Indent--;
-            writer.WriteLine(Token(SyntaxKind.CloseBraceToken));
-            writer.Indent--;
-            writer.WriteLine(Token(SyntaxKind.CloseBraceToken));
-            writer.Indent--;
-            writer.WriteLine(Token(SyntaxKind.CloseBraceToken));
-            writer.WriteLine(TriviaList(
-                                Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true)),
-                                Trivia(PragmaWarningDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true)))
-                                .NormalizeWhitespace());
-
-            var output = stringStream.ToString();
-            return ParseCompilationUnit(output).NormalizeWhitespace();
+            base.OnBindingContextChanged();
+            ViewModel = BindingContext as {{iviewForInfo.ViewModelTypeName}};
         }
 
-        internal static CompilationUnitSyntax GetIViewForAvalonia(IViewForInfo iViewForInfo)
-        {
-            UsingDirectiveSyntax[] usings =
-                [
-                    UsingDirective(ParseName("System")),
-                    UsingDirective(ParseName("ReactiveUI")),
-                    UsingDirective(ParseName("Avalonia")),
-                    UsingDirective(ParseName("Avalonia.Controls")),
-                ];
-
-            var code = CompilationUnit().AddMembers(
-                    NamespaceDeclaration(IdentifierName(iViewForInfo.ClassNamespace))
-                    .WithLeadingTrivia(TriviaList(
-                        Comment("// <auto-generated/>"),
-                        Trivia(PragmaWarningDirectiveTrivia(Token(SyntaxKind.DisableKeyword), true)),
-                        Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true))))
-                    .AddMembers(
-                        ClassDeclaration(iViewForInfo.ClassName)
-                        .AddBaseListTypes(
-                            SimpleBaseType(
-                                GenericName(Identifier("IViewFor"))
-                                .WithTypeArgumentList(
-                                    TypeArgumentList(
-                                        SingletonSeparatedList<TypeSyntax>(
-                                            IdentifierName(iViewForInfo.ViewModelTypeName))))))
-                        .AddModifiers([.. iViewForInfo.DeclarationSyntax.Modifiers])
-                        .AddAttributeLists(AttributeList(SingletonSeparatedList(
-                            Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
-                            .AddArgumentListArguments(
-                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(IViewForGenerator).FullName))),
-                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(IViewForGenerator).Assembly.GetName().Version.ToString())))))))))
-                .WithUsings(List(usings))
-                .NormalizeWhitespace().ToFullString();
-
-            // Remove the last 4 characters to remove the closing brackets
-            var baseCode = code.Remove(code.Length - 4);
-
-            // Prepare all necessary type names with type arguments
-            using var stringStream = new StringWriter();
-            using var writer = new IndentedTextWriter(stringStream, "\t");
-            writer.WriteLine(baseCode);
-            writer.Indent++;
-            writer.Indent++;
-
-            // Add the necessary properties and methods for IViewFor.
-            writer.WriteLine("/// <summary>");
-            writer.WriteLine("/// The view model dependency property.");
-            writer.WriteLine("/// </summary>");
-            writer.WriteLine("[System.Diagnostics.CodeAnalysis.SuppressMessage(\"AvaloniaProperty\", \"AVP1002\", Justification = \"Generic avalonia property is expected here.\")]");
-            writer.WriteLine($"public static readonly StyledProperty<{iViewForInfo.ViewModelTypeName}?> ViewModelProperty =");
-            writer.Indent++;
-            writer.WriteLine("AvaloniaProperty");
-            writer.WriteLine($".Register<{iViewForInfo.ClassName}, {iViewForInfo.ViewModelTypeName}?>(nameof(ViewModel));");
-
-            writer.Indent--;
-            writer.WriteLine("/// <summary>");
-            writer.WriteLine("/// Gets the binding root view model.");
-            writer.WriteLine("/// </summary>");
-            writer.WriteLine($"public {iViewForInfo.ViewModelTypeName}? BindingRoot => ViewModel;");
-            writer.WriteLine();
-
-            writer.WriteLine("/// <inheritdoc/>");
-            writer.WriteLine($"public {iViewForInfo.ViewModelTypeName}? ViewModel");
-            writer.WriteLine(Token(SyntaxKind.OpenBraceToken));
-            writer.Indent++;
-            writer.WriteLine($"get => ({iViewForInfo.ViewModelTypeName}?)GetValue(ViewModelProperty);");
-            writer.WriteLine("set => SetValue(ViewModelProperty, value);");
-            writer.Indent--;
-            writer.WriteLine(Token(SyntaxKind.CloseBraceToken));
-            writer.WriteLine();
-
-            writer.WriteLine("/// <inheritdoc/>");
-            writer.WriteLine("object? IViewFor.ViewModel");
-            writer.WriteLine(Token(SyntaxKind.OpenBraceToken));
-            writer.Indent++;
-            writer.WriteLine("get => ViewModel;");
-            writer.WriteLine($"set => ViewModel = ({iViewForInfo.ViewModelTypeName}?)value;");
-            writer.Indent--;
-            writer.WriteLine(Token(SyntaxKind.CloseBraceToken));
-            writer.WriteLine();
-            writer.WriteLine(
-                $$"""
-
-                                protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
-                                        {
-                                            base.OnPropertyChanged(change);
-
-                                            if (change.Property == DataContextProperty)
-                                            {
-                                                if (ReferenceEquals(change.OldValue, ViewModel)
-                                                    && change.NewValue is null or {{iViewForInfo.ViewModelTypeName}})
-                                                {
-                                                    SetCurrentValue(ViewModelProperty, change.NewValue);
-                                                }
-                                            }
-                                            else if (change.Property == ViewModelProperty)
-                                            {
-                                                if (ReferenceEquals(change.OldValue, DataContext))
-                                                {
-                                                    SetCurrentValue(DataContextProperty, change.NewValue);
-                                                }
-                                            }
-                                        }
-                                
-                """);
-            writer.Indent--;
-            writer.WriteLine(Token(SyntaxKind.CloseBraceToken));
-            writer.Indent--;
-            writer.WriteLine(Token(SyntaxKind.CloseBraceToken));
-            writer.WriteLine(TriviaList(
-                                Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true)),
-                                Trivia(PragmaWarningDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true)))
-                                .NormalizeWhitespace());
-
-            var output = stringStream.ToString();
-            return ParseCompilationUnit(output).NormalizeWhitespace();
+        private static void OnViewModelChanged(BindableObject bindableObject, object oldValue, object newValue) => bindableObject.BindingContext = newValue;
+    }
+}
+#nullable restore
+#pragma warning restore
+""";
         }
 
-        internal static CompilationUnitSyntax GetIViewForMaui(IViewForInfo iViewForInfo)
-        {
-            UsingDirectiveSyntax[] usings =
-                [
-                    UsingDirective(ParseName("System")),
-                    UsingDirective(ParseName("ReactiveUI")),
-                    UsingDirective(ParseName("Microsoft.Maui.Controls")),
-                ];
-
-            var code = CompilationUnit().AddMembers(
-                    NamespaceDeclaration(IdentifierName(iViewForInfo.ClassNamespace))
-                    .WithLeadingTrivia(TriviaList(
-                        Comment("// <auto-generated/>"),
-                        Trivia(PragmaWarningDirectiveTrivia(Token(SyntaxKind.DisableKeyword), true)),
-                        Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true))))
-                    .AddMembers(
-                        ClassDeclaration(iViewForInfo.ClassName)
-                        .AddBaseListTypes(
-                            SimpleBaseType(
-                                GenericName(Identifier("IViewFor"))
-                                .WithTypeArgumentList(
-                                    TypeArgumentList(
-                                        SingletonSeparatedList<TypeSyntax>(
-                                            IdentifierName(iViewForInfo.ViewModelTypeName))))))
-                        .AddModifiers([.. iViewForInfo.DeclarationSyntax.Modifiers])
-                        .AddAttributeLists(AttributeList(SingletonSeparatedList(
-                            Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
-                            .AddArgumentListArguments(
-                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(IViewForGenerator).FullName))),
-                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(IViewForGenerator).Assembly.GetName().Version.ToString())))))))))
-                .WithUsings(List(usings))
-                .NormalizeWhitespace().ToFullString();
-
-            // Remove the last 4 characters to remove the closing brackets
-            var baseCode = code.Remove(code.Length - 4);
-
-            // Prepare all necessary type names with type arguments
-            using var stringStream = new StringWriter();
-            using var writer = new IndentedTextWriter(stringStream, "\t");
-            writer.WriteLine(baseCode);
-            writer.Indent++;
-            writer.Indent++;
-
-            // Add the necessary properties and methods for IViewFor.
-            writer.WriteLine("public static readonly BindableProperty ViewModelProperty =");
-            writer.WriteLine("BindableProperty.Create(");
-            writer.WriteLine("nameof(ViewModel),");
-            writer.WriteLine($"typeof({iViewForInfo.ViewModelTypeName}),");
-            writer.WriteLine($"typeof(IViewFor<{iViewForInfo.ViewModelTypeName}>),");
-            writer.WriteLine($"default({iViewForInfo.ViewModelTypeName}),");
-            writer.WriteLine("BindingMode.OneWay,");
-            writer.WriteLine("propertyChanged: OnViewModelChanged);");
-            writer.WriteLine();
-
-            writer.Indent--;
-            writer.WriteLine("/// <summary>");
-            writer.WriteLine("/// Gets the binding root view model.");
-            writer.WriteLine("/// </summary>");
-            writer.WriteLine($"public {iViewForInfo.ViewModelTypeName}? BindingRoot => ViewModel;");
-            writer.WriteLine();
-
-            writer.WriteLine("/// <inheritdoc/>");
-            writer.WriteLine($"public {iViewForInfo.ViewModelTypeName}? ViewModel");
-            writer.WriteLine(Token(SyntaxKind.OpenBraceToken));
-            writer.Indent++;
-            writer.WriteLine($"get => ({iViewForInfo.ViewModelTypeName}?)GetValue(ViewModelProperty);");
-            writer.WriteLine("set => SetValue(ViewModelProperty, value);");
-            writer.Indent--;
-            writer.WriteLine(Token(SyntaxKind.CloseBraceToken));
-            writer.WriteLine();
-
-            writer.WriteLine("/// <inheritdoc/>");
-            writer.WriteLine("object? IViewFor.ViewModel");
-            writer.WriteLine(Token(SyntaxKind.OpenBraceToken));
-            writer.Indent++;
-            writer.WriteLine("get => ViewModel;");
-            writer.WriteLine($"set => ViewModel = ({iViewForInfo.ViewModelTypeName}?)value;");
-            writer.Indent--;
-            writer.WriteLine(Token(SyntaxKind.CloseBraceToken));
-
-            writer.WriteLine();
-            writer.WriteLine("/// <inheritdoc/>");
-            writer.WriteLine("protected override void OnBindingContextChanged()");
-            writer.WriteLine(Token(SyntaxKind.OpenBraceToken));
-            writer.WriteLine("base.OnBindingContextChanged();");
-            writer.WriteLine($"ViewModel = BindingContext as {iViewForInfo.ViewModelTypeName};");
-            writer.WriteLine(Token(SyntaxKind.CloseBraceToken));
-
-            writer.WriteLine("private static void OnViewModelChanged(BindableObject bindableObject, object oldValue, object newValue) => bindableObject.BindingContext = newValue;");
-            writer.Indent--;
-            writer.WriteLine(Token(SyntaxKind.CloseBraceToken));
-            writer.Indent--;
-            writer.WriteLine(Token(SyntaxKind.CloseBraceToken));
-            writer.WriteLine(TriviaList(
-                                Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true)),
-                                Trivia(PragmaWarningDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true)))
-                                .NormalizeWhitespace());
-
-            var output = stringStream.ToString();
-            return ParseCompilationUnit(output).NormalizeWhitespace();
-        }
+        return string.Empty;
     }
 }
