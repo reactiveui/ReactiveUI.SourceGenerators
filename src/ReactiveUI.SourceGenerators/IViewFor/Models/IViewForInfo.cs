@@ -3,7 +3,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ReactiveUI.SourceGenerators.Helpers;
 
 namespace ReactiveUI.SourceGenerators.Input.Models;
@@ -12,9 +11,12 @@ namespace ReactiveUI.SourceGenerators.Input.Models;
 /// A model with gathered info on a given command method.
 /// </summary>
 internal sealed record IViewForInfo(
-    string ClassNamespace,
-    string ClassName,
+    string FileHintName,
+    string TargetName,
+    string TargetNamespace,
+    string TargetNamespaceWithNamespace,
+    string TargetVisibility,
+    string TargetType,
     string ViewModelTypeName,
     IViewForBaseType BaseType,
-    TypeDeclarationSyntax DeclarationSyntax,
-    EquatableArray<AttributeInfo> ForwardedAttributes);
+    EquatableArray<string> ForwardedAttributes);

@@ -193,4 +193,76 @@ internal static class AttributeDataExtensions
 
         return $"[{namespacePrefix}{attr.AttributeSyntax}]";
     }
+
+    /// <summary>
+    /// Gathers the forwarded attributes from class.
+    /// </summary>
+    /// <param name="attributeData">The attribute data.</param>
+    /// <param name="semanticModel">The semantic model.</param>
+    /// <param name="classDeclaration">The class declaration.</param>
+    /// <param name="token">The token.</param>
+    /// <param name="classAttributesInfo">The class attributes information.</param>
+    public static void GatherForwardedAttributesFromClass(
+            this AttributeData attributeData,
+            SemanticModel semanticModel,
+            ClassDeclarationSyntax classDeclaration,
+            CancellationToken token,
+            out ImmutableArray<AttributeInfo> classAttributesInfo)
+    {
+        using var classAttributesInfoBuilder = ImmutableArrayBuilder<AttributeInfo>.Rent();
+
+        static void GatherForwardedAttributes(
+            AttributeData attributeData,
+            SemanticModel semanticModel,
+            ClassDeclarationSyntax classDeclaration,
+            CancellationToken token,
+            ImmutableArrayBuilder<AttributeInfo> classAttributesInfo)
+        {
+            // Gather explicit forwarded attributes info
+            foreach (var attributeList in classDeclaration.AttributeLists)
+            {
+                foreach (var attribute in attributeList.Attributes)
+                {
+                    if (!semanticModel.GetSymbolInfo(attribute, token).TryGetAttributeTypeSymbol(out var attributeTypeSymbol))
+                    {
+                        continue;
+                    }
+
+                    var attributeArguments = attribute.ArgumentList?.Arguments ?? Enumerable.Empty<AttributeArgumentSyntax>();
+
+                    // Try to extract the forwarded attribute
+                    if (!AttributeInfo.TryCreate(attributeTypeSymbol, semanticModel, attributeArguments, token, out var attributeInfo))
+                    {
+                        continue;
+                    }
+
+                    var ignoreAttribute = attributeData.AttributeClass?.GetFullyQualifiedMetadataName();
+                    if (attributeInfo.TypeName.Contains(ignoreAttribute))
+                    {
+                        continue;
+                    }
+
+                    // Add the new attribute info to the right builder
+                    classAttributesInfo.Add(attributeInfo);
+                }
+            }
+        }
+
+        // If the method is not a partial definition/implementation, just gather attributes from the method with no modifications
+        GatherForwardedAttributes(attributeData, semanticModel, classDeclaration, token, classAttributesInfoBuilder);
+
+        classAttributesInfo = classAttributesInfoBuilder.ToImmutable();
+    }
+
+    /// <summary>
+    /// Gets the type of the generic.
+    /// </summary>
+    /// <param name="attributeData">The attribute data.</param>
+    /// <returns>A String.</returns>
+    public static string? GetGenericType(this AttributeData attributeData)
+    {
+        var success = attributeData?.AttributeClass?.ToDisplayString();
+        var start = success?.IndexOf('<') + 1 ?? 0;
+        return success?.Substring(start, success.Length - start - 1);
+    }
 }
