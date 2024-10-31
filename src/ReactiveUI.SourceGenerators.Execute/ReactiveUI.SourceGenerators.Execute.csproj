@@ -13,10 +13,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ReactiveUI.SourceGenerators\ReactiveUI.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <PackageReference Include="ReactiveUI" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ReactiveUI" />
+    <ProjectReference Include="..\ReactiveUI.SourceGenerators\ReactiveUI.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\ReactiveUI.SourceGenerators.CodeFixers\ReactiveUI.SourceGenerators.CodeFixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 </Project>

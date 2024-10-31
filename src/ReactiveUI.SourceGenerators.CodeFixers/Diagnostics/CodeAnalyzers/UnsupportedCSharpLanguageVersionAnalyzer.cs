@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using ReactiveUI.SourceGenerators.Extensions;
-using static ReactiveUI.SourceGenerators.Diagnostics.DiagnosticDescriptors;
+using static ReactiveUI.SourceGenerators.CodeFixers.Diagnostics.DiagnosticDescriptors;
 
 namespace ReactiveUI.SourceGenerators;
 
@@ -51,7 +51,7 @@ public sealed class UnsupportedCSharpLanguageVersionAnalyzer : DiagnosticAnalyze
         context.RegisterCompilationStartAction(static context =>
         {
             // Check that the language version is not high enough, otherwise no diagnostic should ever be produced
-            if (context.Compilation.HasLanguageVersionAtLeastEqualTo(LanguageVersion.CSharp9))
+            if (context.Compilation.HasLanguageVersionAtLeastEqualTo(1200))
             {
                 return;
             }

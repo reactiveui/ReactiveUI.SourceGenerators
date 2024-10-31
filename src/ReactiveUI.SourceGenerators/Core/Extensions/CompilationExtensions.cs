@@ -27,6 +27,15 @@ internal static class CompilationExtensions
         ((CSharpCompilation)compilation).LanguageVersion >= languageVersion;
 
     /// <summary>
+    /// Checks whether a given compilation (assumed to be for C#) is using at least a given language version.
+    /// </summary>
+    /// <param name="compilation">The <see cref="Compilation"/> to consider for analysis.</param>
+    /// <param name="languageVersion">The minimum language version to check.</param>
+    /// <returns>Whether <paramref name="compilation"/> is using at least the specified language version.</returns>
+    public static bool HasLanguageVersionAtLeastEqualTo(this Compilation compilation, int languageVersion) =>
+        ((int)((CSharpCompilation)compilation).LanguageVersion) >= languageVersion;
+
+    /// <summary>
     /// <para>
     /// Checks whether or not a type with a specified metadata name is accessible from a given <see cref="Compilation"/> instance.
     /// </para>

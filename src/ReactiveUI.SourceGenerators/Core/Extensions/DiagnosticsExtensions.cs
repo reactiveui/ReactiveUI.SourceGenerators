@@ -10,7 +10,7 @@ using ReactiveUI.SourceGenerators.Models;
 namespace ReactiveUI.SourceGenerators.Extensions;
 
 /// <summary>
-/// Extension methods for <see cref="GeneratorExecutionContext"/>, specifically for reporting diagnostics.
+/// Extension methods for <see cref="DiagnosticInfo"/>, specifically for reporting diagnostics.
 /// </summary>
 internal static class DiagnosticsExtensions
 {

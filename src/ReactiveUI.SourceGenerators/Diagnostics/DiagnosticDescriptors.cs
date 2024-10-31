@@ -4,7 +4,6 @@
 // See the LICENSE file in the project root for full license information.
 
 using Microsoft.CodeAnalysis;
-using ReactiveUI.SourceGenerators.CodeAnalyzers;
 
 #pragma warning disable IDE0090 // Use 'new DiagnosticDescriptor(...)'
 
@@ -15,19 +14,6 @@ namespace ReactiveUI.SourceGenerators.Diagnostics;
 /// </summary>
 internal static class DiagnosticDescriptors
 {
-    /// <summary>
-    /// Gets a <see cref="DiagnosticDescriptor"/> indicating when an unsupported C# language version is being used.
-    /// </summary>
-    public static readonly DiagnosticDescriptor UnsupportedCSharpLanguageVersionError = new DiagnosticDescriptor(
-        id: "RXUISG0001",
-        title: "Unsupported C# language version",
-        messageFormat: "The source generator features from ReactiveUI require consuming projects to set the C# language version to at least C# 9.0",
-        category: typeof(UnsupportedCSharpLanguageVersionAnalyzer).FullName,
-        defaultSeverity: DiagnosticSeverity.Error,
-        isEnabledByDefault: true,
-        description: "The source generator features from ReactiveUI require consuming projects to set the C# language version to at least C# 9.0. Make sure to add <LangVersion>9.0</LangVersion> (or above) to your .csproj file.",
-        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
-
     /// <summary>
     /// Gets a <see cref="DiagnosticDescriptor"/> indicating when an annotated method to generate a command for has an invalid signature.
     /// <para>
@@ -122,22 +108,6 @@ internal static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "All attributes targeting the generated field or property for a method annotated with [ReactiveCommand] must be using valid expressions.",
-        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
-
-    /// <summary>
-    /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a method with <c>[ReactiveCommand]</c> is async void.
-    /// <para>
-    /// Format: <c>"The method {0} annotated with [ReactiveCommand] is async void (make sure to return a Task type instead)"</c>.
-    /// </para>
-    /// </summary>
-    public static readonly DiagnosticDescriptor AsyncVoidReturningReactiveCommandMethod = new DiagnosticDescriptor(
-        id: "RXUISG0008",
-        title: "Async void returning method annotated with ReactiveCommand",
-        messageFormat: "The method {0} annotated with [ReactiveCommand] is async void (make sure to return a Task type instead)",
-        category: typeof(AsyncVoidReturningReactiveCommandMethodAnalyzer).FullName,
-        defaultSeverity: DiagnosticSeverity.Error,
-        isEnabledByDefault: true,
-        description: "All asynchronous methods annotated with [ReactiveCommand] should return a Task type, to benefit from the additional support provided by ReactiveCommand.FromTask.",
         helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>
@@ -250,19 +220,6 @@ internal static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "The fields annotated with [Reactive] cannot result in a property name or have a type that would cause conflicts with other generated members.",
-        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
-
-    /// <summary>
-    /// The property to field rule.
-    /// </summary>
-    public static readonly DiagnosticDescriptor PropertyToReactiveFieldRule = new(
-        id: "RXUISG0016",
-        title: "Property To Reactive Field, change to [Reactive] private type _fieldName;",
-        messageFormat: "Replace the property with a INPC Reactive Property for ReactiveUI",
-        category: typeof(PropertyToReactiveFieldAnalyzer).FullName,
-        defaultSeverity: DiagnosticSeverity.Info,
-        isEnabledByDefault: true,
-        description: "Used to create a Read Write INPC Reactive Property for ReactiveUI, annotated with [Reactive].",
         helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>

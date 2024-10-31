@@ -29,6 +29,8 @@
       System.Index;
       System.Range;
     </PolySharpIncludeGeneratedTypes>
+
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   
   <!-- Include PolySharp to generate polyfills for all projects (on their .NET Standard 2.x targets) -->
@@ -37,10 +39,13 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>build; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <InternalsVisibleTo Include="ReactiveUI.SourceGenerators.CodeFixes" />
+  </ItemGroup>
+  
   <ItemGroup>
     <None Remove="bin\Debug\netstandard2.0\\ReactiveUI.SourceGenerators.dll" />
   </ItemGroup>
