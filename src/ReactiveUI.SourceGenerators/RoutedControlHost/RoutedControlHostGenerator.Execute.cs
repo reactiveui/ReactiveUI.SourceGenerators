@@ -86,7 +86,7 @@ public partial class RoutedControlHostGenerator
     private static string GetRoutedControlHost(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, RoutedControlHostInfo vmcInfo)
     {
         // Prepare any forwarded property attributes
-        var forwardedAttributesString = string.Join("\n\t\t", excludeFromCodeCoverage.Concat(vmcInfo.ForwardedAttributes));
+        var forwardedAttributesString = string.Join("\n        ", excludeFromCodeCoverage.Concat(vmcInfo.ForwardedAttributes));
 
         return
 $$"""
