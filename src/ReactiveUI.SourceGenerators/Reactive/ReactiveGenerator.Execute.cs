@@ -144,14 +144,14 @@ using ReactiveUI;
 
 namespace {{containingNamespace}}
 {
-{{AddTabs(1)}}/// <summary>
-{{AddTabs(1)}}/// Partial class for the {{containingTypeName}} which contains ReactiveUI Reactive property initialization.
-{{AddTabs(1)}}/// </summary>
-{{AddTabs(1)}}{{containingClassVisibility}} partial {{containingType}} {{containingTypeName}}
-{{AddTabs(1)}}{
-{{AddTabs(2)}}[global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
+    /// <summary>
+    /// Partial class for the {{containingTypeName}} which contains ReactiveUI Reactive property initialization.
+    /// </summary>
+    {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}}
+    {
+        [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
 {{propertyDeclarations}}
-{{AddTabs(1)}}}
+    }
 }
 #nullable restore
 #pragma warning restore
@@ -176,32 +176,30 @@ namespace {{containingNamespace}}
             setModifier = string.Empty;
         }
 
-        var propertyAttributes = string.Join("\n\t\t", excludeFromCodeCoverage.Concat(propertyInfo.ForwardedAttributes.Attributes.Select(x => x.FormatAttributes())));
+        var propertyAttributes = string.Join("\n        ", excludeFromCodeCoverage.Concat(propertyInfo.ForwardedAttributes.Attributes.Select(x => x.FormatAttributes())));
 
         if (propertyInfo.IncludeMemberNotNullOnSetAccessor)
         {
             return
 $$"""
-{{AddTabs(2)}}/// <inheritdoc cref="{{propertyInfo.FieldName}}"/>
-{{AddTabs(2)}}{{propertyAttributes}}
-{{AddTabs(2)}}{{propertyInfo.TargetVisibility}} {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}}
-{{AddTabs(2)}}{ 
-{{AddTabs(3)}}get => {{propertyInfo.FieldName}};
-{{AddTabs(3)}}[global::System.Diagnostics.CodeAnalysis.MemberNotNull("{{propertyInfo.FieldName}}")]
-{{AddTabs(3)}}{{setModifier}}set => this.RaiseAndSetIfChanged(ref {{propertyInfo.FieldName}}, value);
-{{AddTabs(2)}}}
+        /// <inheritdoc cref="{{propertyInfo.FieldName}}"/>
+        {{propertyAttributes}}
+        {{propertyInfo.TargetVisibility}} {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}}
+        { 
+            get => {{propertyInfo.FieldName}};
+            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("{{propertyInfo.FieldName}}")]
+            {{setModifier}}set => this.RaiseAndSetIfChanged(ref {{propertyInfo.FieldName}}, value);
+        }
 """;
         }
 
         return
 $$"""
-{{AddTabs(2)}}/// <inheritdoc cref="{{propertyInfo.FieldName}}"/>
-{{AddTabs(2)}}{{propertyAttributes}}
-{{AddTabs(2)}}{{propertyInfo.TargetVisibility}} {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} { get => {{propertyInfo.FieldName}}; {{setModifier}}set => this.RaiseAndSetIfChanged(ref {{propertyInfo.FieldName}}, value); }
+        /// <inheritdoc cref="{{propertyInfo.FieldName}}"/>
+        {{propertyAttributes}}
+        {{propertyInfo.TargetVisibility}} {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} { get => {{propertyInfo.FieldName}}; {{setModifier}}set => this.RaiseAndSetIfChanged(ref {{propertyInfo.FieldName}}, value); }
 """;
     }
-
-    private static string AddTabs(int tabCount) => new('\t', tabCount);
 
     /// <summary>
     /// Validates the containing type for a given field being annotated.

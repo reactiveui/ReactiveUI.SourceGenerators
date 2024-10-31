@@ -3,7 +3,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -125,14 +124,14 @@ $$"""
 
 namespace {{containingNamespace}}
 {
-{{AddTabs(1)}}/// <summary>
-{{AddTabs(1)}}/// Partial class for the {{containingTypeName}} which contains ReactiveUI ReactiveCommand initialization.
-{{AddTabs(1)}}/// </summary>
-{{AddTabs(1)}}{{containingClassVisibility}} partial {{containingType}} {{containingTypeName}}
-{{AddTabs(1)}}{
-{{AddTabs(2)}}[global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
+    /// <summary>
+    /// Partial class for the {{containingTypeName}} which contains ReactiveUI ReactiveCommand initialization.
+    /// </summary>
+    {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}}
+    {
+        [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
 {{propertyDeclarations}}
-{{AddTabs(1)}}}
+    }
 }
 #nullable restore
 #pragma warning restore
@@ -165,14 +164,14 @@ namespace {{containingNamespace}}
         }
 
         // Prepare any forwarded property attributes
-        var forwardedPropertyAttributesString = string.Join("\n\t\t", excludeFromCodeCoverage.Concat(commandExtensionInfo.ForwardedPropertyAttributes));
+        var forwardedPropertyAttributesString = string.Join("\n        ", excludeFromCodeCoverage.Concat(commandExtensionInfo.ForwardedPropertyAttributes));
 
         return
 $$"""
-{{AddTabs(2)}}private ReactiveUI.ReactiveCommand<{{inputType}}, {{outputType}}>? {{fieldName}};
+        private ReactiveUI.ReactiveCommand<{{inputType}}, {{outputType}}>? {{fieldName}};
 
-{{AddTabs(2)}}{{forwardedPropertyAttributesString}}
-{{AddTabs(2)}}public ReactiveUI.ReactiveCommand<{{inputType}}, {{outputType}}> {{commandName}} { get => {{initializer}} }
+        {{forwardedPropertyAttributesString}}
+        public ReactiveUI.ReactiveCommand<{{inputType}}, {{outputType}}> {{commandName}} { get => {{initializer}} }
 """;
 
         static string GenerateBasicCommand(CommandInfo commandExtensionInfo, string fieldName)
@@ -480,6 +479,4 @@ $$"""
 
     private static string GetGeneratedFieldName(string generatedCommandName) =>
         $"_{char.ToLower(generatedCommandName[0], CultureInfo.InvariantCulture)}{generatedCommandName.Substring(1)}";
-
-    private static string AddTabs(int tabCount) => new('\t', tabCount);
 }
