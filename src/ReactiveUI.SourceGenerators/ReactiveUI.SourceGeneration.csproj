@@ -43,11 +43,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <InternalsVisibleTo Include="ReactiveUI.SourceGenerators.CodeFixes" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <None Remove="bin\Debug\netstandard2.0\\ReactiveUI.SourceGenerators.dll" />
+    <InternalsVisibleTo Include="ReactiveUI.CodeFixes" />
   </ItemGroup>
 
   <!-- This ensures the library will be packaged as a source generator when we use `dotnet pack` -->

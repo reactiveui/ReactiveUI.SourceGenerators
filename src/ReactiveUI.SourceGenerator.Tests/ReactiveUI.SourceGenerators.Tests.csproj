@@ -19,13 +19,14 @@
     <PackageReference Include="Verify.Xunit" />
     <PackageReference Include="Verify.SourceGenerators" />
     <PackageReference Include="Basic.Reference.Assemblies.Net80" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="all" VersionOverride="4.11.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" VersionOverride="4.11.0" />
     <PackageReference Include="Microsoft.CodeAnalysis" PrivateAssets="all" VersionOverride="4.11.0" />
     <PackageReference Include="FluentAssertions" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ReactiveUI.SourceGenerators\ReactiveUI.SourceGenerators.csproj" />
+    <ProjectReference Include="..\ReactiveUI.SourceGenerators\ReactiveUI.SourceGeneration.csproj" />
   </ItemGroup>
 
   <ItemGroup>
