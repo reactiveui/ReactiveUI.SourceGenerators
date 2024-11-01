@@ -7,23 +7,7 @@
 
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
-RXUISG0001 | ReactiveUI.SourceGenerators.UnsupportedCSharpLanguageVersionAnalyzer | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
-RXUISG0002 | ReactiveUI.SourceGenerators.ReactiveCommandGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
-RXUISG0003 | ReactiveUI.SourceGenerators.ReactiveCommandGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
-RXUISG0004 | ReactiveUI.SourceGenerators.ReactiveCommandGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
-RXUISG0005 | ReactiveUI.SourceGenerators.ReactiveCommandGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
-RXUISG0006 | ReactiveUI.SourceGenerators.ReactiveCommandGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
-RXUISG0007 | ReactiveUI.SourceGenerators.ReactiveCommandGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
-RXUISG0008 | ReactiveUI.SourceGenerators.AsyncVoidReturningReactiveCommandMethodAnalyzer | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
-RXUISG0009 | ReactiveUI.SourceGenerators.ReactiveGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
-RXUISG0010 | ReactiveUI.SourceGenerators.ReactiveGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
-RXUISG0011 | ReactiveUI.SourceGenerators.ReactiveGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
-RXUISG0012 | ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
-RXUISG0013 | ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
-RXUISG0014 | ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
-RXUISG0015 | ReactiveUI.SourceGenerators.ReactiveGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
 RXUISG0016 | ReactiveUI.SourceGenerators.PropertyToReactiveFieldCodeFixProvider | Info | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
-RXUISG0017 | ReactiveUI.SourceGenerators.ObservableAsPropertyFromObservableGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
 
 
 ## Rules

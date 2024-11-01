@@ -16,7 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionConfig", "SolutionC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveUI.SourceGenerators.Execute", "ReactiveUI.SourceGenerators.Execute\ReactiveUI.SourceGenerators.Execute.csproj", "{76D5AC8C-4935-3E4B-BD12-71FAEC2B9A9D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveUI.SourceGeneration", "ReactiveUI.SourceGenerators\ReactiveUI.SourceGeneration.csproj", "{A8CE4CD8-F858-67F2-E50D-86C5C17C6BE6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveUI.SourceGenerators", "ReactiveUI.SourceGenerators\ReactiveUI.SourceGenerators.csproj", "{A8CE4CD8-F858-67F2-E50D-86C5C17C6BE6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveUI.SourceGenerators.Execute.Maui", "ReactiveUI.SourceGenerators.Execute.Maui\ReactiveUI.SourceGenerators.Execute.Maui.csproj", "{849CACF4-B85F-47B5-84B3-7C94DE864E7E}"
 EndProject

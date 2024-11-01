@@ -22,7 +22,6 @@ RXUISG0012 | ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator | Error |
 RXUISG0013 | ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
 RXUISG0014 | ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
 RXUISG0015 | ReactiveUI.SourceGenerators.ReactiveGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
-RXUISG0016 | ReactiveUI.SourceGenerators.PropertyToReactiveFieldCodeFixProvider | Info | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
 RXUISG0017 | ReactiveUI.SourceGenerators.ObservableAsPropertyFromObservableGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
 
 
