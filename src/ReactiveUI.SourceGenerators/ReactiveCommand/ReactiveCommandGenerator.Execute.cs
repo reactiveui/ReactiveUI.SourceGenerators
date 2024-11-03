@@ -34,7 +34,6 @@ public partial class ReactiveCommandGenerator
     private const string CreateO = ".CreateFromObservable";
     private const string CreateT = ".CreateFromTask";
     private const string CanExecute = "CanExecute";
-    private static readonly string[] excludeFromCodeCoverage = ["[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]"];
 
     private static CommandInfo? GetMethodInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
@@ -164,7 +163,7 @@ namespace {{containingNamespace}}
         }
 
         // Prepare any forwarded property attributes
-        var forwardedPropertyAttributesString = string.Join("\n        ", excludeFromCodeCoverage.Concat(commandExtensionInfo.ForwardedPropertyAttributes));
+        var forwardedPropertyAttributesString = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage.Concat(commandExtensionInfo.ForwardedPropertyAttributes));
 
         return
 $$"""

@@ -26,8 +26,6 @@ public partial class RoutedControlHostGenerator
     private static readonly string GeneratorName = typeof(RoutedControlHostGenerator).FullName!;
     private static readonly string GeneratorVersion = typeof(RoutedControlHostGenerator).Assembly.GetName().Version.ToString();
 
-    private static readonly string[] excludeFromCodeCoverage = ["[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]"];
-
     private static RoutedControlHostInfo? GetClassInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
         if (!(context.TargetNode is ClassDeclarationSyntax declaredClass && declaredClass.Modifiers.Any(SyntaxKind.PartialKeyword)))
@@ -86,7 +84,7 @@ public partial class RoutedControlHostGenerator
     private static string GetRoutedControlHost(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, RoutedControlHostInfo vmcInfo)
     {
         // Prepare any forwarded property attributes
-        var forwardedAttributesString = string.Join("\n        ", excludeFromCodeCoverage.Concat(vmcInfo.ForwardedAttributes));
+        var forwardedAttributesString = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage.Concat(vmcInfo.ForwardedAttributes));
 
         return
 $$"""
@@ -108,7 +106,7 @@ namespace {{containingNamespace}}
     {{forwardedAttributesString}}
     [DefaultProperty("ViewModel")]
     [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
-    {{containingClassVisibility}} partial class {{containingTypeName}} : {{vmcInfo.BaseTypeName}}, IReactiveObject
+    {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}} : {{vmcInfo.BaseTypeName}}, IReactiveObject
     {
         private readonly CompositeDisposable _disposables = [];
         private RoutingState? _router;

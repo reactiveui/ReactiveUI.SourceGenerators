@@ -3,8 +3,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
@@ -21,22 +21,15 @@ namespace ReactiveUI.SourceGenerators;
 /// ReactiveGenerator.
 /// </summary>
 /// <seealso cref="IIncrementalGenerator" />
-public sealed partial class ReactiveGenerator
+public sealed partial class ObservableAsPropertyGenerator
 {
-    internal static readonly string GeneratorName = typeof(ReactiveGenerator).FullName!;
-    internal static readonly string GeneratorVersion = typeof(ReactiveGenerator).Assembly.GetName().Version.ToString();
-
-    /// <summary>
-    /// Gets the observable method information.
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="token">The token.</param>
-    /// <returns>The value.</returns>
     private static PropertyInfo? GetVariableInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
         var symbol = context.TargetSymbol;
+        token.ThrowIfCancellationRequested();
 
-        if (!symbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ReactiveAttributeType, out var attributeData))
+        // Skip symbols without the target attribute
+        if (!symbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ObservableAsPropertyAttributeType, out var attributeData))
         {
             return default;
         }
@@ -46,40 +39,32 @@ public sealed partial class ReactiveGenerator
             return default;
         }
 
+        // Validate the target type
         if (!IsTargetTypeValid(fieldSymbol))
         {
             return default;
         }
 
-        token.ThrowIfCancellationRequested();
-
-        // Get AccessModifier enum value from the attribute
-        attributeData.TryGetNamedArgument("SetModifier", out int? accessModifierArgument);
-        var accessModifier = accessModifierArgument switch
-        {
-            0 => "public",
-            1 => "protected",
-            2 => "internal",
-            3 => "private",
-            4 => "internal protected",
-            5 => "private protected",
-            _ => "public",
-        };
+        // Get the can PropertyName member, if any
+        attributeData.TryGetNamedArgument("ReadOnly", out bool? isReadonly);
 
         token.ThrowIfCancellationRequested();
 
         // Get the property type and name
         var typeNameWithNullabilityAnnotations = fieldSymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations();
         var fieldName = fieldSymbol.Name;
-        var propertyName = fieldSymbol.GetGeneratedPropertyName();
+        var propertyName = GetGeneratedPropertyName(fieldSymbol);
+
+        var fieldDeclaration = (FieldDeclarationSyntax)context.TargetNode.Parent!.Parent!;
+        var initializer = fieldDeclaration.Declaration.Variables.FirstOrDefault()?.Initializer?.ToFullString();
+
+        // Check for name collisions
+        if (fieldName == propertyName)
+        {
+            return default;
+        }
 
         token.ThrowIfCancellationRequested();
-
-        // Get the nullability info for the property
-        fieldSymbol.GetNullabilityInfo(
-        context.SemanticModel,
-        out var isReferenceTypeOrUnconstraindTypeParameter,
-        out var includeMemberNotNullOnSetAccessor);
 
         using var forwardedAttributes = ImmutableArrayBuilder<AttributeInfo>.Rent();
 
@@ -95,7 +80,7 @@ public sealed partial class ReactiveGenerator
             }
 
             // Track the current attribute for forwarding if it is a Json Serialization attribute
-            if (attributeData.AttributeClass?.InheritsFromFullyQualifiedMetadataName("System.Text.Json.Serialization.JsonAttribute") == true)
+            if (attribute.AttributeClass?.InheritsFromFullyQualifiedMetadataName("System.Text.Json.Serialization.JsonAttribute") == true)
             {
                 forwardedAttributes.Add(AttributeInfo.Create(attribute));
             }
@@ -114,14 +99,13 @@ public sealed partial class ReactiveGenerator
         }
 
         token.ThrowIfCancellationRequested();
-        var fieldDeclaration = (FieldDeclarationSyntax)context.TargetNode.Parent!.Parent!;
 
         // Gather explicit forwarded attributes info
         foreach (var attributeList in fieldDeclaration.AttributeLists)
         {
             // Only look for attribute lists explicitly targeting the (generated) property. Roslyn will normally emit a
             // CS0657 warning (invalid target), but that is automatically suppressed by a dedicated diagnostic suppressor
-            // that recognizes uses of this target specifically to support [Reactive].
+            // that recognizes uses of this target specifically to support [ObservableAsProperty].
             if (attributeList.Target?.Identifier is not SyntaxToken(SyntaxKind.PropertyKeyword))
             {
                 continue;
@@ -162,15 +146,22 @@ public sealed partial class ReactiveGenerator
             }
         }
 
-        var forwardedAttributesString = forwardedAttributes.ToImmutable().Select(x => x.ToString()).ToImmutableArray();
         token.ThrowIfCancellationRequested();
+
+        // Get the nullability info for the property
+        fieldSymbol.GetNullabilityInfo(
+        context.SemanticModel,
+        out var isReferenceTypeOrUnconstraindTypeParameter,
+        out var includeMemberNotNullOnSetAccessor);
+
+        token.ThrowIfCancellationRequested();
+        var attributes = forwardedAttributes.ToImmutable();
+        var forwardedPropertyAttributes = attributes.Select(static a => a.ToString()).ToImmutableArray();
 
         // Get the containing type info
         var targetInfo = TargetInfo.From(fieldSymbol.ContainingType);
 
-        token.ThrowIfCancellationRequested();
-
-        return new(
+        return new PropertyInfo(
             targetInfo.FileHintName,
             targetInfo.TargetName,
             targetInfo.TargetNamespace,
@@ -180,40 +171,24 @@ public sealed partial class ReactiveGenerator
             typeNameWithNullabilityAnnotations,
             fieldName,
             propertyName,
-            null,
+            initializer,
             isReferenceTypeOrUnconstraindTypeParameter,
             includeMemberNotNullOnSetAccessor,
-            forwardedAttributesString,
-            accessModifier);
+            forwardedPropertyAttributes,
+            isReadonly == false ? string.Empty : "readonly");
     }
 
-    /// <summary>
-    /// Generates the source code.
-    /// </summary>
-    /// <param name="containingTypeName">The contain type name.</param>
-    /// <param name="containingNamespace">The containing namespace.</param>
-    /// <param name="containingClassVisibility">The containing class visibility.</param>
-    /// <param name="containingType">The containing type.</param>
-    /// <param name="properties">The properties.</param>
-    /// <returns>The value.</returns>
     private static string GenerateSource(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, PropertyInfo[] properties)
     {
-        // Includes 2 tabs from the property declarations so no need to add them here.
         var propertyDeclarations = string.Join("\n\r", properties.Select(GetPropertySyntax));
 
-        return
-$$"""
+        return $$"""
 // <auto-generated/>
-using ReactiveUI;
-
 #pragma warning disable
 #nullable enable
-
 namespace {{containingNamespace}}
 {
-    /// <summary>
-    /// Partial class for the {{containingTypeName}} which contains ReactiveUI Reactive property initialization.
-    /// </summary>
+    /// <inheritdoc/>
     {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}}
     {
         [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
@@ -225,47 +200,55 @@ namespace {{containingNamespace}}
 """;
     }
 
-    /// <summary>
-    /// Generates property declarations for the given observable method information.
-    /// </summary>
-    /// <param name="propertyInfo">Metadata about the observable property.</param>
-    /// <returns>A string containing the generated code for the property.</returns>
     private static string GetPropertySyntax(PropertyInfo propertyInfo)
     {
-        if (propertyInfo.PropertyName is null)
-        {
-            return string.Empty;
-        }
-
-        var setModifier = propertyInfo.AccessModifier + " ";
-        if (setModifier == "public ")
-        {
-            setModifier = string.Empty;
-        }
-
         var propertyAttributes = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage.Concat(propertyInfo.ForwardedAttributes));
 
-        if (propertyInfo.IncludeMemberNotNullOnSetAccessor)
+        var getter = $$"""{ get => {{propertyInfo.FieldName}} = {{propertyInfo.FieldName}}Helper?.Value ?? {{propertyInfo.FieldName}}; }""";
+
+        // If the property is nullable, we need to add a null check to the getter
+        if (propertyInfo.TypeNameWithNullabilityAnnotations.EndsWith("?"))
         {
-            return
-$$"""
-        /// <inheritdoc cref="{{propertyInfo.FieldName}}"/>
-        {{propertyAttributes}}
-        {{propertyInfo.TargetVisibility}} {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}}
-        { 
-            get => {{propertyInfo.FieldName}};
-            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("{{propertyInfo.FieldName}}")]
-            {{setModifier}}set => this.RaiseAndSetIfChanged(ref {{propertyInfo.FieldName}}, value);
-        }
-""";
+            getter = $$"""{ get => {{propertyInfo.FieldName}} = ({{propertyInfo.FieldName}}Helper == null ? {{propertyInfo.FieldName}} : {{propertyInfo.FieldName}}Helper.Value); }""";
         }
 
-        return
-$$"""
+        var helperTypeName = $"private ReactiveUI.ObservableAsPropertyHelper<{propertyInfo.TypeNameWithNullabilityAnnotations}>?";
+
+        // If the property is readonly, we need to change the helper to be non-nullable
+        if (propertyInfo.AccessModifier == "readonly")
+        {
+            helperTypeName = $"private readonly ReactiveUI.ObservableAsPropertyHelper<{propertyInfo.TypeNameWithNullabilityAnnotations}>";
+        }
+
+        return $$"""
+        /// <inheritdoc cref="{{propertyInfo.FieldName}}Helper"/>
+        {{helperTypeName}} {{propertyInfo.FieldName}}Helper;
+
         /// <inheritdoc cref="{{propertyInfo.FieldName}}"/>
         {{propertyAttributes}}
-        {{propertyInfo.TargetVisibility}} {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} { get => {{propertyInfo.FieldName}}; {{setModifier}}set => this.RaiseAndSetIfChanged(ref {{propertyInfo.FieldName}}, value); }
+        public {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} {{getter}}
 """;
+    }
+
+    /// <summary>
+    /// Get the generated property name for an input field.
+    /// </summary>
+    /// <param name="fieldSymbol">The input <see cref="IFieldSymbol"/> instance to process.</param>
+    /// <returns>The generated property name for <paramref name="fieldSymbol"/>.</returns>
+    private static string GetGeneratedPropertyName(IFieldSymbol fieldSymbol)
+    {
+        var propertyName = fieldSymbol.Name;
+
+        if (propertyName.StartsWith("m_"))
+        {
+            propertyName = propertyName.Substring(2);
+        }
+        else if (propertyName.StartsWith("_"))
+        {
+            propertyName = propertyName.TrimStart('_');
+        }
+
+        return $"{char.ToUpper(propertyName[0], CultureInfo.InvariantCulture)}{propertyName.Substring(1)}";
     }
 
     /// <summary>
