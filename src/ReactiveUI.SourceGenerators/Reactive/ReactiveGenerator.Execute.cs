@@ -8,6 +8,8 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Models;
@@ -76,26 +78,93 @@ public sealed partial class ReactiveGenerator
         token.ThrowIfCancellationRequested();
 
         // Get the nullability info for the property
-        GetNullabilityInfo(
-            fieldSymbol,
-            context.SemanticModel,
-            out var isReferenceTypeOrUnconstraindTypeParameter,
-            out var includeMemberNotNullOnSetAccessor);
+        fieldSymbol.GetNullabilityInfo(
+        context.SemanticModel,
+        out var isReferenceTypeOrUnconstraindTypeParameter,
+        out var includeMemberNotNullOnSetAccessor);
 
-        // Get the attributes for the field
-        var attributes = fieldSymbol.GetAttributes()
-            .Where(x => x.AttributeClass?.HasFullyQualifiedMetadataName(AttributeDefinitions.ReactiveAttributeType) == false)
-            .ToImmutableArray();
-        PropertyAttributeData[] propertyAttributes = [];
-        if (attributes.Length > 0)
+        using var forwardedAttributes = ImmutableArrayBuilder<AttributeInfo>.Rent();
+
+        // Gather attributes info
+        foreach (var attribute in fieldSymbol.GetAttributes())
         {
-            // Generate attribute list for fields.
-            propertyAttributes = attributes.GenerateAttributes(
-                AttributeTargets.Property,
-                token);
+            token.ThrowIfCancellationRequested();
+
+            // Track the current attribute for forwarding if it is a validation attribute
+            if (attribute.AttributeClass?.InheritsFromFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.ValidationAttribute") == true)
+            {
+                forwardedAttributes.Add(AttributeInfo.Create(attribute));
+            }
+
+            // Track the current attribute for forwarding if it is a Json Serialization attribute
+            if (attributeData.AttributeClass?.InheritsFromFullyQualifiedMetadataName("System.Text.Json.Serialization.JsonAttribute") == true)
+            {
+                forwardedAttributes.Add(AttributeInfo.Create(attribute));
+            }
+
+            // Also track the current attribute for forwarding if it is of any of the following types:
+            if (attribute.AttributeClass?.HasOrInheritsFromFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.UIHintAttribute") == true ||
+                attribute.AttributeClass?.HasOrInheritsFromFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.ScaffoldColumnAttribute") == true ||
+                attribute.AttributeClass?.HasFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.DisplayAttribute") == true ||
+                attribute.AttributeClass?.HasFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.EditableAttribute") == true ||
+                attribute.AttributeClass?.HasFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.KeyAttribute") == true ||
+                attribute.AttributeClass?.HasFullyQualifiedMetadataName("System.Runtime.Serialization.DataMemberAttribute") == true ||
+                attribute.AttributeClass?.HasFullyQualifiedMetadataName("System.Runtime.Serialization.IgnoreDataMemberAttribute") == true)
+            {
+                forwardedAttributes.Add(AttributeInfo.Create(attribute));
+            }
         }
 
-        var forwardedAttributes = new ForwardAttributes(propertyAttributes);
+        token.ThrowIfCancellationRequested();
+        var fieldDeclaration = (FieldDeclarationSyntax)context.TargetNode.Parent!.Parent!;
+
+        // Gather explicit forwarded attributes info
+        foreach (var attributeList in fieldDeclaration.AttributeLists)
+        {
+            // Only look for attribute lists explicitly targeting the (generated) property. Roslyn will normally emit a
+            // CS0657 warning (invalid target), but that is automatically suppressed by a dedicated diagnostic suppressor
+            // that recognizes uses of this target specifically to support [Reactive].
+            if (attributeList.Target?.Identifier is not SyntaxToken(SyntaxKind.PropertyKeyword))
+            {
+                continue;
+            }
+
+            token.ThrowIfCancellationRequested();
+
+            foreach (var attribute in attributeList.Attributes)
+            {
+                // Roslyn ignores attributes in an attribute list with an invalid target, so we can't get the AttributeData as usual.
+                // To reconstruct all necessary attribute info to generate the serialized model, we use the following steps:
+                //   - We try to get the attribute symbol from the semantic model, for the current attribute syntax. In case this is not
+                //     available (in theory it shouldn't, but it can be), we try to get it from the candidate symbols list for the node.
+                //     If there are no candidates or more than one, we just issue a diagnostic and stop processing the current attribute.
+                //     The returned symbols might be method symbols (constructor attribute) so in that case we can get the declaring type.
+                //   - We then go over each attribute argument expression and get the operation for it. This will still be available even
+                //     though the rest of the attribute is not validated nor bound at all. From the operation we can still retrieve all
+                //     constant values to build the AttributeInfo model. After all, attributes only support constant values, typeof(T)
+                //     expressions, or arrays of either these two types, or of other arrays with the same rules, recursively.
+                //   - From the syntax, we can also determine the identifier names for named attribute arguments, if any.
+                // There is no need to validate anything here: the attribute will be forwarded as is, and then Roslyn will validate on the
+                // generated property. Users will get the same validation they'd have had directly over the field. The only drawback is the
+                // lack of IntelliSense when constructing attributes over the field, but this is the best we can do from this end anyway.
+                if (!context.SemanticModel.GetSymbolInfo(attribute, token).TryGetAttributeTypeSymbol(out var attributeTypeSymbol))
+                {
+                    continue;
+                }
+
+                var attributeArguments = attribute.ArgumentList?.Arguments ?? Enumerable.Empty<AttributeArgumentSyntax>();
+
+                // Try to extract the forwarded attribute
+                if (!AttributeInfo.TryCreate(attributeTypeSymbol, context.SemanticModel, attributeArguments, token, out var attributeInfo))
+                {
+                    continue;
+                }
+
+                forwardedAttributes.Add(attributeInfo);
+            }
+        }
+
+        var forwardedAttributesString = forwardedAttributes.ToImmutable().Select(x => x.ToString()).ToImmutableArray();
         token.ThrowIfCancellationRequested();
 
         // Get the containing type info
@@ -116,7 +185,7 @@ public sealed partial class ReactiveGenerator
             null,
             isReferenceTypeOrUnconstraindTypeParameter,
             includeMemberNotNullOnSetAccessor,
-            forwardedAttributes,
+            forwardedAttributesString,
             accessModifier);
     }
 
@@ -176,7 +245,7 @@ namespace {{containingNamespace}}
             setModifier = string.Empty;
         }
 
-        var propertyAttributes = string.Join("\n        ", excludeFromCodeCoverage.Concat(propertyInfo.ForwardedAttributes.Attributes.Select(x => x.FormatAttributes())));
+        var propertyAttributes = string.Join("\n        ", excludeFromCodeCoverage.Concat(propertyInfo.ForwardedAttributes));
 
         if (propertyInfo.IncludeMemberNotNullOnSetAccessor)
         {
@@ -213,47 +282,5 @@ $$"""
         var hasObservableObjectAttribute = fieldSymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName("ReactiveUI.SourceGenerators.ReactiveObjectAttribute");
 
         return isIObservableObject || isObservableObject || hasObservableObjectAttribute;
-    }
-
-    /// <summary>
-    /// Gets the nullability info on the generated property.
-    /// </summary>
-    /// <param name="fieldSymbol">The input <see cref="IFieldSymbol"/> instance to process.</param>
-    /// <param name="semanticModel">The <see cref="SemanticModel"/> instance for the current run.</param>
-    /// <param name="isReferenceTypeOrUnconstraindTypeParameter">Whether the property type supports nullability.</param>
-    /// <param name="includeMemberNotNullOnSetAccessor">Whether MemberNotNullAttribute should be used on the setter.</param>
-    private static void GetNullabilityInfo(
-        IFieldSymbol fieldSymbol,
-        SemanticModel semanticModel,
-        out bool isReferenceTypeOrUnconstraindTypeParameter,
-        out bool includeMemberNotNullOnSetAccessor)
-    {
-        // We're using IsValueType here and not IsReferenceType to also cover unconstrained type parameter cases.
-        // This will cover both reference types as well T when the constraints are not struct or unmanaged.
-        // If this is true, it means the field storage can potentially be in a null state (even if not annotated).
-        isReferenceTypeOrUnconstraindTypeParameter = !fieldSymbol.Type.IsValueType;
-
-        // This is used to avoid nullability warnings when setting the property from a constructor, in case the field
-        // was marked as not nullable. Nullability annotations are assumed to always be enabled to make the logic simpler.
-        // Consider this example:
-        //
-        // partial class MyViewModel : ReactiveObject
-        // {
-        //    public MyViewModel()
-        //    {
-        //        Name = "Bob";
-        //    }
-        //
-        //    [Reactive]
-        //    private string _name;
-        // }
-        //
-        // The [MemberNotNull] attribute is needed on the setter for the generated Name property so that when Name
-        // is set, the compiler can determine that the name backing field is also being set (to a non null value).
-        // Of course, this can only be the case if the field type is also of a type that could be in a null state.
-        includeMemberNotNullOnSetAccessor =
-            isReferenceTypeOrUnconstraindTypeParameter &&
-            fieldSymbol.Type.NullableAnnotation != NullableAnnotation.Annotated &&
-            semanticModel.Compilation.HasAccessibleTypeWithMetadataName("System.Diagnostics.CodeAnalysis.MemberNotNullAttribute");
     }
 }

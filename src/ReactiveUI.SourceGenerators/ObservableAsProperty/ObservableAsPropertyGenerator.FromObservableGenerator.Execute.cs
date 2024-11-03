@@ -6,11 +6,9 @@
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
-using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.ObservableAsProperty.Models;
 
@@ -21,7 +19,7 @@ namespace ReactiveUI.SourceGenerators;
 /// <summary>
 /// Observable As Property From Observable Generator.
 /// </summary>
-/// <seealso cref="Microsoft.CodeAnalysis.IIncrementalGenerator" />
+/// <seealso cref="IIncrementalGenerator" />
 public sealed partial class ObservableAsPropertyGenerator
 {
     internal static partial class Execute
@@ -118,165 +116,6 @@ public sealed partial class ObservableAsPropertyGenerator
                     AttributeList(SingletonSeparatedList(Attribute(IdentifierName(AttributeDefinitions.ExcludeFromCodeCoverage)))))
                 .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword)))
                 .WithBody(Block(propertyInitilisers.ToImmutable()));
-        }
-
-        internal static bool IsObservableReturnType(ITypeSymbol? typeSymbol)
-        {
-            var nameFormat = SymbolDisplayFormat.FullyQualifiedFormat;
-            do
-            {
-                var typeName = typeSymbol?.ToDisplayString(nameFormat);
-                if (typeName?.Contains("global::System.IObservable") == true)
-                {
-                    return true;
-                }
-
-                typeSymbol = typeSymbol?.BaseType;
-            }
-            while (typeSymbol != null);
-
-            return false;
-        }
-
-        /// <summary>
-        /// Gathers all forwarded attributes for the generated field and property.
-        /// </summary>
-        /// <param name="methodSymbol">The input <see cref="IMethodSymbol" /> instance to process.</param>
-        /// <param name="semanticModel">The <see cref="SemanticModel" /> instance for the current run.</param>
-        /// <param name="methodDeclaration">The method declaration.</param>
-        /// <param name="token">The cancellation token for the current operation.</param>
-        /// <param name="propertyAttributes">The resulting property attributes to forward.</param>
-        internal static void GatherForwardedAttributesFromMethod(
-            IMethodSymbol methodSymbol,
-            SemanticModel semanticModel,
-            MethodDeclarationSyntax methodDeclaration,
-            CancellationToken token,
-            out ImmutableArray<AttributeInfo> propertyAttributes)
-        {
-            using var propertyAttributesInfo = ImmutableArrayBuilder<AttributeInfo>.Rent();
-
-            static void GatherForwardedAttributesFromMethod(
-                IMethodSymbol methodSymbol,
-                SemanticModel semanticModel,
-                MethodDeclarationSyntax methodDeclaration,
-                CancellationToken token,
-                ImmutableArrayBuilder<AttributeInfo> propertyAttributesInfo)
-            {
-                // Get the single syntax reference for the input method symbol (there should be only one)
-                if (methodSymbol.DeclaringSyntaxReferences is not [SyntaxReference syntaxReference])
-                {
-                    return;
-                }
-
-                // Gather explicit forwarded attributes info
-                foreach (var attributeList in methodDeclaration.AttributeLists)
-                {
-                    if (attributeList.Target?.Identifier is not SyntaxToken(SyntaxKind.PropertyKeyword))
-                    {
-                        continue;
-                    }
-
-                    foreach (var attribute in attributeList.Attributes)
-                    {
-                        if (!semanticModel.GetSymbolInfo(attribute, token).TryGetAttributeTypeSymbol(out var attributeTypeSymbol))
-                        {
-                            continue;
-                        }
-
-                        var attributeArguments = attribute.ArgumentList?.Arguments ?? Enumerable.Empty<AttributeArgumentSyntax>();
-
-                        // Try to extract the forwarded attribute
-                        if (!AttributeInfo.TryCreate(attributeTypeSymbol, semanticModel, attributeArguments, token, out var attributeInfo))
-                        {
-                            continue;
-                        }
-
-                        // Add the new attribute info to the right builder
-                        if (attributeList.Target?.Identifier is SyntaxToken(SyntaxKind.PropertyKeyword))
-                        {
-                            propertyAttributesInfo.Add(attributeInfo);
-                        }
-                    }
-                }
-            }
-
-            // If the method is a partial definition, also gather attributes from the implementation part
-            if (methodSymbol is { IsPartialDefinition: true } or { PartialDefinitionPart: not null })
-            {
-                var partialDefinition = methodSymbol.PartialDefinitionPart ?? methodSymbol;
-                var partialImplementation = methodSymbol.PartialImplementationPart ?? methodSymbol;
-
-                // We always give priority to the partial definition, to ensure a predictable and testable ordering
-                GatherForwardedAttributesFromMethod(partialDefinition, semanticModel, methodDeclaration, token, propertyAttributesInfo);
-                GatherForwardedAttributesFromMethod(partialImplementation, semanticModel, methodDeclaration, token, propertyAttributesInfo);
-            }
-            else
-            {
-                // If the method is not a partial definition/implementation, just gather attributes from the method with no modifications
-                GatherForwardedAttributesFromMethod(methodSymbol, semanticModel, methodDeclaration, token, propertyAttributesInfo);
-            }
-
-            propertyAttributes = propertyAttributesInfo.ToImmutable();
-        }
-
-        internal static void GatherForwardedAttributesFromProperty(
-            IPropertySymbol methodSymbol,
-            SemanticModel semanticModel,
-            PropertyDeclarationSyntax methodDeclaration,
-            CancellationToken token,
-            out ImmutableArray<AttributeInfo> propertyAttributes)
-        {
-            using var propertyAttributesInfo = ImmutableArrayBuilder<AttributeInfo>.Rent();
-
-            static void GatherForwardedAttributesFromProperty(
-                IPropertySymbol methodSymbol,
-                SemanticModel semanticModel,
-                PropertyDeclarationSyntax methodDeclaration,
-                CancellationToken token,
-                ImmutableArrayBuilder<AttributeInfo> propertyAttributesInfo)
-            {
-                // Get the single syntax reference for the input method symbol (there should be only one)
-                if (methodSymbol.DeclaringSyntaxReferences is not [SyntaxReference syntaxReference])
-                {
-                    return;
-                }
-
-                // Gather explicit forwarded attributes info
-                foreach (var attributeList in methodDeclaration.AttributeLists)
-                {
-                    if (attributeList.Target?.Identifier is not SyntaxToken(SyntaxKind.PropertyKeyword))
-                    {
-                        continue;
-                    }
-
-                    foreach (var attribute in attributeList.Attributes)
-                    {
-                        if (!semanticModel.GetSymbolInfo(attribute, token).TryGetAttributeTypeSymbol(out var attributeTypeSymbol))
-                        {
-                            continue;
-                        }
-
-                        var attributeArguments = attribute.ArgumentList?.Arguments ?? Enumerable.Empty<AttributeArgumentSyntax>();
-
-                        // Try to extract the forwarded attribute
-                        if (!AttributeInfo.TryCreate(attributeTypeSymbol, semanticModel, attributeArguments, token, out var attributeInfo))
-                        {
-                            continue;
-                        }
-
-                        // Add the new attribute info to the right builder
-                        if (attributeList.Target?.Identifier is SyntaxToken(SyntaxKind.PropertyKeyword))
-                        {
-                            propertyAttributesInfo.Add(attributeInfo);
-                        }
-                    }
-                }
-            }
-
-            // If the method is not a partial definition/implementation, just gather attributes from the method with no modifications
-            GatherForwardedAttributesFromProperty(methodSymbol, semanticModel, methodDeclaration, token, propertyAttributesInfo);
-
-            propertyAttributes = propertyAttributesInfo.ToImmutable();
         }
 
         internal static string GetGeneratedFieldName(ObservableMethodInfo propertyInfo)

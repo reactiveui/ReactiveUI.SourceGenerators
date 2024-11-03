@@ -3,6 +3,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -54,10 +55,10 @@ public class PropertyToReactiveFieldAnalyzer : DiagnosticAnalyzer
         var isAutoProperty = propertyDeclaration.ExpressionBody == null && (propertyDeclaration.AccessorList?.Accessors.All(a => a.Body == null && a.ExpressionBody == null) != false);
         var hasCorrectModifiers = propertyDeclaration.Modifiers.Any(SyntaxKind.PublicKeyword) && !propertyDeclaration.Modifiers.Any(SyntaxKind.StaticKeyword);
         var doesNotHavePrivateSetOrInternalSet = propertyDeclaration.AccessorList?.Accessors.Any(a => a.Modifiers.Any(SyntaxKind.PrivateKeyword) || a.Modifiers.Any(SyntaxKind.InternalKeyword)) == false;
-        var isNotReactiveCommand = !propertyDeclaration.Type.ToString().Contains("ReactiveCommand");
-        var isNotReactiveProperty = !propertyDeclaration.Type.ToString().Contains("ReactiveProperty");
+        var namesToIgnore = new List<string> { "ReactiveCommand", "ReactiveProperty", "ViewModelActivator" };
+        var isNotIgnored = !namesToIgnore.Any(n => propertyDeclaration.Type.ToString().Contains(n));
 
-        if (isAutoProperty && hasCorrectModifiers && doesNotHavePrivateSetOrInternalSet && isNotReactiveCommand && isNotReactiveProperty)
+        if (isAutoProperty && hasCorrectModifiers && doesNotHavePrivateSetOrInternalSet && isNotIgnored)
         {
             var diagnostic = Diagnostic.Create(PropertyToReactiveFieldRule, propertyDeclaration.GetLocation());
             context.ReportDiagnostic(diagnostic);

@@ -5,12 +5,10 @@
 
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
 
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
@@ -63,16 +61,15 @@ public sealed partial class ObservableAsPropertyGenerator
                             return default;
                         }
 
-                        var isObservable = Execute.IsObservableReturnType(methodSymbol.ReturnType);
+                        var isObservable = methodSymbol.ReturnType.IsObservableReturnType();
 
                         token.ThrowIfCancellationRequested();
 
-                        Execute.GatherForwardedAttributesFromMethod(
-                            methodSymbol,
-                            context.SemanticModel,
-                            methodSyntax,
-                            token,
-                            out var propertyAttributes);
+                        methodSymbol.GatherForwardedAttributesFromMethod(
+                        context.SemanticModel,
+                        methodSyntax,
+                        token,
+                        out var propertyAttributes);
 
                         token.ThrowIfCancellationRequested();
 
@@ -92,16 +89,15 @@ public sealed partial class ObservableAsPropertyGenerator
                     if (context.TargetNode is PropertyDeclarationSyntax propertySyntax)
                     {
                         var propertySymbol = (IPropertySymbol)symbol!;
-                        var isObservable = Execute.IsObservableReturnType(propertySymbol.Type);
+                        var isObservable = propertySymbol.Type.IsObservableReturnType();
 
                         token.ThrowIfCancellationRequested();
 
-                        Execute.GatherForwardedAttributesFromProperty(
-                            propertySymbol,
-                            context.SemanticModel,
-                            propertySyntax,
-                            token,
-                            out var propertyAttributes);
+                        propertySymbol.GatherForwardedAttributesFromProperty(
+                        context.SemanticModel,
+                        propertySyntax,
+                        token,
+                        out var propertyAttributes);
 
                         token.ThrowIfCancellationRequested();
 

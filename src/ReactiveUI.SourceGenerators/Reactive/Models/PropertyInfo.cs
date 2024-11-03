@@ -4,6 +4,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ReactiveUI.SourceGenerators.Helpers;
 
 namespace ReactiveUI.SourceGenerators.Reactive.Models;
 
@@ -20,8 +21,8 @@ internal sealed record PropertyInfo(
     string TypeNameWithNullabilityAnnotations,
     string FieldName,
     string PropertyName,
-    EqualsValueClauseSyntax? Initializer, // TODO: Remove Initializer when ObservableAsPropertyHelper is updated
+    string? Initializer, // TODO: Remove Initializer when ObservableAsPropertyHelper is updated
     bool IsReferenceTypeOrUnconstraindTypeParameter,
     bool IncludeMemberNotNullOnSetAccessor,
-    ForwardAttributes ForwardedAttributes,
+    EquatableArray<string> ForwardedAttributes,
     string AccessModifier);

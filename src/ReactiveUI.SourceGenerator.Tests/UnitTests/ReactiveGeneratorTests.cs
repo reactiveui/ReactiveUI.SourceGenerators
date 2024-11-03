@@ -94,7 +94,7 @@ public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase<Reactiv
 
                 public partial class TestVM : ReactiveObject
                 {
-                    [JsonInclude]
+                    [property: JsonInclude]
                     [DataMember]
                     [Reactive]
                     private int _test3 = 10;

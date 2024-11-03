@@ -9,6 +9,8 @@ These Source Generators were designed to work in full with ReactiveUI V19.5.31 a
 - [ReactiveCommand(CanExecute = nameof(IObservableBoolName))] with CanExecute
 - [ReactiveCommand][property: AttribueToAddToCommand] with Attribute passthrough
 - [IViewFor(nameof(ViewModelName))]
+- [RoutedControlHost("YourNameSpace.CustomControl")]
+- [ViewModelControlHost("YourNameSpace.CustomControl")]
 
 Versions older than V19.5.31 to this: 
 - [ReactiveCommand] all options supported except Cancellation Token asnyc methods.
@@ -80,6 +82,18 @@ using ReactiveUI.SourceGenerators;
 public partial class MyReactiveClass : ReactiveObject
 {
     [Reactive(SetModifier = AccessModifier.Protected)]
+    private string _myProperty;
+}
+```
+
+### Usage Reactive property with property Attribute pass through
+```csharp
+using ReactiveUI.SourceGenerators;
+
+public partial class MyReactiveClass : ReactiveObject
+{
+    [Reactive]
+    [property: JsonIgnore]
     private string _myProperty;
 }
 ```

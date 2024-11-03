@@ -15,8 +15,8 @@ namespace TestNs
         [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveGenerator", "1.1.0.0")]
         /// <inheritdoc cref="_test3"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        [System.Text.Json.Serialization.JsonInclude]
-        [System.Runtime.Serialization.DataMember]
+        [global::System.Runtime.Serialization.DataMemberAttribute()]
+        [global::System.Text.Json.Serialization.JsonIncludeAttribute()]
         public int Test3
         { 
             get => _test3;
