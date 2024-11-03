@@ -189,7 +189,7 @@ namespace {{containingNamespace}}
     /// Partial class for the {{containingTypeName}} which contains ReactiveUI IViewFor initialization.
     /// </summary>
     {{forwardedAttributesString}}
-    partial class {{containingTypeName}} : IViewFor<{{iviewForInfo.ViewModelTypeName}}>
+    {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}} : IViewFor<{{iviewForInfo.ViewModelTypeName}}>
     {
         /// <inheritdoc/>
         [Category("ReactiveUI")]
@@ -223,7 +223,7 @@ namespace {{containingNamespace}}
     /// Partial class for the {{containingTypeName}} which contains ReactiveUI IViewFor initialization.
     /// </summary>
     {{forwardedAttributesString}}
-    public partial class {{containingTypeName}} : IViewFor<{{iviewForInfo.ViewModelTypeName}}>
+    {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}} : IViewFor<{{iviewForInfo.ViewModelTypeName}}>
     {
         /// <summary>
         /// The view model dependency property.
@@ -282,7 +282,7 @@ namespace {{containingNamespace}}
     /// Partial class for the {{containingTypeName}} which contains ReactiveUI IViewFor initialization.
     /// </summary>
     {{forwardedAttributesString}}
-    public partial class {{containingTypeName}} : IViewFor<{{iviewForInfo.ViewModelTypeName}}>
+    {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}} : IViewFor<{{iviewForInfo.ViewModelTypeName}}>
     {
         public static readonly BindableProperty ViewModelProperty = BindableProperty.Create(nameof(ViewModel), typeof({{iviewForInfo.ViewModelTypeName}}), typeof(IViewFor<{{iviewForInfo.ViewModelTypeName}}>), default({{iviewForInfo.ViewModelTypeName}}), BindingMode.OneWay, propertyChanged: OnViewModelChanged);
 

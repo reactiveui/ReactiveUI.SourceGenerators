@@ -18,13 +18,16 @@ namespace ReactiveUI.SourceGenerators;
 [Generator(LanguageNames.CSharp)]
 public sealed partial class ObservableAsPropertyGenerator : IIncrementalGenerator
 {
+    internal static readonly string GeneratorName = typeof(ObservableAsPropertyGenerator).FullName!;
+    internal static readonly string GeneratorVersion = typeof(ObservableAsPropertyGenerator).Assembly.GetName().Version.ToString();
+
     /// <inheritdoc/>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(ctx =>
             ctx.AddSource($"{AttributeDefinitions.ObservableAsPropertyAttributeType}.g.cs", SourceText.From(AttributeDefinitions.ObservableAsPropertyAttribute, Encoding.UTF8)));
 
-        RunObservablePropertyAsFromObservable(context);
-        RunObservableAsPropertyGenerator(context);
+        RunObservableAsPropertyFromObservable(context);
+        RunObservableAsPropertyFromField(context);
     }
 }

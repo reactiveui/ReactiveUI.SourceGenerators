@@ -12,10 +12,11 @@ namespace ReactiveUI.SourceGenerators.Helpers;
 internal static class AttributeDefinitions
 {
     public const string GeneratedCode = "global::System.CodeDom.Compiler.GeneratedCode";
-    public const string ExcludeFromCodeCoverage = "global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage";
     public const string Obsolete = "global::System.Obsolete";
 
     public const string AccessModifierType = "ReactiveUI.SourceGenerators.AccessModifier";
+    public static string[] ExcludeFromCodeCoverage = ["[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]"];
+    public static string ExcludeFromCodeCoverageString = "global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage";
 
     public static string GetAccessModifierEnum() => $$"""
         // Copyright (c) {{DateTime.Now.Year}} .NET Foundation and Contributors. All rights reserved.

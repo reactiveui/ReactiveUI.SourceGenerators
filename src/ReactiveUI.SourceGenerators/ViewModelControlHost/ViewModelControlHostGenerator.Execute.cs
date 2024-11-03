@@ -26,8 +26,6 @@ public partial class ViewModelControlHostGenerator
     private static readonly string GeneratorName = typeof(ViewModelControlHostGenerator).FullName!;
     private static readonly string GeneratorVersion = typeof(ViewModelControlHostGenerator).Assembly.GetName().Version.ToString();
 
-    private static readonly string[] excludeFromCodeCoverage = ["[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]"];
-
     private static ViewModelControlHostInfo? GetClassInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
         if (!(context.TargetNode is ClassDeclarationSyntax declaredClass && declaredClass.Modifiers.Any(SyntaxKind.PartialKeyword)))
@@ -79,7 +77,7 @@ public partial class ViewModelControlHostGenerator
     private static string GetViewModelControlHost(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, ViewModelControlHostInfo vmcInfo)
     {
         // Prepare any forwarded property attributes
-        var forwardedAttributesString = string.Join("\n        ", excludeFromCodeCoverage.Concat(vmcInfo.ForwardedAttributes));
+        var forwardedAttributesString = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage.Concat(vmcInfo.ForwardedAttributes));
 
         return
 $$"""
@@ -101,7 +99,7 @@ namespace {{containingNamespace}}
     {{forwardedAttributesString}}
     [DefaultProperty("ViewModel")]
     [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
-    public partial class {{containingTypeName}} : {{vmcInfo.ViewModelTypeName}}, IReactiveObject, IViewFor
+    {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}} : {{vmcInfo.ViewModelTypeName}}, IReactiveObject, IViewFor
     {
         private readonly CompositeDisposable _disposables = [];
         private Control? _defaultContent;

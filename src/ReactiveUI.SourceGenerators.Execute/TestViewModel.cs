@@ -35,6 +35,9 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     [ObservableAsProperty(ReadOnly = false)]
     private double? _test11Property = 11.1d;
 
+    [ObservableAsProperty(ReadOnly = false)]
+    private double _test13Property = 11.1d;
+
     [property: Test(AParameter = "Test Input")]
     [Reactive]
     private double? _test12Property = 12.1d;
@@ -137,6 +140,10 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
         Console.Out.WriteLine(MyReadOnlyNonNullProperty);
         Console.Out.WriteLine(_myReadOnlyNonNullProperty);
         _testNonNullSubject.OnNext(default);
+
+        Console.Out.WriteLine(_test13Property);
+        Console.Out.WriteLine(Test13Property);
+        Console.Out.WriteLine(_test13PropertyHelper);
 
         // expected value 0 as the _testNonNullSubject has been updated.
         Console.Out.WriteLine(MyReadOnlyNonNullProperty);
