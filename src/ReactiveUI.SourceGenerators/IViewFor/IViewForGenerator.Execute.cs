@@ -112,7 +112,7 @@ public partial class IViewForGenerator
     private static string GenerateSource(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, IViewForInfo iviewForInfo)
     {
         // Prepare any forwarded property attributes
-        var forwardedAttributesString = string.Join("\n\t\t", excludeFromCodeCoverage.Concat(iviewForInfo.ForwardedAttributes));
+        var forwardedAttributesString = string.Join("\n        ", excludeFromCodeCoverage.Concat(iviewForInfo.ForwardedAttributes));
 
         switch (iviewForInfo.BaseType)
         {

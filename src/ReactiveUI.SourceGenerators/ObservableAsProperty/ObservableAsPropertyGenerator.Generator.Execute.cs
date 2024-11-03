@@ -75,23 +75,18 @@ public sealed partial class ObservableAsPropertyGenerator
                 getterArrowExpression = ArrowExpressionClause(ParseExpression($"{getterFieldIdentifierName} = {getterFieldIdentifierName}Helper?.Value ?? {getterFieldIdentifierName}"));
             }
 
-            ////// Prepare the forwarded attributes, if any
-            ////var forwardedAttributes =
-            ////    propertyInfo.ForwardedAttributes
-            ////    .Select(static a => AttributeList(SingletonSeparatedList(a.GetSyntax())))
-            ////    .ToImmutableArray();
+            // Prepare the forwarded attributes, if any
+            var forwardedAttributes =
+                propertyInfo.ForwardedAttributes
+                .Select(static a => AttributeList(SingletonSeparatedList(Attribute(ParseName(a.Substring(1, a.Length - 2))))))
+                .ToImmutableArray();
 
-            var modifiers = new List<SyntaxToken>();
-            var helperTypeName = $"ReactiveUI.ObservableAsPropertyHelper<{propertyType}>";
+            var modifiers = new List<SyntaxToken> { Token(SyntaxKind.PrivateKeyword) };
+            var helperTypeName = $"ReactiveUI.ObservableAsPropertyHelper<{propertyType}>?";
             if (propertyInfo.AccessModifier == "readonly")
             {
-                modifiers.Add(Token(SyntaxKind.PrivateKeyword));
+                helperTypeName = $"ReactiveUI.ObservableAsPropertyHelper<{propertyType}>";
                 modifiers.Add(Token(SyntaxKind.ReadOnlyKeyword));
-            }
-            else
-            {
-                helperTypeName = $"ReactiveUI.ObservableAsPropertyHelper<{propertyType}>?";
-                modifiers.Add(Token(SyntaxKind.PrivateKeyword));
             }
 
             // Construct the generated property as follows:
@@ -125,7 +120,7 @@ public sealed partial class ObservableAsPropertyGenerator
                                     AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).Assembly.GetName().Version.ToString()))))))
                             .WithOpenBracketToken(Token(TriviaList(Comment($"/// <inheritdoc cref=\"{getterFieldIdentifierName}\"/>")), SyntaxKind.OpenBracketToken, TriviaList())),
                             AttributeList(SingletonSeparatedList(Attribute(IdentifierName(AttributeDefinitions.ExcludeFromCodeCoverage)))))
-                        ////.AddAttributeLists([.. forwardedAttributes])
+                        .AddAttributeLists([.. forwardedAttributes])
                         .AddModifiers(Token(SyntaxKind.PublicKeyword))
                         .AddAccessorListAccessors(
                             AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
@@ -163,7 +158,7 @@ public sealed partial class ObservableAsPropertyGenerator
             var typeNameWithNullabilityAnnotations = fieldSymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations();
             var fieldName = fieldSymbol.Name;
             var propertyName = GetGeneratedPropertyName(fieldSymbol);
-            var initializer = fieldSyntax.Declaration.Variables.FirstOrDefault()?.Initializer;
+            var initializer = fieldSyntax.Declaration.Variables.FirstOrDefault()?.Initializer?.ToFullString();
 
             // Check for name collisions
             if (fieldName == propertyName)
@@ -280,29 +275,32 @@ public sealed partial class ObservableAsPropertyGenerator
             token.ThrowIfCancellationRequested();
 
             // Get the nullability info for the property
-            GetNullabilityInfo(
-                fieldSymbol,
-                semanticModel,
-                out var isReferenceTypeOrUnconstraindTypeParameter,
-                out var includeMemberNotNullOnSetAccessor);
+            fieldSymbol.GetNullabilityInfo(
+            semanticModel,
+            out var isReferenceTypeOrUnconstraindTypeParameter,
+            out var includeMemberNotNullOnSetAccessor);
 
             token.ThrowIfCancellationRequested();
-            PropertyAttributeData[] pd = [new(string.Empty, string.Empty)];
+            var attributes = forwardedAttributes.ToImmutable();
+            var forwardedPropertyAttributes = attributes.Select(static a => a.ToString()).ToImmutableArray();
+
+            // Get the containing type info
+            var targetInfo = TargetInfo.From(fieldSymbol.ContainingType);
 
             propertyInfo = new PropertyInfo(
-                string.Empty,
-                string.Empty,
-                string.Empty,
-                string.Empty,
-                string.Empty,
-                string.Empty,
+                targetInfo.FileHintName,
+                targetInfo.TargetName,
+                targetInfo.TargetNamespace,
+                targetInfo.TargetNamespaceWithNamespace,
+                targetInfo.TargetVisibility,
+                targetInfo.TargetType,
                 typeNameWithNullabilityAnnotations,
                 fieldName,
                 propertyName,
                 initializer,
                 isReferenceTypeOrUnconstraindTypeParameter,
                 includeMemberNotNullOnSetAccessor,
-                new(pd),
+                forwardedPropertyAttributes,
                 isReadonly == false ? string.Empty : "readonly");
 
             diagnostics = builder.ToImmutable();
@@ -322,48 +320,6 @@ public sealed partial class ObservableAsPropertyGenerator
             var hasObservableObjectAttribute = fieldSymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName("ReactiveUI.SourceGenerators.ReactiveObjectAttribute");
 
             return isIObservableObject || isObservableObject || hasObservableObjectAttribute;
-        }
-
-        /// <summary>
-        /// Gets the nullability info on the generated property.
-        /// </summary>
-        /// <param name="fieldSymbol">The input <see cref="IFieldSymbol"/> instance to process.</param>
-        /// <param name="semanticModel">The <see cref="SemanticModel"/> instance for the current run.</param>
-        /// <param name="isReferenceTypeOrUnconstraindTypeParameter">Whether the property type supports nullability.</param>
-        /// <param name="includeMemberNotNullOnSetAccessor">Whether MemberNotNullAttribute should be used on the setter.</param>
-        private static void GetNullabilityInfo(
-            IFieldSymbol fieldSymbol,
-            SemanticModel semanticModel,
-            out bool isReferenceTypeOrUnconstraindTypeParameter,
-            out bool includeMemberNotNullOnSetAccessor)
-        {
-            // We're using IsValueType here and not IsReferenceType to also cover unconstrained type parameter cases.
-            // This will cover both reference types as well T when the constraints are not struct or unmanaged.
-            // If this is true, it means the field storage can potentially be in a null state (even if not annotated).
-            isReferenceTypeOrUnconstraindTypeParameter = !fieldSymbol.Type.IsValueType;
-
-            // This is used to avoid nullability warnings when setting the property from a constructor, in case the field
-            // was marked as not nullable. Nullability annotations are assumed to always be enabled to make the logic simpler.
-            // Consider this example:
-            //
-            // partial class MyViewModel : ReactiveObject
-            // {
-            //    public MyViewModel()
-            //    {
-            //        Name = "Bob";
-            //    }
-            //
-            //    [ObservableAsProperty]
-            //    private string name;
-            // }
-            //
-            // The [MemberNotNull] attribute is needed on the setter for the generated Name property so that when Name
-            // is set, the compiler can determine that the name backing field is also being set (to a non null value).
-            // Of course, this can only be the case if the field type is also of a type that could be in a null state.
-            includeMemberNotNullOnSetAccessor =
-                isReferenceTypeOrUnconstraindTypeParameter &&
-                fieldSymbol.Type.NullableAnnotation != NullableAnnotation.Annotated &&
-                semanticModel.Compilation.HasAccessibleTypeWithMetadataName("System.Diagnostics.CodeAnalysis.MemberNotNullAttribute");
         }
 
         /// <summary>

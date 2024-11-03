@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using ReactiveUI.SourceGenerators.Extensions;
 using static ReactiveUI.SourceGenerators.Diagnostics.DiagnosticDescriptors;
@@ -51,7 +50,7 @@ public sealed class UnsupportedCSharpLanguageVersionAnalyzer : DiagnosticAnalyze
         context.RegisterCompilationStartAction(static context =>
         {
             // Check that the language version is not high enough, otherwise no diagnostic should ever be produced
-            if (context.Compilation.HasLanguageVersionAtLeastEqualTo(LanguageVersion.CSharp9))
+            if (context.Compilation.HasLanguageVersionAtLeastEqualTo(1200))
             {
                 return;
             }

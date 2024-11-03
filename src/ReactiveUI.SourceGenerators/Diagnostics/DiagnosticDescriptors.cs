@@ -4,7 +4,6 @@
 // See the LICENSE file in the project root for full license information.
 
 using Microsoft.CodeAnalysis;
-using ReactiveUI.SourceGenerators.CodeAnalyzers;
 
 #pragma warning disable IDE0090 // Use 'new DiagnosticDescriptor(...)'
 
@@ -20,12 +19,12 @@ internal static class DiagnosticDescriptors
     /// </summary>
     public static readonly DiagnosticDescriptor UnsupportedCSharpLanguageVersionError = new DiagnosticDescriptor(
         id: "RXUISG0001",
-        title: "Unsupported C# language version",
-        messageFormat: "The source generator features from ReactiveUI require consuming projects to set the C# language version to at least C# 9.0",
+        title: "Unsupported C# language version (< 12.0)",
+        messageFormat: "The source generator features from ReactiveUI require consuming projects to set the C# language version to at least C# 12.0",
         category: typeof(UnsupportedCSharpLanguageVersionAnalyzer).FullName,
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
-        description: "The source generator features from ReactiveUI require consuming projects to set the C# language version to at least C# 9.0. Make sure to add <LangVersion>9.0</LangVersion> (or above) to your .csproj file.",
+        description: "The source generator features from ReactiveUI require consuming projects to set the C# language version to at least C# 12.0. Make sure to add <LangVersion>12.0</LangVersion> (or above) to your .csproj file.",
         helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>
@@ -38,7 +37,7 @@ internal static class DiagnosticDescriptors
         id: "RXUISG0002",
         title: "Invalid ReactiveCommand method signature",
         messageFormat: "The method {0}.{1} cannot be used to generate a command property, as its signature isn't compatible with any of the existing reactive command types",
-        category: typeof(ReactiveCommandGenerator).FullName,
+        category: "ReactiveUI.SourceGenerators.ReactiveCommandGenerator",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "Cannot apply [ReactiveCommand] to methods with a signature that doesn't match any of the existing reactive command types.",
@@ -54,7 +53,7 @@ internal static class DiagnosticDescriptors
         id: "RXUISG0003",
         title: "Invalid ReactiveCommand.CanExecute member name",
         messageFormat: "The CanExecute name must refer to a valid member, but \"{0}\" has no matches in type {1}",
-        category: typeof(ReactiveCommandGenerator).FullName,
+        category: "ReactiveUI.SourceGenerators.ReactiveCommandGenerator",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "The CanExecute name in [ReactiveCommand] must refer to a valid member in its parent type.",
@@ -70,7 +69,7 @@ internal static class DiagnosticDescriptors
         id: "RXUISG0004",
         title: "Multiple ReactiveCommand.CanExecute member name matches",
         messageFormat: "The CanExecute name must refer to a single member, but \"{0}\" has multiple matches in type {1}",
-        category: typeof(ReactiveCommandGenerator).FullName,
+        category: "ReactiveUI.SourceGenerators.ReactiveCommandGenerator",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "Cannot set the CanExecute name in [ReactiveCommand] to one that has multiple matches in its parent type (it must refer to a single compatible member).",
@@ -86,7 +85,7 @@ internal static class DiagnosticDescriptors
         id: "RXUISG0005",
         title: "No valid ReactiveCommand.CanExecute member match",
         messageFormat: "The CanExecute name must refer to a compatible member, but no valid members were found for \"{0}\" in type {1}",
-        category: typeof(ReactiveCommandGenerator).FullName,
+        category: "ReactiveUI.SourceGenerators.ReactiveCommandGenerator",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "The CanExecute name in [ReactiveCommand] must refer to a compatible member (either a property or a method) to be used in a generated command.",
@@ -102,7 +101,7 @@ internal static class DiagnosticDescriptors
         id: "RXUISG0006",
         title: "Invalid field or property targeted attribute type",
         messageFormat: "The method {0} annotated with [ReactiveCommand] is using attribute \"{1}\" which was not recognized as a valid type (are you missing a using directive?)",
-        category: typeof(ReactiveCommandGenerator).FullName,
+        category: "ReactiveUI.SourceGenerators.ReactiveCommandGenerator",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "All attributes targeting the generated field or property for a method annotated with [ReactiveCommand] must correctly be resolved to valid types.",
@@ -118,7 +117,7 @@ internal static class DiagnosticDescriptors
         id: "RXUISG0007",
         title: "Invalid field or property targeted attribute expression",
         messageFormat: "The method {0} annotated with [ReactiveCommand] is using attribute \"{1}\" with an invalid expression (are you passing any incorrect parameters to the attribute constructor?)",
-        category: typeof(ReactiveCommandGenerator).FullName,
+        category: "ReactiveUI.SourceGenerators.ReactiveCommandGenerator",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "All attributes targeting the generated field or property for a method annotated with [ReactiveCommand] must be using valid expressions.",
@@ -150,7 +149,7 @@ internal static class DiagnosticDescriptors
         id: "RXUISG0009",
         title: "Name collision for generated property",
         messageFormat: "The field {0}.{1} cannot be used to generate an reactive property, as its name would collide with the field name (instance fields should use the \"lowerCamel\", \"_lowerCamel\" or \"m_lowerCamel\" pattern)",
-        category: typeof(ReactiveGenerator).FullName,
+        category: "ReactiveUI.SourceGenerators.ReactiveGenerator",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "The name of fields annotated with [Reactive] should use \"lowerCamel\", \"_lowerCamel\" or \"m_lowerCamel\" pattern to avoid collisions with the generated properties.",
@@ -166,7 +165,7 @@ internal static class DiagnosticDescriptors
         id: "RXUISG0010",
         title: "Invalid property targeted attribute type",
         messageFormat: "The field {0} annotated with [Reactive] is using attribute \"{1}\" which was not recognized as a valid type (are you missing a using directive?)",
-        category: typeof(ReactiveGenerator).FullName,
+        category: "ReactiveUI.SourceGenerators.ReactiveGenerator",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "All attributes targeting the generated property for a field annotated with [Reactive] must correctly be resolved to valid types.",
@@ -182,7 +181,7 @@ internal static class DiagnosticDescriptors
         id: "RXUISG0011",
         title: "Invalid property targeted attribute expression",
         messageFormat: "The field {0} annotated with [Reactive] is using attribute \"{1}\" with an invalid expression (are you passing any incorrect parameters to the attribute constructor?)",
-        category: typeof(ReactiveGenerator).FullName,
+        category: "ReactiveUI.SourceGenerators.ReactiveGenerator",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "All attributes targeting the generated property for a field annotated with [Reactive] must be using valid expressions.",
@@ -198,7 +197,7 @@ internal static class DiagnosticDescriptors
         id: "RXUISG0012",
         title: "Invalid property targeted attribute type",
         messageFormat: "The field {0} annotated with [ObservableAsProperty] is using attribute \"{1}\" which was not recognized as a valid type (are you missing a using directive?)",
-        category: typeof(ObservableAsPropertyGenerator).FullName,
+        category: "ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "All attributes targeting the generated property for a field annotated with [ObservableAsProperty] must correctly be resolved to valid types.",
@@ -214,7 +213,7 @@ internal static class DiagnosticDescriptors
         id: "RXUISG0013",
         title: "Invalid property targeted attribute expression",
         messageFormat: "The field {0} annotated with [ObservableAsProperty] is using attribute \"{1}\" with an invalid expression (are you passing any incorrect parameters to the attribute constructor?)",
-        category: typeof(ObservableAsPropertyGenerator).FullName,
+        category: "ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "All attributes targeting the generated property for a field annotated with [ObservableAsProperty] must be using valid expressions.",
@@ -230,7 +229,7 @@ internal static class DiagnosticDescriptors
         id: "RXUISG0014",
         title: "Invalid generated property declaration",
         messageFormat: "The field {0}.{1} cannot be used to generate an observable As property, as its name or type would cause conflicts with other generated members",
-        category: typeof(ObservableAsPropertyGenerator).FullName,
+        category: "ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "The fields annotated with [ObservableAsProperty] cannot result in a property name or have a type that would cause conflicts with other generated members.",
@@ -246,23 +245,10 @@ internal static class DiagnosticDescriptors
         id: "RXUISG0015",
         title: "Invalid generated property declaration",
         messageFormat: "The field {0}.{1} cannot be used to generate an reactive property, as its name or type would cause conflicts with other generated members",
-        category: typeof(ReactiveGenerator).FullName,
+        category: "ReactiveUI.SourceGenerators.ReactiveGenerator",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "The fields annotated with [Reactive] cannot result in a property name or have a type that would cause conflicts with other generated members.",
-        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
-
-    /// <summary>
-    /// The property to field rule.
-    /// </summary>
-    public static readonly DiagnosticDescriptor PropertyToReactiveFieldRule = new(
-        id: "RXUISG0016",
-        title: "Property To Reactive Field, change to [Reactive] private type _fieldName;",
-        messageFormat: "Replace the property with a INPC Reactive Property for ReactiveUI",
-        category: typeof(PropertyToReactiveFieldAnalyzer).FullName,
-        defaultSeverity: DiagnosticSeverity.Info,
-        isEnabledByDefault: true,
-        description: "Used to create a Read Write INPC Reactive Property for ReactiveUI, annotated with [Reactive].",
         helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>
@@ -272,7 +258,7 @@ internal static class DiagnosticDescriptors
         id: "RXUISG0017",
         title: "Invalid generated property declaration",
         messageFormat: "The method {0} cannot be used to generate an observable As property, as it has parameters",
-        category: typeof(ObservableAsPropertyGenerator).FullName,
+        category: "ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "The method annotated with [ObservableAsProperty] cannot currently initialize methods with parameters.",

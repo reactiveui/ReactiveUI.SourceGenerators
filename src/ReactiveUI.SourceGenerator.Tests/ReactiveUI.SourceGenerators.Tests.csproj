@@ -26,10 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ReactiveUI.SourceGenerators\ReactiveUI.SourceGenerators.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 
@@ -38,6 +34,10 @@
     <Folder Include="OAPH\" />
     <Folder Include="REACTIVECMD\" />
     <Folder Include="REACTIVE\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ReactiveUI.SourceGenerators\ReactiveUI.SourceGenerators.csproj" />
   </ItemGroup>
 
 </Project>

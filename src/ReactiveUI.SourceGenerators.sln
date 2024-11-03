@@ -22,6 +22,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveUI.SourceGenerators
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveUI.SourceGenerators.Tests", "ReactiveUI.SourceGenerator.Tests\ReactiveUI.SourceGenerators.Tests.csproj", "{60C7C031-8765-46D7-8E0D-88CD4949F25B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestLibs", "TestLibs", "{B86ED9C1-AFFB-4854-AD80-F4B4050CAD0A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveUI.CodeFixes", "ReactiveUI.SourceGenerators.CodeFixers\ReactiveUI.CodeFixes.csproj", "{C89EE66E-E1DC-4A31-9322-20D95CB0D74D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,9 +48,17 @@ Global
 		{60C7C031-8765-46D7-8E0D-88CD4949F25B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60C7C031-8765-46D7-8E0D-88CD4949F25B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{60C7C031-8765-46D7-8E0D-88CD4949F25B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C89EE66E-E1DC-4A31-9322-20D95CB0D74D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C89EE66E-E1DC-4A31-9322-20D95CB0D74D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C89EE66E-E1DC-4A31-9322-20D95CB0D74D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C89EE66E-E1DC-4A31-9322-20D95CB0D74D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{76D5AC8C-4935-3E4B-BD12-71FAEC2B9A9D} = {B86ED9C1-AFFB-4854-AD80-F4B4050CAD0A}
+		{849CACF4-B85F-47B5-84B3-7C94DE864E7E} = {B86ED9C1-AFFB-4854-AD80-F4B4050CAD0A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {173F891B-86A2-4226-B563-A7318CE0E2EC}

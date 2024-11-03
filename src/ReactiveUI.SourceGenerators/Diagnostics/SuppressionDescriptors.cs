@@ -28,4 +28,9 @@ internal static class SuppressionDescriptors
         id: "RXUISPR0004",
         suppressedDiagnosticId: "RCS1169",
         justification: "Fields using [Reactive] do not need to be ReadOnly");
+
+    public static readonly SuppressionDescriptor FieldOrPropertyAttributeListForReactiveProperty = new(
+        id: "RXUISPR0005",
+        suppressedDiagnosticId: "CS0657",
+        justification: "Fields using [Reactive] can use [property:] attribute lists to forward attributes to the generated properties");
 }

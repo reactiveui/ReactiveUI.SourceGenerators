@@ -17,9 +17,9 @@ namespace SGReactiveUI.SourceGenerators.Test;
 /// <summary>
 /// TestClass.
 /// </summary>
-/// <seealso cref="ReactiveUI.ReactiveObject" />
-/// <seealso cref="ReactiveUI.IActivatableViewModel" />
-/// <seealso cref="System.IDisposable" />
+/// <seealso cref="ReactiveObject" />
+/// <seealso cref="IActivatableViewModel" />
+/// <seealso cref="IDisposable" />
 [DataContract]
 public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDisposable
 {
@@ -35,11 +35,12 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     [ObservableAsProperty(ReadOnly = false)]
     private double? _test11Property = 11.1d;
 
+    [property: Test(AParameter = "Test Input")]
     [Reactive]
     private double? _test12Property = 12.1d;
 
-    [JsonInclude]
     [Reactive(SetModifier = AccessModifier.Protected)]
+    [property: JsonInclude]
     [DataMember]
     private int _test1Property;
     private bool _disposedValue;
