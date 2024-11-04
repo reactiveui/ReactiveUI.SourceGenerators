@@ -83,7 +83,7 @@ public partial class ReactiveCommandGenerator
         token.ThrowIfCancellationRequested();
 
         var methodSyntax = (MethodDeclarationSyntax)context.TargetNode;
-        GatherForwardedAttributes(methodSymbol, context.SemanticModel, methodSyntax, token, out var attributes);
+        methodSymbol.GatherForwardedAttributesFromMethod(context.SemanticModel, methodSyntax, token, out var attributes);
         var forwardedPropertyAttributes = attributes.Select(static a => a.ToString()).ToImmutableArray();
         token.ThrowIfCancellationRequested();
 
@@ -92,7 +92,7 @@ public partial class ReactiveCommandGenerator
 
         token.ThrowIfCancellationRequested();
 
-        return new CommandInfo(
+        return new(
             targetInfo.FileHintName,
             targetInfo.TargetName,
             targetInfo.TargetNamespace,
@@ -372,87 +372,6 @@ $$"""
         canExecuteTypeInfo = null;
 
         return false;
-    }
-
-    /// <summary>
-    /// Gathers all forwarded attributes for the generated field and property.
-    /// </summary>
-    /// <param name="methodSymbol">The input <see cref="IMethodSymbol" /> instance to process.</param>
-    /// <param name="semanticModel">The <see cref="SemanticModel" /> instance for the current run.</param>
-    /// <param name="methodDeclaration">The method declaration.</param>
-    /// <param name="token">The cancellation token for the current operation.</param>
-    /// <param name="propertyAttributes">The resulting property attributes to forward.</param>
-    private static void GatherForwardedAttributes(
-        IMethodSymbol methodSymbol,
-        SemanticModel semanticModel,
-        MethodDeclarationSyntax methodDeclaration,
-        CancellationToken token,
-        out ImmutableArray<AttributeInfo> propertyAttributes)
-    {
-        using var propertyAttributesInfo = ImmutableArrayBuilder<AttributeInfo>.Rent();
-
-        static void GatherForwardedAttributes(
-            IMethodSymbol methodSymbol,
-            SemanticModel semanticModel,
-            MethodDeclarationSyntax methodDeclaration,
-            CancellationToken token,
-            ImmutableArrayBuilder<AttributeInfo> propertyAttributesInfo)
-        {
-            // Get the single syntax reference for the input method symbol (there should be only one)
-            if (methodSymbol.DeclaringSyntaxReferences is not [SyntaxReference syntaxReference])
-            {
-                return;
-            }
-
-            // Gather explicit forwarded attributes info
-            foreach (var attributeList in methodDeclaration.AttributeLists)
-            {
-                if (attributeList.Target?.Identifier is not SyntaxToken(SyntaxKind.PropertyKeyword))
-                {
-                    continue;
-                }
-
-                foreach (var attribute in attributeList.Attributes)
-                {
-                    if (!semanticModel.GetSymbolInfo(attribute, token).TryGetAttributeTypeSymbol(out var attributeTypeSymbol))
-                    {
-                        continue;
-                    }
-
-                    var attributeArguments = attribute.ArgumentList?.Arguments ?? Enumerable.Empty<AttributeArgumentSyntax>();
-
-                    // Try to extract the forwarded attribute
-                    if (!AttributeInfo.TryCreate(attributeTypeSymbol, semanticModel, attributeArguments, token, out var attributeInfo))
-                    {
-                        continue;
-                    }
-
-                    // Add the new attribute info to the right builder
-                    if (attributeList.Target?.Identifier is SyntaxToken(SyntaxKind.PropertyKeyword))
-                    {
-                        propertyAttributesInfo.Add(attributeInfo);
-                    }
-                }
-            }
-        }
-
-        // If the method is a partial definition, also gather attributes from the implementation part
-        if (methodSymbol is { IsPartialDefinition: true } or { PartialDefinitionPart: not null })
-        {
-            var partialDefinition = methodSymbol.PartialDefinitionPart ?? methodSymbol;
-            var partialImplementation = methodSymbol.PartialImplementationPart ?? methodSymbol;
-
-            // We always give priority to the partial definition, to ensure a predictable and testable ordering
-            GatherForwardedAttributes(partialDefinition, semanticModel, methodDeclaration, token, propertyAttributesInfo);
-            GatherForwardedAttributes(partialImplementation, semanticModel, methodDeclaration, token, propertyAttributesInfo);
-        }
-        else
-        {
-            // If the method is not a partial definition/implementation, just gather attributes from the method with no modifications
-            GatherForwardedAttributes(methodSymbol, semanticModel, methodDeclaration, token, propertyAttributesInfo);
-        }
-
-        propertyAttributes = propertyAttributesInfo.ToImmutable();
     }
 
     private static string GetGeneratedCommandName(string methodName, bool isAsync)

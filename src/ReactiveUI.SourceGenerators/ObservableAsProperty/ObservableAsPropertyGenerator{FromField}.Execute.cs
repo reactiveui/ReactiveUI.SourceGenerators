@@ -161,7 +161,7 @@ public sealed partial class ObservableAsPropertyGenerator
         // Get the containing type info
         var targetInfo = TargetInfo.From(fieldSymbol.ContainingType);
 
-        return new PropertyInfo(
+        return new(
             targetInfo.FileHintName,
             targetInfo.TargetName,
             targetInfo.TargetNamespace,

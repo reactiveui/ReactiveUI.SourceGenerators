@@ -48,10 +48,10 @@ public sealed partial class ObservableAsPropertyGenerator
             token.ThrowIfCancellationRequested();
 
             methodSymbol.GatherForwardedAttributesFromMethod(
-            context.SemanticModel,
-            methodSyntax,
-            token,
-            out var attributes);
+                context.SemanticModel,
+                methodSyntax,
+                token,
+                out var attributes);
             var propertyAttributes = attributes.Select(x => x.ToString()).ToImmutableArray();
 
             token.ThrowIfCancellationRequested();
@@ -67,20 +67,20 @@ public sealed partial class ObservableAsPropertyGenerator
             // Get the containing type info
             var targetInfo = TargetInfo.From(methodSymbol.ContainingType);
 
-            return new ObservableMethodInfo(
-            targetInfo.FileHintName,
-            targetInfo.TargetName,
-            targetInfo.TargetNamespace,
-            targetInfo.TargetNamespaceWithNamespace,
-            targetInfo.TargetVisibility,
-            targetInfo.TargetType,
-            methodSymbol.Name,
-            methodSymbol.ReturnType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-            methodSymbol.Parameters.FirstOrDefault()?.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-            propertyName ?? (methodSymbol.Name + "Property"),
-            observableType,
-            false,
-            propertyAttributes);
+            return new(
+                targetInfo.FileHintName,
+                targetInfo.TargetName,
+                targetInfo.TargetNamespace,
+                targetInfo.TargetNamespaceWithNamespace,
+                targetInfo.TargetVisibility,
+                targetInfo.TargetType,
+                methodSymbol.Name,
+                methodSymbol.ReturnType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                methodSymbol.Parameters.FirstOrDefault()?.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                propertyName ?? (methodSymbol.Name + "Property"),
+                observableType,
+                false,
+                propertyAttributes);
         }
 
         if (context.TargetNode is PropertyDeclarationSyntax propertySyntax)
@@ -91,10 +91,10 @@ public sealed partial class ObservableAsPropertyGenerator
             token.ThrowIfCancellationRequested();
 
             propertySymbol.GatherForwardedAttributesFromProperty(
-            context.SemanticModel,
-            propertySyntax,
-            token,
-            out var attributes);
+                context.SemanticModel,
+                propertySyntax,
+                token,
+                out var attributes);
             var propertyAttributes = attributes.Select(x => x.ToString()).ToImmutableArray();
 
             token.ThrowIfCancellationRequested();
@@ -110,20 +110,20 @@ public sealed partial class ObservableAsPropertyGenerator
             // Get the containing type info
             var targetInfo = TargetInfo.From(propertySymbol.ContainingType);
 
-            return new ObservableMethodInfo(
-            targetInfo.FileHintName,
-            targetInfo.TargetName,
-            targetInfo.TargetNamespace,
-            targetInfo.TargetNamespaceWithNamespace,
-            targetInfo.TargetVisibility,
-            targetInfo.TargetType,
-            propertySymbol.Name,
-            propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-            propertySymbol.Parameters.FirstOrDefault()?.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-            propertyName ?? (propertySymbol.Name + "Property"),
-            observableType,
-            true,
-            propertyAttributes);
+            return new(
+                targetInfo.FileHintName,
+                targetInfo.TargetName,
+                targetInfo.TargetNamespace,
+                targetInfo.TargetNamespaceWithNamespace,
+                targetInfo.TargetVisibility,
+                targetInfo.TargetType,
+                propertySymbol.Name,
+                propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                propertySymbol.Parameters.FirstOrDefault()?.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                propertyName ?? (propertySymbol.Name + "Property"),
+                observableType,
+                true,
+                propertyAttributes);
         }
 
         return default;
