@@ -15,7 +15,6 @@ namespace ReactiveUI.SourceGenerators;
 /// ReactiveAttribute.
 /// </summary>
 /// <seealso cref="Attribute" />
-[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveGenerator", "2.0.0.0")]
 [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
 internal sealed class ReactiveAttribute : Attribute
 {

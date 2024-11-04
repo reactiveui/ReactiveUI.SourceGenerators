@@ -12,7 +12,6 @@ namespace TestNs
     /// </summary>
     public partial class TestVM
     {
-        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveGenerator", "2.0.0.0")]
         /// <inheritdoc cref="_test3"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         [global::System.Runtime.Serialization.DataMemberAttribute()]
