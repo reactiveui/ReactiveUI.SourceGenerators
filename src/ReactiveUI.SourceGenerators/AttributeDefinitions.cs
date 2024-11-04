@@ -16,7 +16,6 @@ internal static class AttributeDefinitions
 
     public const string AccessModifierType = "ReactiveUI.SourceGenerators.AccessModifier";
     public static string[] ExcludeFromCodeCoverage = ["[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]"];
-    public static string ExcludeFromCodeCoverageString = "global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage";
 
     public static string GetAccessModifierEnum() => $$"""
         // Copyright (c) {{DateTime.Now.Year}} .NET Foundation and Contributors. All rights reserved.

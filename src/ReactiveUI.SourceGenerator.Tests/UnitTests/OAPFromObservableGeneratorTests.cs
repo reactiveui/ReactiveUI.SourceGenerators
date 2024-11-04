@@ -133,4 +133,38 @@ public class OAPFromObservableGeneratorTests(ITestOutputHelper output) : TestBas
         // Assert: Verify the generated code.
         return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath());
     }
+
+    /// <summary>
+    /// Tests that the source generator correctly generates observable properties.
+    /// </summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Fact]
+    public Task FromObservablePropertiesWithAttribute()
+    {
+        // Arrange: Setup the source code that matches the generator input expectations.
+        const string sourceCode = """
+                using System;
+                using System.Runtime.Serialization;
+                using System.Text.Json.Serialization;
+                using ReactiveUI;
+                using ReactiveUI.SourceGenerators;
+                using System.Reactive.Linq;
+
+                namespace TestNs;
+
+                public partial class TestVM : ReactiveObject
+                {
+                    [ObservableAsProperty(PropertyName = "MyNamedProperty")]
+                    [property: JsonInclude]
+                    [DataMember]
+                    public IObservable<int> Test5 => Observable.Return(42);
+                }
+            """;
+
+        // Act: Initialize the helper and run the generator.
+        var driver = TestHelper.TestPass(sourceCode);
+
+        // Assert: Verify the generated code.
+        return Verify(driver).UseDirectory(TestHelper.VerifiedFilePath());
+    }
 }
