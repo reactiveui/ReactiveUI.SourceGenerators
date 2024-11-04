@@ -97,7 +97,7 @@ public partial class IViewForGenerator
 
         token.ThrowIfCancellationRequested();
 
-        return new IViewForInfo(
+        return new(
             targetInfo.FileHintName,
             targetInfo.TargetName,
             targetInfo.TargetNamespace,

@@ -63,7 +63,7 @@ public partial class ViewModelControlHostGenerator
         // Get the containing type info
         var targetInfo = TargetInfo.From(classSymbol);
 
-        return new ViewModelControlHostInfo(
+        return new(
             targetInfo.FileHintName,
             targetInfo.TargetName,
             targetInfo.TargetNamespace,

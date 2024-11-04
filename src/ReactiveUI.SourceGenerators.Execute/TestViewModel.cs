@@ -27,7 +27,7 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     private readonly Subject<double?> _testSubject = new();
     private readonly Subject<double> _testNonNullSubject = new();
 
-    [JsonInclude]
+    [property: JsonInclude]
     [DataMember]
     [ObservableAsProperty]
     private double? _test2Property = 1.1d;
@@ -226,6 +226,7 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     /// The observable as property test2.
     /// </value>
     [ObservableAsProperty]
+    [property: Test(AParameter = "Test Input")]
     public IObservable<int> ObservableAsPropertyTest2 => Observable.Return(9);
 
     /// <summary>

@@ -70,7 +70,7 @@ public partial class RoutedControlHostGenerator
 
         token.ThrowIfCancellationRequested();
 
-        return new RoutedControlHostInfo(
+        return new(
             targetInfo.FileHintName,
             targetInfo.TargetName,
             targetInfo.TargetNamespace,

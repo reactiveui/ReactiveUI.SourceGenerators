@@ -4,15 +4,14 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Collections.Immutable;
-using System.Globalization;
 using System.Linq;
+using System.Threading;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
+using ReactiveUI.SourceGenerators.Models;
 using ReactiveUI.SourceGenerators.ObservableAsProperty.Models;
-
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace ReactiveUI.SourceGenerators;
 
@@ -22,107 +21,196 @@ namespace ReactiveUI.SourceGenerators;
 /// <seealso cref="IIncrementalGenerator" />
 public sealed partial class ObservableAsPropertyGenerator
 {
-    internal static partial class Execute
+    private static ObservableMethodInfo? GetObservableInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
-        internal static ImmutableArray<MemberDeclarationSyntax> GetPropertySyntax(ObservableMethodInfo propertyInfo)
+        var symbol = context.TargetSymbol;
+        token.ThrowIfCancellationRequested();
+
+        var attributeData = context.Attributes[0];
+
+        // Get the can PropertyName member, if any
+        attributeData.TryGetNamedArgument("PropertyName", out string? propertyName);
+
+        token.ThrowIfCancellationRequested();
+        var compilation = context.SemanticModel.Compilation;
+        var hierarchy = default(HierarchyInfo);
+
+        if (context.TargetNode is MethodDeclarationSyntax methodSyntax)
         {
-            var getterFieldIdentifierName = GetGeneratedFieldName(propertyInfo);
-
-            // Get the property type syntax
-            TypeSyntax propertyType = IdentifierName(propertyInfo.GetObservableTypeText());
-
-            ArrowExpressionClauseSyntax getterArrowExpression;
-            if (propertyType.ToFullString().EndsWith("?"))
+            var methodSymbol = (IMethodSymbol)symbol!;
+            if (methodSymbol.Parameters.Length != 0)
             {
-                getterArrowExpression = ArrowExpressionClause(ParseExpression($"{getterFieldIdentifierName} = ({getterFieldIdentifierName}Helper == null ? {getterFieldIdentifierName} : {getterFieldIdentifierName}Helper.Value)"));
+                return default;
+            }
+
+            var isObservable = methodSymbol.ReturnType.IsObservableReturnType();
+
+            token.ThrowIfCancellationRequested();
+
+            methodSymbol.GatherForwardedAttributesFromMethod(
+                context.SemanticModel,
+                methodSyntax,
+                token,
+                out var attributes);
+            var propertyAttributes = attributes.Select(x => x.ToString()).ToImmutableArray();
+
+            token.ThrowIfCancellationRequested();
+
+            var observableType = methodSymbol.ReturnType is not INamedTypeSymbol typeSymbol
+                ? string.Empty
+                : typeSymbol.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+            // Get the hierarchy info for the target symbol, and try to gather the property info
+            hierarchy = HierarchyInfo.From(methodSymbol.ContainingType);
+            token.ThrowIfCancellationRequested();
+
+            // Get the containing type info
+            var targetInfo = TargetInfo.From(methodSymbol.ContainingType);
+
+            return new(
+                targetInfo.FileHintName,
+                targetInfo.TargetName,
+                targetInfo.TargetNamespace,
+                targetInfo.TargetNamespaceWithNamespace,
+                targetInfo.TargetVisibility,
+                targetInfo.TargetType,
+                methodSymbol.Name,
+                methodSymbol.ReturnType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                methodSymbol.Parameters.FirstOrDefault()?.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                propertyName ?? (methodSymbol.Name + "Property"),
+                observableType,
+                false,
+                propertyAttributes);
+        }
+
+        if (context.TargetNode is PropertyDeclarationSyntax propertySyntax)
+        {
+            var propertySymbol = (IPropertySymbol)symbol!;
+            var isObservable = propertySymbol.Type.IsObservableReturnType();
+
+            token.ThrowIfCancellationRequested();
+
+            propertySymbol.GatherForwardedAttributesFromProperty(
+                context.SemanticModel,
+                propertySyntax,
+                token,
+                out var attributes);
+            var propertyAttributes = attributes.Select(x => x.ToString()).ToImmutableArray();
+
+            token.ThrowIfCancellationRequested();
+
+            var observableType = propertySymbol.Type is not INamedTypeSymbol typeSymbol
+                ? string.Empty
+                : typeSymbol.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+            // Get the hierarchy info for the target symbol, and try to gather the property info
+            hierarchy = HierarchyInfo.From(propertySymbol.ContainingType);
+            token.ThrowIfCancellationRequested();
+
+            // Get the containing type info
+            var targetInfo = TargetInfo.From(propertySymbol.ContainingType);
+
+            return new(
+                targetInfo.FileHintName,
+                targetInfo.TargetName,
+                targetInfo.TargetNamespace,
+                targetInfo.TargetNamespaceWithNamespace,
+                targetInfo.TargetVisibility,
+                targetInfo.TargetType,
+                propertySymbol.Name,
+                propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                propertySymbol.Parameters.FirstOrDefault()?.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                propertyName ?? (propertySymbol.Name + "Property"),
+                observableType,
+                true,
+                propertyAttributes);
+        }
+
+        return default;
+    }
+
+    private static string GenerateObservableSource(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, ObservableMethodInfo[] properties)
+    {
+        var propertyDeclarations = string.Join("\n\r        ", properties.Select(GetPropertySyntax));
+
+        return
+$$"""
+// <auto-generated/>
+using ReactiveUI;
+
+#pragma warning disable
+#nullable enable
+
+namespace {{containingNamespace}}
+{
+    /// <summary>
+    /// Partial class for the {{containingTypeName}} which contains ReactiveUI Reactive property initialization.
+    /// </summary>
+    {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}}
+    {
+        [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
+        {{propertyDeclarations}}
+
+        {{GetPropertyInitiliser(properties)}}
+    }
+}
+#nullable restore
+#pragma warning restore
+""";
+    }
+
+    private static string GetPropertySyntax(ObservableMethodInfo propertyInfo)
+    {
+        var propertyAttributes = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage.Concat(propertyInfo.ForwardedPropertyAttributes));
+        var getterFieldIdentifierName = propertyInfo.GetGeneratedFieldName();
+        string getterArrowExpression;
+        if (propertyInfo.ObservableType.EndsWith("?"))
+        {
+            getterArrowExpression = $"{getterFieldIdentifierName} = ({getterFieldIdentifierName}Helper == null ? {getterFieldIdentifierName} : {getterFieldIdentifierName}Helper.Value)";
+        }
+        else
+        {
+            getterArrowExpression = $"{getterFieldIdentifierName} = {getterFieldIdentifierName}Helper?.Value ?? {getterFieldIdentifierName}";
+        }
+
+        return $$"""
+/// <inheritdoc cref="{{propertyInfo.PropertyName}}"/>
+        private {{propertyInfo.ObservableType}} {{getterFieldIdentifierName}};
+
+        /// <inheritdoc cref="{{getterFieldIdentifierName}}Helper"/>
+        private ReactiveUI.ObservableAsPropertyHelper<{{propertyInfo.ObservableType}}>? {{getterFieldIdentifierName}}Helper;
+
+        /// <inheritdoc cref="{{getterFieldIdentifierName}}"/>
+        {{propertyAttributes}}
+        public {{propertyInfo.ObservableType}} {{propertyInfo.PropertyName}} { get => {{getterArrowExpression}}; }
+""";
+    }
+
+    private static string GetPropertyInitiliser(ObservableMethodInfo[] propertyInfos)
+    {
+        using var propertyInitilisers = ImmutableArrayBuilder<string>.Rent();
+
+        foreach (var propertyInfo in propertyInfos)
+        {
+            var fieldIdentifierName = propertyInfo.GetGeneratedFieldName();
+            if (propertyInfo.IsProperty)
+            {
+                propertyInitilisers.Add($"{fieldIdentifierName}Helper = {propertyInfo.MethodName}!.ToProperty(this, nameof({propertyInfo.PropertyName}));");
             }
             else
             {
-                getterArrowExpression = ArrowExpressionClause(ParseExpression($"{getterFieldIdentifierName} = {getterFieldIdentifierName}Helper?.Value ?? {getterFieldIdentifierName}"));
+                propertyInitilisers.Add($"{fieldIdentifierName}Helper = {propertyInfo.MethodName}()!.ToProperty(this, nameof({propertyInfo.PropertyName}));");
             }
-
-            // Prepare the forwarded attributes, if any
-            var forwardedAttributes =
-                propertyInfo.ForwardedPropertyAttributes
-                .Select(static a => AttributeList(SingletonSeparatedList(a.GetSyntax())))
-                .ToImmutableArray();
-
-            return ImmutableArray.Create<MemberDeclarationSyntax>(
-                FieldDeclaration(VariableDeclaration(propertyType))
-                        .AddDeclarationVariables(VariableDeclarator(getterFieldIdentifierName))
-                        .AddAttributeLists(
-                            AttributeList(SingletonSeparatedList(
-                                Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
-                                .AddArgumentListArguments(
-                                    AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).FullName))),
-                                    AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).Assembly.GetName().Version.ToString()))))))
-                            .WithOpenBracketToken(Token(TriviaList(Comment($"/// <inheritdoc cref=\"{propertyInfo.PropertyName}\"/>")), SyntaxKind.OpenBracketToken, TriviaList())))
-                            .AddModifiers(
-                                Token(SyntaxKind.PrivateKeyword)),
-                FieldDeclaration(VariableDeclaration(ParseTypeName($"ReactiveUI.ObservableAsPropertyHelper<{propertyType}>?")))
-                    .AddDeclarationVariables(VariableDeclarator(getterFieldIdentifierName + "Helper"))
-                    .AddAttributeLists(
-                        AttributeList(SingletonSeparatedList(
-                            Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
-                            .AddArgumentListArguments(
-                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).FullName))),
-                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).Assembly.GetName().Version.ToString()))))))
-                        .WithOpenBracketToken(Token(TriviaList(Comment($"/// <inheritdoc cref=\"{getterFieldIdentifierName + "Helper"}\"/>")), SyntaxKind.OpenBracketToken, TriviaList())))
-                        .AddModifiers(
-                            Token(SyntaxKind.PrivateKeyword)),
-                PropertyDeclaration(propertyType, Identifier(propertyInfo.PropertyName))
-                    .AddAttributeLists(
-                        AttributeList(SingletonSeparatedList(
-                            Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
-                            .AddArgumentListArguments(
-                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).FullName))),
-                                AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).Assembly.GetName().Version.ToString()))))))
-                        .WithOpenBracketToken(Token(TriviaList(Comment($"/// <inheritdoc cref=\"{getterFieldIdentifierName}\"/>")), SyntaxKind.OpenBracketToken, TriviaList())),
-                        AttributeList(SingletonSeparatedList(Attribute(IdentifierName(AttributeDefinitions.ExcludeFromCodeCoverageString)))))
-                    .AddAttributeLists([.. forwardedAttributes])
-                    .AddModifiers(Token(SyntaxKind.PublicKeyword))
-                    .AddAccessorListAccessors(
-                        AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-                        .WithExpressionBody(getterArrowExpression)
-                        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))));
         }
 
-        internal static MethodDeclarationSyntax GetPropertyInitiliser(ObservableMethodInfo[] propertyInfos)
+        return
+$$"""
+[global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
+        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+        protected void InitializeOAPH()
         {
-            using var propertyInitilisers = ImmutableArrayBuilder<StatementSyntax>.Rent();
-
-            foreach (var propertyInfo in propertyInfos)
-            {
-                var fieldIdentifierName = GetGeneratedFieldName(propertyInfo);
-                if (propertyInfo.IsProperty)
-                {
-                    propertyInitilisers.Add(ParseStatement($"{fieldIdentifierName}Helper = {propertyInfo.MethodName}!.ToProperty(this, nameof({propertyInfo.PropertyName}));"));
-                }
-                else
-                {
-                    propertyInitilisers.Add(ParseStatement($"{fieldIdentifierName}Helper = {propertyInfo.MethodName}()!.ToProperty(this, nameof({propertyInfo.PropertyName}));"));
-                }
-            }
-
-            return MethodDeclaration(
-                    PredefinedType(Token(SyntaxKind.VoidKeyword)),
-                    Identifier("InitializeOAPH"))
-                .AddAttributeLists(
-                    AttributeList(SingletonSeparatedList(
-                        Attribute(IdentifierName(AttributeDefinitions.GeneratedCode))
-                        .AddArgumentListArguments(
-                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).FullName))),
-                            AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(typeof(ObservableAsPropertyGenerator).Assembly.GetName().Version.ToString())))))),
-                    AttributeList(SingletonSeparatedList(Attribute(IdentifierName(AttributeDefinitions.ExcludeFromCodeCoverageString)))))
-                .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword)))
-                .WithBody(Block(propertyInitilisers.ToImmutable()));
+            {{string.Join("\n            ", propertyInitilisers.ToImmutable())}}
         }
-
-        internal static string GetGeneratedFieldName(ObservableMethodInfo propertyInfo)
-        {
-            var commandName = propertyInfo.PropertyName;
-
-            return $"_{char.ToLower(commandName[0], CultureInfo.InvariantCulture)}{commandName.Substring(1)}";
-        }
+""";
     }
 }
