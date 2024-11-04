@@ -7,7 +7,7 @@ namespace TestNs
     /// <inheritdoc/>
     public partial class TestVM
     {
-        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "1.1.0.0")]
+        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "2.0.0.0")]
         /// <inheritdoc cref="_test1Helper"/>
         private readonly ReactiveUI.ObservableAsPropertyHelper<int> _test1Helper;
 
