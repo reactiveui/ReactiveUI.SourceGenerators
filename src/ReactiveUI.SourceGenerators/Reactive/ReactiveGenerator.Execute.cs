@@ -14,6 +14,7 @@ using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Models;
 using ReactiveUI.SourceGenerators.Reactive.Models;
+using static ReactiveUI.SourceGenerators.Diagnostics.DiagnosticDescriptors;
 
 namespace ReactiveUI.SourceGenerators;
 
@@ -31,9 +32,12 @@ public sealed partial class ReactiveGenerator
     /// </summary>
     /// <param name="context">The context.</param>
     /// <param name="token">The token.</param>
-    /// <returns>The value.</returns>
-    private static PropertyInfo? GetVariableInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
+    /// <returns>
+    /// The value.
+    /// </returns>
+    private static Result<PropertyInfo?>? GetVariableInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
+        using var builder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
         var symbol = context.TargetSymbol;
 
         if (!symbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ReactiveAttributeType, out var attributeData))
@@ -48,7 +52,12 @@ public sealed partial class ReactiveGenerator
 
         if (!IsTargetTypeValid(fieldSymbol))
         {
-            return default;
+            builder.Add(
+                    InvalidReactiveError,
+                    fieldSymbol,
+                    fieldSymbol.ContainingType,
+                    fieldSymbol.Name);
+            return new(default, builder.ToImmutable());
         }
 
         token.ThrowIfCancellationRequested();
@@ -72,6 +81,16 @@ public sealed partial class ReactiveGenerator
         var typeNameWithNullabilityAnnotations = fieldSymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations();
         var fieldName = fieldSymbol.Name;
         var propertyName = fieldSymbol.GetGeneratedPropertyName();
+
+        if (fieldName == propertyName)
+        {
+            builder.Add(
+                    ReactivePropertyNameCollisionError,
+                    fieldSymbol,
+                    fieldSymbol.ContainingType,
+                    fieldSymbol.Name);
+            return new(default, builder.ToImmutable());
+        }
 
         token.ThrowIfCancellationRequested();
 
@@ -147,6 +166,11 @@ public sealed partial class ReactiveGenerator
                 // lack of IntelliSense when constructing attributes over the field, but this is the best we can do from this end anyway.
                 if (!context.SemanticModel.GetSymbolInfo(attribute, token).TryGetAttributeTypeSymbol(out var attributeTypeSymbol))
                 {
+                    builder.Add(
+                            InvalidPropertyTargetedAttributeOnReactiveField,
+                            attribute,
+                            fieldSymbol,
+                            attribute.Name);
                     continue;
                 }
 
@@ -155,6 +179,11 @@ public sealed partial class ReactiveGenerator
                 // Try to extract the forwarded attribute
                 if (!AttributeInfo.TryCreate(attributeTypeSymbol, context.SemanticModel, attributeArguments, token, out var attributeInfo))
                 {
+                    builder.Add(
+                            InvalidPropertyTargetedAttributeExpressionOnReactiveField,
+                            attribute,
+                            fieldSymbol,
+                            attribute.Name);
                     continue;
                 }
 
@@ -171,6 +200,7 @@ public sealed partial class ReactiveGenerator
         token.ThrowIfCancellationRequested();
 
         return new(
+            new(
             targetInfo.FileHintName,
             targetInfo.TargetName,
             targetInfo.TargetNamespace,
@@ -184,7 +214,8 @@ public sealed partial class ReactiveGenerator
             isReferenceTypeOrUnconstraindTypeParameter,
             includeMemberNotNullOnSetAccessor,
             forwardedAttributesString,
-            accessModifier);
+            accessModifier),
+            builder.ToImmutable());
     }
 
     /// <summary>
