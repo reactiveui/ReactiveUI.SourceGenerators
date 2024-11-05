@@ -14,6 +14,7 @@ using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Models;
 using ReactiveUI.SourceGenerators.Reactive.Models;
+using static ReactiveUI.SourceGenerators.Diagnostics.DiagnosticDescriptors;
 
 namespace ReactiveUI.SourceGenerators;
 
@@ -23,8 +24,9 @@ namespace ReactiveUI.SourceGenerators;
 /// <seealso cref="IIncrementalGenerator" />
 public sealed partial class ObservableAsPropertyGenerator
 {
-    private static PropertyInfo? GetVariableInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
+    private static Result<PropertyInfo?>? GetVariableInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
+        using var builder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
         var symbol = context.TargetSymbol;
         token.ThrowIfCancellationRequested();
 
@@ -42,7 +44,12 @@ public sealed partial class ObservableAsPropertyGenerator
         // Validate the target type
         if (!IsTargetTypeValid(fieldSymbol))
         {
-            return default;
+            builder.Add(
+                    InvalidObservableAsPropertyError,
+                    fieldSymbol,
+                    fieldSymbol.ContainingType,
+                    fieldSymbol.Name);
+            return new(default, builder.ToImmutable());
         }
 
         // Get the can PropertyName member, if any
@@ -55,14 +62,19 @@ public sealed partial class ObservableAsPropertyGenerator
         var fieldName = fieldSymbol.Name;
         var propertyName = GetGeneratedPropertyName(fieldSymbol);
 
-        var fieldDeclaration = (FieldDeclarationSyntax)context.TargetNode.Parent!.Parent!;
-        var initializer = fieldDeclaration.Declaration.Variables.FirstOrDefault()?.Initializer?.ToFullString();
-
         // Check for name collisions
         if (fieldName == propertyName)
         {
-            return default;
+            builder.Add(
+                ReactivePropertyNameCollisionError,
+                fieldSymbol,
+                fieldSymbol.ContainingType,
+                fieldSymbol.Name);
+            return new(default, builder.ToImmutable());
         }
+
+        var fieldDeclaration = (FieldDeclarationSyntax)context.TargetNode.Parent!.Parent!;
+        var initializer = fieldDeclaration.Declaration.Variables.FirstOrDefault()?.Initializer?.ToFullString();
 
         token.ThrowIfCancellationRequested();
 
@@ -131,6 +143,11 @@ public sealed partial class ObservableAsPropertyGenerator
                 // lack of IntelliSense when constructing attributes over the field, but this is the best we can do from this end anyway.
                 if (!context.SemanticModel.GetSymbolInfo(attribute, token).TryGetAttributeTypeSymbol(out var attributeTypeSymbol))
                 {
+                    builder.Add(
+                            InvalidPropertyTargetedAttributeOnObservableAsPropertyField,
+                            attribute,
+                            fieldSymbol,
+                            attribute.Name);
                     continue;
                 }
 
@@ -139,6 +156,11 @@ public sealed partial class ObservableAsPropertyGenerator
                 // Try to extract the forwarded attribute
                 if (!AttributeInfo.TryCreate(attributeTypeSymbol, context.SemanticModel, attributeArguments, token, out var attributeInfo))
                 {
+                    builder.Add(
+                            InvalidPropertyTargetedAttributeExpressionOnObservableAsPropertyField,
+                            attribute,
+                            fieldSymbol,
+                            attribute.Name);
                     continue;
                 }
 
@@ -162,6 +184,7 @@ public sealed partial class ObservableAsPropertyGenerator
         var targetInfo = TargetInfo.From(fieldSymbol.ContainingType);
 
         return new(
+            new(
             targetInfo.FileHintName,
             targetInfo.TargetName,
             targetInfo.TargetNamespace,
@@ -175,7 +198,8 @@ public sealed partial class ObservableAsPropertyGenerator
             isReferenceTypeOrUnconstraindTypeParameter,
             includeMemberNotNullOnSetAccessor,
             forwardedPropertyAttributes,
-            isReadonly == false ? string.Empty : "readonly");
+            isReadonly == false ? string.Empty : "readonly"),
+            builder.ToImmutable());
     }
 
     private static string GenerateSource(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, PropertyInfo[] properties)
