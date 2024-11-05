@@ -12,6 +12,7 @@ using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Models;
 using ReactiveUI.SourceGenerators.ObservableAsProperty.Models;
+using static ReactiveUI.SourceGenerators.Diagnostics.DiagnosticDescriptors;
 
 namespace ReactiveUI.SourceGenerators;
 
@@ -21,8 +22,9 @@ namespace ReactiveUI.SourceGenerators;
 /// <seealso cref="IIncrementalGenerator" />
 public sealed partial class ObservableAsPropertyGenerator
 {
-    private static ObservableMethodInfo? GetObservableInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
+    private static Result<ObservableMethodInfo?>? GetObservableInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
+        using var diagnostics = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
         var symbol = context.TargetSymbol;
         token.ThrowIfCancellationRequested();
 
@@ -40,7 +42,11 @@ public sealed partial class ObservableAsPropertyGenerator
             var methodSymbol = (IMethodSymbol)symbol!;
             if (methodSymbol.Parameters.Length != 0)
             {
-                return default;
+                diagnostics.Add(
+                                ObservableAsPropertyMethodHasParametersError,
+                                methodSymbol,
+                                methodSymbol.Name);
+                return new(default, diagnostics.ToImmutable());
             }
 
             var isObservable = methodSymbol.ReturnType.IsObservableReturnType();
@@ -68,6 +74,7 @@ public sealed partial class ObservableAsPropertyGenerator
             var targetInfo = TargetInfo.From(methodSymbol.ContainingType);
 
             return new(
+                new(
                 targetInfo.FileHintName,
                 targetInfo.TargetName,
                 targetInfo.TargetNamespace,
@@ -80,7 +87,8 @@ public sealed partial class ObservableAsPropertyGenerator
                 propertyName ?? (methodSymbol.Name + "Property"),
                 observableType,
                 false,
-                propertyAttributes);
+                propertyAttributes),
+                diagnostics.ToImmutable());
         }
 
         if (context.TargetNode is PropertyDeclarationSyntax propertySyntax)
@@ -111,6 +119,7 @@ public sealed partial class ObservableAsPropertyGenerator
             var targetInfo = TargetInfo.From(propertySymbol.ContainingType);
 
             return new(
+                new(
                 targetInfo.FileHintName,
                 targetInfo.TargetName,
                 targetInfo.TargetNamespace,
@@ -123,7 +132,8 @@ public sealed partial class ObservableAsPropertyGenerator
                 propertyName ?? (propertySymbol.Name + "Property"),
                 observableType,
                 true,
-                propertyAttributes);
+                propertyAttributes),
+                diagnostics.ToImmutable());
         }
 
         return default;
