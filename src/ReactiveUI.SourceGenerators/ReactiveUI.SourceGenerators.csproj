@@ -43,6 +43,9 @@
   <ItemGroup>
     <InternalsVisibleTo Include="ReactiveUI.CodeFixes" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ReactiveUI.SourceGenerators.CodeFixers\ReactiveUI.CodeFixes.csproj" />
+  </ItemGroup>
 
   <!-- This ensures the library will be packaged as a source generator when we use `dotnet pack` -->
   <ItemGroup>
