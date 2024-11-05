@@ -73,7 +73,7 @@ internal struct HashCode
 
         return (int)hash;
     }
-
+#pragma warning disable CA1065
     /// <inheritdoc/>
     [Obsolete("HashCode is a mutable struct and should not be compared with other HashCodes. Use ToHashCode to retrieve the computed hash code.", error: true)]
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -83,6 +83,7 @@ internal struct HashCode
     [Obsolete("HashCode is a mutable struct and should not be compared with other HashCodes.", error: true)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public override readonly bool Equals(object? obj) => throw new NotSupportedException();
+#pragma warning restore CA1065
 
     /// <summary>
     /// Rotates the specified value left by the specified number of bits.
