@@ -24,7 +24,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveUI.SourceGenerators
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestLibs", "TestLibs", "{B86ED9C1-AFFB-4854-AD80-F4B4050CAD0A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveUI.CodeFixes", "ReactiveUI.SourceGenerators.CodeFixers\ReactiveUI.CodeFixes.csproj", "{C89EE66E-E1DC-4A31-9322-20D95CB0D74D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveUI.SourceGenerators.Analyzers.CodeFixes", "ReactiveUI.SourceGenerators.CodeFixers\ReactiveUI.SourceGenerators.Analyzers.CodeFixes.csproj", "{C89EE66E-E1DC-4A31-9322-20D95CB0D74D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
