@@ -1,28 +1,55 @@
-# ReactiveUI.SourceGenerators
-Use source generators to generate ReactiveUI objects.
-The minimum C# version is 12.0 and the minimum Visual Studio version is 17.8.0.
+# ReactiveUI Source Generators Documentation
 
-These Source Generators were designed to work in full with ReactiveUI V19.5.31 and newer supporting all features, currently:
-- [Reactive]
-- [ObservableAsProperty]
-- [ObservableAsProperty(PropertyName = "ReadOnlyPropertyName")]
-- [ReactiveCommand]
-- [ReactiveCommand(CanExecute = nameof(IObservableBoolName))] with CanExecute
-- [ReactiveCommand][property: AttribueToAddToCommand] with Attribute passthrough
-- [IViewFor(nameof(ViewModelName))]
-- [RoutedControlHost("YourNameSpace.CustomControl")]
-- [ViewModelControlHost("YourNameSpace.CustomControl")]
+This documentation covers using ReactiveUI Source Generators to simplify and enhance the use of ReactiveUI objects.
 
-Versions older than V19.5.31 to this: 
-- [ReactiveCommand] all options supported except Cancellation Token asnyc methods.
+- **Minimum Requirements**:
+  - **C# Version**: 12.0
+  - **Visual Studio Version**: 17.8.0
+  - **ReactiveUI Version**: 19.5.31+
 
-For dot net framework 4.8 and older versions please add Polyfill or PolySharp package to your project to gain the IsExternalInit class and set the LangVersion to 12.0 or latest in your project file.
+## Overview
 
-[analyzer codes](https://github.com/reactiveui/ReactiveUI.SourceGenerators/blob/main/src/ReactiveUI.SourceGenerators/AnalyzerReleases.Shipped.md)
+ReactiveUI Source Generators automatically generate ReactiveUI objects to streamline your code. These Source Generators are designed to work with ReactiveUI V19.5.31+ and support the following features:
 
-# Historical ways
-## Read-write properties
-Typically properties are declared like this:
+- `[Reactive]`
+- `[ObservableAsProperty]`
+- `[ObservableAsProperty(PropertyName = "ReadOnlyPropertyName")]`
+- `[ReactiveCommand]`
+- `[ReactiveCommand(CanExecute = nameof(IObservableBoolName))]` with CanExecute
+- `[ReactiveCommand][property: AttributeToAddToCommand]` with Attribute passthrough
+- `[IViewFor(nameof(ViewModelName))]`
+- `[RoutedControlHost("YourNameSpace.CustomControl")]`
+- `[ViewModelControlHost("YourNameSpace.CustomControl")]`
+
+### Compatibility Notes
+- For ReactiveUI versions **older than V19.5.31**, all `[ReactiveCommand]` options are supported except for async methods with a `CancellationToken`.
+- For **.NET Framework 4.8 and older**, add [Polyfill by Simon Cropp](https://github.com/Fody/Polyfill) or [PolySharp by Manuel Römer](https://github.com/manuelroemer/PolySharp) to your project and set the `LangVersion` to 12.0 or later in your project file.
+
+For more information on analyzer codes, see the [analyzer codes documentation](https://github.com/reactiveui/ReactiveUI.SourceGenerators/blob/main/src/ReactiveUI.SourceGenerators/AnalyzerReleases.Shipped.md).
+
+---
+
+## Supported Attributes
+
+### `[Reactive]`
+Marks properties as reactive, generating getter and setter code.
+
+### `[ObservableAsProperty]`
+Generates read-only properties backed by an `ObservableAsPropertyHelper` based on an `IObservable`.
+
+### `[ReactiveCommand]`
+Generates commands, with options to add attributes or enable `CanExecute` functionality.
+
+### `[IViewFor]`
+Links a view to a view model for data binding.
+
+### `[RoutedControlHost]` and `[ViewModelControlHost]`
+Platform-specific attributes for control hosting in WinForms applications.
+
+## Historical Approach
+
+### Read-Write Properties
+Previously, properties were declared like this:
 
 ```csharp
 private string _name;
@@ -35,6 +62,7 @@ public string Name
 
 Before these Source Generators were avaliable we used ReactiveUI.Fody.
 With ReactiveUI.Fody the `[Reactive]` Attribute was placed on a Public Property with Auto get / set properties, the generated code from the Source Generator and the Injected code using Fody are very similar with the exception of the Attributes.
+
 ```csharp
 [Reactive]
 public string Name { get; set; }
