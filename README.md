@@ -60,7 +60,7 @@ public string Name
 }
 ```
 
-Before these Source Generators were avaliable we used ReactiveUI.Fody.
+Before these Source Generators were available we used ReactiveUI.Fody.
 With ReactiveUI.Fody the `[Reactive]` Attribute was placed on a Public Property with Auto get / set properties, the generated code from the Source Generator and the Injected code using Fody are very similar with the exception of the Attributes.
 
 ```csharp

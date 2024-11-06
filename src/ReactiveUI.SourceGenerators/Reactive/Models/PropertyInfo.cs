@@ -21,7 +21,7 @@ internal sealed record PropertyInfo(
     string FieldName,
     string PropertyName,
     string? Initializer, // TODO: Remove Initializer when ObservableAsPropertyHelper is updated
-    bool IsReferenceTypeOrUnconstraindTypeParameter,
+    bool IsReferenceTypeOrUnconstrainedTypeParameter,
     bool IncludeMemberNotNullOnSetAccessor,
     EquatableArray<string> ForwardedAttributes,
     string AccessModifier);
