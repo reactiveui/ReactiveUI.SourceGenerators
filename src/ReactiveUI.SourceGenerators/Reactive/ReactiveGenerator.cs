@@ -46,7 +46,16 @@ public sealed partial class ReactiveGenerator : IIncrementalGenerator
         // Generate the requested properties
         context.RegisterSourceOutput(propertyInfo, static (context, input) =>
         {
-            var groupedPropertyInfo = input.GroupBy(
+            foreach (var diagnostic in input.SelectMany(static x => x.Errors))
+            {
+                // Output the diagnostics
+                context.ReportDiagnostic(diagnostic.ToDiagnostic());
+            }
+
+            // Gather all the properties that are valid and group them by the target information.
+            var groupedPropertyInfo = input
+                .Where(static x => x.Value != null)
+                .Select(static x => x.Value!).GroupBy(
                 static info => (info.FileHintName, info.TargetName, info.TargetNamespace, info.TargetVisibility, info.TargetType),
                 static info => info)
                 .ToImmutableArray();

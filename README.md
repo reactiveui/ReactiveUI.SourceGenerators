@@ -1,5 +1,6 @@
 # ReactiveUI.SourceGenerators
 Use source generators to generate ReactiveUI objects.
+The minimum C# version is 12.0 and the minimum Visual Studio version is 17.8.0.
 
 These Source Generators were designed to work in full with ReactiveUI V19.5.31 and newer supporting all features, currently:
 - [Reactive]
@@ -14,6 +15,8 @@ These Source Generators were designed to work in full with ReactiveUI V19.5.31 a
 
 Versions older than V19.5.31 to this: 
 - [ReactiveCommand] all options supported except Cancellation Token asnyc methods.
+
+For dot net framework 4.8 and older versions please add Polyfill or PolySharp package to your project to gain the IsExternalInit class and set the LangVersion to 12.0 or latest in your project file.
 
 [analyzer codes](https://github.com/reactiveui/ReactiveUI.SourceGenerators/blob/main/src/ReactiveUI.SourceGenerators/AnalyzerReleases.Shipped.md)
 
