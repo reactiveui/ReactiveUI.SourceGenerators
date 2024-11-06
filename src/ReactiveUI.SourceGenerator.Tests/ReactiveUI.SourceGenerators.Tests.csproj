@@ -13,6 +13,9 @@
   <ItemGroup>
     <PackageReference Include="coverlet.msbuild" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NuGet.Common" />
+    <PackageReference Include="NuGet.Protocol" />
+    <PackageReference Include="System.Formats.Asn1" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />
     <PackageReference Include="ReactiveMarbles.SourceGenerator.TestNuGetHelper" />
