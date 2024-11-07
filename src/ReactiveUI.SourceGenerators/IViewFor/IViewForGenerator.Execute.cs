@@ -50,20 +50,15 @@ public partial class IViewForGenerator
 
         token.ThrowIfCancellationRequested();
 
+        var constructorArgument = attributeData.GetConstructorArguments<string>().FirstOrDefault();
         var genericArgument = attributeData.GetGenericType();
         token.ThrowIfCancellationRequested();
-        if (!(genericArgument is string viewModelTypeName && viewModelTypeName.Length > 0))
+        var viewModelTypeName = string.IsNullOrWhiteSpace(constructorArgument) ? genericArgument : constructorArgument;
+        if (string.IsNullOrWhiteSpace(viewModelTypeName))
         {
             return default;
         }
 
-        var compilation = context.SemanticModel.Compilation;
-        var semanticModel = compilation.GetSemanticModel(context.SemanticModel.SyntaxTree);
-        token.ThrowIfCancellationRequested();
-        attributeData.GatherForwardedAttributesFromClass(semanticModel, declaredClass, token, out var classAttributesInfo);
-        var forwardedClassAttributes = classAttributesInfo.Select(static a => a.ToString())
-            .Where(x => !x.Contains(AttributeDefinitions.IViewForAttributeType))
-            .ToImmutableArray();
         token.ThrowIfCancellationRequested();
 
         var viewForBaseType = IViewForBaseType.None;
@@ -105,14 +100,13 @@ public partial class IViewForGenerator
             targetInfo.TargetVisibility,
             targetInfo.TargetType,
             viewModelTypeName!,
-            viewForBaseType,
-            forwardedClassAttributes);
+            viewForBaseType);
     }
 
     private static string GenerateSource(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, IViewForInfo iviewForInfo)
     {
         // Prepare any forwarded property attributes
-        var forwardedAttributesString = string.Join("\n        ", excludeFromCodeCoverage.Concat(iviewForInfo.ForwardedAttributes));
+        var forwardedAttributesString = string.Join("\n        ", excludeFromCodeCoverage);
 
         switch (iviewForInfo.BaseType)
         {

@@ -207,6 +207,18 @@ namespace ReactiveUI.SourceGenerators;
 [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.IViewForGenerator", "1.1.0.0")]
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 internal sealed class IViewForAttribute<T> : Attribute;
+
+/// <summary>
+/// IViewForAttribute.
+/// </summary>
+/// <seealso cref="System.Attribute" />
+/// <remarks>
+/// Initializes a new instance of the <see cref="IViewForAttribute"/> class.
+/// </remarks>
+/// <param name="viewModelType">Type of the view model.</param>
+[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.IViewForGenerator", "1.1.0.0")]
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+internal sealed class IViewForAttribute(string? viewModelType) : Attribute;
 #nullable restore
 #pragma warning restore
 """;

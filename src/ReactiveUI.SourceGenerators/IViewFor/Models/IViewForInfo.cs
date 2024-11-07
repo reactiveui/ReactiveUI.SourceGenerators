@@ -18,5 +18,4 @@ internal sealed record IViewForInfo(
     string TargetVisibility,
     string TargetType,
     string ViewModelTypeName,
-    IViewForBaseType BaseType,
-    EquatableArray<string> ForwardedAttributes);
+    IViewForBaseType BaseType);
