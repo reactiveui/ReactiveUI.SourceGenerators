@@ -389,6 +389,23 @@ The class must inherit from a UI Control from any of the following platforms and
 - Avalonia (Avalonia)
 - Uno (Windows.UI.Xaml).
 
+### Usage IViewFor with ViewModel Name - Generic Types should be used with the fully qualified name, otherwise use nameof(ViewModelTypeName)
+```csharp
+using ReactiveUI.SourceGenerators;
+
+[IViewFor("MyReactiveGenericClass<int>")]
+public partial class MyReactiveControl : UserControl
+{
+    public MyReactiveControl()
+    {
+        InitializeComponent();
+        MyReactiveClass = new MyReactiveClass();
+    }
+}
+```
+
+### Usage IViewFor with ViewModel Type
+
 ```csharp
 using ReactiveUI.SourceGenerators;
 
