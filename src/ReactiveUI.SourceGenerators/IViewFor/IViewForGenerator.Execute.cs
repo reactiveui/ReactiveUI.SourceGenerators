@@ -50,9 +50,11 @@ public partial class IViewForGenerator
 
         token.ThrowIfCancellationRequested();
 
+        var constructorArgument = attributeData.GetConstructorArguments<string>().FirstOrDefault();
         var genericArgument = attributeData.GetGenericType();
         token.ThrowIfCancellationRequested();
-        if (!(genericArgument is string viewModelTypeName && viewModelTypeName.Length > 0))
+        var viewModelTypeName = string.IsNullOrWhiteSpace(constructorArgument) ? genericArgument : constructorArgument;
+        if (string.IsNullOrWhiteSpace(viewModelTypeName))
         {
             return default;
         }
