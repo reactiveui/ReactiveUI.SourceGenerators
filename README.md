@@ -158,9 +158,6 @@ public partial class MyReactiveClass : ReactiveObject
 
 ### Usage ObservableAsPropertyHelper with Field and non readonly nullable OAPH field
 ```csharp
-
-### Usage ObservableAsPropertyHelper with Observable Property
-```csharp
 using ReactiveUI.SourceGenerators;
 
 public partial class MyReactiveClass : ReactiveObject, IActivatableViewModel
