@@ -3,9 +3,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.CodeAnalysis;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
@@ -22,8 +19,8 @@ internal sealed partial record TargetInfo(
 {
     public static TargetInfo From(INamedTypeSymbol namedTypeSymbol)
     {
-        var targetHintName = namedTypeSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
-        var targetName = namedTypeSymbol.Name;
+        var targetHintName = namedTypeSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat).Replace("<", "_").Replace(">", "_");
+        var targetName = namedTypeSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
         var targetNamespace = namedTypeSymbol.ContainingNamespace.ToDisplayString(SymbolHelpers.DefaultDisplay);
         var targetNameWithNamespace = namedTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         var targetAccessibility = namedTypeSymbol.GetAccessibilityString();
