@@ -133,6 +133,7 @@ internal sealed class ReactiveAttribute : Attribute
     /// The AccessModifier of the set property.
     /// </value>
     public AccessModifier SetModifier { get; init; }
+    public bool Overridable { get; init; } = false;
 }
 #nullable restore
 #pragma warning restore

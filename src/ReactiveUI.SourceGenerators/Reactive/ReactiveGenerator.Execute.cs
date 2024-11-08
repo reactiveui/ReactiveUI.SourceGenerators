@@ -75,6 +75,10 @@ public sealed partial class ReactiveGenerator
             _ => "public",
         };
 
+        // Get Overridable value from the attribute
+        attributeData.TryGetNamedArgument("Overridable", out bool? overridableArgument);
+        var overridable = overridableArgument == true ? "virtual" : string.Empty;
+
         token.ThrowIfCancellationRequested();
 
         // Get the property type and name
@@ -214,7 +218,8 @@ public sealed partial class ReactiveGenerator
             isReferenceTypeOrUnconstraindTypeParameter,
             includeMemberNotNullOnSetAccessor,
             forwardedAttributesString,
-            accessModifier),
+            accessModifier,
+            overridable),
             builder.ToImmutable());
     }
 
@@ -282,7 +287,7 @@ namespace {{containingNamespace}}
 $$"""
         /// <inheritdoc cref="{{propertyInfo.FieldName}}"/>
         {{propertyAttributes}}
-        {{propertyInfo.TargetVisibility}} {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}}
+        {{propertyInfo.TargetVisibility}} {{propertyInfo.Overridable}} {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}}
         { 
             get => {{propertyInfo.FieldName}};
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("{{propertyInfo.FieldName}}")]
@@ -295,7 +300,7 @@ $$"""
 $$"""
         /// <inheritdoc cref="{{propertyInfo.FieldName}}"/>
         {{propertyAttributes}}
-        {{propertyInfo.TargetVisibility}} {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} { get => {{propertyInfo.FieldName}}; {{setModifier}}set => this.RaiseAndSetIfChanged(ref {{propertyInfo.FieldName}}, value); }
+        {{propertyInfo.TargetVisibility}} {{propertyInfo.Overridable}} {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} { get => {{propertyInfo.FieldName}}; {{setModifier}}set => this.RaiseAndSetIfChanged(ref {{propertyInfo.FieldName}}, value); }
 """;
     }
 
