@@ -55,9 +55,15 @@ public sealed partial class ObservableAsPropertyGenerator
         // Get the can PropertyName member, if any
         attributeData.TryGetNamedArgument("ReadOnly", out bool? isReadonly);
 
-        // Get Overridable value from the attribute
-        attributeData.TryGetNamedArgument("Overridable", out bool? overridableArgument);
-        var overridable = overridableArgument == false ? "virtual" : string.Empty;
+        // Get Inheritance value from the attribute
+        attributeData.TryGetNamedArgument("Inheritance", out int? inheritanceArgument);
+        var inheritance = inheritanceArgument switch
+        {
+            1 => " virtual",
+            2 => " override",
+            3 => " new",
+            _ => string.Empty,
+        };
 
         token.ThrowIfCancellationRequested();
 
@@ -203,7 +209,7 @@ public sealed partial class ObservableAsPropertyGenerator
             includeMemberNotNullOnSetAccessor,
             forwardedPropertyAttributes,
             isReadonly == false ? string.Empty : "readonly",
-            overridable),
+            inheritance),
             builder.ToImmutable());
     }
 

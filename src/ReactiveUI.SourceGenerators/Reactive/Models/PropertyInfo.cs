@@ -25,4 +25,4 @@ internal sealed record PropertyInfo(
     bool IncludeMemberNotNullOnSetAccessor,
     EquatableArray<string> ForwardedAttributes,
     string AccessModifier,
-    string Overridable);
+    string Inheritance);

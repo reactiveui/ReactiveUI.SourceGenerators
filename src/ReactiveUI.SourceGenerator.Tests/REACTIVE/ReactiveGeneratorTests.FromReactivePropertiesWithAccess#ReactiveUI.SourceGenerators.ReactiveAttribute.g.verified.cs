@@ -25,6 +25,11 @@ internal sealed class ReactiveAttribute : Attribute
     /// The AccessModifier of the set property.
     /// </value>
     public AccessModifier SetModifier { get; init; }
+
+    /// <summary>
+    /// Gets the InheritanceModifier of the property.
+    /// </sumary>
+    public InheritanceModifier Inheritance { get; init; }
 }
 #nullable restore
 #pragma warning restore
