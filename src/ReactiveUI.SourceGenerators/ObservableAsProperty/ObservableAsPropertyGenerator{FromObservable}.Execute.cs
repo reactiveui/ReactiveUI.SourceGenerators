@@ -182,16 +182,21 @@ namespace {{containingNamespace}}
         {
             getterArrowExpression = $"{getterFieldIdentifierName} = {getterFieldIdentifierName}Helper?.Value ?? {getterFieldIdentifierName}";
         }
+        if (propertyInfo.ObservableType.EndsWith("?"))
+        {
 
         return $$"""
 /// <inheritdoc cref="{{propertyInfo.PropertyName}}"/>
         private {{propertyInfo.ObservableType}} {{getterFieldIdentifierName}};
+        private {{propertyInfo.ObservableType}} {{getterFieldIdentifierName}};
 
         /// <inheritdoc cref="{{getterFieldIdentifierName}}Helper"/>
+        private ReactiveUI.ObservableAsPropertyHelper<{{propertyInfo.ObservableType}}>? {{getterFieldIdentifierName}}Helper;
         private ReactiveUI.ObservableAsPropertyHelper<{{propertyInfo.ObservableType}}>? {{getterFieldIdentifierName}}Helper;
 
         /// <inheritdoc cref="{{getterFieldIdentifierName}}"/>
         {{propertyAttributes}}
+        public {{propertyInfo.ObservableType}} {{propertyInfo.PropertyName}} { get => {{getterArrowExpression}}; }
         public {{propertyInfo.ObservableType}} {{propertyInfo.PropertyName}} { get => {{getterArrowExpression}}; }
 """;
     }
