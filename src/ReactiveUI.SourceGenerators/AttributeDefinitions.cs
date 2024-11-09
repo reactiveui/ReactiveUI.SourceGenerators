@@ -40,6 +40,17 @@ internal static class AttributeDefinitions
             InternalProtected,
             PrivateProtected,
         }
+        
+        /// <summary>
+        /// InheritanceModifier.
+        /// </summary>
+        internal enum InheritanceModifier
+        {
+            None,
+            Virtual,
+            Override,
+            New,
+        }
         #nullable restore
         #pragma warning restore
         """;
@@ -105,6 +116,12 @@ internal sealed class ReactiveCommandAttribute : Attribute
 
     public const string ReactiveAttributeType = "ReactiveUI.SourceGenerators.ReactiveAttribute";
 
+    /// <summary>
+    /// Gets the reactive attribute.
+    /// </summary>
+    /// <value>
+    /// The reactive attribute.
+    /// </value>
     public static string ReactiveAttribute => $$"""
 // Copyright (c) {{DateTime.Now.Year}} .NET Foundation and Contributors. All rights reserved.
 // Licensed to the .NET Foundation under one or more agreements.
@@ -133,6 +150,11 @@ internal sealed class ReactiveAttribute : Attribute
     /// The AccessModifier of the set property.
     /// </value>
     public AccessModifier SetModifier { get; init; }
+
+    /// <summary>
+    /// Gets the InheritanceModifier of the property.
+    /// </sumary>
+    public InheritanceModifier Inheritance { get; init; }
 }
 #nullable restore
 #pragma warning restore
