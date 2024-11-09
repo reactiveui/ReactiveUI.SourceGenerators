@@ -51,6 +51,11 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     [Reactive]
     private string _myStringProperty = "test";
 
+    [property: JsonInclude]
+    [DataMember]
+    [Reactive(Inheritance = InheritanceModifier.Virtual, SetModifier = AccessModifier.Protected)]
+    private string? _name;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="TestViewModel"/> class.
     /// </summary>

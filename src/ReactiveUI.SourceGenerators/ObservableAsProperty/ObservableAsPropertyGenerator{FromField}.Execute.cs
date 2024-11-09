@@ -55,6 +55,16 @@ public sealed partial class ObservableAsPropertyGenerator
         // Get the can PropertyName member, if any
         attributeData.TryGetNamedArgument("ReadOnly", out bool? isReadonly);
 
+        // Get Inheritance value from the attribute
+        attributeData.TryGetNamedArgument("Inheritance", out int? inheritanceArgument);
+        var inheritance = inheritanceArgument switch
+        {
+            1 => " virtual",
+            2 => " override",
+            3 => " new",
+            _ => string.Empty,
+        };
+
         token.ThrowIfCancellationRequested();
 
         // Get the property type and name
@@ -198,7 +208,8 @@ public sealed partial class ObservableAsPropertyGenerator
             isReferenceTypeOrUnconstraindTypeParameter,
             includeMemberNotNullOnSetAccessor,
             forwardedPropertyAttributes,
-            isReadonly == false ? string.Empty : "readonly"),
+            isReadonly == false ? string.Empty : "readonly",
+            inheritance),
             builder.ToImmutable());
     }
 

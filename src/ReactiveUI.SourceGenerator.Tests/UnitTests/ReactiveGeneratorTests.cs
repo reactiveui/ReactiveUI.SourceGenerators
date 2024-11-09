@@ -109,5 +109,39 @@ public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase<Reactiv
         return VerifyGenerator(driver);
     }
 
+    /// <summary>
+    /// Froms the reactive properties with attributes and access and inheritance.
+    /// </summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Fact]
+    public Task FromReactivePropertiesWithAttributesAccessAndInheritance()
+    {
+        // Arrange: Setup the source code that matches the generator input expectations.
+        const string sourceCode = @"
+                using System;
+                using System.Runtime.Serialization;
+                using System.Text.Json.Serialization;
+                using ReactiveUI;
+                using ReactiveUI.SourceGenerators;
+                using System.Reactive.Linq;
+
+                namespace TestNs;
+
+                public partial class TestVM : ReactiveObject
+                {
+                    [property: JsonInclude]
+                    [DataMember]
+                    [Reactive(Inheritance = InheritanceModifier.Virtual, SetModifier = AccessModifier.Protected)]
+                    private string? _name;
+                }
+            ";
+
+        // Act: Initialize the helper and run the generator.
+        var driver = TestHelper.TestPass(sourceCode);
+
+        // Assert: Verify the generated code.
+        return VerifyGenerator(driver);
+    }
+
     private SettingsTask VerifyGenerator(GeneratorDriver driver) => Verify(driver).UseDirectory(TestHelper.VerifiedFilePath()).ScrubLinesContaining("[global::System.CodeDom.Compiler.GeneratedCode(\"");
 }
