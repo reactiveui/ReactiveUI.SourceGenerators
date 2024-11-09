@@ -234,6 +234,12 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     /// </summary>
     public ViewModelActivator Activator { get; } = new();
 
+    [ObservableAsProperty]
+    private IObservable<object> ReferenceTypeObservable { get; }
+
+    [ObservableAsProperty]
+    private IObservable<object?> NullableReferenceTypeObservable { get; }
+
     /// <summary>
     /// Gets observables as property test.
     /// </summary>

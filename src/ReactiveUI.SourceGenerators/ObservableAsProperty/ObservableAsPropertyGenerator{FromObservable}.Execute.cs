@@ -64,7 +64,7 @@ public sealed partial class ObservableAsPropertyGenerator
 
             var observableType = methodSymbol.ReturnType is not INamedTypeSymbol typeSymbol
                 ? string.Empty
-                : typeSymbol.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                : typeSymbol.TypeArguments[0].GetFullyQualifiedNameWithNullabilityAnnotations();
 
             // Get the hierarchy info for the target symbol, and try to gather the property info
             hierarchy = HierarchyInfo.From(methodSymbol.ContainingType);
@@ -82,7 +82,7 @@ public sealed partial class ObservableAsPropertyGenerator
                 targetInfo.TargetVisibility,
                 targetInfo.TargetType,
                 methodSymbol.Name,
-                methodSymbol.ReturnType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                methodSymbol.ReturnType.GetFullyQualifiedNameWithNullabilityAnnotations(),
                 methodSymbol.Parameters.FirstOrDefault()?.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                 propertyName ?? (methodSymbol.Name + "Property"),
                 observableType,
@@ -109,7 +109,7 @@ public sealed partial class ObservableAsPropertyGenerator
 
             var observableType = propertySymbol.Type is not INamedTypeSymbol typeSymbol
                 ? string.Empty
-                : typeSymbol.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                : typeSymbol.TypeArguments[0].GetFullyQualifiedNameWithNullabilityAnnotations();
 
             // Get the hierarchy info for the target symbol, and try to gather the property info
             hierarchy = HierarchyInfo.From(propertySymbol.ContainingType);
@@ -127,7 +127,7 @@ public sealed partial class ObservableAsPropertyGenerator
                 targetInfo.TargetVisibility,
                 targetInfo.TargetType,
                 propertySymbol.Name,
-                propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                propertySymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations(),
                 propertySymbol.Parameters.FirstOrDefault()?.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                 propertyName ?? (propertySymbol.Name + "Property"),
                 observableType,
