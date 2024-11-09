@@ -79,6 +79,11 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
         _observableAsPropertyTest2Property = 11223344;
         Console.Out.WriteLine(ObservableAsPropertyTest2Property);
         Console.Out.WriteLine(_observableAsPropertyTest2Property);
+
+        _referenceTypeObservableProperty = default!;
+        ReferenceTypeObservable = Observable.Return(new object());
+        NullableReferenceTypeObservable = Observable.Return(new object());
+
         InitializeOAPH();
 
         Console.Out.WriteLine(Test1Command);

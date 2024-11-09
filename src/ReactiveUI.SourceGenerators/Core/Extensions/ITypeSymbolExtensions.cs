@@ -288,6 +288,15 @@ internal static class ITypeSymbolExtensions
         return false;
     }
 
+    /// <summary>
+    /// Determines whether [is nullable type].
+    /// </summary>
+    /// <param name="typeSymbol">The type symbol.</param>
+    /// <returns>
+    ///   <c>true</c> if [is nullable type] [the specified type symbol]; otherwise, <c>false</c>.
+    /// </returns>
+    public static bool IsNullableType(this ITypeSymbol? typeSymbol) => typeSymbol?.NullableAnnotation == NullableAnnotation.Annotated;
+
     public static ITypeSymbol GetTaskReturnType(this ITypeSymbol typeSymbol, Compilation compilation) => typeSymbol switch
     {
         INamedTypeSymbol { TypeArguments.Length: 1 } namedTypeSymbol => namedTypeSymbol.TypeArguments[0],
