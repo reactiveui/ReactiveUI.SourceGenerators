@@ -169,5 +169,73 @@ public class OAPFromObservableGeneratorTests(ITestOutputHelper output) : TestBas
         return VerifyGenerator(driver);
     }
 
+    /// <summary>
+    /// Tests that the source generator correctly generates observable properties.
+    /// </summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Fact]
+    public Task FromObservablePropertiesWithAttributeRef()
+    {
+        // Arrange: Setup the source code that matches the generator input expectations.
+        const string sourceCode = """
+                using System;
+                using System.Runtime.Serialization;
+                using System.Text.Json.Serialization;
+                using ReactiveUI;
+                using ReactiveUI.SourceGenerators;
+                using System.Reactive.Linq;
+
+                namespace TestNs;
+
+                public partial class TestVM : ReactiveObject
+                {
+                    [ObservableAsProperty(PropertyName = "MyNamedProperty")]
+                    [property: JsonInclude]
+                    [DataMember]
+                    public IObservable<object> Test6 => Observable.Return(new object());
+                }
+            """;
+
+        // Act: Initialize the helper and run the generator.
+        var driver = TestHelper.TestPass(sourceCode);
+
+        // Assert: Verify the generated code.
+        return VerifyGenerator(driver);
+    }
+
+    /// <summary>
+    /// Tests that the source generator correctly generates observable properties.
+    /// </summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Fact]
+    public Task FromObservablePropertiesWithAttributeNullableRef()
+    {
+        // Arrange: Setup the source code that matches the generator input expectations.
+        const string sourceCode = """
+                using System;
+                using System.Runtime.Serialization;
+                using System.Text.Json.Serialization;
+                using ReactiveUI;
+                using ReactiveUI.SourceGenerators;
+                using System.Reactive.Linq;
+
+                namespace TestNs;
+
+                public partial class TestVM : ReactiveObject
+                {
+                    [ObservableAsProperty(PropertyName = "MyNamedProperty")]
+                    [property: JsonInclude]
+                    [DataMember]
+                    public IObservable<object?> Test7 => Observable.Return(new object());
+                }
+            """;
+
+        // Act: Initialize the helper and run the generator.
+        var driver = TestHelper.TestPass(sourceCode);
+
+        // Assert: Verify the generated code.
+        return VerifyGenerator(driver);
+    }
+
     private SettingsTask VerifyGenerator(GeneratorDriver driver) => Verify(driver).UseDirectory(TestHelper.VerifiedFilePath()).ScrubLinesContaining("[global::System.CodeDom.Compiler.GeneratedCode(\"");
 }

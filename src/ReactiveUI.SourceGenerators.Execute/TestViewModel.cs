@@ -84,6 +84,11 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
         _observableAsPropertyTest2Property = 11223344;
         Console.Out.WriteLine(ObservableAsPropertyTest2Property);
         Console.Out.WriteLine(_observableAsPropertyTest2Property);
+
+        _referenceTypeObservableProperty = default!;
+        ReferenceTypeObservable = Observable.Return(new object());
+        NullableReferenceTypeObservable = Observable.Return(new object());
+
         InitializeOAPH();
 
         Console.Out.WriteLine(Test1Command);
@@ -238,6 +243,12 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     /// Gets the Activator which will be used by the View when Activation/Deactivation occurs.
     /// </summary>
     public ViewModelActivator Activator { get; } = new();
+
+    [ObservableAsProperty]
+    private IObservable<object> ReferenceTypeObservable { get; }
+
+    [ObservableAsProperty]
+    private IObservable<object?> NullableReferenceTypeObservable { get; }
 
     /// <summary>
     /// Gets observables as property test.

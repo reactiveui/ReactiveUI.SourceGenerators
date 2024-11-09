@@ -1,5 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
+# 17
 VisualStudioVersion = 17.10.35027.167
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionConfig", "SolutionConfig", "{F29AF2F3-DEC8-58BC-043A-1447862C832D}"
@@ -25,6 +25,14 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestLibs", "TestLibs", "{B86ED9C1-AFFB-4854-AD80-F4B4050CAD0A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveUI.SourceGenerators.Analyzers.CodeFixes", "ReactiveUI.SourceGenerators.Analyzers.CodeFixes\ReactiveUI.SourceGenerators.Analyzers.CodeFixes.csproj", "{BD4FADD9-C0E5-46E9-906E-01B04CC856B5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveUI.SourceGenerators.Execute.Nested1", "ReactiveUI.SourceGenerators.Execute.Nested1\ReactiveUI.SourceGenerators.Execute.Nested1.csproj", "{A4971B7D-E35F-4891-BF32-BE911AE86900}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveUI.SourceGenerators.Execute.Nested2", "ReactiveUI.SourceGenerators.Execute.Nested2\ReactiveUI.SourceGenerators.Execute.Nested2.csproj", "{CB36161E-8F9E-48B5-8CE0-AC130A73BD2A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveUI.SourceGenerators.Execute.Nested3", "ReactiveUI.SourceGenerators.Execute.Nested3\ReactiveUI.SourceGenerators.Execute.Nested3.csproj", "{B42F683D-91D8-4378-9DFE-EC55DB0FE43A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NestedTest", "NestedTest", "{CAFBD27B-5078-4A0C-A4E9-19DCF2A7DF16}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -52,6 +60,18 @@ Global
 		{BD4FADD9-C0E5-46E9-906E-01B04CC856B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD4FADD9-C0E5-46E9-906E-01B04CC856B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BD4FADD9-C0E5-46E9-906E-01B04CC856B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4971B7D-E35F-4891-BF32-BE911AE86900}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4971B7D-E35F-4891-BF32-BE911AE86900}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4971B7D-E35F-4891-BF32-BE911AE86900}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4971B7D-E35F-4891-BF32-BE911AE86900}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB36161E-8F9E-48B5-8CE0-AC130A73BD2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB36161E-8F9E-48B5-8CE0-AC130A73BD2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB36161E-8F9E-48B5-8CE0-AC130A73BD2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB36161E-8F9E-48B5-8CE0-AC130A73BD2A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B42F683D-91D8-4378-9DFE-EC55DB0FE43A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B42F683D-91D8-4378-9DFE-EC55DB0FE43A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B42F683D-91D8-4378-9DFE-EC55DB0FE43A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B42F683D-91D8-4378-9DFE-EC55DB0FE43A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -59,6 +79,10 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{76D5AC8C-4935-3E4B-BD12-71FAEC2B9A9D} = {B86ED9C1-AFFB-4854-AD80-F4B4050CAD0A}
 		{849CACF4-B85F-47B5-84B3-7C94DE864E7E} = {B86ED9C1-AFFB-4854-AD80-F4B4050CAD0A}
+		{A4971B7D-E35F-4891-BF32-BE911AE86900} = {CAFBD27B-5078-4A0C-A4E9-19DCF2A7DF16}
+		{CB36161E-8F9E-48B5-8CE0-AC130A73BD2A} = {CAFBD27B-5078-4A0C-A4E9-19DCF2A7DF16}
+		{B42F683D-91D8-4378-9DFE-EC55DB0FE43A} = {CAFBD27B-5078-4A0C-A4E9-19DCF2A7DF16}
+		{CAFBD27B-5078-4A0C-A4E9-19DCF2A7DF16} = {B86ED9C1-AFFB-4854-AD80-F4B4050CAD0A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {173F891B-86A2-4226-B563-A7318CE0E2EC}

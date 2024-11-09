@@ -20,6 +20,7 @@ namespace ReactiveUI.SourceGenerators.ObservableAsProperty.Models
     string? ArgumentType,
     string PropertyName,
     string ObservableType,
+    bool IsNullableType,
     bool IsProperty,
     EquatableArray<string> ForwardedPropertyAttributes)
     {

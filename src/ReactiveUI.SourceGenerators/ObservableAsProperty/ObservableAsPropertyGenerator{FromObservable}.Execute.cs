@@ -64,7 +64,9 @@ public sealed partial class ObservableAsPropertyGenerator
 
             var observableType = methodSymbol.ReturnType is not INamedTypeSymbol typeSymbol
                 ? string.Empty
-                : typeSymbol.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                : typeSymbol.TypeArguments[0].GetFullyQualifiedNameWithNullabilityAnnotations();
+
+            var isNullableType = methodSymbol.ReturnType is INamedTypeSymbol nullcheck && nullcheck.TypeArguments[0].IsNullableType();
 
             // Get the hierarchy info for the target symbol, and try to gather the property info
             hierarchy = HierarchyInfo.From(methodSymbol.ContainingType);
@@ -82,10 +84,11 @@ public sealed partial class ObservableAsPropertyGenerator
                 targetInfo.TargetVisibility,
                 targetInfo.TargetType,
                 methodSymbol.Name,
-                methodSymbol.ReturnType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                methodSymbol.ReturnType.GetFullyQualifiedNameWithNullabilityAnnotations(),
                 methodSymbol.Parameters.FirstOrDefault()?.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                 propertyName ?? (methodSymbol.Name + "Property"),
                 observableType,
+                isNullableType,
                 false,
                 propertyAttributes),
                 diagnostics.ToImmutable());
@@ -109,7 +112,9 @@ public sealed partial class ObservableAsPropertyGenerator
 
             var observableType = propertySymbol.Type is not INamedTypeSymbol typeSymbol
                 ? string.Empty
-                : typeSymbol.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                : typeSymbol.TypeArguments[0].GetFullyQualifiedNameWithNullabilityAnnotations();
+
+            var isNullableType = propertySymbol.Type is INamedTypeSymbol nullcheck && nullcheck.TypeArguments[0].IsNullableType();
 
             // Get the hierarchy info for the target symbol, and try to gather the property info
             hierarchy = HierarchyInfo.From(propertySymbol.ContainingType);
@@ -127,10 +132,11 @@ public sealed partial class ObservableAsPropertyGenerator
                 targetInfo.TargetVisibility,
                 targetInfo.TargetType,
                 propertySymbol.Name,
-                propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                propertySymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations(),
                 propertySymbol.Parameters.FirstOrDefault()?.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                 propertyName ?? (propertySymbol.Name + "Property"),
                 observableType,
+                isNullableType,
                 true,
                 propertyAttributes),
                 diagnostics.ToImmutable());
@@ -173,15 +179,9 @@ namespace {{containingNamespace}}
     {
         var propertyAttributes = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage.Concat(propertyInfo.ForwardedPropertyAttributes));
         var getterFieldIdentifierName = propertyInfo.GetGeneratedFieldName();
-        string getterArrowExpression;
-        if (propertyInfo.ObservableType.EndsWith("?"))
-        {
-            getterArrowExpression = $"{getterFieldIdentifierName} = ({getterFieldIdentifierName}Helper == null ? {getterFieldIdentifierName} : {getterFieldIdentifierName}Helper.Value)";
-        }
-        else
-        {
-            getterArrowExpression = $"{getterFieldIdentifierName} = {getterFieldIdentifierName}Helper?.Value ?? {getterFieldIdentifierName}";
-        }
+        var getterArrowExpression = propertyInfo.IsNullableType
+            ? $"{getterFieldIdentifierName} = ({getterFieldIdentifierName}Helper == null ? {getterFieldIdentifierName} : {getterFieldIdentifierName}Helper.Value)"
+            : $"{getterFieldIdentifierName} = {getterFieldIdentifierName}Helper?.Value ?? {getterFieldIdentifierName}";
 
         return $$"""
 /// <inheritdoc cref="{{propertyInfo.PropertyName}}"/>
