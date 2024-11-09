@@ -24,4 +24,5 @@ internal sealed record PropertyInfo(
     bool IsReferenceTypeOrUnconstrainedTypeParameter,
     bool IncludeMemberNotNullOnSetAccessor,
     EquatableArray<string> ForwardedAttributes,
-    string AccessModifier);
+    string AccessModifier,
+    string Inheritance);

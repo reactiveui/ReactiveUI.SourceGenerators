@@ -21,5 +21,16 @@ internal enum AccessModifier
     InternalProtected,
     PrivateProtected,
 }
+
+/// <summary>
+/// InheritanceModifier.
+/// </summary>
+internal enum InheritanceModifier
+{
+    None,
+    Virtual,
+    Override,
+    New,
+}
 #nullable restore
 #pragma warning restore
