@@ -84,12 +84,12 @@ public sealed class TestHelper<T>(ITestOutputHelper testOutput) : IDisposable
         var name = typeof(T).Name;
         return name switch
         {
-            nameof(ReactiveGenerator) => "..\\REACTIVE",
-            nameof(ReactiveCommandGenerator) => "..\\REACTIVECMD",
-            nameof(ObservableAsPropertyGenerator) => "..\\OAPH",
-            nameof(IViewForGenerator) => "..\\IVIEWFOR",
-            nameof(RoutedControlHostGenerator) => "..\\ROUTEDHOST",
-            nameof(ViewModelControlHostGenerator) => "..\\CONTROLHOST",
+            nameof(ReactiveGenerator) => "REACTIVE",
+            nameof(ReactiveCommandGenerator) => "REACTIVECMD",
+            nameof(ObservableAsPropertyGenerator) => "OAPH",
+            nameof(IViewForGenerator) => "IVIEWFOR",
+            nameof(RoutedControlHostGenerator) => "ROUTEDHOST",
+            nameof(ViewModelControlHostGenerator) => "CONTROLHOST",
             _ => name,
         };
     }
@@ -127,7 +127,7 @@ public sealed class TestHelper<T>(ITestOutputHelper testOutput) : IDisposable
 
         var utility = new SourceGeneratorUtility(x => testOutput.WriteLine(x));
 
-        Assert.Throws<InvalidOperationException>(() => RunGeneratorAndCheck(source));
+        Assert.Throws<InvalidOperationException>(() => { RunGeneratorAndCheck(source); });
     }
 
     /// <summary>
@@ -140,7 +140,7 @@ public sealed class TestHelper<T>(ITestOutputHelper testOutput) : IDisposable
     /// </returns>
     /// <exception cref="InvalidOperationException">Must have valid compiler instance.</exception>
     /// <exception cref="ArgumentNullException">callerType.</exception>
-    public GeneratorDriver TestPass(
+    public SettingsTask TestPass(
         string source,
         bool withPreDiagnosics = false)
     {
@@ -165,7 +165,7 @@ public sealed class TestHelper<T>(ITestOutputHelper testOutput) : IDisposable
     /// The generator driver used to run the generator.
     /// </returns>
     /// <exception cref="InvalidOperationException">Thrown if the compiler instance is not valid or if the compilation fails.</exception>
-    public GeneratorDriver RunGeneratorAndCheck(
+    public SettingsTask RunGeneratorAndCheck(
         string code,
         bool withPreDiagnosics = false,
         bool rerunCompilation = true)
@@ -224,10 +224,12 @@ public sealed class TestHelper<T>(ITestOutputHelper testOutput) : IDisposable
                 throw new InvalidOperationException("Compilation failed due to the above diagnostics.");
             }
 
-            return rerunDriver;
+            return VerifyGenerator(rerunDriver);
         }
 
         // If rerun is not needed, simply run the generator.
-        return driver.RunGenerators(compilation);
+        return VerifyGenerator(driver.RunGenerators(compilation));
     }
+
+    private SettingsTask VerifyGenerator(GeneratorDriver driver) => Verify(driver).UseDirectory(VerifiedFilePath()).ScrubLinesContaining("[global::System.CodeDom.Compiler.GeneratedCode(\"");
 }
