@@ -15,4 +15,4 @@ jobs:
     with:
       configuration: Release
       productNamespacePrefix: "SourceGenerators"
-      installWorkflows: false
+      installWorkflows: true
