@@ -3,7 +3,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using Microsoft.CodeAnalysis;
 using ReactiveUI.SourceGenerators;
 using Xunit.Abstractions;
 
@@ -38,11 +37,8 @@ public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase<Reactiv
                 }
             """;
 
-        // Act: Initialize the helper and run the generator.
-        var driver = TestHelper.TestPass(sourceCode);
-
-        // Assert: Verify the generated code.
-        return VerifyGenerator(driver);
+        // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
+        return TestHelper.TestPass(sourceCode);
     }
 
     /// <summary>
@@ -68,11 +64,8 @@ public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase<Reactiv
                 }
             """;
 
-        // Act: Initialize the helper and run the generator.
-        var driver = TestHelper.TestPass(sourceCode);
-
-        // Assert: Verify the generated code.
-        return VerifyGenerator(driver);
+        // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
+        return TestHelper.TestPass(sourceCode);
     }
 
     /// <summary>
@@ -102,11 +95,8 @@ public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase<Reactiv
                 }
             ";
 
-        // Act: Initialize the helper and run the generator.
-        var driver = TestHelper.TestPass(sourceCode);
-
-        // Assert: Verify the generated code.
-        return VerifyGenerator(driver);
+        // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
+        return TestHelper.TestPass(sourceCode);
     }
 
     /// <summary>
@@ -136,12 +126,50 @@ public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase<Reactiv
                 }
             ";
 
-        // Act: Initialize the helper and run the generator.
-        var driver = TestHelper.TestPass(sourceCode);
-
-        // Assert: Verify the generated code.
-        return VerifyGenerator(driver);
+        // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
+        return TestHelper.TestPass(sourceCode);
     }
 
-    private SettingsTask VerifyGenerator(GeneratorDriver driver) => Verify(driver).UseDirectory(TestHelper.VerifiedFilePath()).ScrubLinesContaining("[global::System.CodeDom.Compiler.GeneratedCode(\"");
+    /// <summary>
+    /// Froms the reactive properties with attributes and access and inheritance.
+    /// </summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Fact]
+    public Task FromReactivePropertiesWithIdenticalClass()
+    {
+        // Arrange: Setup the source code that matches the generator input expectations.
+        const string sourceCode = @"
+                using System;
+                using System.Runtime.Serialization;
+                using System.Text.Json.Serialization;
+                using ReactiveUI;
+                using ReactiveUI.SourceGenerators;
+                using System.Reactive.Linq;
+
+                namespace TestNs1
+                {
+                    public partial class TestVM : ReactiveObject
+                    {
+                        [property: JsonInclude]
+                        [DataMember]
+                        [Reactive(Inheritance = InheritanceModifier.Virtual, SetModifier = AccessModifier.Protected)]
+                        private string? _name;
+                    }
+                }
+
+                namespace TestNs2
+                {
+                    public partial class TestVM : ReactiveObject
+                    {
+                        [property: JsonInclude]
+                        [DataMember]
+                        [Reactive(Inheritance = InheritanceModifier.Virtual, SetModifier = AccessModifier.Protected)]
+                        private string? _name;
+                    }
+                }
+            ";
+
+        // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
+        return TestHelper.TestPass(sourceCode);
+    }
 }
