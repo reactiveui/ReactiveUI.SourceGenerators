@@ -23,7 +23,7 @@ ReactiveUI Source Generators automatically generate ReactiveUI objects to stream
 
 ### Compatibility Notes
 - For ReactiveUI versions **older than V19.5.31**, all `[ReactiveCommand]` options are supported except for async methods with a `CancellationToken`.
-- For **.NET Framework 4.8 and older**, add [Polyfill by Simon Cropp](https://github.com/Fody/Polyfill) or [PolySharp by Manuel Römer](https://github.com/manuelroemer/PolySharp) to your project and set the `LangVersion` to 12.0 or later in your project file.
+- For **.NET Framework 4.8 and older**, add [Polyfill by Simon Cropp](https://github.com/SimonCropp/Polyfill) or [PolySharp by Sergio Pedri](https://github.com/Sergio0694/PolySharp) to your project and set the `LangVersion` to 12.0 or later in your project file.
 
 For more information on analyzer codes, see the [analyzer codes documentation](https://github.com/reactiveui/ReactiveUI.SourceGenerators/blob/main/src/ReactiveUI.SourceGenerators/AnalyzerReleases.Shipped.md).
 
@@ -440,3 +440,9 @@ public partial class MyCustomViewModelControlHost;
 
 ### TODO:
 - Add ObservableAsProperty to generate from a IObservable method with parameters.
+
+# Credits
+
+Portions of this code base are based on and derived from
+* [PolySharp](https://github.com/Sergio0694/PolySharp) library. Thanks go to @Sergio0694
+* [Microsoft MVVM Community Toolkit](https://github.com/CommunityToolkit/dotnet)
