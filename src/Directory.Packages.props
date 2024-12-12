@@ -7,8 +7,8 @@
   <ItemGroup>
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.7.112" />
-    <PackageVersion Include="NuGet.Common" Version="6.11.1" />
-    <PackageVersion Include="NuGet.Protocol" Version="6.11.1" />
+    <PackageVersion Include="NuGet.Common" Version="6.12.1" />
+    <PackageVersion Include="NuGet.Protocol" Version="6.12.1" />
     <PackageVersion Include="stylecop.analyzers" Version="1.2.0-beta.556" />
     <PackageVersion Include="Roslynator.Analyzers" Version="4.12.9" />
     <PackageVersion Include="ReactiveUI" Version="20.1.63" />
