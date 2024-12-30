@@ -39,27 +39,4 @@ internal static class DiagnosticsExtensions
         DiagnosticDescriptor descriptor,
         SyntaxNode node,
         params object[] args) => diagnostics.Add(DiagnosticInfo.Create(descriptor, node, args));
-
-    /// <summary>
-    /// Registers an output node into an <see cref="IncrementalGeneratorInitializationContext"/> to output diagnostics.
-    /// </summary>
-    /// <param name="context">The input <see cref="IncrementalGeneratorInitializationContext"/> instance.</param>
-    /// <param name="diagnostics">The input <see cref="IncrementalValuesProvider{TValues}"/> sequence of diagnostics.</param>
-    public static void ReportDiagnostics(this in IncrementalGeneratorInitializationContext context, in IncrementalValuesProvider<DiagnosticInfo> diagnostics) =>
-        context.RegisterSourceOutput(diagnostics, static (context, diagnostic) =>
-            context.ReportDiagnostic(diagnostic.ToDiagnostic()));
-
-    /// <summary>
-    /// Registers an output node into an <see cref="IncrementalGeneratorInitializationContext"/> to output diagnostics.
-    /// </summary>
-    /// <param name="context">The input <see cref="IncrementalGeneratorInitializationContext"/> instance.</param>
-    /// <param name="diagnostics">The input <see cref="IncrementalValuesProvider{TValues}"/> sequence of diagnostics.</param>
-    public static void ReportDiagnostics(this in IncrementalGeneratorInitializationContext context, in IncrementalValuesProvider<EquatableArray<DiagnosticInfo>> diagnostics) =>
-        context.RegisterSourceOutput(diagnostics, static (context, diagnostics) =>
-        {
-            foreach (var diagnostic in diagnostics)
-            {
-                context.ReportDiagnostic(diagnostic.ToDiagnostic());
-            }
-        });
 }

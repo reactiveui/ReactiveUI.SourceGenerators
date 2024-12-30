@@ -3,7 +3,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -12,7 +11,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ReactiveUI.SourceGenerators.Helpers;
-using ReactiveUI.SourceGenerators.Models;
 
 namespace ReactiveUI.SourceGenerators.Extensions;
 
@@ -21,62 +19,6 @@ namespace ReactiveUI.SourceGenerators.Extensions;
 /// </summary>
 internal static class AttributeDataExtensions
 {
-    /// <summary>
-    /// Checks whether a given <see cref="AttributeData"/> instance contains a specified named argument.
-    /// </summary>
-    /// <typeparam name="T">The type of argument to check.</typeparam>
-    /// <param name="attributeData">The target <see cref="AttributeData"/> instance to check.</param>
-    /// <param name="name">The name of the argument to check.</param>
-    /// <param name="value">The expected value for the target named argument.</param>
-    /// <returns>Whether or not <paramref name="attributeData"/> contains an argument named <paramref name="name"/> with the expected value.</returns>
-    public static bool HasNamedArgument<T>(this AttributeData attributeData, string name, T? value)
-    {
-        foreach (var properties in attributeData.NamedArguments)
-        {
-            if (properties.Key == name)
-            {
-                return
-                    properties.Value.Value is T argumentValue &&
-                    EqualityComparer<T?>.Default.Equals(argumentValue, value);
-            }
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Tries to get the location of the input <see cref="AttributeData"/> instance.
-    /// </summary>
-    /// <param name="attributeData">The input <see cref="AttributeData"/> instance to get the location for.</param>
-    /// <returns>The resulting location for <paramref name="attributeData"/>, if a syntax reference is available.</returns>
-    public static Location? GetLocation(this AttributeData attributeData)
-    {
-        if (attributeData.ApplicationSyntaxReference is { } syntaxReference)
-        {
-            return syntaxReference.SyntaxTree.GetLocation(syntaxReference.Span);
-        }
-
-        return null;
-    }
-
-    /// <summary>
-    /// Gets a given named argument value from an <see cref="AttributeData"/> instance, or a fallback value.
-    /// </summary>
-    /// <typeparam name="T">The type of argument to check.</typeparam>
-    /// <param name="attributeData">The target <see cref="AttributeData"/> instance to check.</param>
-    /// <param name="name">The name of the argument to check.</param>
-    /// <param name="fallback">The fallback value to use if the named argument is not present.</param>
-    /// <returns>The argument named <paramref name="name"/>, or a fallback value.</returns>
-    public static T? GetNamedArgument<T>(this AttributeData attributeData, string name, T? fallback = default)
-    {
-        if (attributeData.TryGetNamedArgument(name, out T? value))
-        {
-            return value;
-        }
-
-        return fallback;
-    }
-
     /// <summary>
     /// Tries to get a given named argument value from an <see cref="AttributeData"/> instance, if present.
     /// </summary>
@@ -136,63 +78,6 @@ internal static class AttributeDataExtensions
         }
 
         return Enumerate(attributeData.ConstructorArguments);
-    }
-
-    /// <summary>
-    /// Gets the attribute syntax as a string for generating code.
-    /// </summary>
-    /// <param name="attribute">The attribute data from the original code.</param>
-    /// <param name="token">The cancellation token for the operation.</param>
-    /// <returns>A class array containing the syntax and other relevant metadata.</returns>
-    public static PropertyAttributeData? GetAttributeSyntax(this AttributeData attribute, CancellationToken token)
-    {
-        // Retrieve the syntax from the attribute reference.
-        if (attribute.ApplicationSyntaxReference?.GetSyntax(token) is not AttributeSyntax syntax)
-        {
-            // If the syntax is not available, return an empty string.
-            return null;
-        }
-
-        // Normalize the syntax for correct formatting and return it as a string.
-        return new(attribute.AttributeClass?.ContainingNamespace?.ToDisplayString(SymbolHelpers.DefaultDisplay), syntax.NormalizeWhitespace().ToFullString());
-    }
-
-    /// <summary>
-    /// Generates a string containing the applicable attributes for a given target (e.g., field or property).
-    /// </summary>
-    /// <param name="attributes">The collection of attribute data to process.</param>
-    /// <param name="allowedTarget">The attribute target (e.g., property, field).</param>
-    /// <param name="token">The cancellation token.</param>
-    /// <returns>A class array containing the syntax and other relevant metadata.</returns>
-    public static PropertyAttributeData[] GenerateAttributes(
-        this IEnumerable<AttributeData> attributes,
-        AttributeTargets allowedTarget,
-        CancellationToken token)
-    {
-        // Filter and convert each attribute to its syntax form, ensuring it can target the given element type.
-        var applicableAttributes = attributes
-            .Where(attr => attr.AttributeClass.AttributeCanTarget(allowedTarget))
-            .Select(attr => attr.GetAttributeSyntax(token))
-            .Where(x => x is not null)
-            .Select(x => x!)
-            .ToImmutableArray();
-
-        return [.. applicableAttributes];
-    }
-
-    /// <summary>
-    /// Generates the formatted attributes for fields and properties.
-    /// </summary>
-    /// <param name="attr">The attribute to format.</param>
-    /// <returns>A formatted string of attributes.</returns>
-    public static string FormatAttributes(this PropertyAttributeData attr)
-    {
-        // If the attribute namespace is null, omit the dot (.) separator.
-        var namespacePrefix = string.IsNullOrEmpty(attr.AttributeNamespace)
-            ? string.Empty
-            : $"{attr.AttributeNamespace}.";
-
-        return $"[{namespacePrefix}{attr.AttributeSyntax}]";
     }
 
     /// <summary>

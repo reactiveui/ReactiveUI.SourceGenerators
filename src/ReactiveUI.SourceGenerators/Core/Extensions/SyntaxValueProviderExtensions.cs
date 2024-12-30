@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Immutable;
 using System.Threading;
-using Microsoft.CodeAnalysis.CSharp;
 using ReactiveUI.SourceGenerators.Extensions;
 
 namespace Microsoft.CodeAnalysis;
@@ -26,17 +25,17 @@ internal static class SyntaxValueProviderExtensions
     /// <param name="syntaxValueProvider">The source <see cref="SyntaxValueProvider"/> instance to use.</param>
     /// <param name="fullyQualifiedMetadataName">The fully qualified metadata name of the attribute to look for.</param>
     /// <param name="predicate">A function that determines if the given <see cref="SyntaxNode"/> attribute target (<see
-    /// cref="SGeneratorAttributeSyntaxContext.TargetNode"/>) should be transformed.  Nodes that do not pass this
+    /// cref="GenericGeneratorAttributeSyntaxContext.TargetNode"/>) should be transformed.  Nodes that do not pass this
     /// predicate will not have their attributes looked at all.</param>
     /// <param name="transform">A function that performs the transform. This will only be passed nodes that return <see
     /// langword="true"/> for <paramref name="predicate"/> and which have a matching <see cref="AttributeData"/> whose
     /// <see cref="AttributeData.AttributeClass"/> has the same fully qualified, metadata name as <paramref
     /// name="fullyQualifiedMetadataName"/>.</param>
-    public static IncrementalValuesProvider<T> ForAttributeWithMetadataNameInternal<T>(
-        this SyntaxValueProvider syntaxValueProvider,
+    public static IncrementalValuesProvider<T> ForAttributeWithMetadataNameWithGenerics<T>(
+        this in SyntaxValueProvider syntaxValueProvider,
         string fullyQualifiedMetadataName,
         Func<SyntaxNode, CancellationToken, bool> predicate,
-        Func<SGeneratorAttributeSyntaxContext, CancellationToken, T> transform) => syntaxValueProvider
+        Func<GenericGeneratorAttributeSyntaxContext, CancellationToken, T> transform) => syntaxValueProvider
             .CreateSyntaxProvider(
                 predicate,
                 (context, token) =>
@@ -65,56 +64,15 @@ internal static class SyntaxValueProviderExtensions
                         return null;
                     }
 
-                    if (!context.SemanticModel.Compilation.HasLanguageVersionAtLeastEqualTo(1200))
-                    {
-                        return null;
-                    }
-
                     // Create the GeneratorAttributeSyntaxContext value to pass to the input transform. The attributes array
                     // will only ever have a single value, but that's fine with the attributes the various generators look for.
-                    SGeneratorAttributeSyntaxContext syntaxContext = new(
+                    GenericGeneratorAttributeSyntaxContext syntaxContext = new(
                         targetNode: context.Node,
                         targetSymbol: symbol,
                         semanticModel: context.SemanticModel,
                         attributes: ImmutableArray.Create(attributeData));
 
                     return new Option<T>(transform(syntaxContext, token));
-                })
-            .Where(static item => item is not null)
-            .Select(static (item, _) => item!.Value)!;
-
-    public static IncrementalValuesProvider<T> ForAllAttributes<T>(
-        this SyntaxValueProvider syntaxValueProvider,
-        Func<SyntaxNode, CancellationToken, bool> predicate,
-        Func<GeneratorSyntaxContext, CancellationToken, T> transform) => syntaxValueProvider
-            .CreateSyntaxProvider(
-                predicate,
-                (context, token) =>
-                {
-                    var symbol = context.SemanticModel.GetDeclaredSymbol(context.Node, token);
-
-                    // If the syntax node doesn't have a declared symbol, just skip this node. This would be
-                    // the case for eg. lambda attributes, but those are not supported by the MVVM Toolkit.
-                    if (symbol is null)
-                    {
-                        return null;
-                    }
-
-                    // Edge case: if the symbol is a partial method, skip the implementation part and only process the partial method
-                    // definition. This is needed because attributes will be reported as available on both the definition and the
-                    // implementation part. To avoid generating duplicate files, we only give priority to the definition part.
-                    // On Roslyn 4.3+, ForAttributeWithMetadataName will already only return the symbol the attribute was located on.
-                    if (symbol is IMethodSymbol { IsPartialDefinition: false, PartialDefinitionPart: not null })
-                    {
-                        return null;
-                    }
-
-                    if (!context.SemanticModel.Compilation.HasLanguageVersionAtLeastEqualTo(1200))
-                    {
-                        return null;
-                    }
-
-                    return new Option<T>(transform(context, token));
                 })
             .Where(static item => item is not null)
             .Select(static (item, _) => item!.Value)!;

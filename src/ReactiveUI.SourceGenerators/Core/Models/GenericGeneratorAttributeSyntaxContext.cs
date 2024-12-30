@@ -8,19 +8,19 @@ using System.Collections.Immutable;
 namespace Microsoft.CodeAnalysis;
 
 /// <summary>
-/// A type containing information for a match from <see cref="SyntaxValueProviderExtensions.ForAttributeWithMetadataNameInternal"/>.
+/// A type containing information for a match from <see cref="SyntaxValueProviderExtensions.ForAttributeWithMetadataNameWithGenerics"/>.
 /// </summary>
-internal readonly struct SGeneratorAttributeSyntaxContext
+internal readonly struct GenericGeneratorAttributeSyntaxContext
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="SGeneratorAttributeSyntaxContext"/> struct.
-    /// Creates a new <see cref="SGeneratorAttributeSyntaxContext"/> instance with the specified parameters.
+    /// Initializes a new instance of the <see cref="GenericGeneratorAttributeSyntaxContext"/> struct.
+    /// Creates a new <see cref="GenericGeneratorAttributeSyntaxContext"/> instance with the specified parameters.
     /// </summary>
     /// <param name="targetNode">The syntax node the attribute is attached to.</param>
     /// <param name="targetSymbol">The symbol that the attribute is attached to.</param>
     /// <param name="semanticModel">Semantic model for the file that <see cref="TargetNode"/> is contained within.</param>
     /// <param name="attributes">The collection of matching attributes.</param>
-    internal SGeneratorAttributeSyntaxContext(
+    internal GenericGeneratorAttributeSyntaxContext(
         SyntaxNode targetNode,
         ISymbol targetSymbol,
         SemanticModel semanticModel,
@@ -50,7 +50,7 @@ internal readonly struct SGeneratorAttributeSyntaxContext
     /// <summary>
     /// <see cref="AttributeData"/>Gets s for any matching attributes on <see cref="TargetSymbol"/>. Always non-empty. All
     /// these attributes will have an <see cref="AttributeData.AttributeClass"/> whose fully qualified name metadata
-    /// name matches the name requested in <see cref="SyntaxValueProviderExtensions.ForAttributeWithMetadataNameInternal"/>.
+    /// name matches the name requested in <see cref="SyntaxValueProviderExtensions.ForAttributeWithMetadataNameWithGenerics"/>.
     /// <para>
     /// To get the entire list of attributes, use <see cref="ISymbol.GetAttributes"/> on <see cref="TargetSymbol"/>.
     /// </para>

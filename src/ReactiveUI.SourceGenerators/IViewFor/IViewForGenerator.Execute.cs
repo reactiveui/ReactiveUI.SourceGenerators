@@ -3,7 +3,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
@@ -27,7 +26,7 @@ public partial class IViewForGenerator
 
     private static readonly string[] excludeFromCodeCoverage = ["[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]"];
 
-    private static IViewForInfo? GetClassInfo(in SGeneratorAttributeSyntaxContext context, CancellationToken token)
+    private static IViewForInfo? GetClassInfo(in GenericGeneratorAttributeSyntaxContext context, CancellationToken token)
     {
         if (!(context.TargetNode is ClassDeclarationSyntax declaredClass && declaredClass.Modifiers.Any(SyntaxKind.PartialKeyword)))
         {

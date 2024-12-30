@@ -22,7 +22,7 @@ public sealed partial class ObservableAsPropertyGenerator
     private static void RunObservableAsPropertyFromObservable(in IncrementalGeneratorInitializationContext context)
     {
         // Gather info for all annotated command methods (starting from method declarations with at least one attribute)
-        var propertyInfo =
+        var methodInfo =
             context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 AttributeDefinitions.ObservableAsPropertyAttributeType,
@@ -33,7 +33,7 @@ public sealed partial class ObservableAsPropertyGenerator
             .Collect();
 
         // Generate the requested properties and methods
-        context.RegisterSourceOutput(propertyInfo, static (context, input) =>
+        context.RegisterSourceOutput(methodInfo, static (context, input) =>
         {
             foreach (var diagnostic in input.SelectMany(static x => x.Errors))
             {

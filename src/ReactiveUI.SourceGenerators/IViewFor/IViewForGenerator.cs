@@ -9,7 +9,6 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
-using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 
 namespace ReactiveUI.SourceGenerators;
@@ -29,7 +28,7 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
         // Gather info for all annotated IViewFor Classes
         var iViewForInfo =
             context.SyntaxProvider
-            .ForAttributeWithMetadataNameInternal(
+            .ForAttributeWithMetadataNameWithGenerics(
                 AttributeDefinitions.IViewForAttributeType,
                 static (node, _) => node is ClassDeclarationSyntax { AttributeLists.Count: > 0 },
                 static (context, token) => GetClassInfo(context, token))

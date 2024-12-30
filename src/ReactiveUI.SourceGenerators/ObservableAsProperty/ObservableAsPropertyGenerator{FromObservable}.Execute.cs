@@ -35,7 +35,6 @@ public sealed partial class ObservableAsPropertyGenerator
 
         token.ThrowIfCancellationRequested();
         var compilation = context.SemanticModel.Compilation;
-        var hierarchy = default(HierarchyInfo);
 
         if (context.TargetNode is MethodDeclarationSyntax methodSyntax)
         {
@@ -68,8 +67,6 @@ public sealed partial class ObservableAsPropertyGenerator
 
             var isNullableType = methodSymbol.ReturnType is INamedTypeSymbol nullcheck && nullcheck.TypeArguments[0].IsNullableType();
 
-            // Get the hierarchy info for the target symbol, and try to gather the property info
-            hierarchy = HierarchyInfo.From(methodSymbol.ContainingType);
             token.ThrowIfCancellationRequested();
 
             // Get the containing type info
@@ -116,8 +113,6 @@ public sealed partial class ObservableAsPropertyGenerator
 
             var isNullableType = propertySymbol.Type is INamedTypeSymbol nullcheck && nullcheck.TypeArguments[0].IsNullableType();
 
-            // Get the hierarchy info for the target symbol, and try to gather the property info
-            hierarchy = HierarchyInfo.From(propertySymbol.ContainingType);
             token.ThrowIfCancellationRequested();
 
             // Get the containing type info
