@@ -219,7 +219,6 @@ public sealed partial class ReactiveGenerator
             typeNameWithNullabilityAnnotations,
             fieldName,
             propertyName,
-            null,
             isReferenceTypeOrUnconstraindTypeParameter,
             includeMemberNotNullOnSetAccessor,
             forwardedAttributesString,

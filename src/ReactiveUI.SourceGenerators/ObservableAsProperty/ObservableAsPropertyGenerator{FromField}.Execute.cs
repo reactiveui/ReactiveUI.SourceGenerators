@@ -24,7 +24,7 @@ namespace ReactiveUI.SourceGenerators;
 /// <seealso cref="IIncrementalGenerator" />
 public sealed partial class ObservableAsPropertyGenerator
 {
-    private static Result<PropertyInfo?>? GetVariableInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
+    private static Result<ObservableFieldInfo?>? GetVariableInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
         using var builder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
         var symbol = context.TargetSymbol;
@@ -213,7 +213,7 @@ public sealed partial class ObservableAsPropertyGenerator
             builder.ToImmutable());
     }
 
-    private static string GenerateSource(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, PropertyInfo[] properties)
+    private static string GenerateSource(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, ObservableFieldInfo[] properties)
     {
         var propertyDeclarations = string.Join("\n\r", properties.Select(GetPropertySyntax));
 
@@ -235,7 +235,7 @@ namespace {{containingNamespace}}
 """;
     }
 
-    private static string GetPropertySyntax(PropertyInfo propertyInfo)
+    private static string GetPropertySyntax(ObservableFieldInfo propertyInfo)
     {
         var propertyAttributes = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage.Concat(propertyInfo.ForwardedAttributes));
 

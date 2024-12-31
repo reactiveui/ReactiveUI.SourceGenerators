@@ -10,7 +10,7 @@ namespace ReactiveUI.SourceGenerators.Reactive.Models;
 /// <summary>
 /// A model with gathered info on a given field.
 /// </summary>
-internal sealed record PropertyInfo(
+internal sealed record ObservableFieldInfo(
     string FileHintName,
     string TargetName,
     string TargetNamespace,
@@ -20,6 +20,7 @@ internal sealed record PropertyInfo(
     string TypeNameWithNullabilityAnnotations,
     string FieldName,
     string PropertyName,
+    string? Initializer,
     bool IsReferenceTypeOrUnconstrainedTypeParameter,
     bool IncludeMemberNotNullOnSetAccessor,
     EquatableArray<string> ForwardedAttributes,

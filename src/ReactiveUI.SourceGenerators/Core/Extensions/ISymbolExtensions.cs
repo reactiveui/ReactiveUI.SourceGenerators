@@ -31,14 +31,6 @@ internal static class ISymbolExtensions
         symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat.AddMiscellaneousOptions(SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier));
 
     /// <summary>
-    /// Checks whether or not a given type symbol has a specified full name.
-    /// </summary>
-    /// <param name="symbol">The input <see cref="ISymbol"/> instance to check.</param>
-    /// <param name="name">The full name to check.</param>
-    /// <returns>Whether <paramref name="symbol"/> has a full name equals to <paramref name="name"/>.</returns>
-    public static bool HasFullyQualifiedName(this ISymbol symbol, string name) => symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == name;
-
-    /// <summary>
     /// Checks whether or not a given symbol has an attribute with the specified fully qualified metadata name.
     /// </summary>
     /// <param name="symbol">The input <see cref="ISymbol"/> instance to check.</param>
@@ -63,7 +55,8 @@ internal static class ISymbolExtensions
     /// <param name="symbol">The input <see cref="ISymbol"/> instance to check.</param>
     /// <param name="typeSymbol">The <see cref="ITypeSymbol"/> instance for the attribute type to look for.</param>
     /// <returns>Whether or not <paramref name="symbol"/> has an attribute with the specified type.</returns>
-    public static bool HasAttributeWithType(this ISymbol symbol, ITypeSymbol typeSymbol) => TryGetAttributeWithType(symbol, typeSymbol, out _);
+    public static bool HasAttributeWithType(this ISymbol symbol, ITypeSymbol typeSymbol) =>
+        TryGetAttributeWithType(symbol, typeSymbol, out _);
 
     /// <summary>
     /// Tries to get an attribute with the specified type.
@@ -89,7 +82,6 @@ internal static class ISymbolExtensions
         return false;
     }
 
-#if !ROSLYN_4_3_1_OR_GREATER
     /// <summary>
     /// Tries to get an attribute with the specified fully qualified metadata name.
     /// </summary>
@@ -113,7 +105,6 @@ internal static class ISymbolExtensions
 
         return false;
     }
-#endif
 
     /// <summary>
     /// Calculates the effective accessibility for a given symbol.
