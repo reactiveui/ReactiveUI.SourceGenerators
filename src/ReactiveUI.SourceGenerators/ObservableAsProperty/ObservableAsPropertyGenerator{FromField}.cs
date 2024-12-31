@@ -42,7 +42,7 @@ public sealed partial class ObservableAsPropertyGenerator
             var groupedPropertyInfo = input
                 .Where(static x => x.Value != null)
                 .Select(static x => x.Value!).GroupBy(
-                static info => (info.FileHintName, info.TargetName, info.TargetNamespace, info.TargetVisibility, info.TargetType),
+                static info => (info.TargetInfo.FileHintName, info.TargetInfo.TargetName, info.TargetInfo.TargetNamespace, info.TargetInfo.TargetVisibility, info.TargetInfo.TargetType),
                 static info => info)
                 .ToImmutableArray();
 

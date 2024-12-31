@@ -4,6 +4,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
@@ -210,12 +211,7 @@ public sealed partial class ReactiveGenerator
 
         return new(
             new(
-            targetInfo.FileHintName,
-            targetInfo.TargetName,
-            targetInfo.TargetNamespace,
-            targetInfo.TargetNamespaceWithNamespace,
-            targetInfo.TargetVisibility,
-            targetInfo.TargetType,
+            targetInfo,
             typeNameWithNullabilityAnnotations,
             fieldName,
             propertyName,
@@ -238,8 +234,20 @@ public sealed partial class ReactiveGenerator
     /// <returns>The value.</returns>
     private static string GenerateSource(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, PropertyInfo[] properties)
     {
-        // Includes 2 tabs from the property declarations so no need to add them here.
-        var propertyDeclarations = string.Join("\n\r", properties.Select(GetPropertySyntax));
+        // Get Parent class details from properties.ParentInfo
+        var parentClassDeclarations = new List<string>();
+        foreach (var property in properties)
+        {
+            TargetInfo.GetParentClasses(ref parentClassDeclarations, property.TargetInfo.ParentInfo);
+        }
+
+        // Generate the parent class declarations
+        var parentClassDeclarationsString = TargetInfo.GenerateParentClassDeclarations(ref parentClassDeclarations);
+
+        var classes = GenerateClassWithProperties(containingTypeName, containingNamespace, containingClassVisibility, containingType, properties);
+
+        // Create closing brackets for parent classes
+        var closingBrackets = TargetInfo.GenerateClosingBrackets(parentClassDeclarations.Count);
 
         return
 $$"""
@@ -251,6 +259,29 @@ using ReactiveUI;
 
 namespace {{containingNamespace}}
 {
+    {{parentClassDeclarationsString}}{{classes}}{{closingBrackets}}
+}
+#nullable restore
+#pragma warning restore
+""";
+    }
+
+    /// <summary>
+    /// Generates the source code.
+    /// </summary>
+    /// <param name="containingTypeName">The contain type name.</param>
+    /// <param name="containingNamespace">The containing namespace.</param>
+    /// <param name="containingClassVisibility">The containing class visibility.</param>
+    /// <param name="containingType">The containing type.</param>
+    /// <param name="properties">The properties.</param>
+    /// <returns>The value.</returns>
+    private static string GenerateClassWithProperties(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, PropertyInfo[] properties)
+    {
+        // Includes 2 tabs from the property declarations so no need to add them here.
+        var propertyDeclarations = string.Join("\n\r", properties.Select(GetPropertySyntax));
+
+        return
+$$"""
     /// <summary>
     /// Partial class for the {{containingTypeName}} which contains ReactiveUI Reactive property initialization.
     /// </summary>
@@ -259,9 +290,6 @@ namespace {{containingNamespace}}
         [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
 {{propertyDeclarations}}
     }
-}
-#nullable restore
-#pragma warning restore
 """;
     }
 
@@ -285,7 +313,7 @@ namespace {{containingNamespace}}
 $$"""
         /// <inheritdoc cref="{{propertyInfo.FieldName}}"/>
         {{propertyAttributes}}
-        {{propertyInfo.TargetVisibility}}{{propertyInfo.Inheritance}} {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}}
+        {{propertyInfo.TargetInfo.TargetVisibility}}{{propertyInfo.Inheritance}} {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}}
         { 
             get => {{propertyInfo.FieldName}};
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("{{propertyInfo.FieldName}}")]
@@ -298,7 +326,7 @@ $$"""
 $$"""
         /// <inheritdoc cref="{{propertyInfo.FieldName}}"/>
         {{propertyAttributes}}
-        {{propertyInfo.TargetVisibility}}{{propertyInfo.Inheritance}} {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} { get => {{propertyInfo.FieldName}}; {{propertyInfo.AccessModifier}}set => this.RaiseAndSetIfChanged(ref {{propertyInfo.FieldName}}, value); }
+        {{propertyInfo.TargetInfo.TargetVisibility}}{{propertyInfo.Inheritance}} {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} { get => {{propertyInfo.FieldName}}; {{propertyInfo.AccessModifier}}set => this.RaiseAndSetIfChanged(ref {{propertyInfo.FieldName}}, value); }
 """;
     }
 

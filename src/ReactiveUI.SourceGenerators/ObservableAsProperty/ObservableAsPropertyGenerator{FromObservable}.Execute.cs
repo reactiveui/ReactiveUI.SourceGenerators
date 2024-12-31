@@ -74,12 +74,7 @@ public sealed partial class ObservableAsPropertyGenerator
 
             return new(
                 new(
-                targetInfo.FileHintName,
-                targetInfo.TargetName,
-                targetInfo.TargetNamespace,
-                targetInfo.TargetNamespaceWithNamespace,
-                targetInfo.TargetVisibility,
-                targetInfo.TargetType,
+                targetInfo,
                 methodSymbol.Name,
                 methodSymbol.ReturnType.GetFullyQualifiedNameWithNullabilityAnnotations(),
                 methodSymbol.Parameters.FirstOrDefault()?.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
@@ -120,12 +115,7 @@ public sealed partial class ObservableAsPropertyGenerator
 
             return new(
                 new(
-                targetInfo.FileHintName,
-                targetInfo.TargetName,
-                targetInfo.TargetNamespace,
-                targetInfo.TargetNamespaceWithNamespace,
-                targetInfo.TargetVisibility,
-                targetInfo.TargetType,
+                targetInfo,
                 propertySymbol.Name,
                 propertySymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations(),
                 propertySymbol.Parameters.FirstOrDefault()?.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),

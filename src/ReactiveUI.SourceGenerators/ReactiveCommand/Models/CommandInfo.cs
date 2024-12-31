@@ -4,16 +4,12 @@
 // See the LICENSE file in the project root for full license information.
 
 using ReactiveUI.SourceGenerators.Helpers;
+using ReactiveUI.SourceGenerators.Models;
 
 namespace ReactiveUI.SourceGenerators.Input.Models;
 
 internal record CommandInfo(
-    string FileHintName,
-    string TargetName,
-    string TargetNamespace,
-    string TargetNamespaceWithNamespace,
-    string TargetVisibility,
-    string TargetType,
+    TargetInfo TargetInfo,
     string MethodName,
     string MethodReturnType,
     string? ArgumentType,

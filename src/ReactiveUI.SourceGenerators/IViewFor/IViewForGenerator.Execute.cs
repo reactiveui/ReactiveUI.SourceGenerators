@@ -92,12 +92,7 @@ public partial class IViewForGenerator
         token.ThrowIfCancellationRequested();
 
         return new(
-            targetInfo.FileHintName,
-            targetInfo.TargetName,
-            targetInfo.TargetNamespace,
-            targetInfo.TargetNamespaceWithNamespace,
-            targetInfo.TargetVisibility,
-            targetInfo.TargetType,
+            targetInfo,
             viewModelTypeName!,
             viewForBaseType);
     }

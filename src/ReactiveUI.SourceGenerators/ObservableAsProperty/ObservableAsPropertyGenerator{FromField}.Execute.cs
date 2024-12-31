@@ -195,12 +195,7 @@ public sealed partial class ObservableAsPropertyGenerator
 
         return new(
             new(
-            targetInfo.FileHintName,
-            targetInfo.TargetName,
-            targetInfo.TargetNamespace,
-            targetInfo.TargetNamespaceWithNamespace,
-            targetInfo.TargetVisibility,
-            targetInfo.TargetType,
+            targetInfo,
             typeNameWithNullabilityAnnotations,
             fieldName,
             propertyName,

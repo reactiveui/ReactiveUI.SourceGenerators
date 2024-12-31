@@ -40,7 +40,7 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(iViewForInfo, static (context, input) =>
         {
             var groupedPropertyInfo = input.GroupBy(
-                static info => (info.FileHintName, info.TargetName, info.TargetNamespace, info.TargetVisibility, info.TargetType),
+                static info => (info.TargetInfo.FileHintName, info.TargetInfo.TargetName, info.TargetInfo.TargetNamespace, info.TargetInfo.TargetVisibility, info.TargetInfo.TargetType),
                 static info => info)
                 .ToImmutableArray();
 

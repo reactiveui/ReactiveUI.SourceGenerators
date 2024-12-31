@@ -16,31 +16,43 @@ public partial class TestViewModel3 : ReactiveObject
     [Reactive]
     private float _testVM3Property;
 
-    /////// <summary>
-    /////// TestInnerClass.
-    /////// </summary>
-    ////public partial class TestInnerClass1 : ReactiveObject
-    ////{
-    ////    [Reactive]
-    ////    private int _testInner1;
-    ////}
+    [Reactive]
+    private float _testVM3Property2;
 
-    /////// <summary>
-    /////// TestInnerClass.
-    /////// </summary>
-    ////public partial class TestInnerClass2 : ReactiveObject
-    ////{
-    ////    [Reactive]
-    ////    private int _testInner2;
+    /// <summary>
+    /// TestInnerClass.
+    /// </summary>
+    public partial class TestInnerClass1 : ReactiveObject
+    {
+        [Reactive]
+        private int _testInner1;
 
-    ////    /// <summary>
-    ////    /// TestInnerClass4.
-    ////    /// </summary>
-    ////    /// <seealso cref="ReactiveUI.ReactiveObject" />
-    ////    public partial class TestInnerClass3 : ReactiveObject
-    ////    {
-    ////        [Reactive]
-    ////        private int _testInner3;
-    ////    }
-    ////}
+        [Reactive]
+        private int _testInner11;
+    }
+
+    /// <summary>
+    /// TestInnerClass.
+    /// </summary>
+    public partial class TestInnerClass2 : ReactiveObject
+    {
+        [Reactive]
+        private int _testInner2;
+
+        [Reactive]
+        private int _testInner22;
+
+        /// <summary>
+        /// TestInnerClass4.
+        /// </summary>
+        /// <seealso cref="ReactiveUI.ReactiveObject" />
+        public partial class TestInnerClass3 : ReactiveObject
+        {
+            [Reactive]
+            private int _testInner3;
+
+            [Reactive]
+            private int _testInner33;
+        }
+    }
 }
