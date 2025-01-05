@@ -46,6 +46,51 @@ public class OAPGeneratorTests(ITestOutputHelper output) : TestBase<ObservableAs
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Fact]
+    public Task FromFieldNestedClass()
+    {
+        // Arrange: Setup the source code that matches the generator input expectations.
+        const string sourceCode = """
+                using System;
+                using ReactiveUI;
+                using ReactiveUI.SourceGenerators;
+                using System.Reactive.Linq;
+
+                namespace TestNs;
+
+                public partial class TestVM : ReactiveObject
+                {
+                    [ObservableAsProperty]
+                    private int _test1 = 10;
+
+                    public partial class TestVMInner1 : ReactiveObject
+                    {
+                        [ObservableAsProperty]
+                        private int _testIn1 = 10;
+                    }
+            
+                    public partial class TestVMInner2 : ReactiveObject
+                    {
+                        [ObservableAsProperty]
+                        private int _testIn2 = 10;
+            
+                        public partial class TestVMInner3 : ReactiveObject
+                        {
+                            [ObservableAsProperty]
+                            private int _testIn3 = 10;
+                        }
+                    }
+                }
+            """;
+
+        // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
+        return TestHelper.TestPass(sourceCode);
+    }
+
+    /// <summary>
+    /// Tests that the source generator correctly generates observable properties.
+    /// </summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Fact]
     public Task NonReadOnlyFromField()
     {
         // Arrange: Setup the source code that matches the generator input expectations.

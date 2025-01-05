@@ -235,19 +235,9 @@ public sealed partial class ReactiveGenerator
     private static string GenerateSource(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, PropertyInfo[] properties)
     {
         // Get Parent class details from properties.ParentInfo
-        var parentClassDeclarations = new List<string>();
-        foreach (var property in properties)
-        {
-            TargetInfo.GetParentClasses(parentClassDeclarations, property.TargetInfo.ParentInfo);
-        }
-
-        // Generate the parent class declarations
-        var parentClassDeclarationsString = TargetInfo.GenerateParentClassDeclarations(parentClassDeclarations);
+        var (parentClassDeclarationsString, closingBrackets) = TargetInfo.GenerateParentClassDeclarations(properties.Select(p => p.TargetInfo.ParentInfo).ToArray());
 
         var classes = GenerateClassWithProperties(containingTypeName, containingNamespace, containingClassVisibility, containingType, properties);
-
-        // Create closing brackets for parent classes
-        var closingBrackets = TargetInfo.GenerateClosingBrackets(parentClassDeclarations.Count);
 
         return
 $$"""

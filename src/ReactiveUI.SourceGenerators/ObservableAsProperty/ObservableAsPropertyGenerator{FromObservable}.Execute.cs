@@ -3,6 +3,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
@@ -12,6 +13,7 @@ using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Models;
 using ReactiveUI.SourceGenerators.ObservableAsProperty.Models;
+using ReactiveUI.SourceGenerators.Reactive.Models;
 using static ReactiveUI.SourceGenerators.Diagnostics.DiagnosticDescriptors;
 
 namespace ReactiveUI.SourceGenerators;
@@ -132,7 +134,10 @@ public sealed partial class ObservableAsPropertyGenerator
 
     private static string GenerateObservableSource(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, ObservableMethodInfo[] properties)
     {
-        var propertyDeclarations = string.Join("\n\r        ", properties.Select(GetPropertySyntax));
+        // Get Parent class details from properties.ParentInfo
+        var (parentClassDeclarationsString, closingBrackets) = TargetInfo.GenerateParentClassDeclarations(properties.Select(p => p.TargetInfo.ParentInfo).ToArray());
+
+        var classes = GenerateClassWithProperties(containingTypeName, containingNamespace, containingClassVisibility, containingType, properties);
 
         return
 $$"""
@@ -144,8 +149,31 @@ using ReactiveUI;
 
 namespace {{containingNamespace}}
 {
+    {{parentClassDeclarationsString}}{{classes}}{{closingBrackets}}
+}
+#nullable restore
+#pragma warning restore
+""";
+    }
+
     /// <summary>
-    /// Partial class for the {{containingTypeName}} which contains ReactiveUI Reactive property initialization.
+    /// Generates the source code.
+    /// </summary>
+    /// <param name="containingTypeName">The contain type name.</param>
+    /// <param name="containingNamespace">The containing namespace.</param>
+    /// <param name="containingClassVisibility">The containing class visibility.</param>
+    /// <param name="containingType">The containing type.</param>
+    /// <param name="properties">The properties.</param>
+    /// <returns>The value.</returns>
+    private static string GenerateClassWithProperties(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, ObservableMethodInfo[] properties)
+    {
+        // Includes 2 tabs from the property declarations so no need to add them here.
+        var propertyDeclarations = string.Join("\n\r", properties.Select(GetPropertySyntax));
+
+        return
+$$"""
+/// <summary>
+    /// Partial class for the {{containingTypeName}} which contains ReactiveUI Observable As Property initialization.
     /// </summary>
     {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}}
     {
@@ -154,9 +182,6 @@ namespace {{containingNamespace}}
 
         {{GetPropertyInitiliser(properties)}}
     }
-}
-#nullable restore
-#pragma warning restore
 """;
     }
 
