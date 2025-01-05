@@ -133,4 +133,63 @@ public class ReactiveCMDGeneratorTests(ITestOutputHelper output) : TestBase<Reac
         // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
         return TestHelper.TestPass(sourceCode);
     }
+
+    /// <summary>
+    /// Froms the reactive command with nested classes.
+    /// </summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Fact]
+    public Task FromReactiveCommandWithNestedClasses()
+    {
+        // Arrange: Setup the source code that matches the generator input expectations.
+        const string sourceCode = """
+                using System;
+                using ReactiveUI;
+                using ReactiveUI.SourceGenerators;
+                using System.Reactive.Linq;
+                using System.Threading.Tasks;
+
+                namespace TestNs;
+
+                /// <summary>
+                /// TestViewModel3.
+                /// </summary>
+                public partial class TestViewModel3 : ReactiveObject
+                {
+                    [ReactiveCommand]
+                    private int Test1() => 10;
+
+                    /// <summary>
+                    /// TestInnerClass.
+                    /// </summary>
+                    public partial class TestInnerClass1 : ReactiveObject
+                    {
+                        [ReactiveCommand]
+                        private int TestI1() => 10;
+                    }
+
+                    /// <summary>
+                    /// TestInnerClass.
+                    /// </summary>
+                    public partial class TestInnerClass2 : ReactiveObject
+                    {
+                        [ReactiveCommand]
+                        private int TestI2() => 10;
+
+                        /// <summary>
+                        /// TestInnerClass4.
+                        /// </summary>
+                        /// <seealso cref="ReactiveUI.ReactiveObject" />
+                        public partial class TestInnerClass3 : ReactiveObject
+                        {
+                            [ReactiveCommand]
+                            private int TestI3() => 10;
+                        }
+                    }
+                }            
+            """;
+
+        // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
+        return TestHelper.TestPass(sourceCode);
+    }
 }
