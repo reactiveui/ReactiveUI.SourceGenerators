@@ -238,11 +238,11 @@ public sealed partial class ReactiveGenerator
         var parentClassDeclarations = new List<string>();
         foreach (var property in properties)
         {
-            TargetInfo.GetParentClasses(ref parentClassDeclarations, property.TargetInfo.ParentInfo);
+            TargetInfo.GetParentClasses(parentClassDeclarations, property.TargetInfo.ParentInfo);
         }
 
         // Generate the parent class declarations
-        var parentClassDeclarationsString = TargetInfo.GenerateParentClassDeclarations(ref parentClassDeclarations);
+        var parentClassDeclarationsString = TargetInfo.GenerateParentClassDeclarations(parentClassDeclarations);
 
         var classes = GenerateClassWithProperties(containingTypeName, containingNamespace, containingClassVisibility, containingType, properties);
 
@@ -282,7 +282,7 @@ namespace {{containingNamespace}}
 
         return
 $$"""
-    /// <summary>
+/// <summary>
     /// Partial class for the {{containingTypeName}} which contains ReactiveUI Reactive property initialization.
     /// </summary>
     {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}}

@@ -42,7 +42,7 @@ internal sealed partial record TargetInfo(
             parentInfo);
     }
 
-    public static void GetParentClasses(ref List<string> parentClassDeclarations, TargetInfo? targetInfo)
+    public static void GetParentClasses(List<string> parentClassDeclarations, TargetInfo? targetInfo)
     {
         if (targetInfo is not null)
         {
@@ -57,12 +57,12 @@ internal sealed partial record TargetInfo(
             if (targetInfo.ParentInfo is not null)
             {
                 // Recursively get the parent classes
-                GetParentClasses(ref parentClassDeclarations, targetInfo.ParentInfo);
+                GetParentClasses(parentClassDeclarations, targetInfo.ParentInfo);
             }
         }
     }
 
-    public static string GenerateParentClassDeclarations(ref List<string> parentClassDeclarations)
+    public static string GenerateParentClassDeclarations(List<string> parentClassDeclarations)
     {
         // Reverse the list to get the parent classes in the correct order
         parentClassDeclarations.Reverse();

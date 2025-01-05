@@ -19,6 +19,9 @@ public partial class TestViewModel3 : ReactiveObject
     [Reactive]
     private float _testVM3Property2;
 
+    [ReactiveCommand]
+    private int Test1() => 10;
+
     /// <summary>
     /// TestInnerClass.
     /// </summary>
@@ -29,6 +32,9 @@ public partial class TestViewModel3 : ReactiveObject
 
         [Reactive]
         private int _testInner11;
+
+        [ReactiveCommand]
+        private int TestI1() => 10;
     }
 
     /// <summary>
@@ -42,6 +48,9 @@ public partial class TestViewModel3 : ReactiveObject
         [Reactive]
         private int _testInner22;
 
+        [ReactiveCommand]
+        private int TestI2() => 10;
+
         /// <summary>
         /// TestInnerClass4.
         /// </summary>
@@ -53,6 +62,9 @@ public partial class TestViewModel3 : ReactiveObject
 
             [Reactive]
             private int _testInner33;
+
+            [ReactiveCommand]
+            private int TestI3() => 10;
         }
     }
 }

@@ -76,7 +76,7 @@ public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase<Reactiv
     public Task FromReactiveProperiesWithAttributes()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
-        const string sourceCode = @"
+        const string sourceCode = """
                 using System;
                 using System.Runtime.Serialization;
                 using System.Text.Json.Serialization;
@@ -93,7 +93,7 @@ public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase<Reactiv
                     [Reactive]
                     private int _test3 = 10;
                 }
-            ";
+            """;
 
         // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
         return TestHelper.TestPass(sourceCode);
@@ -107,7 +107,7 @@ public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase<Reactiv
     public Task FromReactivePropertiesWithAttributesAccessAndInheritance()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
-        const string sourceCode = @"
+        const string sourceCode = """
                 using System;
                 using System.Runtime.Serialization;
                 using System.Text.Json.Serialization;
@@ -124,7 +124,7 @@ public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase<Reactiv
                     [Reactive(Inheritance = InheritanceModifier.Virtual, SetModifier = AccessModifier.Protected)]
                     private string? _name;
                 }
-            ";
+            """;
 
         // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
         return TestHelper.TestPass(sourceCode);
@@ -138,7 +138,7 @@ public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase<Reactiv
     public Task FromReactivePropertiesWithIdenticalClass()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
-        const string sourceCode = @"
+        const string sourceCode = """
                 using System;
                 using System.Runtime.Serialization;
                 using System.Text.Json.Serialization;
@@ -167,7 +167,80 @@ public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase<Reactiv
                         private string? _name;
                     }
                 }
-            ";
+            """;
+
+        // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
+        return TestHelper.TestPass(sourceCode);
+    }
+
+    /// <summary>
+    /// Froms the reactive properties with nested class.
+    /// </summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Fact]
+    public Task FromReactivePropertiesWithNestedClass()
+    {
+        // Arrange: Setup the source code that matches the generator input expectations.
+        const string sourceCode = """
+                using System;
+                using System.Runtime.Serialization;
+                using System.Text.Json.Serialization;
+                using ReactiveUI;
+                using ReactiveUI.SourceGenerators;
+                using System.Reactive.Linq;
+
+                namespace TestNs1
+                {
+                    /// <summary>
+                    /// TestViewModel3.
+                    /// </summary>
+                    public partial class TestViewModel3 : ReactiveObject
+                    {
+                        [Reactive]
+                        private float _testVM3Property;
+
+                        [Reactive]
+                        private float _testVM3Property2;
+
+                        /// <summary>
+                        /// TestInnerClass.
+                        /// </summary>
+                        public partial class TestInnerClass1 : ReactiveObject
+                        {
+                            [Reactive]
+                            private int _testInner1;
+
+                            [Reactive]
+                            private int _testInner11;
+                        }
+
+                        /// <summary>
+                        /// TestInnerClass.
+                        /// </summary>
+                        public partial class TestInnerClass2 : ReactiveObject
+                        {
+                            [Reactive]
+                            private int _testInner2;
+
+                            [Reactive]
+                            private int _testInner22;
+
+                            /// <summary>
+                            /// TestInnerClass4.
+                            /// </summary>
+                            /// <seealso cref="ReactiveUI.ReactiveObject" />
+                            public partial class TestInnerClass3 : ReactiveObject
+                            {
+                                [Reactive]
+                                private int _testInner3;
+
+                                [Reactive]
+                                private int _testInner33;
+                            }
+                        }
+                    }
+                }
+                """;
 
         // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
         return TestHelper.TestPass(sourceCode);
