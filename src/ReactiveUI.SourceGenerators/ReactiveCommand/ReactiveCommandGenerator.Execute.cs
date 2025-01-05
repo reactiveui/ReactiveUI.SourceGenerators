@@ -93,12 +93,7 @@ public partial class ReactiveCommandGenerator
         token.ThrowIfCancellationRequested();
 
         return new(
-            targetInfo.FileHintName,
-            targetInfo.TargetName,
-            targetInfo.TargetNamespace,
-            targetInfo.TargetNamespaceWithNamespace,
-            targetInfo.TargetVisibility,
-            targetInfo.TargetType,
+            targetInfo,
             symbol.Name,
             realReturnType.GetFullyQualifiedNameWithNullabilityAnnotations(),
             methodParameters.ToImmutable().SingleOrDefault()?.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),

@@ -41,7 +41,7 @@ public sealed partial class ReactiveCommandGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(commandInfo, static (context, input) =>
         {
             var groupedcommandInfo = input.GroupBy(
-                static info => (info.FileHintName, info.TargetName, info.TargetNamespace, info.TargetVisibility, info.TargetType),
+                static info => (info.TargetInfo.FileHintName, info.TargetInfo.TargetName, info.TargetInfo.TargetNamespace, info.TargetInfo.TargetVisibility, info.TargetInfo.TargetType),
                 static info => info)
                 .ToImmutableArray();
 

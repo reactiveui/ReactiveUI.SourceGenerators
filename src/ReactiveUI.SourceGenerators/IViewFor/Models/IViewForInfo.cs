@@ -4,6 +4,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using ReactiveUI.SourceGenerators.Helpers;
+using ReactiveUI.SourceGenerators.Models;
 
 namespace ReactiveUI.SourceGenerators.Input.Models;
 
@@ -11,11 +12,6 @@ namespace ReactiveUI.SourceGenerators.Input.Models;
 /// A model with gathered info on a given command method.
 /// </summary>
 internal sealed record IViewForInfo(
-    string FileHintName,
-    string TargetName,
-    string TargetNamespace,
-    string TargetNamespaceWithNamespace,
-    string TargetVisibility,
-    string TargetType,
+    TargetInfo TargetInfo,
     string ViewModelTypeName,
     IViewForBaseType BaseType);

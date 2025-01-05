@@ -5,24 +5,20 @@
 
 using System.Globalization;
 using ReactiveUI.SourceGenerators.Helpers;
+using ReactiveUI.SourceGenerators.Models;
 
 namespace ReactiveUI.SourceGenerators.ObservableAsProperty.Models
 {
     internal record ObservableMethodInfo(
-    string FileHintName,
-    string TargetName,
-    string TargetNamespace,
-    string TargetNamespaceWithNamespace,
-    string TargetVisibility,
-    string TargetType,
-    string MethodName,
-    string MethodReturnType,
-    string? ArgumentType,
-    string PropertyName,
-    string ObservableType,
-    bool IsNullableType,
-    bool IsProperty,
-    EquatableArray<string> ForwardedPropertyAttributes)
+        TargetInfo TargetInfo,
+        string MethodName,
+        string MethodReturnType,
+        string? ArgumentType,
+        string PropertyName,
+        string ObservableType,
+        bool IsNullableType,
+        bool IsProperty,
+        EquatableArray<string> ForwardedPropertyAttributes)
     {
         public string GetGeneratedFieldName()
         {

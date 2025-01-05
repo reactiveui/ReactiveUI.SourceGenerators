@@ -4,6 +4,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using ReactiveUI.SourceGenerators.Helpers;
+using ReactiveUI.SourceGenerators.Models;
 
 namespace ReactiveUI.SourceGenerators.Reactive.Models;
 
@@ -11,12 +12,7 @@ namespace ReactiveUI.SourceGenerators.Reactive.Models;
 /// A model with gathered info on a given field.
 /// </summary>
 internal sealed record ObservableFieldInfo(
-    string FileHintName,
-    string TargetName,
-    string TargetNamespace,
-    string TargetNamespaceWithNamespace,
-    string TargetVisibility,
-    string TargetType,
+    TargetInfo TargetInfo,
     string TypeNameWithNullabilityAnnotations,
     string FieldName,
     string PropertyName,
