@@ -141,7 +141,7 @@ namespace {{containingNamespace}}
     private static string GenerateClassWithCommands(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, CommandInfo[] commands)
     {
         // Includes 2 tabs from the property declarations so no need to add them here.
-        var commandDeclarations = string.Join("\n\r", commands.Select(GetCommandSyntax));
+        var commandDeclarations = string.Join("\n", commands.Select(GetCommandSyntax));
 
         return
 $$"""

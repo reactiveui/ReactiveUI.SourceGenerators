@@ -268,7 +268,7 @@ namespace {{containingNamespace}}
     private static string GenerateClassWithProperties(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, PropertyInfo[] properties)
     {
         // Includes 2 tabs from the property declarations so no need to add them here.
-        var propertyDeclarations = string.Join("\n\r", properties.Select(GetPropertySyntax));
+        var propertyDeclarations = string.Join("\n", properties.Select(GetPropertySyntax));
 
         return
 $$"""

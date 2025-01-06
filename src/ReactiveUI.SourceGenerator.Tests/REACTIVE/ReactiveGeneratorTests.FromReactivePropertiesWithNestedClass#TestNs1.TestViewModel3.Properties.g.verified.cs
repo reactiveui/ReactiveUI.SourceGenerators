@@ -20,7 +20,6 @@ namespace TestNs1
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_testVM3Property")]
             set => this.RaiseAndSetIfChanged(ref _testVM3Property, value);
         }
-
         /// <inheritdoc cref="_testVM3Property2"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public float TestVM3Property2
