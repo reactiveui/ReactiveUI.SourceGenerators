@@ -4,7 +4,9 @@
 #nullable enable
 namespace TestNs
 {
-    /// <inheritdoc/>
+    /// <summary>
+    /// Partial class for the TestVM which contains ReactiveUI Observable As Property initialization.
+    /// </summary>
     public partial class TestVM
     {
         /// <inheritdoc cref="_test2Helper"/>

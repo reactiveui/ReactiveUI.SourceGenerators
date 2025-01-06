@@ -42,7 +42,20 @@ internal sealed partial record TargetInfo(
             parentInfo);
     }
 
-    public static void GetParentClasses(List<string> parentClassDeclarations, TargetInfo? targetInfo)
+    public static (string Declarations, string ClosingBrackets) GenerateParentClassDeclarations(TargetInfo?[] targetInfos)
+    {
+        var parentClassDeclarations = new List<string>();
+        foreach (var targetInfo in targetInfos)
+        {
+            GetParentClasses(parentClassDeclarations, targetInfo);
+        }
+
+        var parentClassDeclarationsString = GenerateParentClassDeclarations(parentClassDeclarations);
+        var closingBrackets = GenerateClosingBrackets(parentClassDeclarations.Count);
+        return (parentClassDeclarationsString, closingBrackets);
+    }
+
+    private static void GetParentClasses(List<string> parentClassDeclarations, TargetInfo? targetInfo)
     {
         if (targetInfo is not null)
         {
@@ -62,7 +75,7 @@ internal sealed partial record TargetInfo(
         }
     }
 
-    public static string GenerateParentClassDeclarations(List<string> parentClassDeclarations)
+    private static string GenerateParentClassDeclarations(List<string> parentClassDeclarations)
     {
         // Reverse the list to get the parent classes in the correct order
         parentClassDeclarations.Reverse();
@@ -77,7 +90,7 @@ internal sealed partial record TargetInfo(
         return parentClassDeclarationsString;
     }
 
-    public static string GenerateClosingBrackets(int numberOfBrackets)
+    private static string GenerateClosingBrackets(int numberOfBrackets)
     {
         var closingBrackets = new string('}', numberOfBrackets);
         closingBrackets = closingBrackets.Replace("}", "}\n");
