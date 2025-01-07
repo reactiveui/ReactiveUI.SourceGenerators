@@ -39,6 +39,7 @@ internal static class AttributeDefinitions
             Private,
             InternalProtected,
             PrivateProtected,
+            Init,
         }
         
         /// <summary>
@@ -155,6 +156,11 @@ internal sealed class ReactiveAttribute : Attribute
     /// Gets the InheritanceModifier of the property.
     /// </sumary>
     public InheritanceModifier Inheritance { get; init; }
+
+    /// <summary>
+    /// Use Required attribute to indicate that the property is required.
+    /// </summary>
+    public bool UseRequired { get; init; }
 }
 #nullable restore
 #pragma warning restore
