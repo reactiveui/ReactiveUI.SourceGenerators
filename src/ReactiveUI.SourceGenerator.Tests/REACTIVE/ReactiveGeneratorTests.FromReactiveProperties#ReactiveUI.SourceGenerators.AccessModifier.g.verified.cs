@@ -20,6 +20,7 @@ internal enum AccessModifier
     Private,
     InternalProtected,
     PrivateProtected,
+    Init,
 }
 
 /// <summary>

@@ -67,13 +67,16 @@ public sealed partial class ReactiveGenerator
         attributeData.TryGetNamedArgument("SetModifier", out int accessModifierArgument);
         var accessModifier = accessModifierArgument switch
         {
-            1 => "protected ",
-            2 => "internal ",
-            3 => "private ",
-            4 => "internal protected ",
-            5 => "private protected ",
-            _ => string.Empty,
+            1 => "protected set",
+            2 => "internal set",
+            3 => "private set",
+            4 => "internal protected set",
+            5 => "private protected set",
+            6 => "init",
+            _ => "set",
         };
+
+        token.ThrowIfCancellationRequested();
 
         // Get Inheritance value from the attribute
         attributeData.TryGetNamedArgument("Inheritance", out int inheritanceArgument);
@@ -84,6 +87,12 @@ public sealed partial class ReactiveGenerator
             3 => " new",
             _ => string.Empty,
         };
+
+        token.ThrowIfCancellationRequested();
+
+        // Get Inheritance value from the attribute
+        attributeData.TryGetNamedArgument("UseRequired", out bool useRequiredArgument);
+        var useRequired = useRequiredArgument ? "required " : string.Empty;
 
         token.ThrowIfCancellationRequested();
 
@@ -219,7 +228,8 @@ public sealed partial class ReactiveGenerator
             includeMemberNotNullOnSetAccessor,
             forwardedAttributesString,
             accessModifier,
-            inheritance),
+            inheritance,
+            useRequired),
             builder.ToImmutable());
     }
 
@@ -303,11 +313,11 @@ $$"""
 $$"""
         /// <inheritdoc cref="{{propertyInfo.FieldName}}"/>
         {{propertyAttributes}}
-        {{propertyInfo.TargetInfo.TargetVisibility}}{{propertyInfo.Inheritance}} {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}}
+        {{propertyInfo.TargetInfo.TargetVisibility}}{{propertyInfo.Inheritance}} {{propertyInfo.UseRequired}}{{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}}
         { 
             get => {{propertyInfo.FieldName}};
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("{{propertyInfo.FieldName}}")]
-            {{propertyInfo.AccessModifier}}set => this.RaiseAndSetIfChanged(ref {{propertyInfo.FieldName}}, value);
+            {{propertyInfo.AccessModifier}} => this.RaiseAndSetIfChanged(ref {{propertyInfo.FieldName}}, value);
         }
 """;
         }
@@ -316,7 +326,7 @@ $$"""
 $$"""
         /// <inheritdoc cref="{{propertyInfo.FieldName}}"/>
         {{propertyAttributes}}
-        {{propertyInfo.TargetInfo.TargetVisibility}}{{propertyInfo.Inheritance}} {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} { get => {{propertyInfo.FieldName}}; {{propertyInfo.AccessModifier}}set => this.RaiseAndSetIfChanged(ref {{propertyInfo.FieldName}}, value); }
+        {{propertyInfo.TargetInfo.TargetVisibility}}{{propertyInfo.Inheritance}} {{propertyInfo.UseRequired}}{{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} { get => {{propertyInfo.FieldName}}; {{propertyInfo.AccessModifier}} => this.RaiseAndSetIfChanged(ref {{propertyInfo.FieldName}}, value); }
 """;
     }
 

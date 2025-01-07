@@ -3,6 +3,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -56,11 +57,16 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     [Reactive(Inheritance = InheritanceModifier.Virtual, SetModifier = AccessModifier.Protected)]
     private string? _name;
 
+    [Reactive(SetModifier = AccessModifier.Init, UseRequired = true)]
+    private string _mustBeSet;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="TestViewModel"/> class.
     /// </summary>
+    [SetsRequiredMembers]
     public TestViewModel()
     {
+        MustBeSet = "Test";
         this.WhenActivated(disposables =>
         {
             Console.Out.WriteLine("Activated");
