@@ -39,6 +39,9 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     [ObservableAsProperty(ReadOnly = false)]
     private double _test13Property = 11.1d;
 
+    [ObservableAsProperty(UseProtected = true)]
+    private double _observableAsPropertyTest3Property;
+
     [property: Test(AParameter = "Test Input")]
     [Reactive]
     private double? _test12Property = 12.1d;
@@ -117,6 +120,7 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
 
         Console.Out.WriteLine($"Test2Property default Value: {Test2Property}");
         _test2PropertyHelper = Test8ObservableCommand!.ToProperty(this, x => x.Test2Property);
+        _observableAsPropertyTest3PropertyHelper = this.WhenAnyValue(x => x.Test13Property)!.ToProperty(this, x => x.ObservableAsPropertyTest3Property);
 
         Test8ObservableCommand?.Execute(100).Subscribe(d => Console.Out.WriteLine(d));
         Console.Out.WriteLine($"Test2Property Value: {Test2Property}");

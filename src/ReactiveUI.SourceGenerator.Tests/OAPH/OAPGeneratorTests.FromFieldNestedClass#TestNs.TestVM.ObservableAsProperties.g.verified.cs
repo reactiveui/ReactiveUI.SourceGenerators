@@ -9,12 +9,12 @@ namespace TestNs
     /// </summary>
     public partial class TestVM
     {
-        /// <inheritdoc cref="_test1Helper"/>
-        private readonly ReactiveUI.ObservableAsPropertyHelper<int> _test1Helper;
+        /// <inheritdoc cref="_test2Helper"/>
+        private readonly ReactiveUI.ObservableAsPropertyHelper<int> _test2Helper;
 
-        /// <inheritdoc cref="_test1"/>
+        /// <inheritdoc cref="_test2"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        public int Test1 { get => _test1 = _test1Helper?.Value ?? _test1; }
+        public int Test2 { get => _test2 = _test2Helper?.Value ?? _test2; }
     }
 }
 #nullable restore

@@ -68,6 +68,11 @@ public sealed partial class ObservableAsPropertyGenerator
 
         token.ThrowIfCancellationRequested();
 
+        attributeData.TryGetNamedArgument("UseProtected", out bool useProtected);
+        var useProtectedModifier = useProtected ? "protected" : "private";
+
+        token.ThrowIfCancellationRequested();
+
         // Get the property type and name
         var typeNameWithNullabilityAnnotations = fieldSymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations();
         var fieldName = fieldSymbol.Name;
@@ -205,6 +210,7 @@ public sealed partial class ObservableAsPropertyGenerator
             includeMemberNotNullOnSetAccessor,
             forwardedPropertyAttributes,
             isReadonly == false ? string.Empty : "readonly",
+            useProtectedModifier,
             inheritance),
             builder.ToImmutable());
     }
@@ -268,12 +274,12 @@ $$"""
             getter = $$"""{ get => {{propertyInfo.FieldName}} = ({{propertyInfo.FieldName}}Helper == null ? {{propertyInfo.FieldName}} : {{propertyInfo.FieldName}}Helper.Value); }""";
         }
 
-        var helperTypeName = $"private ReactiveUI.ObservableAsPropertyHelper<{propertyInfo.TypeNameWithNullabilityAnnotations}>?";
+        var helperTypeName = $"{propertyInfo.AccessModifier} ReactiveUI.ObservableAsPropertyHelper<{propertyInfo.TypeNameWithNullabilityAnnotations}>?";
 
         // If the property is readonly, we need to change the helper to be non-nullable
-        if (propertyInfo.AccessModifier == "readonly")
+        if (propertyInfo.IsReadOnly == "readonly")
         {
-            helperTypeName = $"private readonly ReactiveUI.ObservableAsPropertyHelper<{propertyInfo.TypeNameWithNullabilityAnnotations}>";
+            helperTypeName = $"{propertyInfo.AccessModifier} readonly ReactiveUI.ObservableAsPropertyHelper<{propertyInfo.TypeNameWithNullabilityAnnotations}>";
         }
 
         return $$"""

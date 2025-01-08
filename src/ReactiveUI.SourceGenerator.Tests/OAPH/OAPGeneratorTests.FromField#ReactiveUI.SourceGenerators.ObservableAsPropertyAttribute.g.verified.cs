@@ -33,6 +33,14 @@ internal sealed class ObservableAsPropertyAttribute : Attribute
     /// The is read only of the OAPH property.
     /// </value>
     public bool ReadOnly { get; init; } = true;
+
+    /// <summary>
+    /// Gets the AccessModifier of the OAPH property.
+    /// </summary>
+    /// <value>
+    /// The AccessModifier of the OAPH property, protected if true.
+    /// </value>
+    public bool UseProtected { get; init; } = false;
 }
 #nullable restore
 #pragma warning restore
