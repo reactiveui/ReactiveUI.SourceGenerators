@@ -3,7 +3,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
@@ -13,7 +12,6 @@ using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Models;
 using ReactiveUI.SourceGenerators.ObservableAsProperty.Models;
-using ReactiveUI.SourceGenerators.Reactive.Models;
 using static ReactiveUI.SourceGenerators.Diagnostics.DiagnosticDescriptors;
 
 namespace ReactiveUI.SourceGenerators;
@@ -34,6 +32,11 @@ public sealed partial class ObservableAsPropertyGenerator
 
         // Get the can PropertyName member, if any
         attributeData.TryGetNamedArgument("PropertyName", out string? propertyName);
+
+        token.ThrowIfCancellationRequested();
+
+        attributeData.TryGetNamedArgument("UseProtected", out bool useProtected);
+        var useProtectedModifier = useProtected ? "protected" : "private";
 
         token.ThrowIfCancellationRequested();
         var compilation = context.SemanticModel.Compilation;
@@ -84,7 +87,8 @@ public sealed partial class ObservableAsPropertyGenerator
                 observableType,
                 isNullableType,
                 false,
-                propertyAttributes),
+                propertyAttributes,
+                useProtectedModifier),
                 diagnostics.ToImmutable());
         }
 
@@ -125,7 +129,8 @@ public sealed partial class ObservableAsPropertyGenerator
                 observableType,
                 isNullableType,
                 true,
-                propertyAttributes),
+                propertyAttributes,
+                useProtectedModifier),
                 diagnostics.ToImmutable());
         }
 
@@ -198,7 +203,7 @@ $$"""
         private {{propertyInfo.ObservableType}} {{getterFieldIdentifierName}};
 
         /// <inheritdoc cref="{{getterFieldIdentifierName}}Helper"/>
-        private ReactiveUI.ObservableAsPropertyHelper<{{propertyInfo.ObservableType}}>? {{getterFieldIdentifierName}}Helper;
+        {{propertyInfo.AccessModifier}} ReactiveUI.ObservableAsPropertyHelper<{{propertyInfo.ObservableType}}>? {{getterFieldIdentifierName}}Helper;
 
         /// <inheritdoc cref="{{getterFieldIdentifierName}}"/>
         {{propertyAttributes}}

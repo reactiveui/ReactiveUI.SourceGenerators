@@ -18,7 +18,8 @@ namespace ReactiveUI.SourceGenerators.ObservableAsProperty.Models
         string ObservableType,
         bool IsNullableType,
         bool IsProperty,
-        EquatableArray<string> ForwardedPropertyAttributes)
+        EquatableArray<string> ForwardedPropertyAttributes,
+        string AccessModifier)
     {
         public string GetGeneratedFieldName()
         {

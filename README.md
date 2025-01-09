@@ -185,18 +185,39 @@ using ReactiveUI.SourceGenerators;
 
 public partial class MyReactiveClass : ReactiveObject
 {    
+    [ObservableAsProperty(ReadOnly = false)]
+    private string _myProperty = "Default Value";
+
     public MyReactiveClass()
     {
-        // default value for TestValueProperty prior to initialization.
-        _testValueProperty = "Test Value Pre Init";
-
-        // Initialize generated _testValuePropertyHelper
-        // for the generated TestValueProperty
-        InitializeOAPH();
+        this.WhenActivated(disposables =>
+        {
+            _myPrpertyHelper = MyPropertyObservable()
+                .ToProperty(this, x => x.MyProperty)
+                .DisposeWith(disposables);
+        });
     }
 
-    [ObservableAsProperty(PropertyName = TestValueProperty)]
-    IObservable<string> MyObservable => Observable.Return("Test Value");
+    IObservable<string> MyPropertyObservable() => Observable.Return("Test Value");
+}
+```
+
+### Usage ObservableAsPropertyHelper with Observable Property and protected OAPH field
+```csharp
+using ReactiveUI.SourceGenerators;
+
+public partial class MyReactiveClass : ReactiveObject
+{
+    [ObservableAsProperty(UseProtected = true)]
+    private string _myProperty = "Default Value";
+
+    public MyReactiveClass()
+    {
+        _myPrpertyHelper = MyPropertyObservable()
+            .ToProperty(this, x => x.MyProperty);
+    }
+
+    IObservable<string> MyPropertyObservable() => Observable.Return("Test Value");
 }
 ```
 
@@ -234,6 +255,24 @@ public partial class MyReactiveClass : ReactiveObject
     }
 
     [ObservableAsProperty(PropertyName = TestValueProperty)]
+    IObservable<string> MyObservable() => Observable.Return("Test Value");
+}
+```
+
+### Usage ObservableAsPropertyHelper with Observable Method and protected OAPH field
+```csharp
+using ReactiveUI.SourceGenerators;
+
+public partial class MyReactiveClass : ReactiveObject
+{    
+    public MyReactiveClass()
+    { 
+        // Initialize generated _myObservablePropertyHelper
+        // for the generated MyObservableProperty
+        InitializeOAPH();
+    }
+
+    [ObservableAsProperty(UseProtected = true)]
     IObservable<string> MyObservable() => Observable.Return("Test Value");
 }
 ```

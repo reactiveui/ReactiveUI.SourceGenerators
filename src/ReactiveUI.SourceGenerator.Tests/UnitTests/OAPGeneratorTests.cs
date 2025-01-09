@@ -60,7 +60,7 @@ public class OAPGeneratorTests(ITestOutputHelper output) : TestBase<ObservableAs
                 public partial class TestVM : ReactiveObject
                 {
                     [ObservableAsProperty]
-                    private int _test1 = 10;
+                    private int _test2 = 10;
 
                     public partial class TestVMInner1 : ReactiveObject
                     {
@@ -105,7 +105,7 @@ public class OAPGeneratorTests(ITestOutputHelper output) : TestBase<ObservableAs
                 public partial class TestVM : ReactiveObject
                 {
                     [ObservableAsProperty(ReadOnly = false)]
-                    private int _test2 = 10;
+                    private int _test3 = 10;
                 }
             """;
 
@@ -132,8 +132,35 @@ public class OAPGeneratorTests(ITestOutputHelper output) : TestBase<ObservableAs
             public partial class TestVM : ReactiveObject
             {
                 [ObservableAsProperty(PropertyName = "MyNamedProperty")]
-                private int _test2 = 10;
+                private int _test4 = 10;
             }
+            """;
+
+        // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
+        return TestHelper.TestPass(sourceCode);
+    }
+
+    /// <summary>
+    /// Tests that the source generator correctly generates observable properties.
+    /// </summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Fact]
+    public Task NonReadOnlyFromFieldProtected()
+    {
+        // Arrange: Setup the source code that matches the generator input expectations.
+        const string sourceCode = """
+                using System;
+                using ReactiveUI;
+                using ReactiveUI.SourceGenerators;
+                using System.Reactive.Linq;
+
+                namespace TestNs;
+
+                public partial class TestVM : ReactiveObject
+                {
+                    [ObservableAsProperty(UseProtected = true)]
+                    private int _test5 = 10;
+                }
             """;
 
         // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
