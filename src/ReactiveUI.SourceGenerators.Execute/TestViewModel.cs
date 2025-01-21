@@ -189,6 +189,15 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     public static TestViewModel Instance { get; } = new();
 
     /// <summary>
+    /// Gets or sets the partial property test.
+    /// </summary>
+    /// <value>
+    /// The partial property test.
+    /// </value>
+    [Reactive]
+    public partial string? PartialPropertyTest { get; set; }
+
+    /// <summary>
     /// Gets the internal test property. Should not prompt to replace with INPC Reactive Property.
     /// </summary>
     /// <value>

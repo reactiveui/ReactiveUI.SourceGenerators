@@ -141,7 +141,7 @@ namespace ReactiveUI.SourceGenerators;
 /// </summary>
 /// <seealso cref="Attribute" />
 [global::System.CodeDom.Compiler.GeneratedCode("{{ReactiveGenerator.GeneratorName}}", "{{ReactiveGenerator.GeneratorVersion}}")]
-[AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
+[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
 internal sealed class ReactiveAttribute : Attribute
 {
     /// <summary>
