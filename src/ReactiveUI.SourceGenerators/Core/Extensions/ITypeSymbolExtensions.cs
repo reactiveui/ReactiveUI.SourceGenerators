@@ -172,6 +172,23 @@ internal static class ITypeSymbolExtensions
         return false;
     }
 
+    public static bool IsIShedulerType(this ITypeSymbol? typeSymbol)
+    {
+        var nameFormat = SymbolDisplayFormat.FullyQualifiedFormat;
+        do
+        {
+            var typeName = typeSymbol?.ToDisplayString(nameFormat);
+            if (typeName == "global::System.Reactive.Concurrency.IScheduler")
+            {
+                return true;
+            }
+
+            typeSymbol = typeSymbol?.BaseType;
+        }
+        while (typeSymbol != null);
+        return false;
+    }
+
     public static bool IsObservableBoolType(this ITypeSymbol? typeSymbol)
     {
         var nameFormat = SymbolDisplayFormat.FullyQualifiedFormat;

@@ -25,6 +25,14 @@ internal sealed class ReactiveCommandAttribute : Attribute
     /// The name of the CanExecute Observable of bool.
     /// </value>
     public string? CanExecute { get; init; }
+    
+    /// <summary>
+    /// Gets the output scheduler.
+    /// </summary>
+    /// <value>
+    /// The output scheduler.
+    /// </value>
+    public string? OutputScheduler { get; init; }
 }
 #nullable restore
 #pragma warning restore

@@ -35,6 +35,9 @@ public partial class ReactiveCommandGenerator
     private const string CreateO = ".CreateFromObservable";
     private const string CreateT = ".CreateFromTask";
     private const string CanExecute = "CanExecute";
+    private const string OutputScheduler = "OutputScheduler";
+    private const string MainThreadScheduler = "RxApp.MainThreadScheduler";
+    private const string TaskpoolScheduler = "RxApp.TaskpoolScheduler";
 
     private static CommandInfo? GetMethodInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
@@ -83,6 +86,10 @@ public partial class ReactiveCommandGenerator
 
         token.ThrowIfCancellationRequested();
 
+        TryGetOutputScheduler(methodSymbol, attributeData, out var outputScheduler);
+
+        token.ThrowIfCancellationRequested();
+
         var methodSyntax = (MethodDeclarationSyntax)context.TargetNode;
         methodSymbol.GatherForwardedAttributesFromMethod(context.SemanticModel, methodSyntax, token, out var attributes);
         var forwardedPropertyAttributes = attributes.Select(static a => a.ToString()).ToImmutableArray();
@@ -103,6 +110,7 @@ public partial class ReactiveCommandGenerator
             isObservable,
             canExecuteObservableName,
             canExecuteTypeInfo,
+            outputScheduler,
             forwardedPropertyAttributes);
     }
 
@@ -186,43 +194,46 @@ $$"""
 
         return
 $$"""
-        private ReactiveUI.ReactiveCommand<{{inputType}}, {{outputType}}>? {{fieldName}};
+        private {{RxCmd}}<{{inputType}}, {{outputType}}>? {{fieldName}};
 
         {{forwardedPropertyAttributesString}}
-        public ReactiveUI.ReactiveCommand<{{inputType}}, {{outputType}}> {{commandName}} { get => {{initializer}} }
+        public {{RxCmd}}<{{inputType}}, {{outputType}}> {{commandName}} { get => {{initializer}} }
 """;
 
         static string GenerateBasicCommand(CommandInfo commandExtensionInfo, string fieldName)
         {
             var commandType = commandExtensionInfo.IsObservable ? CreateO : commandExtensionInfo.IsTask ? CreateT : Create;
+            var outputScheduler = string.IsNullOrEmpty(commandExtensionInfo.OutputScheduler) ? string.Empty : $", outputScheduler: {commandExtensionInfo.OutputScheduler}";
             if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
             {
-                return $"{fieldName} ??= {RxCmd}{commandType}({commandExtensionInfo.MethodName});";
+                return $"{fieldName} ??= {RxCmd}{commandType}({commandExtensionInfo.MethodName}{outputScheduler});";
             }
 
-            return $"{fieldName} ??= {RxCmd}{commandType}({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});";
+            return $"{fieldName} ??= {RxCmd}{commandType}({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)}{outputScheduler});";
         }
 
         static string GenerateInOutCommand(CommandInfo commandExtensionInfo, string fieldName, string outputType, string inputType)
         {
             var commandType = commandExtensionInfo.IsObservable ? CreateO : commandExtensionInfo.IsTask ? CreateT : Create;
+            var outputScheduler = string.IsNullOrEmpty(commandExtensionInfo.OutputScheduler) ? string.Empty : $", outputScheduler: {commandExtensionInfo.OutputScheduler}";
             if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
             {
-                return $"{fieldName} ??= {RxCmd}{commandType}<{inputType}, {outputType}>({commandExtensionInfo.MethodName});";
+                return $"{fieldName} ??= {RxCmd}{commandType}<{inputType}, {outputType}>({commandExtensionInfo.MethodName}{outputScheduler});";
             }
 
-            return $"{fieldName} ??= {RxCmd}{commandType}<{inputType}, {outputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});";
+            return $"{fieldName} ??= {RxCmd}{commandType}<{inputType}, {outputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)}{outputScheduler});";
         }
 
         static string GenerateInCommand(CommandInfo commandExtensionInfo, string fieldName, string inputType)
         {
             var commandType = commandExtensionInfo.IsTask ? CreateT : Create;
+            var outputScheduler = string.IsNullOrEmpty(commandExtensionInfo.OutputScheduler) ? string.Empty : $", outputScheduler: {commandExtensionInfo.OutputScheduler}";
             if (string.IsNullOrEmpty(commandExtensionInfo.CanExecuteObservableName))
             {
-                return $"{fieldName} ??= {RxCmd}{commandType}<{inputType}>({commandExtensionInfo.MethodName});";
+                return $"{fieldName} ??= {RxCmd}{commandType}<{inputType}>({commandExtensionInfo.MethodName}{outputScheduler});";
             }
 
-            return $"{fieldName} ??= {RxCmd}{commandType}<{inputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)});";
+            return $"{fieldName} ??= {RxCmd}{commandType}<{inputType}>({commandExtensionInfo.MethodName}, {commandExtensionInfo.CanExecuteObservableName}{(commandExtensionInfo.CanExecuteTypeInfo == CanExecuteTypeInfo.MethodObservable ? "()" : string.Empty)}{outputScheduler});";
         }
     }
 
@@ -281,6 +292,93 @@ $$"""
         canExecuteTypeInfo = null;
 
         return;
+    }
+
+    private static void TryGetOutputScheduler(
+        IMethodSymbol methodSymbol,
+        AttributeData attributeData,
+        out string? outputScheduler)
+    {
+        if (!attributeData.TryGetNamedArgument(OutputScheduler, out string? scheduler))
+        {
+            outputScheduler = null;
+            return;
+        }
+
+        if (scheduler is null)
+        {
+            outputScheduler = null;
+            return;
+        }
+
+        if (scheduler == MainThreadScheduler || scheduler == TaskpoolScheduler)
+        {
+            outputScheduler = scheduler;
+            return;
+        }
+
+        var outputSchedulerSymbols = methodSymbol.ContainingType!.GetAllMembers(scheduler).ToImmutableArray();
+        if (outputSchedulerSymbols.IsEmpty)
+        {
+            outputScheduler = null;
+            return;
+        }
+
+        if (outputSchedulerSymbols.Length > 1)
+        {
+            outputScheduler = null;
+            return;
+        }
+
+        if (TryGetOutputSchedulerFromSymbol(outputSchedulerSymbols[0], out outputScheduler))
+        {
+            return;
+        }
+
+        outputScheduler = null;
+    }
+
+    private static bool TryGetOutputSchedulerFromSymbol(
+        ISymbol outputSchedulerSymbol,
+        [NotNullWhen(true)] out string? outputScheduler)
+    {
+        if (outputSchedulerSymbol is IFieldSymbol outputSchedulerFieldSymbol)
+        {
+            // The property type must always be a bool
+            if (!outputSchedulerFieldSymbol.Type.IsIShedulerType())
+            {
+                goto Failure;
+            }
+
+            outputScheduler = outputSchedulerFieldSymbol.Name;
+            return true;
+        }
+        else if (outputSchedulerSymbol is IPropertySymbol { GetMethod: not null } outputSchedulerPropertySymbol)
+        {
+            // The property type must always be a bool
+            if (!outputSchedulerPropertySymbol.Type.IsIShedulerType())
+            {
+                goto Failure;
+            }
+
+            outputScheduler = outputSchedulerPropertySymbol.Name;
+            return true;
+        }
+        else if (outputSchedulerSymbol is IMethodSymbol outputSchedulerMethodSymbol)
+        {
+            // The return type must always be a bool
+            if (!outputSchedulerMethodSymbol.ReturnType.IsIShedulerType())
+            {
+                goto Failure;
+            }
+
+            outputScheduler = outputSchedulerMethodSymbol.Name;
+            return true;
+        }
+
+    Failure:
+        outputScheduler = null;
+        return false;
     }
 
     /// <summary>

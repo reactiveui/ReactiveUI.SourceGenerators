@@ -13,5 +13,5 @@ public static class Program
     /// <summary>
     /// Defines the entry point of the application.
     /// </summary>
-    public static void Main() => _ = TestViewModel.Instance;
+    public static void Main() => Application.Run(new TestViewWinForms());
 }
