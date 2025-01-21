@@ -5,6 +5,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -27,6 +28,7 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     private readonly IObservable<bool> _observable = Observable.Return(true);
     private readonly Subject<double?> _testSubject = new();
     private readonly Subject<double> _testNonNullSubject = new();
+    private IScheduler _scheduler = RxApp.MainThreadScheduler;
 
     [property: JsonInclude]
     [DataMember]
@@ -74,6 +76,8 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
         {
             Console.Out.WriteLine("Activated");
             _test11PropertyHelper = this.WhenAnyValue(x => x.Test12Property).ToProperty(this, x => x.Test11Property, out _).DisposeWith(disposables);
+            GetDataCommand.Do(_ => Console.Out.WriteLine("GetDataCommand Executed")).Subscribe().DisposeWith(disposables);
+            GetDataCommand.Execute().Subscribe().DisposeWith(disposables);
         });
 
         Console.Out.WriteLine("MyReadOnlyProperty before init");
@@ -371,6 +375,10 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     [ReactiveCommand]
     private async Task<Point> Test10Async(int size, CancellationToken ct) => await Task.FromResult(new Point(size, size));
 
-    [ReactiveCommand(CanExecute = nameof(_observable))]
+    [ReactiveCommand(CanExecute = nameof(_observable), OutputScheduler = nameof(_scheduler))]
     private void TestPrivateCanExecute() => Console.Out.WriteLine("TestPrivateCanExecute");
+
+    [ReactiveCommand]
+    private Task<System.Collections.IEnumerable> GetData(CancellationToken ct) =>
+        Task.FromResult<System.Collections.IEnumerable>(Array.Empty<System.Collections.IEnumerable>());
 }

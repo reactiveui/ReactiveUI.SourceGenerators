@@ -135,6 +135,32 @@ public class ReactiveCMDGeneratorTests(ITestOutputHelper output) : TestBase<Reac
     }
 
     /// <summary>
+    /// Froms the reactive command with output scheduler.
+    /// </summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Fact]
+    public Task FromReactiveCommandWithOutputScheduler()
+    {
+        // Arrange: Setup the source code that matches the generator input expectations.
+        const string sourceCode = """
+                using System;
+                using ReactiveUI;
+                using ReactiveUI.SourceGenerators;
+                using System.Reactive.Linq;
+                using System.Threading.Tasks;
+                namespace TestNs;
+                public partial class TestVM : ReactiveObject
+                {
+                    [ReactiveCommand(OutputScheduler = "RxApp.MainThreadScheduler")]
+                    private int Test1() => 10;
+                }
+            """;
+
+        // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
+        return TestHelper.TestPass(sourceCode);
+    }
+
+    /// <summary>
     /// Froms the reactive command with nested classes.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
