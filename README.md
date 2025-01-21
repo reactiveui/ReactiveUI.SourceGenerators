@@ -16,6 +16,8 @@ ReactiveUI Source Generators automatically generate ReactiveUI objects to stream
 - `[ObservableAsProperty(PropertyName = "ReadOnlyPropertyName")]`
 - `[ReactiveCommand]`
 - `[ReactiveCommand(CanExecute = nameof(IObservableBoolName))]` with CanExecute
+- `[ReactiveCommand(OutputScheduler = "RxApp.MainThreadScheduler")]` using a ReactiveUI Scheduler
+- `[ReactiveCommand(OutputScheduler = nameof(_isheduler))]` using a Scheduler defined in the class
 - `[ReactiveCommand][property: AttributeToAddToCommand]` with Attribute passthrough
 - `[IViewFor(nameof(ViewModelName))]`
 - `[RoutedControlHost("YourNameSpace.CustomControl")]`
@@ -408,6 +410,30 @@ public partial class MyReactiveClass
     [ReactiveCommand(CanExecute = nameof(_canExecute))]
     [property: JsonIgnore]
     private void Search() { }
+}
+```
+
+### Usage ReactiveCommand with ReactiveUI OutputScheduler
+```csharp
+using ReactiveUI.SourceGenerators;
+
+public partial class MyReactiveClass
+{
+    [ReactiveCommand(OutputScheduler = "RxApp.MainThreadScheduler")]
+    private void Execute() { }
+}
+```
+
+### Usage ReactiveCommand with custom OutputScheduler
+```csharp
+using ReactiveUI.SourceGenerators;
+
+public partial class MyReactiveClass
+{
+    private IScheduler _customScheduler = new TestScheduler();
+
+    [ReactiveCommand(OutputScheduler = nameof(_customScheduler))]
+    private void Execute() { }
 }
 ```
 

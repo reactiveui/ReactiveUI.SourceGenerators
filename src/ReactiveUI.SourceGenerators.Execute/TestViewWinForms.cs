@@ -21,6 +21,7 @@ namespace SGReactiveUI.SourceGenerators.Test
         {
             InitializeComponent();
             ViewModel = TestViewModel.Instance;
+            ViewModel.Activator.Activate();
         }
     }
 }
