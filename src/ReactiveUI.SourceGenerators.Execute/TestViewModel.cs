@@ -30,6 +30,8 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     private readonly Subject<double> _testNonNullSubject = new();
     private IScheduler _scheduler = RxApp.MainThreadScheduler;
 
+    private IScheduler _scheduler = RxApp.MainThreadScheduler;
+
     [property: JsonInclude]
     [DataMember]
     [ObservableAsProperty]

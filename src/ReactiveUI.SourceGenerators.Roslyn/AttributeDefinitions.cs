@@ -82,6 +82,12 @@ internal sealed class ReactiveObjectAttribute : Attribute;
 
     public const string ReactiveCommandAttributeType = "ReactiveUI.SourceGenerators.ReactiveCommandAttribute";
 
+    /// <summary>
+    /// Gets the reactive command attribute.
+    /// </summary>
+    /// <value>
+    /// The reactive command attribute.
+    /// </value>
     public static string ReactiveCommandAttribute => $$"""
 // Copyright (c) {{DateTime.Now.Year}} .NET Foundation and Contributors. All rights reserved.
 // Licensed to the .NET Foundation under one or more agreements.
@@ -110,7 +116,7 @@ internal sealed class ReactiveCommandAttribute : Attribute
     /// The name of the CanExecute Observable of bool.
     /// </value>
     public string? CanExecute { get; init; }
-
+    
     /// <summary>
     /// Gets the output scheduler.
     /// </summary>
