@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>bc460daf-92ed-41d9-9eb4-2c92121d62a8</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>ReactiveUI.SourceGenerators.Roslyn</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AttributeDefinitions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\AttributeDataExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\CompilationExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\DiagnosticsExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\FieldSyntaxExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\INamedTypeSymbolExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\ISymbolExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\ITypeSymbolExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\SymbolInfoExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\SyntaxTokenExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\SyntaxValueProviderExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Helpers\AttributeInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Helpers\EquatableArray{T}.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Helpers\HashCode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Helpers\ImmutableArrayBuilder{T}.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Helpers\SymbolHelpers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Helpers\TypedConstantInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Helpers\TypedConstantInfo.Factory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Models\DiagnosticInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Models\GenericGeneratorAttributeSyntaxContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Models\PropertyAttributeData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Models\Result.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Models\TargetInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\DiagnosticDescriptors.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\SuppressionDescriptors.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Suppressions\OAPHMethodDoesNotNeedToBeStaticDiagnosticSuppressor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Suppressions\ObservableAsPropertyAttributeWithFieldNeverReadDiagnosticSuppressor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Suppressions\ReactiveAttributeWithPropertyTargetDiagnosticSuppressor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Suppressions\ReactiveCommandAttributeWithFieldOrPropertyTargetDiagnosticSuppressor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Suppressions\ReactiveCommandMethodDoesNotNeedToBeStaticDiagnosticSuppressor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Suppressions\ReactiveFieldDoesNotNeedToBeReadOnlyDiagnosticSuppressor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Generated\PolySharp.SourceGenerators\PolySharp.SourceGenerators.PolyfillsGenerator\System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute.g.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Generated\PolySharp.SourceGenerators\PolySharp.SourceGenerators.PolyfillsGenerator\System.Diagnostics.CodeAnalysis.NotNullWhenAttribute.g.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Generated\PolySharp.SourceGenerators\PolySharp.SourceGenerators.PolyfillsGenerator\System.Diagnostics.CodeAnalysis.UnscopedRefAttribute.g.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Generated\PolySharp.SourceGenerators\PolySharp.SourceGenerators.PolyfillsGenerator\System.Index.g.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Generated\PolySharp.SourceGenerators\PolySharp.SourceGenerators.PolyfillsGenerator\System.Range.g.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Generated\PolySharp.SourceGenerators\PolySharp.SourceGenerators.PolyfillsGenerator\System.Runtime.CompilerServices.IsExternalInit.g.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IViewFor\IViewForGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IViewFor\IViewForGenerator.Execute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IViewFor\Models\IViewForBaseType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IViewFor\Models\IViewForInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObservableAsProperty\Models\ObservableFieldInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObservableAsProperty\Models\ObservableMethodInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObservableAsProperty\ObservableAsPropertyGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObservableAsProperty\ObservableAsPropertyGenerator{FromField}.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObservableAsProperty\ObservableAsPropertyGenerator{FromField}.Execute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObservableAsProperty\ObservableAsPropertyGenerator{FromObservable}.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObservableAsProperty\ObservableAsPropertyGenerator{FromObservable}.Execute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ReactiveCommand\Models\CanExecuteTypeInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ReactiveCommand\Models\CommandInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ReactiveCommand\ReactiveCommandGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ReactiveCommand\ReactiveCommandGenerator.Execute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Reactive\Models\PropertyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Reactive\ReactiveGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Reactive\ReactiveGenerator.Execute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RoutedControlHost\Models\RoutedControlHostInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RoutedControlHost\RoutedControlHostGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RoutedControlHost\RoutedControlHostGenerator.Execute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModelControlHost\Models\ViewModelControlHostInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModelControlHost\ViewModelControlHostGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModelControlHost\ViewModelControlHostGenerator.Execute.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)AnalyzerReleases.Shipped.md" />
+    <None Include="$(MSBuildThisFileDirectory)AnalyzerReleases.Unshipped.md" />
+  </ItemGroup>
+</Project>

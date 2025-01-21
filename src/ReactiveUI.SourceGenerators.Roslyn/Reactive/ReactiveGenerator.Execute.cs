@@ -4,7 +4,6 @@
 // See the LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
@@ -27,6 +26,88 @@ public sealed partial class ReactiveGenerator
 {
     internal static readonly string GeneratorName = typeof(ReactiveGenerator).FullName!;
     internal static readonly string GeneratorVersion = typeof(ReactiveGenerator).Assembly.GetName().Version.ToString();
+
+#if ROSYLN_412
+    private static Result<PropertyInfo?>? GetPropertyInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
+    {
+        using var builder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
+        var symbol = context.TargetSymbol;
+
+        if (!symbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ReactiveAttributeType, out var attributeData))
+        {
+            return default;
+        }
+
+        if (symbol is not IPropertySymbol propertySymbol)
+        {
+            return default;
+        }
+
+        if (!propertySymbol.IsPartialDefinition || propertySymbol.IsStatic)
+        {
+            return default;
+        }
+
+        if (!IsTargetTypeValid(propertySymbol))
+        {
+            builder.Add(
+                    InvalidReactiveError,
+                    propertySymbol,
+                    propertySymbol.ContainingType,
+                    propertySymbol.Name);
+            return new(default, builder.ToImmutable());
+        }
+
+        token.ThrowIfCancellationRequested();
+
+        var accessModifier = $"{propertySymbol.SetMethod?.DeclaredAccessibility} set".ToLower();
+        if (accessModifier.StartsWith("public", StringComparison.Ordinal))
+        {
+            accessModifier = "set";
+        }
+        else if (accessModifier.Contains("and"))
+        {
+            accessModifier = accessModifier.Replace("and", " ");
+        }
+
+        token.ThrowIfCancellationRequested();
+
+        var inheritance = propertySymbol.IsVirtual ? " virtual" : propertySymbol.IsOverride ? " override" : string.Empty;
+        var useRequired = string.Empty;
+        var typeNameWithNullabilityAnnotations = propertySymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations();
+        var fieldName = propertySymbol.GetGeneratedFieldName();
+        var propertyName = propertySymbol.Name;
+
+        // Get the nullability info for the property
+        propertySymbol.GetNullabilityInfo(
+        context.SemanticModel,
+        out var isReferenceTypeOrUnconstraindTypeParameter,
+        out var includeMemberNotNullOnSetAccessor);
+
+        ImmutableArray<string> forwardedAttributesString = [];
+        token.ThrowIfCancellationRequested();
+
+        // Get the containing type info
+        var targetInfo = TargetInfo.From(propertySymbol.ContainingType);
+
+        token.ThrowIfCancellationRequested();
+
+        return new(
+            new(
+            targetInfo,
+            typeNameWithNullabilityAnnotations,
+            fieldName,
+            propertyName,
+            isReferenceTypeOrUnconstraindTypeParameter,
+            includeMemberNotNullOnSetAccessor,
+            forwardedAttributesString,
+            accessModifier,
+            inheritance,
+            useRequired,
+            true),
+            builder.ToImmutable());
+    }
+#endif
 
     /// <summary>
     /// Gets the observable method information.
@@ -229,7 +310,8 @@ public sealed partial class ReactiveGenerator
             forwardedAttributesString,
             accessModifier,
             inheritance,
-            useRequired),
+            useRequired,
+            false),
             builder.ToImmutable());
     }
 
@@ -305,15 +387,23 @@ $$"""
             return string.Empty;
         }
 
+        var fieldSyntax = string.Empty;
+        var partialModifier = propertyInfo.IsProperty ? "partial " : string.Empty;
+        if (propertyInfo.IsProperty)
+        {
+            fieldSyntax = $"private {propertyInfo.TypeNameWithNullabilityAnnotations} {propertyInfo.FieldName};";
+        }
+
         var propertyAttributes = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage.Concat(propertyInfo.ForwardedAttributes));
 
-        if (propertyInfo.IncludeMemberNotNullOnSetAccessor)
+        if (propertyInfo.IncludeMemberNotNullOnSetAccessor || propertyInfo.IsReferenceTypeOrUnconstrainedTypeParameter)
         {
             return
 $$"""
+        {{fieldSyntax}}
         /// <inheritdoc cref="{{propertyInfo.FieldName}}"/>
         {{propertyAttributes}}
-        {{propertyInfo.TargetInfo.TargetVisibility}}{{propertyInfo.Inheritance}} {{propertyInfo.UseRequired}}{{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}}
+        {{propertyInfo.TargetInfo.TargetVisibility}}{{propertyInfo.Inheritance}} {{partialModifier}}{{propertyInfo.UseRequired}}{{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}}
         { 
             get => {{propertyInfo.FieldName}};
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("{{propertyInfo.FieldName}}")]
@@ -324,9 +414,10 @@ $$"""
 
         return
 $$"""
+        {{fieldSyntax}}
         /// <inheritdoc cref="{{propertyInfo.FieldName}}"/>
         {{propertyAttributes}}
-        {{propertyInfo.TargetInfo.TargetVisibility}}{{propertyInfo.Inheritance}} {{propertyInfo.UseRequired}}{{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} { get => {{propertyInfo.FieldName}}; {{propertyInfo.AccessModifier}} => this.RaiseAndSetIfChanged(ref {{propertyInfo.FieldName}}, value); }
+        {{propertyInfo.TargetInfo.TargetVisibility}}{{propertyInfo.Inheritance}} {{partialModifier}}{{propertyInfo.UseRequired}}{{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} { get => {{propertyInfo.FieldName}}; {{propertyInfo.AccessModifier}} => this.RaiseAndSetIfChanged(ref {{propertyInfo.FieldName}}, value); }
 """;
     }
 
@@ -340,6 +431,15 @@ $$"""
         var isObservableObject = fieldSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.ReactiveObject");
         var isIObservableObject = fieldSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.IReactiveObject");
         var hasObservableObjectAttribute = fieldSymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName("ReactiveUI.SourceGenerators.ReactiveObjectAttribute");
+
+        return isIObservableObject || isObservableObject || hasObservableObjectAttribute;
+    }
+
+    private static bool IsTargetTypeValid(IPropertySymbol propertySymbol)
+    {
+        var isObservableObject = propertySymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.ReactiveObject");
+        var isIObservableObject = propertySymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.IReactiveObject");
+        var hasObservableObjectAttribute = propertySymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName("ReactiveUI.SourceGenerators.ReactiveObjectAttribute");
 
         return isIObservableObject || isObservableObject || hasObservableObjectAttribute;
     }

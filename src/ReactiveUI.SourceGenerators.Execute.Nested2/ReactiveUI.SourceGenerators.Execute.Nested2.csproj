@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ReactiveUI.SourceGenerators\ReactiveUI.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
+    <ProjectReference Include="..\ReactiveUI.SourceGenerators.Roslyn4120\ReactiveUI.SourceGenerators.Roslyn4120.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
     <ProjectReference Include="..\ReactiveUI.SourceGenerators.Execute.Nested1\ReactiveUI.SourceGenerators.Execute.Nested1.csproj" />
   </ItemGroup>
 
