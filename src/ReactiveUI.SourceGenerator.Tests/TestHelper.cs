@@ -104,7 +104,7 @@ public sealed class TestHelper<T>(ITestOutputHelper testOutput) : IDisposable
 
         // Download necessary NuGet package files.
         var inputGroup = await NuGetPackageHelper.DownloadPackageFilesAndFolder(
-            new[] { SplatLibrary, ReactiveuiLibrary },
+            [SplatLibrary, ReactiveuiLibrary],
             targetFrameworks,
             packageOutputDirectory: null).ConfigureAwait(false);
 
@@ -127,7 +127,11 @@ public sealed class TestHelper<T>(ITestOutputHelper testOutput) : IDisposable
 
         var utility = new SourceGeneratorUtility(x => testOutput.WriteLine(x));
 
+#pragma warning disable IDE0053 // Use expression body for lambda expression
+#pragma warning disable RCS1021 // Convert lambda expression body to expression body
         Assert.Throws<InvalidOperationException>(() => { RunGeneratorAndCheck(source); });
+#pragma warning restore RCS1021 // Convert lambda expression body to expression body
+#pragma warning restore IDE0053 // Use expression body for lambda expression
     }
 
     /// <summary>
@@ -183,7 +187,7 @@ public sealed class TestHelper<T>(ITestOutputHelper testOutput) : IDisposable
             .Concat(_eventCompiler.ReferencedModules.Select(x => MetadataReference.CreateFromFile(x.PEFile!.FileName)))
             .Concat(_eventCompiler.NeededModules.Select(x => MetadataReference.CreateFromFile(x.PEFile!.FileName))));
 
-        var syntaxTree = CSharpSyntaxTree.ParseText(code, CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp12));
+        var syntaxTree = CSharpSyntaxTree.ParseText(code, CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp13));
 
         // Create a compilation with the provided source code.
         var compilation = CSharpCompilation.Create(
