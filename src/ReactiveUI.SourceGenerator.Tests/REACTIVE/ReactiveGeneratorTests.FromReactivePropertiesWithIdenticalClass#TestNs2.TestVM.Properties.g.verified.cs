@@ -12,11 +12,17 @@ namespace TestNs2
     /// </summary>
     public partial class TestVM
     {
+        
         /// <inheritdoc cref="_name"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         [global::System.Runtime.Serialization.DataMemberAttribute()]
         [global::System.Text.Json.Serialization.JsonIncludeAttribute()]
-        public string? Name { get => _name; set => this.RaiseAndSetIfChanged(ref _name, value); }
+        public string? Name
+        { 
+            get => _name;
+            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_name")]
+            set => this.RaiseAndSetIfChanged(ref _name, value);
+        }
     }
 }
 #nullable restore

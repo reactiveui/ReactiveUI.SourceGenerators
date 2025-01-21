@@ -14,6 +14,7 @@ namespace TestNs1
     /// </summary>
     public partial class TestInnerClass2
     {
+        
         /// <inheritdoc cref="_testInner2"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int TestInner2
@@ -22,6 +23,7 @@ namespace TestNs1
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_testInner2")]
             set => this.RaiseAndSetIfChanged(ref _testInner2, value);
         }
+        
         /// <inheritdoc cref="_testInner22"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int TestInner22

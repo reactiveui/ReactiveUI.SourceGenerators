@@ -12,6 +12,7 @@ namespace TestNs
     /// </summary>
     public partial class TestVM
     {
+        
         /// <inheritdoc cref="_mustBeSet"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public string MustBeSet
