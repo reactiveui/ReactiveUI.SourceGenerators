@@ -2,7 +2,7 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
-    <CodeAnalysisVersion>4.8.0</CodeAnalysisVersion>
+    <CodeAnalysisVersion>4.12.0</CodeAnalysisVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
@@ -27,10 +27,10 @@
     <PackageVersion Include="Avalonia.ReactiveUI" Version="11.2.3" />
     <PackageVersion Include="Avalonia.Diagnostics" Version="11.2.3" />
     <PackageVersion Include="Avalonia.Desktop" Version="11.2.3" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="9.0.1" />
     <PackageVersion Include="ReactiveUI.Maui" Version="20.1.63" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
-    <PackageVersion Include="System.Formats.Asn1" Version="9.0.0" />
+    <PackageVersion Include="System.Formats.Asn1" Version="9.0.1" />
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="xunit.runner.console" Version="2.9.3" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.0.1" />
