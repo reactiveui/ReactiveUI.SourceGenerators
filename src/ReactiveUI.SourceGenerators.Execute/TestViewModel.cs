@@ -28,7 +28,6 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     private readonly IObservable<bool> _observable = Observable.Return(true);
     private readonly Subject<double?> _testSubject = new();
     private readonly Subject<double> _testNonNullSubject = new();
-
     private IScheduler _scheduler = RxApp.MainThreadScheduler;
 
     [property: JsonInclude]
@@ -192,6 +191,15 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     /// The instance.
     /// </value>
     public static TestViewModel Instance { get; } = new();
+
+    /// <summary>
+    /// Gets or sets the partial property test.
+    /// </summary>
+    /// <value>
+    /// The partial property test.
+    /// </value>
+    [Reactive]
+    public partial string? PartialPropertyTest { get; set; }
 
     /// <summary>
     /// Gets the internal test property. Should not prompt to replace with INPC Reactive Property.

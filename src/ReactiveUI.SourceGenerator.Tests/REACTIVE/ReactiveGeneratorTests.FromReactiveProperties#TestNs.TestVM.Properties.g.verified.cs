@@ -12,6 +12,7 @@ namespace TestNs
     /// </summary>
     public partial class TestVM
     {
+        
         /// <inheritdoc cref="_test1"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int Test1

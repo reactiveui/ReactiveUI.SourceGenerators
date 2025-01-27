@@ -21,4 +21,5 @@ internal sealed record PropertyInfo(
     EquatableArray<string> ForwardedAttributes,
     string AccessModifier,
     string Inheritance,
-    string UseRequired);
+    string UseRequired,
+    bool IsProperty);

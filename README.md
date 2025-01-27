@@ -11,7 +11,7 @@ This documentation covers using ReactiveUI Source Generators to simplify and enh
 
 ReactiveUI Source Generators automatically generate ReactiveUI objects to streamline your code. These Source Generators are designed to work with ReactiveUI V19.5.31+ and support the following features:
 
-- `[Reactive]`
+- `[Reactive]` With field and access modifiers, partial property support (C# 13 Visual Studio Version 17.12.0)
 - `[ObservableAsProperty]`
 - `[ObservableAsProperty(PropertyName = "ReadOnlyPropertyName")]`
 - `[ReactiveCommand]`
@@ -128,6 +128,23 @@ public partial class MyReactiveClass : ReactiveObject
     [Reactive]
     [property: JsonIgnore]
     private string _myProperty;
+}
+```
+
+### Usage Reactive property from partial property
+
+Partial properties are supported in C# 13 and Visual Studio 17.12.0 and later.
+Both the getter and setter must be empty, and the `[Reactive]` attribute must be placed on the property.
+Override and Virtual properties are supported.
+Set Access Modifier is also supported on partial properties.
+
+```csharp
+using ReactiveUI.SourceGenerators;
+
+public partial class MyReactiveClass : ReactiveObject
+{
+    [Reactive]
+    public partial string MyProperty { get; set; }
 }
 ```
 
