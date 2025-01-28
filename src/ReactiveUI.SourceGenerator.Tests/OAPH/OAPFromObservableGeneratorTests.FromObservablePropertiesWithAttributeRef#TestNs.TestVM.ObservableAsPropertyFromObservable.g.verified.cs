@@ -20,6 +20,7 @@ namespace TestNs
 
         /// <inheritdoc cref="_test6Property"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+        [global::System.Runtime.Serialization.DataMemberAttribute()]
         [global::System.Text.Json.Serialization.JsonIncludeAttribute()]
         public object Test6Property { get => _test6Property = _test6PropertyHelper?.Value ?? _test6Property; }
 

@@ -41,6 +41,14 @@ internal sealed class ObservableAsPropertyAttribute : Attribute
     /// The AccessModifier of the OAPH property, protected if true.
     /// </value>
     public bool UseProtected { get; init; } = false;
+
+    /// <summary>
+    /// Gets the Initial value of the OAPH property.
+    /// </summary>
+    /// <value>
+    /// The initial value of the OAPH property.
+    /// </value>
+    public string? InitialValue { get; init; }
 }
 #nullable restore
 #pragma warning restore

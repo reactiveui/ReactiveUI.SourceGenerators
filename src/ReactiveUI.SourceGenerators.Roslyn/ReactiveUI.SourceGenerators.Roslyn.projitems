@@ -12,6 +12,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)AttributeDefinitions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\AttributeDataExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\CompilationExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\ContextExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\DiagnosticsExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\FieldSyntaxExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\INamedTypeSymbolExtensions.cs" />

@@ -53,6 +53,7 @@ public partial class ReactiveCommandGenerator
         }
 
         token.ThrowIfCancellationRequested();
+        using var builder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
 
         var isTask = methodSymbol.ReturnType.IsTaskReturnType();
         var isObservable = methodSymbol.ReturnType.IsObservableReturnType();
@@ -91,8 +92,14 @@ public partial class ReactiveCommandGenerator
         token.ThrowIfCancellationRequested();
 
         var methodSyntax = (MethodDeclarationSyntax)context.TargetNode;
-        methodSymbol.GatherForwardedAttributesFromMethod(context.SemanticModel, methodSyntax, token, out var attributes);
-        var forwardedPropertyAttributes = attributes.Select(static a => a.ToString()).ToImmutableArray();
+
+        context.GetForwardedAttributes(
+            builder,
+            methodSymbol,
+            methodSyntax.AttributeLists,
+            token,
+            out var forwardedPropertyAttributes);
+
         token.ThrowIfCancellationRequested();
 
         // Get the containing type info
