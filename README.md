@@ -12,8 +12,10 @@ This documentation covers using ReactiveUI Source Generators to simplify and enh
 ReactiveUI Source Generators automatically generate ReactiveUI objects to streamline your code. These Source Generators are designed to work with ReactiveUI V19.5.31+ and support the following features:
 
 - `[Reactive]` With field and access modifiers, partial property support (C# 13 Visual Studio Version 17.12.0)
-- `[ObservableAsProperty]`
+- `[ObservableAsProperty]` With field, method, Observable property and partial property support (C# 13 Visual Studio Version 17.12.0)
+- `[ObservableAsProperty(ReadOnly = false)]` Removes readonly keyword from the generated helper field
 - `[ObservableAsProperty(PropertyName = "ReadOnlyPropertyName")]`
+- `[ObservableAsProperty(InitialValue = "Default Value")]` Only valid for partial properties using (C# 13 Visual Studio Version 17.12.0)
 - `[ReactiveCommand]`
 - `[ReactiveCommand(CanExecute = nameof(IObservableBoolName))]` with CanExecute
 - `[ReactiveCommand(OutputScheduler = "RxApp.MainThreadScheduler")]` using a ReactiveUI Scheduler
@@ -293,6 +295,26 @@ public partial class MyReactiveClass : ReactiveObject
 
     [ObservableAsProperty(UseProtected = true)]
     IObservable<string> MyObservable() => Observable.Return("Test Value");
+}
+```
+
+### Usage ObservableAsPropertyHelper with partial Property and a default value
+```csharp
+using ReactiveUI.SourceGenerators;
+
+public partial class MyReactiveClass : ReactiveObject
+{
+    public MyReactiveClass()
+    {
+        // The value of MyProperty will be "Default Value" until the Observable is initialized
+        _myPrpertyHelper = MyPropertyObservable()
+            .ToProperty(this, nameof(MyProperty));
+    }
+    
+    [ObservableAsProperty(InitialValue = "Default Value")]
+    public string MyProperty { get; }
+
+    public IObservable<string> MyPropertyObservable() => Observable.Return("Test Value");
 }
 ```
 
