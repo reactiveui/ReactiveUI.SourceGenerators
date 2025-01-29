@@ -259,4 +259,86 @@ public class OAPFromObservableGeneratorTests(ITestOutputHelper output) : TestBas
         // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
         return TestHelper.TestPass(sourceCode);
     }
+
+    /// <summary>
+    /// Tests that the source generator correctly generates observable properties.
+    /// </summary>
+    /// <returns>
+    /// A task to monitor the async.
+    /// </returns>
+    [Fact]
+    public Task FromField()
+    {
+        // Arrange: Setup the source code that matches the generator input expectations.
+        const string sourceCode = """
+                using System;
+                using System.Runtime.Serialization;
+                using System.Text.Json.Serialization;
+                using ReactiveUI;
+                using ReactiveUI.SourceGenerators;
+                using System.Reactive.Linq;
+                using System.Reactive.Subjects;
+
+                namespace TestNs;
+
+                public partial class TestVM : ReactiveObject
+                {
+                    private readonly Subject<double?> _testSubject = new();
+
+                    [property: JsonInclude]
+                    [DataMember]
+                    [ObservableAsProperty]
+                    private double? _testProperty = 1.1d;
+
+                    public TestVM()
+                    {
+                        _testPropertyHelper = _testSubject.ToProperty(this, nameof(TestProperty));
+                    }
+                }
+            """;
+
+        // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
+        return TestHelper.TestPass(sourceCode);
+    }
+
+    /// <summary>
+    /// Tests that the source generator correctly generates observable properties.
+    /// </summary>
+    /// <returns>
+    /// A task to monitor the async.
+    /// </returns>
+    [Fact]
+    public Task FromPartialProperty()
+    {
+        // Arrange: Setup the source code that matches the generator input expectations.
+        const string sourceCode = """
+                using System;
+                using System.Runtime.Serialization;
+                using System.Text.Json.Serialization;
+                using ReactiveUI;
+                using ReactiveUI.SourceGenerators;
+                using System.Reactive.Linq;
+                using System.Reactive.Subjects;
+
+                namespace TestNs;
+
+                public partial class TestVM : ReactiveObject
+                {
+                    private readonly Subject<double?> _testSubject = new();
+
+                    public TestVM()
+                    {
+                        _testPropertyHelper = _testSubject.ToProperty(this, nameof(TestProperty));
+                    }
+            
+                    [JsonInclude]
+                    [DataMember]
+                    [ObservableAsProperty(InitialValue = "1.1d")]
+                    public partial double? TestProperty { get; }
+                }
+            """;
+
+        // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
+        return TestHelper.TestPass(sourceCode);
+    }
 }

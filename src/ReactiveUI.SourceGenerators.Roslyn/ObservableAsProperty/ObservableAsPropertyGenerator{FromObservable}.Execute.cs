@@ -33,6 +33,9 @@ public sealed partial class ObservableAsPropertyGenerator
         // Get the can PropertyName member, if any
         attributeData.TryGetNamedArgument("PropertyName", out string? propertyName);
 
+        // Get the can InitialValue member, if any
+        attributeData.TryGetNamedArgument("InitialValue", out string? initialValue);
+
         token.ThrowIfCancellationRequested();
 
         attributeData.TryGetNamedArgument("UseProtected", out bool useProtected);
@@ -54,15 +57,18 @@ public sealed partial class ObservableAsPropertyGenerator
             }
 
             var isObservable = methodSymbol.ReturnType.IsObservableReturnType();
+            if (!isObservable)
+            {
+                return default;
+            }
 
             token.ThrowIfCancellationRequested();
-
-            methodSymbol.GatherForwardedAttributesFromMethod(
-                context.SemanticModel,
-                methodSyntax,
+            context.GetForwardedAttributes(
+                diagnostics,
+                methodSymbol,
+                methodSyntax.AttributeLists,
                 token,
-                out var attributes);
-            var propertyAttributes = attributes.Select(x => x.ToString()).ToImmutableArray();
+                out var propertyAttributes);
 
             token.ThrowIfCancellationRequested();
 
@@ -88,33 +94,103 @@ public sealed partial class ObservableAsPropertyGenerator
                 isNullableType,
                 false,
                 propertyAttributes,
-                useProtectedModifier),
+                useProtectedModifier,
+                initialValue),
                 diagnostics.ToImmutable());
         }
 
         if (context.TargetNode is PropertyDeclarationSyntax propertySyntax)
         {
-            var propertySymbol = (IPropertySymbol)symbol!;
-            var isObservable = propertySymbol.Type.IsObservableReturnType();
+            if (symbol is not IPropertySymbol propertySymbol)
+            {
+                return default;
+            }
+
+            var observableType = string.Empty;
+            var isNullableType = false;
 
             token.ThrowIfCancellationRequested();
-
-            propertySymbol.GatherForwardedAttributesFromProperty(
-                context.SemanticModel,
-                propertySyntax,
+            context.GetForwardedAttributes(
+                diagnostics,
+                propertySymbol,
+                propertySyntax.AttributeLists,
                 token,
-                out var attributes);
-            var propertyAttributes = attributes.Select(x => x.ToString()).ToImmutableArray();
+                out var propertyAttributes);
 
             token.ThrowIfCancellationRequested();
 
-            var observableType = propertySymbol.Type is not INamedTypeSymbol typeSymbol
-                ? string.Empty
-                : typeSymbol.TypeArguments[0].GetFullyQualifiedNameWithNullabilityAnnotations();
+            if (propertySymbol.Type.IsObservableReturnType())
+            {
+                observableType = propertySymbol.Type is not INamedTypeSymbol typeSymbol
+                    ? string.Empty
+                    : typeSymbol.TypeArguments[0].GetFullyQualifiedNameWithNullabilityAnnotations();
 
-            var isNullableType = propertySymbol.Type is INamedTypeSymbol nullcheck && nullcheck.TypeArguments[0].IsNullableType();
+                token.ThrowIfCancellationRequested();
 
-            token.ThrowIfCancellationRequested();
+                isNullableType = propertySymbol.Type is INamedTypeSymbol nullcheck && nullcheck.TypeArguments[0].IsNullableType();
+            }
+#if ROSYLN_412
+            else
+            {
+                if (!propertySymbol.IsPartialDefinition || propertySymbol.IsStatic)
+                {
+                    return default;
+                }
+
+                // Validate the target type
+                if (!propertySymbol.IsTargetTypeValid())
+                {
+                    diagnostics.Add(
+                            InvalidObservableAsPropertyError,
+                            propertySymbol,
+                            propertySymbol.ContainingType,
+                            propertySymbol.Name);
+                    return new(default, diagnostics.ToImmutable());
+                }
+
+                token.ThrowIfCancellationRequested();
+
+                var inheritance = propertySymbol.IsVirtual ? " virtual" : propertySymbol.IsOverride ? " override" : string.Empty;
+
+                // Get the can ReadOnly member, if any
+                attributeData.TryGetNamedArgument("ReadOnly", out bool? isReadonly);
+
+                token.ThrowIfCancellationRequested();
+
+                // Get the property type and name
+                var typeNameWithNullabilityAnnotations = propertySymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations();
+
+                // Get the field name
+                var fieldName = propertySymbol.GetGeneratedFieldName();
+                propertyName = propertySymbol.Name;
+
+                // Check for names for collisions
+                if (fieldName == propertyName)
+                {
+                    diagnostics.Add(
+                        ReactivePropertyNameCollisionError,
+                        propertySymbol,
+                        propertySymbol.ContainingType,
+                        propertySymbol.Name);
+                    return new(default, diagnostics.ToImmutable());
+                }
+
+                var propertyDeclaration = (PropertyDeclarationSyntax)context.TargetNode!;
+
+                token.ThrowIfCancellationRequested();
+
+                context.GetForwardedAttributes(
+                            diagnostics,
+                            propertySymbol,
+                            propertyDeclaration.AttributeLists,
+                            token,
+                            out var forwardedPropertyAttributes);
+
+                token.ThrowIfCancellationRequested();
+
+                observableType = "##FromPartialProperty##" + typeNameWithNullabilityAnnotations;
+            }
+#endif
 
             // Get the containing type info
             var targetInfo = TargetInfo.From(propertySymbol.ContainingType);
@@ -130,7 +206,8 @@ public sealed partial class ObservableAsPropertyGenerator
                 isNullableType,
                 true,
                 propertyAttributes,
-                useProtectedModifier),
+                useProtectedModifier,
+                initialValue),
                 diagnostics.ToImmutable());
         }
 
@@ -198,16 +275,25 @@ $$"""
             ? $"{getterFieldIdentifierName} = ({getterFieldIdentifierName}Helper == null ? {getterFieldIdentifierName} : {getterFieldIdentifierName}Helper.Value)"
             : $"{getterFieldIdentifierName} = {getterFieldIdentifierName}Helper?.Value ?? {getterFieldIdentifierName}";
 
+        var isPartialProperty = string.Empty;
+        var propertyType = propertyInfo.ObservableType;
+        var initialValue = string.IsNullOrWhiteSpace(propertyInfo.InitialValue) ? string.Empty : " = " + propertyInfo.InitialValue;
+        if (propertyInfo.IsFromPartialProperty)
+        {
+            isPartialProperty = "partial ";
+            propertyType = propertyInfo.PartialPropertyType;
+        }
+
         return $$"""
 /// <inheritdoc cref="{{propertyInfo.PropertyName}}"/>
-        private {{propertyInfo.ObservableType}} {{getterFieldIdentifierName}};
+        private {{propertyType}} {{getterFieldIdentifierName}}{{initialValue}};
 
         /// <inheritdoc cref="{{getterFieldIdentifierName}}Helper"/>
-        {{propertyInfo.AccessModifier}} ReactiveUI.ObservableAsPropertyHelper<{{propertyInfo.ObservableType}}>? {{getterFieldIdentifierName}}Helper;
+        {{propertyInfo.AccessModifier}} ReactiveUI.ObservableAsPropertyHelper<{{propertyType}}>? {{getterFieldIdentifierName}}Helper;
 
         /// <inheritdoc cref="{{getterFieldIdentifierName}}"/>
         {{propertyAttributes}}
-        public {{propertyInfo.ObservableType}} {{propertyInfo.PropertyName}} { get => {{getterArrowExpression}}; }
+        public {{isPartialProperty}}{{propertyType}} {{propertyInfo.PropertyName}} { get => {{getterArrowExpression}}; }
 """;
     }
 
@@ -217,6 +303,11 @@ $$"""
 
         foreach (var propertyInfo in propertyInfos)
         {
+            if (propertyInfo.IsFromPartialProperty)
+            {
+                continue;
+            }
+
             var fieldIdentifierName = propertyInfo.GetGeneratedFieldName();
             if (propertyInfo.IsProperty)
             {

@@ -19,8 +19,13 @@ namespace ReactiveUI.SourceGenerators.ObservableAsProperty.Models
         bool IsNullableType,
         bool IsProperty,
         EquatableArray<string> ForwardedPropertyAttributes,
-        string AccessModifier)
+        string AccessModifier,
+        string? InitialValue)
     {
+        public bool IsFromPartialProperty => ObservableType.Contains("##FromPartialProperty##");
+
+        public string PartialPropertyType => ObservableType.Replace("##FromPartialProperty##", string.Empty);
+
         public string GetGeneratedFieldName()
         {
             var propertyName = PropertyName;

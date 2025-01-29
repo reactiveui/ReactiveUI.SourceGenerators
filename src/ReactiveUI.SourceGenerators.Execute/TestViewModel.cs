@@ -28,7 +28,8 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     private readonly IObservable<bool> _observable = Observable.Return(true);
     private readonly Subject<double?> _testSubject = new();
     private readonly Subject<double> _testNonNullSubject = new();
-    private IScheduler _scheduler = RxApp.MainThreadScheduler;
+    private readonly Subject<int> _fromPartialTestSubject = new();
+    private readonly IScheduler _scheduler = RxApp.MainThreadScheduler;
 
     [property: JsonInclude]
     [DataMember]
@@ -181,6 +182,10 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
         Test10Command?.Execute(200).Subscribe(r => Console.Out.WriteLine(r));
         TestPrivateCanExecuteCommand?.Execute().Subscribe();
 
+        Console.Out.WriteLine($"Observable unset, value should be 10, value is : {ObservableAsPropertyFromProperty}");
+        _observableAsPropertyFromPropertyHelper = _fromPartialTestSubject.ToProperty(this, x => x.ObservableAsPropertyFromProperty);
+        _fromPartialTestSubject.OnNext(11);
+        Console.Out.WriteLine($"Observable updated, value should be 11, value is : {ObservableAsPropertyFromProperty}");
         Console.ReadLine();
     }
 
@@ -267,6 +272,15 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     /// </summary>
     public ViewModelActivator Activator { get; } = new();
 
+    /// <summary>
+    /// Gets the observable as property from property.
+    /// </summary>
+    /// <value>
+    /// The observable as property from property.
+    /// </value>
+    [ObservableAsProperty(InitialValue = "10")]
+    public partial int ObservableAsPropertyFromProperty { get; }
+
     [ObservableAsProperty]
     private IObservable<object> ReferenceTypeObservable { get; }
 
@@ -311,6 +325,7 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
             {
                 _testSubject.Dispose();
                 _testNonNullSubject.Dispose();
+                _fromPartialTestSubject.Dispose();
             }
 
             _disposedValue = true;

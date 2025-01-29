@@ -12,22 +12,21 @@ namespace TestNs
     /// </summary>
     public partial class TestVM
     {
-        /// <inheritdoc cref="Test7Property"/>
-        private object? _test7Property;
+        /// <inheritdoc cref="TestProperty"/>
+        private double? _testProperty;
 
-        /// <inheritdoc cref="_test7PropertyHelper"/>
-        private ReactiveUI.ObservableAsPropertyHelper<object?>? _test7PropertyHelper;
+        /// <inheritdoc cref="_testPropertyHelper"/>
+        private ReactiveUI.ObservableAsPropertyHelper<double?>? _testPropertyHelper;
 
-        /// <inheritdoc cref="_test7Property"/>
+        /// <inheritdoc cref="_testProperty"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         [global::System.Runtime.Serialization.DataMemberAttribute()]
-        [global::System.Text.Json.Serialization.JsonIncludeAttribute()]
-        public object? Test7Property { get => _test7Property = (_test7PropertyHelper == null ? _test7Property : _test7PropertyHelper.Value); }
+        public partial double? TestProperty { get => _testProperty = _testPropertyHelper?.Value ?? _testProperty; }
 
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         protected void InitializeOAPH()
         {
-            _test7PropertyHelper = Test7!.ToProperty(this, nameof(Test7Property));
+            
         }
     }
 }

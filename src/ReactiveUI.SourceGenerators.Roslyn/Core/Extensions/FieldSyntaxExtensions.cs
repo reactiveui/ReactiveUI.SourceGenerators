@@ -114,4 +114,32 @@ internal static class FieldSyntaxExtensions
             propertySymbol.Type.NullableAnnotation != NullableAnnotation.Annotated &&
             semanticModel.Compilation.HasAccessibleTypeWithMetadataName("System.Diagnostics.CodeAnalysis.MemberNotNullAttribute");
     }
+
+    /// <summary>
+    /// Validates the containing type for a given field being annotated.
+    /// </summary>
+    /// <param name="fieldSymbol">The input <see cref="IFieldSymbol"/> instance to process.</param>
+    /// <returns>Whether or not the containing type for <paramref name="fieldSymbol"/> is valid.</returns>
+    internal static bool IsTargetTypeValid(this IFieldSymbol fieldSymbol)
+    {
+        var isObservableObject = fieldSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.ReactiveObject");
+        var isIObservableObject = fieldSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.IReactiveObject");
+        var hasObservableObjectAttribute = fieldSymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName("ReactiveUI.SourceGenerators.ReactiveObjectAttribute");
+
+        return isIObservableObject || isObservableObject || hasObservableObjectAttribute;
+    }
+
+    /// <summary>
+    /// Validates the containing type for a given field being annotated.
+    /// </summary>
+    /// <param name="propertySymbol">The input <see cref="IFieldSymbol"/> instance to process.</param>
+    /// <returns>Whether or not the containing type for <paramref name="propertySymbol"/> is valid.</returns>
+    internal static bool IsTargetTypeValid(this IPropertySymbol propertySymbol)
+    {
+        var isObservableObject = propertySymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.ReactiveObject");
+        var isIObservableObject = propertySymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.IReactiveObject");
+        var hasObservableObjectAttribute = propertySymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName("ReactiveUI.SourceGenerators.ReactiveObjectAttribute");
+
+        return isIObservableObject || isObservableObject || hasObservableObjectAttribute;
+    }
 }
