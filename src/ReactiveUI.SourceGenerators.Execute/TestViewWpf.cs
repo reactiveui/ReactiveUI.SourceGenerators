@@ -19,4 +19,12 @@ public partial class TestViewWpf : Window
     /// Initializes a new instance of the <see cref="TestViewWpf"/> class.
     /// </summary>
     public TestViewWpf() => ViewModel = TestViewModel.Instance;
+
+    /// <summary>
+    /// Gets or sets the test property.
+    /// </summary>
+    /// <value>
+    /// The test property.
+    /// </value>
+    public int TestProperty { get; set; }
 }

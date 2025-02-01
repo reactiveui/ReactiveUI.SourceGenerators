@@ -234,6 +234,14 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     public string? TestAutoProperty { get; set; } = "Test, should prompt to replace with INPC Reactive Property";
 
     /// <summary>
+    /// Gets the test read only property.
+    /// </summary>
+    /// <value>
+    /// The test read only property.
+    /// </value>
+    public string? TestReadOnlyProperty { get; } = "Test, should not prompt to replace with INPC Reactive Property";
+
+    /// <summary>
     /// Gets or sets the reactive command test property. Should not prompt to replace with INPC Reactive Property.
     /// </summary>
     /// <value>

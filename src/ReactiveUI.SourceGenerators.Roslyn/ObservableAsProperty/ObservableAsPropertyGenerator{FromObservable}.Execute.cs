@@ -47,6 +47,18 @@ public sealed partial class ObservableAsPropertyGenerator
         if (context.TargetNode is MethodDeclarationSyntax methodSyntax)
         {
             var methodSymbol = (IMethodSymbol)symbol!;
+
+            // Validate the target type
+            if (!methodSymbol.IsTargetTypeValid())
+            {
+                diagnostics.Add(
+                        InvalidReactiveObjectError,
+                        methodSymbol,
+                        methodSymbol.ContainingType,
+                        methodSymbol.Name);
+                return new(default, diagnostics.ToImmutable());
+            }
+
             if (methodSymbol.Parameters.Length != 0)
             {
                 diagnostics.Add(
@@ -106,6 +118,17 @@ public sealed partial class ObservableAsPropertyGenerator
                 return default;
             }
 
+            // Validate the target type
+            if (!propertySymbol.IsTargetTypeValid())
+            {
+                diagnostics.Add(
+                        InvalidReactiveObjectError,
+                        propertySymbol,
+                        propertySymbol.ContainingType,
+                        propertySymbol.Name);
+                return new(default, diagnostics.ToImmutable());
+            }
+
             var observableType = string.Empty;
             var isNullableType = false;
 
@@ -141,7 +164,7 @@ public sealed partial class ObservableAsPropertyGenerator
                 if (!propertySymbol.IsTargetTypeValid())
                 {
                     diagnostics.Add(
-                            InvalidObservableAsPropertyError,
+                            InvalidReactiveObjectError,
                             propertySymbol,
                             propertySymbol.ContainingType,
                             propertySymbol.Name);

@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using ReactiveUI.SourceGenerators.Extensions;
 using static ReactiveUI.SourceGenerators.CodeFixers.Diagnostics.DiagnosticDescriptors;
 
 namespace ReactiveUI.SourceGenerators.CodeFixers;
@@ -47,6 +48,30 @@ public class PropertyToReactiveFieldAnalyzer : DiagnosticAnalyzer
 
     private void AnalyzeNode(SyntaxNodeAnalysisContext context)
     {
+        var symbol = context.ContainingSymbol;
+        if (symbol is not IPropertySymbol propertySymbol)
+        {
+            return;
+        }
+
+        // Make sure the property is part of a class inherited from ReactiveObject
+        if (!propertySymbol.IsTargetTypeValid())
+        {
+            return;
+        }
+
+        // Check if the property is an readonly property
+        if (propertySymbol.SetMethod == null)
+        {
+            return;
+        }
+
+        // Check if the property is a ReactiveUI property
+        if (propertySymbol.GetAttributes().Any(a => a.AttributeClass?.Name == "ReactiveAttribute" || a.AttributeClass?.Name == "ObservableAsProperty"))
+        {
+            return;
+        }
+
         if (context.Node is not PropertyDeclarationSyntax propertyDeclaration)
         {
             return;

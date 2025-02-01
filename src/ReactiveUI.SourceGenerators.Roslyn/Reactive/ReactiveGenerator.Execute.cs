@@ -50,7 +50,7 @@ public sealed partial class ReactiveGenerator
         if (!propertySymbol.IsTargetTypeValid())
         {
             builder.Add(
-                    InvalidReactiveError,
+                    InvalidReactiveObjectError,
                     propertySymbol,
                     propertySymbol.ContainingType,
                     propertySymbol.Name);
@@ -134,7 +134,7 @@ public sealed partial class ReactiveGenerator
         if (!fieldSymbol.IsTargetTypeValid())
         {
             builder.Add(
-                    InvalidReactiveError,
+                    InvalidReactiveObjectError,
                     fieldSymbol,
                     fieldSymbol.ContainingType,
                     fieldSymbol.Name);

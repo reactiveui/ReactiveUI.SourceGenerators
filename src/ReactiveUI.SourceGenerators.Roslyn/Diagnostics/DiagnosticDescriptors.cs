@@ -138,4 +138,17 @@ internal static class DiagnosticDescriptors
         isEnabledByDefault: true,
         description: "The method annotated with [ObservableAsProperty] cannot currently initialize methods with parameters.",
         helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
+
+    /// <summary>
+    /// The invalid reactive object error.
+    /// </summary>
+    public static readonly DiagnosticDescriptor InvalidReactiveObjectError = new DiagnosticDescriptor(
+        id: "RXUISG0018",
+        title: "Invalid class, does not inherit ReactiveObject",
+        messageFormat: "The field {0}.{1} cannot be used to generate an ReactiveUI property, as it is not part of a class that inherits from ReactiveObject",
+        category: typeof(ReactiveGenerator).FullName,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "The fields annotated with [Reactive] or [ObservableAsProperty] must be part of a class that inherits from ReactiveObject.",
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 }
