@@ -142,4 +142,18 @@ internal static class FieldSyntaxExtensions
 
         return isIObservableObject || isObservableObject || hasObservableObjectAttribute;
     }
+
+    /// <summary>
+    /// Validates the containing type for a given field being annotated.
+    /// </summary>
+    /// <param name="methodSymbol">The input <see cref="IFieldSymbol"/> instance to process.</param>
+    /// <returns>Whether or not the containing type for <paramref name="methodSymbol"/> is valid.</returns>
+    internal static bool IsTargetTypeValid(this IMethodSymbol methodSymbol)
+    {
+        var isObservableObject = methodSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.ReactiveObject");
+        var isIObservableObject = methodSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.IReactiveObject");
+        var hasObservableObjectAttribute = methodSymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName("ReactiveUI.SourceGenerators.ReactiveObjectAttribute");
+
+        return isIObservableObject || isObservableObject || hasObservableObjectAttribute;
+    }
 }

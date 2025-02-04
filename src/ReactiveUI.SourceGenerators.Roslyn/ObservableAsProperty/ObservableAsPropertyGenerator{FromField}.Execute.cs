@@ -45,7 +45,7 @@ public sealed partial class ObservableAsPropertyGenerator
         if (!fieldSymbol.IsTargetTypeValid())
         {
             builder.Add(
-                    InvalidObservableAsPropertyError,
+                    InvalidReactiveObjectError,
                     fieldSymbol,
                     fieldSymbol.ContainingType,
                     fieldSymbol.Name);
