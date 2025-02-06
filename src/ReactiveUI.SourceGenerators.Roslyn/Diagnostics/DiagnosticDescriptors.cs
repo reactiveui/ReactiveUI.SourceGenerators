@@ -151,4 +151,17 @@ internal static class DiagnosticDescriptors
         isEnabledByDefault: true,
         description: "The fields annotated with [Reactive] or [ObservableAsProperty] must be part of a class that inherits from ReactiveObject.",
         helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
+
+    /// <summary>
+    /// The invalid reactive object error.
+    /// </summary>
+    public static readonly DiagnosticDescriptor ReadOnlyObservableCollectionTypeRequiredError = new DiagnosticDescriptor(
+        id: "RXUISG0019",
+        title: "Invalid field, does not inherit ReadOnlyObservableCollection",
+        messageFormat: "The field {0}.{1} cannot be used to generate an ReadOnlyObservableCollection",
+        category: typeof(BindableDerivedListGenerator).FullName,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "The fields annotated with [BindableDerivedList] must inherit from ReadOnlyObservableCollection.",
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 }
