@@ -24,6 +24,7 @@ ReactiveUI Source Generators automatically generate ReactiveUI objects to stream
 - `[IViewFor(nameof(ViewModelName))]`
 - `[RoutedControlHost("YourNameSpace.CustomControl")]`
 - `[ViewModelControlHost("YourNameSpace.CustomControl")]`
+- `[BindableDerivedList]` Generates a derived list from a ReadOnlyObservableCollection backing field
 
 ### Compatibility Notes
 - For ReactiveUI versions **older than V19.5.31**, all `[ReactiveCommand]` options are supported except for async methods with a `CancellationToken`.
@@ -518,6 +519,18 @@ public partial class MyReactiveControl : UserControl
         InitializeComponent();
         MyReactiveClass = new MyReactiveClass();
     }
+}
+```
+
+### Usage ReadOnlyObservableCollection
+
+```csharp
+using ReactiveUI.SourceGenerators;
+
+public partial class MyReactiveClass
+{
+    [BindableDerivedList]
+    private readonly ReadOnlyObservableCollection<string> _myList;
 }
 ```
 

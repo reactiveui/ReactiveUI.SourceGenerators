@@ -10,6 +10,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AttributeDefinitions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BindableDerivedList\BindableDerivedListGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BindableDerivedList\Models\BindableDerivedListInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\AttributeDataExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\CompilationExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\ContextExtensions.cs" />
@@ -75,5 +77,6 @@
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)AnalyzerReleases.Shipped.md" />
     <None Include="$(MSBuildThisFileDirectory)AnalyzerReleases.Unshipped.md" />
+    <Compile Include="$(MSBuildThisFileDirectory)BindableDerivedList\BindableDerivedListGenerator.Execute.cs" />
   </ItemGroup>
 </Project>

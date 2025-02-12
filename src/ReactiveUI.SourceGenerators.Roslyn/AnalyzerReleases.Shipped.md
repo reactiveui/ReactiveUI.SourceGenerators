@@ -22,7 +22,7 @@ RXUISG0015 | ReactiveUI.SourceGenerators.ReactiveGenerator | Error | See https:/
 RXUISG0017 | ReactiveUI.SourceGenerators.ObservableAsPropertyFromObservableGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
 RXUISG0018 | ReactiveUI.SourceGenerators.ObservableAsPropertyFromObservableGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
 RXUISG0018 | ReactiveUI.SourceGenerators.ReactiveGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
-
+RXUISG0019 | ReactiveUI.SourceGenerators.BindableDerivedListGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
 
 ## Rules
 Shipped in ReactiveUI.SourceGenerators
@@ -83,3 +83,6 @@ This rule checks if the `ObservableAsProperty` has Invalid class inheritance, mu
 
 - RXUISG0018 - ReactiveGenerator
 This rule checks if the `Reactive` has Invalid class inheritance, must inherit from `ReactiveObject`.
+
+- RXUISG0019 - BindableDerivedListGenerator
+- This rule checks if the `BindableDerivedList` has Invalid property inheritance type.
