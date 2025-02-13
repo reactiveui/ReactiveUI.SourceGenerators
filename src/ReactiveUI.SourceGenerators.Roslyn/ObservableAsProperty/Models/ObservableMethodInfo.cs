@@ -19,6 +19,7 @@ namespace ReactiveUI.SourceGenerators.ObservableAsProperty.Models
         bool IsNullableType,
         bool IsProperty,
         EquatableArray<string> ForwardedPropertyAttributes,
+        string IsReadOnly,
         string AccessModifier,
         string? InitialValue)
     {

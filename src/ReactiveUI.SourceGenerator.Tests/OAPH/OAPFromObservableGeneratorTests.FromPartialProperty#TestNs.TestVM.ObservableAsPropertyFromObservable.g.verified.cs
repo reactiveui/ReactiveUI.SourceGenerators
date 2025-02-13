@@ -16,7 +16,7 @@ namespace TestNs
         private double? _testProperty;
 
         /// <inheritdoc cref="_testPropertyHelper"/>
-        private ReactiveUI.ObservableAsPropertyHelper<double?>? _testPropertyHelper;
+        private readonly ReactiveUI.ObservableAsPropertyHelper<double?> _testPropertyHelper;
 
         /// <inheritdoc cref="_testProperty"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
