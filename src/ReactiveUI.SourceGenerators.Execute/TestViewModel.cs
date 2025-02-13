@@ -70,6 +70,10 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
 
     [Reactive]
     private IEnumerable<Person> _people = [new Person()];
+    [Reactive]
+    private double? _myDoubleProperty;
+    [Reactive]
+    private double _myDoubleNonNullProperty;
 
     [BindableDerivedList]
     private ReadOnlyObservableCollection<Person>? _visiblePeople;

@@ -42,6 +42,11 @@ public sealed partial class ObservableAsPropertyGenerator
         var useProtectedModifier = useProtected ? "protected" : "private";
 
         token.ThrowIfCancellationRequested();
+
+        // Get the can ReadOnly member, if any
+        attributeData.TryGetNamedArgument("ReadOnly", out bool? isReadonly);
+
+        token.ThrowIfCancellationRequested();
         var compilation = context.SemanticModel.Compilation;
 
         if (context.TargetNode is MethodDeclarationSyntax methodSyntax)
@@ -106,6 +111,7 @@ public sealed partial class ObservableAsPropertyGenerator
                 isNullableType,
                 false,
                 propertyAttributes,
+                string.Empty,
                 useProtectedModifier,
                 initialValue),
                 diagnostics.ToImmutable());
@@ -131,6 +137,7 @@ public sealed partial class ObservableAsPropertyGenerator
 
             var observableType = string.Empty;
             var isNullableType = false;
+            var isPartialProperty = false;
 
             token.ThrowIfCancellationRequested();
             context.GetForwardedAttributes(
@@ -173,10 +180,9 @@ public sealed partial class ObservableAsPropertyGenerator
 
                 token.ThrowIfCancellationRequested();
 
-                var inheritance = propertySymbol.IsVirtual ? " virtual" : propertySymbol.IsOverride ? " override" : string.Empty;
+                isPartialProperty = true;
 
-                // Get the can ReadOnly member, if any
-                attributeData.TryGetNamedArgument("ReadOnly", out bool? isReadonly);
+                var inheritance = propertySymbol.IsVirtual ? " virtual" : propertySymbol.IsOverride ? " override" : string.Empty;
 
                 token.ThrowIfCancellationRequested();
 
@@ -215,6 +221,12 @@ public sealed partial class ObservableAsPropertyGenerator
             }
 #endif
 
+            var isReadOnlyString = string.Empty;
+            if (isPartialProperty)
+            {
+                isReadOnlyString = isReadonly == false ? string.Empty : "readonly";
+            }
+
             // Get the containing type info
             var targetInfo = TargetInfo.From(propertySymbol.ContainingType);
 
@@ -229,6 +241,7 @@ public sealed partial class ObservableAsPropertyGenerator
                 isNullableType,
                 true,
                 propertyAttributes,
+                isReadOnlyString,
                 useProtectedModifier,
                 initialValue),
                 diagnostics.ToImmutable());
@@ -307,12 +320,20 @@ $$"""
             propertyType = propertyInfo.PartialPropertyType;
         }
 
+        var helperTypeName = $"{propertyInfo.AccessModifier} ReactiveUI.ObservableAsPropertyHelper<{propertyType}>?";
+
+        // If the property is readonly, we need to change the helper to be non-nullable
+        if (propertyInfo.IsReadOnly == "readonly")
+        {
+            helperTypeName = $"{propertyInfo.AccessModifier} readonly ReactiveUI.ObservableAsPropertyHelper<{propertyType}>";
+        }
+
         return $$"""
 /// <inheritdoc cref="{{propertyInfo.PropertyName}}"/>
         private {{propertyType}} {{getterFieldIdentifierName}}{{initialValue}};
 
         /// <inheritdoc cref="{{getterFieldIdentifierName}}Helper"/>
-        {{propertyInfo.AccessModifier}} ReactiveUI.ObservableAsPropertyHelper<{{propertyType}}>? {{getterFieldIdentifierName}}Helper;
+        {{helperTypeName}} {{getterFieldIdentifierName}}Helper;
 
         /// <inheritdoc cref="{{getterFieldIdentifierName}}"/>
         {{propertyAttributes}}
