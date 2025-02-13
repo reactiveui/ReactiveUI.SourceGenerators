@@ -33,10 +33,10 @@ namespace ReactiveUI.SourceGenerator.Tests;
 public sealed class TestHelper<T>(ITestOutputHelper testOutput) : IDisposable
         where T : IIncrementalGenerator, new()
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     /// <summary>
     /// Represents the NuGet library dependency for the Splat library.
     /// </summary>
-#pragma warning disable CS0618 // Type or member is obsolete
     private static readonly LibraryRange SplatLibrary =
         new("Splat", VersionRange.AllStableFloating, LibraryDependencyTarget.Package);
 
@@ -90,6 +90,7 @@ public sealed class TestHelper<T>(ITestOutputHelper testOutput) : IDisposable
             nameof(IViewForGenerator) => "IVIEWFOR",
             nameof(RoutedControlHostGenerator) => "ROUTEDHOST",
             nameof(ViewModelControlHostGenerator) => "CONTROLHOST",
+            nameof(BindableDerivedListGenerator) => "DERIVEDLIST",
             _ => name,
         };
     }

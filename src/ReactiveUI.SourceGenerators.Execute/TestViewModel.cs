@@ -3,6 +3,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
 using System.Reactive.Concurrency;
@@ -11,6 +12,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
+using DynamicData;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
 
@@ -196,6 +198,15 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
         _observableAsPropertyFromPropertyHelper = _fromPartialTestSubject.ToProperty(this, x => x.ObservableAsPropertyFromProperty);
         _fromPartialTestSubject.OnNext(11);
         Console.Out.WriteLine($"Observable updated, value should be 11, value is : {ObservableAsPropertyFromProperty}");
+
+        this.WhenAnyValue(vm => vm.People)
+        .Subscribe(people => people
+            .AsObservableChangeSet()
+            .AutoRefresh(x => x.Deleted)
+            .Filter(x => !x.Deleted)
+            .Bind(out _visiblePeople)
+            .Subscribe());
+
         Console.ReadLine();
     }
 
