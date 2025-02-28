@@ -19,6 +19,11 @@ public partial class TestClassOAPH_VM : ReactiveObject
     [Reactive]
     private bool _reactiveTestField;
 
+    [Reactive]
+#pragma warning disable SX1309 // Field names should begin with underscore
+    private string value = string.Empty;
+#pragma warning restore SX1309 // Field names should begin with underscore
+
     /// <summary>
     /// Initializes a new instance of the <see cref="TestClassOAPH_VM"/> class.
     /// </summary>

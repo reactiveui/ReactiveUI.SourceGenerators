@@ -46,6 +46,33 @@ public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase<Reactiv
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Fact]
+    public Task FromReactivePropertiesCalledValue()
+    {
+        // Arrange: Setup the source code that matches the generator input expectations.
+        const string sourceCode = """
+                using System;
+                using ReactiveUI;
+                using ReactiveUI.SourceGenerators;
+                using System.Reactive.Linq;
+
+                namespace TestNs;
+
+                public partial class TestVM : ReactiveObject
+                {
+                    [Reactive]
+                    private string value = string.Empty;
+                }
+            """;
+
+        // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
+        return TestHelper.TestPass(sourceCode);
+    }
+
+    /// <summary>
+    /// Tests that the source generator correctly generates reactive properties.
+    /// </summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Fact]
     public Task FromReactivePropertiesWithAccess()
     {
         // Arrange: Setup the source code that matches the generator input expectations.

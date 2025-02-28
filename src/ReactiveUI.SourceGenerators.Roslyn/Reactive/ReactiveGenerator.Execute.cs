@@ -304,6 +304,12 @@ $$"""
             return string.Empty;
         }
 
+        var fieldName = propertyInfo.FieldName;
+        if (propertyInfo.FieldName == "value")
+        {
+            fieldName = "this.value";
+        }
+
         var fieldSyntax = string.Empty;
         var partialModifier = propertyInfo.IsProperty ? "partial " : string.Empty;
         if (propertyInfo.IsProperty)
@@ -318,13 +324,13 @@ $$"""
             return
 $$"""
         {{fieldSyntax}}
-        /// <inheritdoc cref="{{propertyInfo.FieldName}}"/>
+        /// <inheritdoc cref="{{fieldName}}"/>
         {{propertyAttributes}}
         {{propertyInfo.TargetInfo.TargetVisibility}}{{propertyInfo.Inheritance}} {{partialModifier}}{{propertyInfo.UseRequired}}{{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}}
         { 
             get => {{propertyInfo.FieldName}};
-            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("{{propertyInfo.FieldName}}")]
-            {{propertyInfo.AccessModifier}} => this.RaiseAndSetIfChanged(ref {{propertyInfo.FieldName}}, value);
+            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("{{fieldName}}")]
+            {{propertyInfo.AccessModifier}} => this.RaiseAndSetIfChanged(ref {{fieldName}}, value);
         }
 """;
         }
@@ -332,9 +338,9 @@ $$"""
         return
 $$"""
         {{fieldSyntax}}
-        /// <inheritdoc cref="{{propertyInfo.FieldName}}"/>
+        /// <inheritdoc cref="{{fieldName}}"/>
         {{propertyAttributes}}
-        {{propertyInfo.TargetInfo.TargetVisibility}}{{propertyInfo.Inheritance}} {{partialModifier}}{{propertyInfo.UseRequired}}{{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} { get => {{propertyInfo.FieldName}}; {{propertyInfo.AccessModifier}} => this.RaiseAndSetIfChanged(ref {{propertyInfo.FieldName}}, value); }
+        {{propertyInfo.TargetInfo.TargetVisibility}}{{propertyInfo.Inheritance}} {{partialModifier}}{{propertyInfo.UseRequired}}{{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} { get => {{propertyInfo.FieldName}}; {{propertyInfo.AccessModifier}} => this.RaiseAndSetIfChanged(ref {{fieldName}}, value); }
 """;
     }
 }
