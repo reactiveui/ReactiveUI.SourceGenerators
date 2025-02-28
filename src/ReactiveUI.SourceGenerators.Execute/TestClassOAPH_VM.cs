@@ -24,6 +24,9 @@ public partial class TestClassOAPH_VM : ReactiveObject
     private string value = string.Empty;
 #pragma warning restore SX1309 // Field names should begin with underscore
 
+    [Reactive]
+    private string? _testProperty;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="TestClassOAPH_VM"/> class.
     /// </summary>
@@ -34,6 +37,21 @@ public partial class TestClassOAPH_VM : ReactiveObject
 
         _observableTestFieldHelper = this.WhenAnyValue(x => x.ReactiveTestField)
             .ToProperty(this, x => x.ObservableTestField);
+
+        _testHelper = this.WhenAnyValue(x => x.TestProperty).ToProperty(this, x => x.Test);
+
+        TestProperty = null;
+        var t0 = Test;
+
+        TestProperty = "Test";
+
+        var t1 = Test;
+
+        TestProperty = null;
+        var t2 = Test;
+
+        TestProperty = "Test2";
+        var t3 = Test;
     }
 
     /// <summary>
@@ -53,4 +71,13 @@ public partial class TestClassOAPH_VM : ReactiveObject
     /// </value>
     [Reactive]
     public partial bool ReactiveTestProperty { get; set; }
+
+    /// <summary>
+    /// Gets the test.
+    /// </summary>
+    /// <value>
+    /// The test.
+    /// </value>
+    [ObservableAsProperty]
+    public partial string? Test { get; }
 }

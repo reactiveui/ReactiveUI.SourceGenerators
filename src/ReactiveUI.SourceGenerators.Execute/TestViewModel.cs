@@ -21,6 +21,9 @@ namespace SGReactiveUI.SourceGenerators.Test;
 /// <summary>
 /// TestClass.
 /// </summary>
+/// <seealso cref="ReactiveUI.ReactiveObject" />
+/// <seealso cref="ReactiveUI.IActivatableViewModel" />
+/// <seealso cref="System.IDisposable" />
 /// <seealso cref="ReactiveObject" />
 /// <seealso cref="IActivatableViewModel" />
 /// <seealso cref="IDisposable" />
@@ -217,6 +220,14 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     /// The instance.
     /// </value>
     public static TestViewModel Instance { get; } = new();
+
+    /// <summary>
+    /// Gets the test class oaph vm.
+    /// </summary>
+    /// <value>
+    /// The test class oaph vm.
+    /// </value>
+    public TestClassOAPH_VM TestClassOAPH_VM { get; } = new();
 
     /// <summary>
     /// Gets or sets the partial property test.

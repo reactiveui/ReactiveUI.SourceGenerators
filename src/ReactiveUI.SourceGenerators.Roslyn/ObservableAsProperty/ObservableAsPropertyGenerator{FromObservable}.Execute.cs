@@ -307,7 +307,7 @@ $$"""
     {
         var propertyAttributes = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage.Concat(propertyInfo.ForwardedPropertyAttributes));
         var getterFieldIdentifierName = propertyInfo.GetGeneratedFieldName();
-        var getterArrowExpression = propertyInfo.IsNullableType
+        var getterArrowExpression = propertyInfo.IsNullableType || propertyInfo.IsFromPartialProperty
             ? $"{getterFieldIdentifierName} = ({getterFieldIdentifierName}Helper == null ? {getterFieldIdentifierName} : {getterFieldIdentifierName}Helper.Value)"
             : $"{getterFieldIdentifierName} = {getterFieldIdentifierName}Helper?.Value ?? {getterFieldIdentifierName}";
 
