@@ -10,7 +10,7 @@
     <PackageVersion Include="NuGet.Common" Version="6.12.1" />
     <PackageVersion Include="NuGet.Protocol" Version="6.12.1" />
     <PackageVersion Include="stylecop.analyzers" Version="1.2.0-beta.556" />
-    <PackageVersion Include="Roslynator.Analyzers" Version="4.13.0" />
+    <PackageVersion Include="Roslynator.Analyzers" Version="4.13.1" />
     <PackageVersion Include="ReactiveUI" Version="20.1.63" />
     <PackageVersion Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
     <PackageVersion Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
