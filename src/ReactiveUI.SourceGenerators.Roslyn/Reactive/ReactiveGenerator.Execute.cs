@@ -72,7 +72,10 @@ public sealed partial class ReactiveGenerator
         token.ThrowIfCancellationRequested();
 
         var inheritance = propertySymbol.IsVirtual ? " virtual" : propertySymbol.IsOverride ? " override" : string.Empty;
-        var useRequired = string.Empty;
+
+        attributeData.TryGetNamedArgument("UseRequired", out bool useRequiredArgument);
+        var useRequired = useRequiredArgument ? "required " : string.Empty;
+
         var typeNameWithNullabilityAnnotations = propertySymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations();
         var fieldName = propertySymbol.GetGeneratedFieldName();
         var propertyName = propertySymbol.Name;
@@ -326,7 +329,7 @@ $$"""
         {{fieldSyntax}}
         /// <inheritdoc cref="{{fieldName}}"/>
         {{propertyAttributes}}
-        {{propertyInfo.TargetInfo.TargetVisibility}}{{propertyInfo.Inheritance}} {{partialModifier}}{{propertyInfo.UseRequired}}{{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}}
+        {{propertyInfo.TargetInfo.TargetVisibility}}{{propertyInfo.Inheritance}} {{propertyInfo.UseRequired}}{{partialModifier}}{{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}}
         { 
             get => {{propertyInfo.FieldName}};
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("{{fieldName}}")]
