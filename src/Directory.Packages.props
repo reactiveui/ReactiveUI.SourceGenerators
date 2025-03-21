@@ -28,7 +28,7 @@
     <PackageVersion Include="Avalonia.Diagnostics" Version="11.2.5" />
     <PackageVersion Include="Avalonia.Desktop" Version="11.2.5" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
-    <PackageVersion Include="ReactiveUI.Maui" Version="20.1.63" />
+    <PackageVersion Include="ReactiveUI.Maui" Version="20.2.45" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageVersion Include="System.Formats.Asn1" Version="9.0.0" />
     <PackageVersion Include="xunit" Version="2.9.3" />
