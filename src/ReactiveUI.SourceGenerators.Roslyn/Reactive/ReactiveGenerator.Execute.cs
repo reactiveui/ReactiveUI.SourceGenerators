@@ -1,4 +1,4 @@
-// Copyright (c) 2024 .NET Foundation and Contributors. All rights reserved.
+// Copyright (c) 2025 .NET Foundation and Contributors. All rights reserved.
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
@@ -86,7 +86,15 @@ public sealed partial class ReactiveGenerator
         out var isReferenceTypeOrUnconstraindTypeParameter,
         out var includeMemberNotNullOnSetAccessor);
 
-        ImmutableArray<string> forwardedAttributesString = [];
+        var propertyDeclaration = (PropertyDeclarationSyntax)context.TargetNode;
+
+        context.GetForwardedAttributes(
+            builder,
+            propertySymbol,
+            propertyDeclaration.AttributeLists,
+            token,
+            out var forwardedAttributesString);
+
         token.ThrowIfCancellationRequested();
 
         // Get the containing type info

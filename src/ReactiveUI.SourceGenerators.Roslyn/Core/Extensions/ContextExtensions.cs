@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2024 .NET Foundation and Contributors. All rights reserved.
+﻿// Copyright (c) 2025 .NET Foundation and Contributors. All rights reserved.
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
@@ -65,7 +65,7 @@ internal static class ContextExtensions
             // Only look for attribute lists explicitly targeting the (generated) property. Roslyn will normally emit a
             // CS0657 warning (invalid target), but that is automatically suppressed by a dedicated diagnostic suppressor
             // that recognizes uses of this target specifically to support [ObservableAsProperty].
-            if (attributeList.Target?.Identifier is not SyntaxToken(SyntaxKind.PropertyKeyword))
+            if (attributeList.Target?.Identifier is not SyntaxToken(SyntaxKind.PropertyKeyword) && attributeList.Target?.Identifier is not SyntaxToken(SyntaxKind.FieldKeyword))
             {
                 continue;
             }
