@@ -86,7 +86,15 @@ public sealed partial class ReactiveGenerator
         out var isReferenceTypeOrUnconstraindTypeParameter,
         out var includeMemberNotNullOnSetAccessor);
 
-        ImmutableArray<string> forwardedAttributesString = [];
+        var propertyDeclaration = (PropertyDeclarationSyntax)context.TargetNode;
+
+        context.GetForwardedAttributes(
+            builder,
+            propertySymbol,
+            propertyDeclaration.AttributeLists,
+            token,
+            out var forwardedAttributesString);
+
         token.ThrowIfCancellationRequested();
 
         // Get the containing type info
