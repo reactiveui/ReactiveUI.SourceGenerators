@@ -123,7 +123,7 @@ internal static class FieldSyntaxExtensions
     internal static bool IsTargetTypeValid(this IFieldSymbol fieldSymbol)
     {
         var isObservableObject = fieldSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.ReactiveObject");
-        var isIObservableObject = fieldSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.IReactiveObject");
+        var isIObservableObject = fieldSymbol.ContainingType.ImplementsFullyQualifiedMetadataName("ReactiveUI.IReactiveObject");
         var hasObservableObjectAttribute = fieldSymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName("ReactiveUI.SourceGenerators.ReactiveObjectAttribute");
 
         return isIObservableObject || isObservableObject || hasObservableObjectAttribute;
@@ -137,7 +137,7 @@ internal static class FieldSyntaxExtensions
     internal static bool IsTargetTypeValid(this IPropertySymbol propertySymbol)
     {
         var isObservableObject = propertySymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.ReactiveObject");
-        var isIObservableObject = propertySymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.IReactiveObject");
+        var isIObservableObject = propertySymbol.ContainingType.ImplementsFullyQualifiedMetadataName("ReactiveUI.IReactiveObject");
         var hasObservableObjectAttribute = propertySymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName("ReactiveUI.SourceGenerators.ReactiveObjectAttribute");
 
         return isIObservableObject || isObservableObject || hasObservableObjectAttribute;
@@ -151,7 +151,7 @@ internal static class FieldSyntaxExtensions
     internal static bool IsTargetTypeValid(this IMethodSymbol methodSymbol)
     {
         var isObservableObject = methodSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.ReactiveObject");
-        var isIObservableObject = methodSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.IReactiveObject");
+        var isIObservableObject = methodSymbol.ContainingType.ImplementsFullyQualifiedMetadataName("ReactiveUI.IReactiveObject");
         var hasObservableObjectAttribute = methodSymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName("ReactiveUI.SourceGenerators.ReactiveObjectAttribute");
 
         return isIObservableObject || isObservableObject || hasObservableObjectAttribute;
