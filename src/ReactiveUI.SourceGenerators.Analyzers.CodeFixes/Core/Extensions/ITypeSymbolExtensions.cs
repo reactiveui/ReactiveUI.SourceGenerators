@@ -38,6 +38,25 @@ internal static class ITypeSymbolExtensions
     }
 
     /// <summary>
+    /// Checks whether or not a given <see cref="ITypeSymbol"/> implements a specified interface.
+    /// </summary>
+    /// <param name="typeSymbol">The target <see cref="ITypeSymbol"/> instance to check.</param>
+    /// <param name="name">The full name of the interface to check for inheritance.</param>
+    /// <returns>Whether or not <paramref name="typeSymbol"/> implements <paramref name="name"/>.</returns>
+    public static bool ImplementsFullyQualifiedMetadataName(this ITypeSymbol typeSymbol, string name)
+    {
+        foreach (var implementedInterface in typeSymbol.AllInterfaces)
+        {
+            if (implementedInterface.HasFullyQualifiedMetadataName(name))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Checks whether or not a given <see cref="ITypeSymbol"/> has or inherits a specified attribute.
     /// </summary>
     /// <param name="typeSymbol">The target <see cref="ITypeSymbol"/> instance to check.</param>
