@@ -8,6 +8,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
@@ -59,14 +60,60 @@ public sealed partial class ReactiveGenerator
 
         token.ThrowIfCancellationRequested();
 
-        var accessModifier = $"{propertySymbol.SetMethod?.DeclaredAccessibility} set".ToLower();
-        if (accessModifier.StartsWith("public", StringComparison.Ordinal))
+        // Get Property AccessModifier.
+        var propertyAccessModifier = propertySymbol.DeclaredAccessibility.ToString().ToLower();
+        if (propertyAccessModifier?.Contains("and") == true)
         {
-            accessModifier = "set";
+            propertyAccessModifier = propertyAccessModifier.Replace("and", " ");
         }
-        else if (accessModifier.Contains("and"))
+        else if (propertyAccessModifier?.Contains("or") == true)
         {
-            accessModifier = accessModifier.Replace("and", " ");
+            propertyAccessModifier = propertyAccessModifier.Replace("or", " ");
+        }
+
+        token.ThrowIfCancellationRequested();
+
+        // Get Set AccessModifier.
+        var setAccessModifier = $"{propertySymbol.SetMethod?.DeclaredAccessibility} set".ToLower();
+        if (setAccessModifier.StartsWith("public", StringComparison.Ordinal))
+        {
+            setAccessModifier = "set";
+        }
+        else if (setAccessModifier?.Contains("and") == true)
+        {
+            if (setAccessModifier.Contains("protectedandinternal"))
+            {
+                setAccessModifier = setAccessModifier.Replace("protectedandinternal", "private protected");
+            }
+            else
+            {
+                setAccessModifier = setAccessModifier.Replace("and", " ");
+            }
+        }
+        else if (setAccessModifier?.Contains("or") == true)
+        {
+            setAccessModifier = setAccessModifier.Replace("or", " ");
+        }
+
+        if (propertyAccessModifier == "private" && setAccessModifier == "private set")
+        {
+            setAccessModifier = "set";
+        }
+        else if (propertyAccessModifier == "internal" && setAccessModifier == "internal set")
+        {
+            setAccessModifier = "set";
+        }
+        else if (propertyAccessModifier == "protected" && setAccessModifier == "protected set")
+        {
+            setAccessModifier = "set";
+        }
+        else if (propertyAccessModifier == "protected internal" && setAccessModifier == "protected internal set")
+        {
+            setAccessModifier = "set";
+        }
+        else if (propertyAccessModifier == "private protected" && setAccessModifier == "private protected set")
+        {
+            setAccessModifier = "set";
         }
 
         token.ThrowIfCancellationRequested();
@@ -78,6 +125,12 @@ public sealed partial class ReactiveGenerator
 
         var typeNameWithNullabilityAnnotations = propertySymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations();
         var fieldName = propertySymbol.GetGeneratedFieldName();
+
+        if (context.SemanticModel.Compilation is CSharpCompilation compilation && compilation.LanguageVersion == LanguageVersion.Preview)
+        {
+            fieldName = "field";
+        }
+
         var propertyName = propertySymbol.Name;
 
         // Get the nullability info for the property
@@ -111,10 +164,11 @@ public sealed partial class ReactiveGenerator
             isReferenceTypeOrUnconstraindTypeParameter,
             includeMemberNotNullOnSetAccessor,
             forwardedAttributesString,
-            accessModifier,
+            setAccessModifier!,
             inheritance,
             useRequired,
-            true),
+            true,
+            propertyAccessModifier!),
             builder.ToImmutable());
     }
 #endif
@@ -156,12 +210,12 @@ public sealed partial class ReactiveGenerator
 
         // Get AccessModifier enum value from the attribute
         attributeData.TryGetNamedArgument("SetModifier", out int accessModifierArgument);
-        var accessModifier = accessModifierArgument switch
+        var setAccessModifier = accessModifierArgument switch
         {
             1 => "protected set",
             2 => "internal set",
             3 => "private set",
-            4 => "internal protected set",
+            4 => "protected internal set",
             5 => "private protected set",
             6 => "init",
             _ => "set",
@@ -236,10 +290,11 @@ public sealed partial class ReactiveGenerator
             isReferenceTypeOrUnconstraindTypeParameter,
             includeMemberNotNullOnSetAccessor,
             forwardedAttributesString,
-            accessModifier,
+            setAccessModifier,
             inheritance,
             useRequired,
-            false),
+            false,
+            "public"),
             builder.ToImmutable());
     }
 
@@ -255,7 +310,7 @@ public sealed partial class ReactiveGenerator
     private static string GenerateSource(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, PropertyInfo[] properties)
     {
         // Get Parent class details from properties.ParentInfo
-        var (parentClassDeclarationsString, closingBrackets) = TargetInfo.GenerateParentClassDeclarations(properties.Select(p => p.TargetInfo.ParentInfo).ToArray());
+        var (parentClassDeclarationsString, closingBrackets) = TargetInfo.GenerateParentClassDeclarations([.. properties.Select(p => p.TargetInfo.ParentInfo)]);
 
         var classes = GenerateClassWithProperties(containingTypeName, containingNamespace, containingClassVisibility, containingType, properties);
 
@@ -315,18 +370,22 @@ $$"""
             return string.Empty;
         }
 
-        var fieldName = propertyInfo.FieldName;
+        var setFieldName = propertyInfo.FieldName;
+        var getFieldName = propertyInfo.FieldName;
         if (propertyInfo.FieldName == "value")
         {
-            fieldName = "this.value";
+            setFieldName = "this.value";
         }
 
         var fieldSyntax = string.Empty;
         var partialModifier = propertyInfo.IsProperty ? "partial " : string.Empty;
-        if (propertyInfo.IsProperty)
+        if (propertyInfo.IsProperty && propertyInfo.FieldName != "field")
         {
             fieldSyntax = $"private {propertyInfo.TypeNameWithNullabilityAnnotations} {propertyInfo.FieldName};";
         }
+
+        var accessModifier = propertyInfo.PropertyAccessModifier;
+        var setAccessModifier = propertyInfo.SetAccessModifier;
 
         var propertyAttributes = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage.Concat(propertyInfo.ForwardedAttributes));
 
@@ -335,13 +394,13 @@ $$"""
             return
 $$"""
         {{fieldSyntax}}
-        /// <inheritdoc cref="{{fieldName}}"/>
+        /// <inheritdoc cref="{{setFieldName}}"/>
         {{propertyAttributes}}
-        {{propertyInfo.TargetInfo.TargetVisibility}}{{propertyInfo.Inheritance}} {{propertyInfo.UseRequired}}{{partialModifier}}{{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}}
+        {{accessModifier}}{{propertyInfo.Inheritance}} {{propertyInfo.UseRequired}}{{partialModifier}}{{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}}
         { 
-            get => {{propertyInfo.FieldName}};
-            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("{{fieldName}}")]
-            {{propertyInfo.AccessModifier}} => this.RaiseAndSetIfChanged(ref {{fieldName}}, value);
+            get => {{getFieldName}};
+            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("{{setFieldName}}")]
+            {{setAccessModifier}} => this.RaiseAndSetIfChanged(ref {{setFieldName}}, value);
         }
 """;
         }
@@ -349,9 +408,9 @@ $$"""
         return
 $$"""
         {{fieldSyntax}}
-        /// <inheritdoc cref="{{fieldName}}"/>
+        /// <inheritdoc cref="{{setFieldName}}"/>
         {{propertyAttributes}}
-        {{propertyInfo.TargetInfo.TargetVisibility}}{{propertyInfo.Inheritance}} {{partialModifier}}{{propertyInfo.UseRequired}}{{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} { get => {{propertyInfo.FieldName}}; {{propertyInfo.AccessModifier}} => this.RaiseAndSetIfChanged(ref {{fieldName}}, value); }
+        {{accessModifier}}{{propertyInfo.Inheritance}} {{partialModifier}}{{propertyInfo.UseRequired}}{{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} { get => {{getFieldName}}; {{setAccessModifier}} => this.RaiseAndSetIfChanged(ref {{setFieldName}}, value); }
 """;
     }
 }
