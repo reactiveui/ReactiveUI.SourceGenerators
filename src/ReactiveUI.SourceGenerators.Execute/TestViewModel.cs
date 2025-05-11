@@ -331,6 +331,9 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     [ObservableAsProperty(InitialValue = "10")]
     public partial int ObservableAsPropertyFromProperty { get; }
 
+    [Reactive]
+    internal partial int InternalPartialPropertyTest { get; set; }
+
     [ObservableAsProperty]
     private IObservable<object> ReferenceTypeObservable { get; }
 
