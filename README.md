@@ -11,7 +11,10 @@ This documentation covers using ReactiveUI Source Generators to simplify and enh
 
 ReactiveUI Source Generators automatically generate ReactiveUI objects to streamline your code. These Source Generators are designed to work with ReactiveUI V19.5.31+ and support the following features:
 
-- `[Reactive]` With field and access modifiers, partial property support (C# 13 Visual Studio Version 17.12.0)
+- `[Reactive]` With field and access modifiers, partial property support (C# 13 Visual Studio Version 17.12.0), partial properties with initializer support (C# preview only)
+- `[Reactive(SetModifier = AccessModifier.Protected)]` With field and access modifiers.
+- `[Reactive(Inheritance = InheritanceModifier.Virtual)]` With field and access modifiers. This will generate a virtual property.
+- `[Reactive(UseRequired = true)]` With field and access modifiers. This will generate a required property.
 - `[ObservableAsProperty]` With field, method, Observable property and partial property support (C# 13 Visual Studio Version 17.12.0)
 - `[ObservableAsProperty(ReadOnly = false)]` Removes readonly keyword from the generated helper field
 - `[ObservableAsProperty(PropertyName = "ReadOnlyPropertyName")]`
@@ -148,6 +151,20 @@ public partial class MyReactiveClass : ReactiveObject
 {
     [Reactive]
     public partial string MyProperty { get; set; }
+}
+```
+
+### Usage Reactive property from partial property with default value
+Partial properties with initial value are supported in C# preview and Visual Studio 17.12.0 and later.
+Both the getter and setter must be empty, and the `[Reactive]` attribute must be placed on the property.
+Override and Virtual properties are supported.
+Set Access Modifier is also supported on partial properties.
+```csharp
+using ReactiveUI.SourceGenerators;
+public partial class MyReactiveClass : ReactiveObject
+{
+    [Reactive]
+    public partial string MyProperty { get; set; } = "Default Value"
 }
 ```
 
