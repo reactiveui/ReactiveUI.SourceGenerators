@@ -154,6 +154,20 @@ public partial class MyReactiveClass : ReactiveObject
 }
 ```
 
+### Usage Reactive property from partial property with default value
+Partial properties with initial value are supported in C# preview and Visual Studio 17.12.0 and later.
+Both the getter and setter must be empty, and the `[Reactive]` attribute must be placed on the property.
+Override and Virtual properties are supported.
+Set Access Modifier is also supported on partial properties.
+```csharp
+using ReactiveUI.SourceGenerators;
+public partial class MyReactiveClass : ReactiveObject
+{
+    [Reactive]
+    public partial string MyProperty { get; set; } = "Default Value"
+}
+```
+
 ## Usage ObservableAsPropertyHelper `[ObservableAsProperty]`
 
 ObservableAsPropertyHelper is used to create a read-only property from an IObservable. The generated code will create a backing field and a property that returns the value of the backing field. The backing field is initialized with the value of the IObservable when the class is instantiated.
