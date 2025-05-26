@@ -14,6 +14,9 @@ internal partial class InternalTestViewModel : ReactiveObject
     public partial int PublicPartialPropertyTest { get; set; }
 
     [Reactive]
+    public required partial bool PublicRequiredPartialPropertyTest { get; set; }
+
+    [Reactive]
     public partial int PublicPartialPropertyWithInternalProtectedTest { get; protected internal set; }
 
     [Reactive]

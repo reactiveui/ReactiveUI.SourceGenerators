@@ -120,8 +120,7 @@ public sealed partial class ReactiveGenerator
 
         var inheritance = propertySymbol.IsVirtual ? " virtual" : propertySymbol.IsOverride ? " override" : string.Empty;
 
-        attributeData.TryGetNamedArgument("UseRequired", out bool useRequiredArgument);
-        var useRequired = useRequiredArgument ? "required " : string.Empty;
+        var useRequired = propertySymbol.IsRequired ? "required " : string.Empty;
 
         var typeNameWithNullabilityAnnotations = propertySymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations();
         var fieldName = propertySymbol.GetGeneratedFieldName();
@@ -410,7 +409,7 @@ $$"""
         {{fieldSyntax}}
         /// <inheritdoc cref="{{setFieldName}}"/>
         {{propertyAttributes}}
-        {{accessModifier}}{{propertyInfo.Inheritance}} {{partialModifier}}{{propertyInfo.UseRequired}}{{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} { get => {{getFieldName}}; {{setAccessModifier}} => this.RaiseAndSetIfChanged(ref {{setFieldName}}, value); }
+        {{accessModifier}}{{propertyInfo.Inheritance}} {{propertyInfo.UseRequired}}{{partialModifier}}{{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} { get => {{getFieldName}}; {{setAccessModifier}} => this.RaiseAndSetIfChanged(ref {{setFieldName}}, value); }
 """;
     }
 }
