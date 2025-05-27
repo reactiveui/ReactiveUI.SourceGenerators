@@ -12,9 +12,9 @@ This documentation covers using ReactiveUI Source Generators to simplify and enh
 ReactiveUI Source Generators automatically generate ReactiveUI objects to streamline your code. These Source Generators are designed to work with ReactiveUI V19.5.31+ and support the following features:
 
 - `[Reactive]` With field and access modifiers, partial property support (C# 13 Visual Studio Version 17.12.0), partial properties with initializer support (C# preview only)
-- `[Reactive(SetModifier = AccessModifier.Protected)]` With field and access modifiers.
+- `[Reactive(SetModifier = AccessModifier.Protected)]` With field and access modifiers, (Not Required for partial properties, configure set accessor with the property decalaration).
 - `[Reactive(Inheritance = InheritanceModifier.Virtual)]` With field and access modifiers. This will generate a virtual property.
-- `[Reactive(UseRequired = true)]` With field and access modifiers. This will generate a required property.
+- `[Reactive(UseRequired = true)]` With field and access modifiers. This will generate a required property, (Not Required for partial properties, use required keyword for property decalaration).
 - `[ObservableAsProperty]` With field, method, Observable property and partial property support (C# 13 Visual Studio Version 17.12.0)
 - `[ObservableAsProperty(ReadOnly = false)]` Removes readonly keyword from the generated helper field
 - `[ObservableAsProperty(PropertyName = "ReadOnlyPropertyName")]`
