@@ -518,7 +518,7 @@ public partial class MyReactiveControl : UserControl
     public MyReactiveControl()
     {
         InitializeComponent();
-        MyReactiveClass = new MyReactiveClass();
+        ViewModel = new MyReactiveClass();
     }
 }
 ```
@@ -534,7 +534,7 @@ public partial class MyReactiveControl : UserControl
     public MyReactiveControl()
     {
         InitializeComponent();
-        MyReactiveClass = new MyReactiveClass();
+        ViewModel = new MyReactiveClass();
     }
 }
 ```
