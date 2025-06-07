@@ -210,7 +210,7 @@ internal static class ITypeSymbolExtensions
         return false;
     }
 
-    public static bool IsIShedulerType(this ITypeSymbol? typeSymbol)
+    public static bool IsISchedulerType(this ITypeSymbol? typeSymbol)
     {
         var nameFormat = SymbolDisplayFormat.FullyQualifiedFormat;
         do

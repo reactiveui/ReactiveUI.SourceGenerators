@@ -27,33 +27,40 @@ internal static class ContextExtensions
     {
         using var forwardedAttributeBuilder = ImmutableArrayBuilder<AttributeInfo>.Rent();
 
-        // Gather attributes info
-        foreach (var attribute in symbol.GetAttributes())
+        var symbolAttributes = symbol.GetAttributes();
+
+        // if attributes contains the [Reactive] attribute, we should not forward any attributes without field targets
+        var isReactiveFromPartialProperty = symbol is IPropertySymbol && symbolAttributes.Any(a => a.AttributeClass?.HasFullyQualifiedMetadataName(AttributeDefinitions.ReactiveAttributeType) == true);
+        if (!isReactiveFromPartialProperty && symbolAttributes.Length > 1)
         {
-            token.ThrowIfCancellationRequested();
-
-            // Track the current attribute for forwarding if it is a validation attribute
-            if (attribute.AttributeClass?.InheritsFromFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.ValidationAttribute") == true)
+            // Gather attributes info
+            foreach (var attribute in symbolAttributes)
             {
-                forwardedAttributeBuilder.Add(AttributeInfo.Create(attribute));
-            }
+                token.ThrowIfCancellationRequested();
 
-            // Track the current attribute for forwarding if it is a Json Serialization attribute
-            if (attribute.AttributeClass?.InheritsFromFullyQualifiedMetadataName("System.Text.Json.Serialization.JsonAttribute") == true)
-            {
-                forwardedAttributeBuilder.Add(AttributeInfo.Create(attribute));
-            }
+                // Track the current attribute for forwarding if it is a validation attribute
+                if (attribute.AttributeClass?.InheritsFromFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.ValidationAttribute") == true)
+                {
+                    forwardedAttributeBuilder.Add(AttributeInfo.Create(attribute));
+                }
 
-            // Also track the current attribute for forwarding if it is of any of the following types:
-            if (attribute.AttributeClass?.HasOrInheritsFromFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.UIHintAttribute") == true ||
-                attribute.AttributeClass?.HasOrInheritsFromFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.ScaffoldColumnAttribute") == true ||
-                attribute.AttributeClass?.HasFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.DisplayAttribute") == true ||
-                attribute.AttributeClass?.HasFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.EditableAttribute") == true ||
-                attribute.AttributeClass?.HasFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.KeyAttribute") == true ||
-                attribute.AttributeClass?.HasFullyQualifiedMetadataName("System.Runtime.Serialization.DataMemberAttribute") == true ||
-                attribute.AttributeClass?.HasFullyQualifiedMetadataName("System.Runtime.Serialization.IgnoreDataMemberAttribute") == true)
-            {
-                forwardedAttributeBuilder.Add(AttributeInfo.Create(attribute));
+                // Track the current attribute for forwarding if it is a Json Serialization attribute
+                if (attribute.AttributeClass?.InheritsFromFullyQualifiedMetadataName("System.Text.Json.Serialization.JsonAttribute") == true)
+                {
+                    forwardedAttributeBuilder.Add(AttributeInfo.Create(attribute));
+                }
+
+                // Also track the current attribute for forwarding if it is of any of the following types:
+                if (attribute.AttributeClass?.HasOrInheritsFromFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.UIHintAttribute") == true ||
+                    attribute.AttributeClass?.HasOrInheritsFromFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.ScaffoldColumnAttribute") == true ||
+                    attribute.AttributeClass?.HasFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.DisplayAttribute") == true ||
+                    attribute.AttributeClass?.HasFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.EditableAttribute") == true ||
+                    attribute.AttributeClass?.HasFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.KeyAttribute") == true ||
+                    attribute.AttributeClass?.HasFullyQualifiedMetadataName("System.Runtime.Serialization.DataMemberAttribute") == true ||
+                    attribute.AttributeClass?.HasFullyQualifiedMetadataName("System.Runtime.Serialization.IgnoreDataMemberAttribute") == true)
+                {
+                    forwardedAttributeBuilder.Add(AttributeInfo.Create(attribute));
+                }
             }
         }
 

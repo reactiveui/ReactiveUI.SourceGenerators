@@ -378,15 +378,29 @@ $$"""
 
         var fieldSyntax = string.Empty;
         var partialModifier = propertyInfo.IsProperty ? "partial " : string.Empty;
+        string propertyAttributes;
+
         if (propertyInfo.IsProperty && propertyInfo.FieldName != "field")
         {
-            fieldSyntax = $"private {propertyInfo.TypeNameWithNullabilityAnnotations} {propertyInfo.FieldName};";
+            propertyAttributes = string.Join("\n        ", propertyInfo.ForwardedAttributes);
+            fieldSyntax =
+$$"""
+{{propertyAttributes}}
+        private {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.FieldName}};
+""";
+        }
+
+        if (propertyInfo.IsProperty)
+        {
+            propertyAttributes = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage);
+        }
+        else
+        {
+            propertyAttributes = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage.Concat(propertyInfo.ForwardedAttributes));
         }
 
         var accessModifier = propertyInfo.PropertyAccessModifier;
         var setAccessModifier = propertyInfo.SetAccessModifier;
-
-        var propertyAttributes = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage.Concat(propertyInfo.ForwardedAttributes));
 
         if (propertyInfo.IncludeMemberNotNullOnSetAccessor || propertyInfo.IsReferenceTypeOrUnconstrainedTypeParameter)
         {
