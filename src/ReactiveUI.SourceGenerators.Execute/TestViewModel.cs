@@ -238,6 +238,7 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     /// </value>
     [Reactive]
     [field: JsonInclude]
+    [JsonPropertyName("test")]
     public partial string? PartialPropertyTest { get; set; }
 
     /// <summary>
