@@ -17,6 +17,7 @@ public partial class TestVMInner2
         private readonly ReactiveUI.ObservableAsPropertyHelper<int> _testIn3Helper;
 
         /// <inheritdoc cref="_testIn3"/>
+        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "2.2.0.0")]
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int TestIn3 { get => _testIn3 = _testIn3Helper?.Value ?? _testIn3; }
     }

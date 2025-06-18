@@ -13,7 +13,8 @@ namespace ReactiveUI.SourceGenerators;
 /// ReactiveAttribute.
 /// </summary>
 /// <seealso cref="Attribute" />
-[AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
+[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveGenerator", "2.2.0.0")]
+[global::System.AttributeUsage(global::System.AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
 internal sealed class BindableDerivedListAttribute : global::System.Attribute;
 #nullable restore
 #pragma warning restore

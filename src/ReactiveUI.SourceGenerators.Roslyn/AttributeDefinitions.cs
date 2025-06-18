@@ -72,7 +72,7 @@ namespace ReactiveUI.SourceGenerators;
 /// </summary>
 /// <seealso cref="System.Attribute" />
 [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.IViewForGenerator", "1.1.0.0")]
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+[global::System.AttributeUsage(global::System.AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 internal sealed class ReactiveObjectAttribute : global::System.Attribute;
 #nullable restore
 #pragma warning restore
@@ -102,7 +102,7 @@ namespace ReactiveUI.SourceGenerators;
 /// </summary>
 /// <seealso cref="Attribute" />
 [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveCommandGenerator", "1.1.0.0")]
-[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+[global::System.AttributeUsage(global::System.AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 internal sealed class ReactiveCommandAttribute : global::System.Attribute
 {
     /// <summary>
@@ -150,7 +150,7 @@ namespace ReactiveUI.SourceGenerators;
 /// </summary>
 /// <seealso cref="Attribute" />
 [global::System.CodeDom.Compiler.GeneratedCode("{{ReactiveGenerator.GeneratorName}}", "{{ReactiveGenerator.GeneratorVersion}}")]
-[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
+[global::System.AttributeUsage(global::System.AttributeTargets.Field | global::System.AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
 internal sealed class ReactiveAttribute : global::System.Attribute
 {
     /// <summary>
@@ -191,7 +191,7 @@ namespace ReactiveUI.SourceGenerators;
 /// </summary>
 /// <seealso cref="Attribute" />
 [global::System.CodeDom.Compiler.GeneratedCode("{{ReactiveGenerator.GeneratorName}}", "{{ReactiveGenerator.GeneratorVersion}}")]
-[AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
+[global::System.AttributeUsage(global::System.AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
 internal sealed class ReactiveAttribute : global::System.Attribute
 {
     /// <summary>
@@ -235,7 +235,7 @@ namespace ReactiveUI.SourceGenerators;
 /// </summary>
 /// <seealso cref="Attribute" />
 [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "1.1.0.0")]
-[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+[global::System.AttributeUsage(global::System.AttributeTargets.Field | global::System.AttributeTargets.Property | global::System.AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 internal sealed class ObservableAsPropertyAttribute : global::System.Attribute
 {
     /// <summary>
@@ -290,7 +290,7 @@ namespace ReactiveUI.SourceGenerators;
 /// </summary>
 /// <seealso cref="Attribute" />
 [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "1.1.0.0")]
-[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+[global::System.AttributeUsage(global::System.AttributeTargets.Field | global::System.AttributeTargets.Property | global::System.AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 internal sealed class ObservableAsPropertyAttribute : global::System.Attribute
 {
     /// <summary>
@@ -343,7 +343,7 @@ namespace ReactiveUI.SourceGenerators;
 /// </remarks>
 /// <param name="viewModelType">Type of the view model.</param>
 [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.IViewForGenerator", "1.1.0.0")]
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+[global::System.AttributeUsage(global::System.AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 internal sealed class IViewForAttribute<T> : global::System.Attribute;
 
 /// <summary>
@@ -355,7 +355,7 @@ internal sealed class IViewForAttribute<T> : global::System.Attribute;
 /// </remarks>
 /// <param name="viewModelType">Type of the view model.</param>
 [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.IViewForGenerator", "1.1.0.0")]
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+[global::System.AttributeUsage(global::System.AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 internal sealed class IViewForAttribute(string? viewModelType) : global::System.Attribute;
 #nullable restore
 #pragma warning restore
@@ -383,7 +383,7 @@ namespace ReactiveUI.SourceGenerators.WinForms;
 /// </remarks>
 /// <param name="viewModelType">Type of the view model.</param>
 [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ViewModelControlHostGenerator", "1.1.0.0")]
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+[global::System.AttributeUsage(global::System.AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 internal sealed class ViewModelControlHostAttribute(string? baseType) : global::System.Attribute;
 #nullable restore
 #pragma warning restore
@@ -411,7 +411,7 @@ namespace ReactiveUI.SourceGenerators.WinForms;
 /// </remarks>
 /// <param name="viewModelType">Type of the view model.</param>
 [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.RoutedControlHostGenerator", "1.1.0.0")]
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+[global::System.AttributeUsage(global::System.AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 internal sealed class RoutedControlHostAttribute(string? baseType) : global::System.Attribute;
 #nullable restore
 #pragma warning restore
@@ -435,7 +435,7 @@ namespace ReactiveUI.SourceGenerators;
 /// </summary>
 /// <seealso cref="Attribute" />
 [global::System.CodeDom.Compiler.GeneratedCode("{{ReactiveGenerator.GeneratorName}}", "{{ReactiveGenerator.GeneratorVersion}}")]
-[AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
+[global::System.AttributeUsage(global::System.AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
 internal sealed class BindableDerivedListAttribute : global::System.Attribute;
 #nullable restore
 #pragma warning restore
@@ -459,7 +459,7 @@ namespace ReactiveUI.SourceGenerators;
 /// </summary>
 /// <seealso cref="Attribute" />
 [global::System.CodeDom.Compiler.GeneratedCode("{{ReactiveGenerator.GeneratorName}}", "{{ReactiveGenerator.GeneratorVersion}}")]
-[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
+[global::System.AttributeUsage(global::System.AttributeTargets.Field | global::System.AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
 internal sealed class ReactiveCollectionAttribute : global::System.Attribute;
 #nullable restore
 #pragma warning restore
