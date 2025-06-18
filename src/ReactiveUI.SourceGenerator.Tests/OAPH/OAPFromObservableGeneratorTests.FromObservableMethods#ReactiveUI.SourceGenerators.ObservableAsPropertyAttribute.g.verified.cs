@@ -14,7 +14,7 @@ namespace ReactiveUI.SourceGenerators;
 /// </summary>
 /// <seealso cref="Attribute" />
 [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "1.1.0.0")]
-[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+[global::System.AttributeUsage(global::System.AttributeTargets.Field | global::System.AttributeTargets.Property | global::System.AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 internal sealed class ObservableAsPropertyAttribute : global::System.Attribute
 {
     /// <summary>
