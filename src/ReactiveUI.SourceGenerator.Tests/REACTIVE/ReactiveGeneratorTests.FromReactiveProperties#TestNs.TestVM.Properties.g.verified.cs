@@ -14,6 +14,7 @@ namespace TestNs
     {
         
         /// <inheritdoc cref="_test1"/>
+        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveGenerator", "2.2.0.0")]
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int Test1
         { 

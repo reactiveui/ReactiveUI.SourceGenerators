@@ -13,6 +13,7 @@ namespace ReactiveUI.SourceGenerators;
 /// ReativeCommandAttribute.
 /// </summary>
 /// <seealso cref="Attribute" />
+[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveCommandGenerator", "1.1.0.0")]
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 internal sealed class ReactiveCommandAttribute : global::System.Attribute
 {

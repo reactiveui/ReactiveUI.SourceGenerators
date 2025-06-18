@@ -351,7 +351,6 @@ $$"""
     /// </summary>
     {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}}
     {
-        [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
 {{propertyDeclarations}}
     }
 """;
@@ -408,6 +407,7 @@ $$"""
 $$"""
         {{fieldSyntax}}
         /// <inheritdoc cref="{{setFieldName}}"/>
+        [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
         {{propertyAttributes}}
         {{accessModifier}}{{propertyInfo.Inheritance}} {{propertyInfo.UseRequired}}{{partialModifier}}{{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}}
         { 
@@ -422,6 +422,7 @@ $$"""
 $$"""
         {{fieldSyntax}}
         /// <inheritdoc cref="{{setFieldName}}"/>
+        [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
         {{propertyAttributes}}
         {{accessModifier}}{{propertyInfo.Inheritance}} {{propertyInfo.UseRequired}}{{partialModifier}}{{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} { get => {{getFieldName}}; {{setAccessModifier}} => this.RaiseAndSetIfChanged(ref {{setFieldName}}, value); }
 """;

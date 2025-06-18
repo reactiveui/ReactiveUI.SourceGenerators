@@ -295,7 +295,6 @@ $$"""
     /// </summary>
     {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}}
     {
-        [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
         {{propertyDeclarations}}
 
         {{GetPropertyInitiliser(properties)}}
@@ -336,6 +335,7 @@ $$"""
         {{helperTypeName}} {{getterFieldIdentifierName}}Helper;
 
         /// <inheritdoc cref="{{getterFieldIdentifierName}}"/>
+        [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
         {{propertyAttributes}}
         public {{isPartialProperty}}{{propertyType}} {{propertyInfo.PropertyName}} { get => {{getterArrowExpression}}; }
 """;

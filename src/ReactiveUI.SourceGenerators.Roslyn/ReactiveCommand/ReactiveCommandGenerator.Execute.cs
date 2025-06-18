@@ -165,7 +165,6 @@ $$"""
     /// </summary>
     {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}}
     {
-        [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
 {{commandDeclarations}}
     }
 """;
@@ -203,6 +202,7 @@ $$"""
 $$"""
         private {{RxCmd}}<{{inputType}}, {{outputType}}>? {{fieldName}};
 
+        [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
         {{forwardedPropertyAttributesString}}
         public {{RxCmd}}<{{inputType}}, {{outputType}}> {{commandName}} { get => {{initializer}} }
 """;
