@@ -7,6 +7,19 @@ This documentation covers using ReactiveUI Source Generators to simplify and enh
   - **Visual Studio Version**: 17.8.0
   - **ReactiveUI Version**: 19.5.31+
 
+## Table of Contents
+- [Overview](#overview)
+- [Supported Attributes & Features](#supported-attributes)
+- [Detailed Usage](#welcome-to-a-new-way---source-generators)
+  - [Reactive](#reactive)
+  - [ObservableAsProperty](#observableasproperty)
+  - [ReactiveCommand](#reactivecommand)
+  - [IViewFor](#iviewfor)
+  - [BindableDerivedList](#usage-readonlyobservablecollection)
+  - [Platform-Specific Attributes](#platform-specific-attributes)
+- [Compatibility Notes](#compatibility-notes)
+- [Credits](#credits)
+
 ## Overview
 
 ReactiveUI Source Generators automatically generate ReactiveUI objects to streamline your code. These Source Generators are designed to work with ReactiveUI V19.5.31+ and support the following features:
@@ -330,7 +343,7 @@ public partial class MyReactiveClass : ReactiveObject
     }
     
     [ObservableAsProperty(InitialValue = "Default Value")]
-    public string MyProperty { get; }
+    public partial string MyProperty { get; }
 
     public IObservable<string> MyPropertyObservable() => Observable.Return("Test Value");
 }
@@ -371,7 +384,10 @@ public partial class MyReactiveClass
 }
 ```
 
-### Usage ReactiveCommand with parameter and async return value
+### Usage ReactiveCommand with parameter and async return value.
+
+Note: the Async suffix is removed from the generated command
+
 ```csharp
 using ReactiveUI.SourceGenerators;
 
