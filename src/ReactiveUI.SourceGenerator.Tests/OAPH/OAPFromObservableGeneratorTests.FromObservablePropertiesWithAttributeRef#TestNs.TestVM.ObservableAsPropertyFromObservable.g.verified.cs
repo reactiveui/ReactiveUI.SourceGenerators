@@ -7,9 +7,7 @@ using ReactiveUI;
 
 namespace TestNs
 {
-    /// <summary>
-    /// Partial class for the TestVM which contains ReactiveUI Observable As Property initialization.
-    /// </summary>
+    
     public partial class TestVM
     {
         /// <inheritdoc cref="Test6Property"/>
@@ -19,13 +17,13 @@ namespace TestNs
         private ReactiveUI.ObservableAsPropertyHelper<object>? _test6PropertyHelper;
 
         /// <inheritdoc cref="_test6Property"/>
-        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "2.2.0.0")]
+        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "2.3.0.0")]
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         [global::System.Runtime.Serialization.DataMemberAttribute()]
         [global::System.Text.Json.Serialization.JsonIncludeAttribute()]
         public object Test6Property { get => _test6Property = _test6PropertyHelper?.Value ?? _test6Property; }
 
-        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "2.2.0.0")]
+        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "2.3.0.0")]
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         protected void InitializeOAPH()
         {

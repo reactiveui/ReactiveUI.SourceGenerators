@@ -9,9 +9,7 @@ namespace TestNs
 {
     public partial class TestVM
 {
-/// <summary>
-    /// Partial class for the TestVMInner1 which contains ReactiveUI Observable As Property initialization.
-    /// </summary>
+
     public partial class TestVMInner1
     {
         /// <inheritdoc cref="TestIn1Property"/>
@@ -21,11 +19,11 @@ namespace TestNs
         private ReactiveUI.ObservableAsPropertyHelper<int>? _testIn1PropertyHelper;
 
         /// <inheritdoc cref="_testIn1Property"/>
-        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "2.2.0.0")]
+        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "2.3.0.0")]
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int TestIn1Property { get => _testIn1Property = _testIn1PropertyHelper?.Value ?? _testIn1Property; }
 
-        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "2.2.0.0")]
+        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "2.3.0.0")]
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         protected void InitializeOAPH()
         {

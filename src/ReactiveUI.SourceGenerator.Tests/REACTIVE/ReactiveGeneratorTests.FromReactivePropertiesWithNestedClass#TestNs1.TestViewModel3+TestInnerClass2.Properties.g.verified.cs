@@ -9,14 +9,12 @@ namespace TestNs1
 {
     public partial class TestViewModel3
 {
-/// <summary>
-    /// Partial class for the TestInnerClass2 which contains ReactiveUI Reactive property initialization.
-    /// </summary>
+
     public partial class TestInnerClass2
     {
         
         /// <inheritdoc cref="_testInner2"/>
-        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveGenerator", "2.2.0.0")]
+        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveGenerator", "2.3.0.0")]
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int TestInner2
         { 
@@ -26,7 +24,7 @@ namespace TestNs1
         }
         
         /// <inheritdoc cref="_testInner22"/>
-        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveGenerator", "2.2.0.0")]
+        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveGenerator", "2.3.0.0")]
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int TestInner22
         { 

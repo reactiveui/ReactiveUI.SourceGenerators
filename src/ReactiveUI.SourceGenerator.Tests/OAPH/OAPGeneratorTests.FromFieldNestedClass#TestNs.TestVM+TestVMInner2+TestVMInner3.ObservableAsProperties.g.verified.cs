@@ -8,16 +8,14 @@ namespace TestNs
 {
 public partial class TestVMInner2
 {
-/// <summary>
-    /// Partial class for the TestVMInner3 which contains ReactiveUI Observable As Property initialization.
-    /// </summary>
+
     public partial class TestVMInner3
     {
         /// <inheritdoc cref="_testIn3Helper"/>
         private readonly ReactiveUI.ObservableAsPropertyHelper<int> _testIn3Helper;
 
         /// <inheritdoc cref="_testIn3"/>
-        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "2.2.0.0")]
+        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "2.3.0.0")]
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int TestIn3 { get => _testIn3 = _testIn3Helper?.Value ?? _testIn3; }
     }
