@@ -9,9 +9,7 @@ namespace TestNs1
 {
     public partial class TestViewModel3
 {
-/// <summary>
-    /// Partial class for the TestInnerClass1 which contains ReactiveUI Reactive property initialization.
-    /// </summary>
+
     public partial class TestInnerClass1
     {
         

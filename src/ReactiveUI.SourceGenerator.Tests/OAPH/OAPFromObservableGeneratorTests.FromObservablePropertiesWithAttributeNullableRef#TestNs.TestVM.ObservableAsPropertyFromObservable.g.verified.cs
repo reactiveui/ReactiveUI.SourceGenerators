@@ -7,9 +7,7 @@ using ReactiveUI;
 
 namespace TestNs
 {
-    /// <summary>
-    /// Partial class for the TestVM which contains ReactiveUI Observable As Property initialization.
-    /// </summary>
+    
     public partial class TestVM
     {
         /// <inheritdoc cref="Test7Property"/>

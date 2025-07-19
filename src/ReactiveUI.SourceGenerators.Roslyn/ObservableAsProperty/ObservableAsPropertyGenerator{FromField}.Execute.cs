@@ -165,9 +165,7 @@ namespace {{containingNamespace}}
 
         return
 $$"""
-/// <summary>
-    /// Partial class for the {{containingTypeName}} which contains ReactiveUI Observable As Property initialization.
-    /// </summary>
+
     {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}}
     {
         [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]

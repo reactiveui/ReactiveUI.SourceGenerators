@@ -19,6 +19,9 @@ namespace ReactiveUI.SourceGenerators;
 [Generator(LanguageNames.CSharp)]
 public sealed partial class ReactiveCollectionGenerator : IIncrementalGenerator
 {
+    internal static readonly string GeneratorName = typeof(ReactiveCollectionGenerator).FullName!;
+    internal static readonly string GeneratorVersion = typeof(ReactiveCollectionGenerator).Assembly.GetName().Version.ToString();
+
     /// <inheritdoc/>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -33,51 +36,50 @@ public sealed partial class ReactiveCollectionGenerator : IIncrementalGenerator
 
     private static void RunReactiveCollectionFromField(IncrementalGeneratorInitializationContext context)
     {
-        ////// Gather info for all annotated variable with at least one attribute.
-        ////var propertyInfo =
-        ////    context.SyntaxProvider
-        ////    .ForAttributeWithMetadataName(
-        ////        AttributeDefinitions.ReactiveAttributeType,
-        ////        static (node, _) => node is VariableDeclaratorSyntax { Parent: VariableDeclarationSyntax { Parent: FieldDeclarationSyntax { Parent: ClassDeclarationSyntax or RecordDeclarationSyntax, AttributeLists.Count: > 0 } } },
-        ////        static (context, token) => GetVariableInfo(context, token))
-        ////    .Where(x => x != null)
-        ////    .Select((x, _) => x!)
-        ////    .Collect();
+        var propertyInfo =
+            context.SyntaxProvider
+            .ForAttributeWithMetadataName(
+                AttributeDefinitions.ReactiveCollectionAttributeType,
+                static (node, _) => node is VariableDeclaratorSyntax { Parent: VariableDeclarationSyntax { Parent: FieldDeclarationSyntax { Parent: ClassDeclarationSyntax or RecordDeclarationSyntax, AttributeLists.Count: > 0 } } },
+                static (context, token) => GetVariableInfo(context, token))
+            .Where(x => x != null)
+            .Select((x, _) => x!)
+            .Collect();
 
-        ////// Generate the requested properties
-        ////context.RegisterSourceOutput(propertyInfo, static (context, input) =>
-        ////{
-        ////    foreach (var diagnostic in input.SelectMany(static x => x.Errors))
-        ////    {
-        ////        // Output the diagnostics
-        ////        context.ReportDiagnostic(diagnostic.ToDiagnostic());
-        ////    }
+        // Generate the requested properties and methods
+        context.RegisterSourceOutput(propertyInfo, static (context, input) =>
+        {
+            foreach (var diagnostic in input.SelectMany(static x => x.Errors))
+            {
+                // Output the diagnostics
+                context.ReportDiagnostic(diagnostic.ToDiagnostic());
+            }
 
-        ////    // Gather all the properties that are valid and group them by the target information.
-        ////    var groupedPropertyInfo = input
-        ////        .Where(static x => x.Value != null)
-        ////        .Select(static x => x.Value!).GroupBy(
-        ////        static info => (info.TargetInfo.FileHintName, info.TargetInfo.TargetName, info.TargetInfo.TargetNamespace, info.TargetInfo.TargetVisibility, info.TargetInfo.TargetType),
-        ////        static info => info)
-        ////        .ToImmutableArray();
+            // Gather all the properties that are valid and group them by the target information.
+            var groupedPropertyInfo = input
+                .Where(static x => x.Value != null)
+                .Select(static x => x.Value!).GroupBy(
+                static info => (info.TargetInfo.FileHintName, info.TargetInfo.TargetName, info.TargetInfo.TargetNamespace, info.TargetInfo.TargetVisibility, info.TargetInfo.TargetType),
+                static info => info)
+                .ToImmutableArray();
 
-        ////    if (groupedPropertyInfo.Length == 0)
-        ////    {
-        ////        return;
-        ////    }
+            if (groupedPropertyInfo.Length == 0)
+            {
+                return;
+            }
 
-        ////    foreach (var grouping in groupedPropertyInfo)
-        ////    {
-        ////        var items = grouping.ToImmutableArray();
+            foreach (var grouping in groupedPropertyInfo)
+            {
+                var items = grouping.ToImmutableArray();
 
-        ////        if (items.Length == 0)
-        ////        {
-        ////            continue;
-        ////        }
+                if (items.Length == 0)
+                {
+                    continue;
+                }
 
-        ////        var source = GenerateSource(grouping.Key.TargetName, grouping.Key.TargetNamespace, grouping.Key.TargetVisibility, grouping.Key.TargetType, [.. grouping]);
-        ////        context.AddSource($"{grouping.Key.FileHintName}.Properties.g.cs", source);
-        ////    }
-        ////});
+                var source = GenerateSource(grouping.Key.TargetName, grouping.Key.TargetNamespace, grouping.Key.TargetVisibility, grouping.Key.TargetType, [.. grouping]);
+                context.AddSource($"{grouping.Key.FileHintName}.ReactiveCollections.g.cs", source);
+            }
+        });
     }
 }

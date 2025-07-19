@@ -91,6 +91,7 @@ public sealed class TestHelper<T>(ITestOutputHelper testOutput) : IDisposable
             nameof(RoutedControlHostGenerator) => "ROUTEDHOST",
             nameof(ViewModelControlHostGenerator) => "CONTROLHOST",
             nameof(BindableDerivedListGenerator) => "DERIVEDLIST",
+            nameof(ReactiveCollectionGenerator) => "REACTIVECOLL",
             _ => name,
         };
     }

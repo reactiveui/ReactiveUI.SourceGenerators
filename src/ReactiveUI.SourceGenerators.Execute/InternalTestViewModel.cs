@@ -3,6 +3,7 @@
 // The ReactiveUI and contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System.Collections.ObjectModel;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
 
@@ -10,6 +11,32 @@ namespace SGReactiveUI.SourceGenerators.Test;
 
 internal partial class InternalTestViewModel : ReactiveObject
 {
+    [ReactiveCollection]
+    private ObservableCollection<int>? _publicObservableCollectionTest;
+
+    public InternalTestViewModel()
+    {
+        // observe property changes
+        Changed
+            .Subscribe(x =>
+            {
+                // handle property changes
+                if (x.PropertyName == nameof(PublicObservableCollectionTest))
+                {
+                    Console.WriteLine($"PublicObservableCollectionTest changed: {PublicObservableCollectionTest?.Count}");
+                }
+            });
+        PublicObservableCollectionTest = [];
+        PublicObservableCollectionTest.Add(1);
+        PublicObservableCollectionTest.Add(2);
+        PublicObservableCollectionTest.Add(3);
+        PublicObservableCollectionTest = null;
+        PublicObservableCollectionTest = [];
+        PublicObservableCollectionTest.Add(1);
+        PublicObservableCollectionTest.Add(2);
+        PublicObservableCollectionTest.Add(3);
+    }
+
     [Reactive]
     public partial int PublicPartialPropertyTest { get; set; }
 
@@ -30,6 +57,9 @@ internal partial class InternalTestViewModel : ReactiveObject
 
     [Reactive]
     public partial int PublicPartialPropertyWithPrivateTest { get; private set; }
+
+    [Reactive]
+    public partial string PublicPartialStringPropertyTest { get; set; } = "initial";
 
     [Reactive]
     internal partial int InternalPartialPropertyTest { get; set; }

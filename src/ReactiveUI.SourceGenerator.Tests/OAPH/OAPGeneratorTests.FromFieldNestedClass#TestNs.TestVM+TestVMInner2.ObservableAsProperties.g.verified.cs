@@ -6,9 +6,7 @@ namespace TestNs
 {
     public partial class TestVM
 {
-/// <summary>
-    /// Partial class for the TestVMInner2 which contains ReactiveUI Observable As Property initialization.
-    /// </summary>
+
     public partial class TestVMInner2
     {
         /// <inheritdoc cref="_testIn2Helper"/>

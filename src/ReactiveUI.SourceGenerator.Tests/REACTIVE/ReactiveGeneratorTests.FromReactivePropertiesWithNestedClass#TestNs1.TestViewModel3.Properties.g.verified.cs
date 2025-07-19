@@ -7,9 +7,7 @@ using ReactiveUI;
 
 namespace TestNs1
 {
-    /// <summary>
-    /// Partial class for the TestViewModel3 which contains ReactiveUI Reactive property initialization.
-    /// </summary>
+    
     public partial class TestViewModel3
     {
         

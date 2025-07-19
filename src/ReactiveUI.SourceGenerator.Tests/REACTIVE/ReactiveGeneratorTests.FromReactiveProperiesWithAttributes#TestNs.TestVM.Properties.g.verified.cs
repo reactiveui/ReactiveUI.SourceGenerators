@@ -7,9 +7,7 @@ using ReactiveUI;
 
 namespace TestNs
 {
-    /// <summary>
-    /// Partial class for the TestVM which contains ReactiveUI Reactive property initialization.
-    /// </summary>
+    
     public partial class TestVM
     {
         

@@ -11,9 +11,7 @@ namespace TestNs1
 {
 public partial class TestInnerClass2
 {
-/// <summary>
-    /// Partial class for the TestInnerClass3 which contains ReactiveUI Reactive property initialization.
-    /// </summary>
+
     public partial class TestInnerClass3
     {
         
