@@ -19,7 +19,4 @@ internal sealed record ReactiveCollectionFieldInfo(
     string? Initializer,
     bool IsReferenceTypeOrUnconstrainedTypeParameter,
     bool IncludeMemberNotNullOnSetAccessor,
-    EquatableArray<string> ForwardedAttributes,
-    string IsReadOnly,
-    string AccessModifier,
-    string Inheritance);
+    EquatableArray<string> ForwardedAttributes);

@@ -237,5 +237,5 @@ public sealed class TestHelper<T>(ITestOutputHelper testOutput) : IDisposable
         return VerifyGenerator(driver.RunGenerators(compilation));
     }
 
-    private SettingsTask VerifyGenerator(GeneratorDriver driver) => Verify(driver).UseDirectory(VerifiedFilePath()); ////.ScrubLinesContaining("[global::System.CodeDom.Compiler.GeneratedCode(\"");
+    private SettingsTask VerifyGenerator(GeneratorDriver driver) => Verify(driver).UseDirectory(VerifiedFilePath()).ScrubLinesContaining("[global::System.CodeDom.Compiler.GeneratedCode(\"");
 }

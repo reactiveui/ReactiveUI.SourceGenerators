@@ -51,24 +51,6 @@ public sealed partial class ReactiveCollectionGenerator
             return new(default, builder.ToImmutable());
         }
 
-        // Get the can PropertyName member, if any
-        attributeData.TryGetNamedArgument("ReadOnly", out bool? isReadonly);
-
-        // Get Inheritance value from the attribute
-        attributeData.TryGetNamedArgument("Inheritance", out int? inheritanceArgument);
-        var inheritance = inheritanceArgument switch
-        {
-            1 => " virtual",
-            2 => " override",
-            3 => " new",
-            _ => string.Empty,
-        };
-
-        token.ThrowIfCancellationRequested();
-
-        attributeData.TryGetNamedArgument("UseProtected", out bool useProtected);
-        var useProtectedModifier = useProtected ? "protected" : "private";
-
         token.ThrowIfCancellationRequested();
 
         // Get the property type and name
@@ -121,10 +103,7 @@ public sealed partial class ReactiveCollectionGenerator
             initializer,
             isReferenceTypeOrUnconstraindTypeParameter,
             includeMemberNotNullOnSetAccessor,
-            forwardedPropertyAttributes,
-            isReadonly == false ? string.Empty : "readonly",
-            useProtectedModifier,
-            inheritance),
+            forwardedPropertyAttributes),
             builder.ToImmutable());
     }
 

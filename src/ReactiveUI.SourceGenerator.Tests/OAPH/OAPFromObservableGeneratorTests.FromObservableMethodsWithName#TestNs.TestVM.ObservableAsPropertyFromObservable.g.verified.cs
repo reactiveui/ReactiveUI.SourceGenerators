@@ -17,11 +17,9 @@ namespace TestNs
         private ReactiveUI.ObservableAsPropertyHelper<int>? _test3PropertyHelper;
 
         /// <inheritdoc cref="_test3Property"/>
-        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "2.3.0.0")]
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int Test3Property { get => _test3Property = _test3PropertyHelper?.Value ?? _test3Property; }
 
-        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "2.3.0.0")]
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         protected void InitializeOAPH()
         {
