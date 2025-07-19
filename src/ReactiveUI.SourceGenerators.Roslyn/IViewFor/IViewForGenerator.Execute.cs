@@ -266,9 +266,6 @@ using Microsoft.Maui.Controls;
 
 namespace {{containingNamespace}}
 {
-    /// <summary>
-    /// Partial class for the {{containingTypeName}} which contains ReactiveUI IViewFor initialization.
-    /// </summary>
     {{forwardedAttributesString}}
     {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}} : IViewFor<{{iviewForInfo.ViewModelTypeName}}>
     {

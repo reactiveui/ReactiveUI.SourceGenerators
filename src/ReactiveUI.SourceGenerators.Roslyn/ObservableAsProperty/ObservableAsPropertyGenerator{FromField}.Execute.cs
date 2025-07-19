@@ -168,7 +168,6 @@ $$"""
 
     {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}}
     {
-        [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
 {{propertyDeclarations}}
     }
 """;
@@ -199,6 +198,7 @@ $$"""
         {{helperTypeName}} {{propertyInfo.FieldName}}Helper;
 
         /// <inheritdoc cref="{{propertyInfo.FieldName}}"/>
+        [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
         {{propertyAttributes}}
         public {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} {{getter}}
 """;

@@ -163,7 +163,6 @@ $$"""
 
     {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}}
     {
-        [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
 {{commandDeclarations}}
     }
 """;
@@ -201,6 +200,7 @@ $$"""
 $$"""
         private {{RxCmd}}<{{inputType}}, {{outputType}}>? {{fieldName}};
 
+        [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
         {{forwardedPropertyAttributesString}}
         public {{RxCmd}}<{{inputType}}, {{outputType}}> {{commandName}} { get => {{initializer}} }
 """;
@@ -350,7 +350,7 @@ $$"""
         if (outputSchedulerSymbol is IFieldSymbol outputSchedulerFieldSymbol)
         {
             // The property type must always be a bool
-            if (!outputSchedulerFieldSymbol.Type.IsIShedulerType())
+            if (!outputSchedulerFieldSymbol.Type.IsISchedulerType())
             {
                 goto Failure;
             }
@@ -361,7 +361,7 @@ $$"""
         else if (outputSchedulerSymbol is IPropertySymbol { GetMethod: not null } outputSchedulerPropertySymbol)
         {
             // The property type must always be a bool
-            if (!outputSchedulerPropertySymbol.Type.IsIShedulerType())
+            if (!outputSchedulerPropertySymbol.Type.IsISchedulerType())
             {
                 goto Failure;
             }
@@ -372,7 +372,7 @@ $$"""
         else if (outputSchedulerSymbol is IMethodSymbol outputSchedulerMethodSymbol)
         {
             // The return type must always be a bool
-            if (!outputSchedulerMethodSymbol.ReturnType.IsIShedulerType())
+            if (!outputSchedulerMethodSymbol.ReturnType.IsISchedulerType())
             {
                 goto Failure;
             }

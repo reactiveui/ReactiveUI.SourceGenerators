@@ -13,6 +13,7 @@ namespace TestNs
         private readonly ReactiveUI.ObservableAsPropertyHelper<int> _testIn1Helper;
 
         /// <inheritdoc cref="_testIn1"/>
+        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "2.3.0.0")]
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int TestIn1 { get => _testIn1 = _testIn1Helper?.Value ?? _testIn1; }
     }

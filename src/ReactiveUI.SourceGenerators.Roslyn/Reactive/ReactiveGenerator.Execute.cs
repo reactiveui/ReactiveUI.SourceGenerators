@@ -349,7 +349,6 @@ $$"""
 
     {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}}
     {
-        [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
 {{propertyDeclarations}}
     }
 """;
@@ -376,15 +375,29 @@ $$"""
 
         var fieldSyntax = string.Empty;
         var partialModifier = propertyInfo.IsProperty ? "partial " : string.Empty;
+        string propertyAttributes;
+
         if (propertyInfo.IsProperty && propertyInfo.FieldName != "field")
         {
-            fieldSyntax = $"private {propertyInfo.TypeNameWithNullabilityAnnotations} {propertyInfo.FieldName};";
+            propertyAttributes = string.Join("\n        ", propertyInfo.ForwardedAttributes);
+            fieldSyntax =
+$$"""
+{{propertyAttributes}}
+        private {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.FieldName}};
+""";
+        }
+
+        if (propertyInfo.IsProperty)
+        {
+            propertyAttributes = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage);
+        }
+        else
+        {
+            propertyAttributes = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage.Concat(propertyInfo.ForwardedAttributes));
         }
 
         var accessModifier = propertyInfo.PropertyAccessModifier;
         var setAccessModifier = propertyInfo.SetAccessModifier;
-
-        var propertyAttributes = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage.Concat(propertyInfo.ForwardedAttributes));
 
         if (propertyInfo.IncludeMemberNotNullOnSetAccessor || propertyInfo.IsReferenceTypeOrUnconstrainedTypeParameter)
         {
@@ -392,6 +405,7 @@ $$"""
 $$"""
         {{fieldSyntax}}
         /// <inheritdoc cref="{{setFieldName}}"/>
+        [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
         {{propertyAttributes}}
         {{accessModifier}}{{propertyInfo.Inheritance}} {{propertyInfo.UseRequired}}{{partialModifier}}{{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}}
         { 
@@ -406,6 +420,7 @@ $$"""
 $$"""
         {{fieldSyntax}}
         /// <inheritdoc cref="{{setFieldName}}"/>
+        [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
         {{propertyAttributes}}
         {{accessModifier}}{{propertyInfo.Inheritance}} {{propertyInfo.UseRequired}}{{partialModifier}}{{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} { get => {{getFieldName}}; {{setAccessModifier}} => this.RaiseAndSetIfChanged(ref {{setFieldName}}, value); }
 """;

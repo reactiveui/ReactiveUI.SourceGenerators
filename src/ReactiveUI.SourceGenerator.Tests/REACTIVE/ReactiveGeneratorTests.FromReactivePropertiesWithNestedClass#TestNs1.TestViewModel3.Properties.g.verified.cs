@@ -12,6 +12,7 @@ namespace TestNs1
     {
         
         /// <inheritdoc cref="_testVM3Property"/>
+        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveGenerator", "2.3.0.0")]
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public float TestVM3Property
         { 
@@ -21,6 +22,7 @@ namespace TestNs1
         }
         
         /// <inheritdoc cref="_testVM3Property2"/>
+        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveGenerator", "2.3.0.0")]
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public float TestVM3Property2
         { 
