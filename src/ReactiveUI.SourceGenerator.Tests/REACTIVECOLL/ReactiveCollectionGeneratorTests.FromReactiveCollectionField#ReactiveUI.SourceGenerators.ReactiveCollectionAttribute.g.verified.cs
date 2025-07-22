@@ -1,4 +1,4 @@
-﻿//HintName: ReactiveUI.SourceGenerators.BindableDerivedListAttribute.g.cs
+﻿//HintName: ReactiveUI.SourceGenerators.ReactiveCollectionAttribute.g.cs
 // Copyright (c) 2025 .NET Foundation and Contributors. All rights reserved.
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
@@ -13,7 +13,7 @@ namespace ReactiveUI.SourceGenerators;
 /// ReactiveAttribute.
 /// </summary>
 /// <seealso cref="Attribute" />
-[global::System.AttributeUsage(global::System.AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
-internal sealed class BindableDerivedListAttribute : global::System.Attribute;
+[global::System.AttributeUsage(global::System.AttributeTargets.Field | global::System.AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
+internal sealed class ReactiveCollectionAttribute : global::System.Attribute;
 #nullable restore
 #pragma warning restore

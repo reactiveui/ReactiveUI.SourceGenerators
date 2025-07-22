@@ -17,12 +17,10 @@ namespace TestNs
         private readonly ReactiveUI.ObservableAsPropertyHelper<double?> _testPropertyHelper;
 
         /// <inheritdoc cref="_testProperty"/>
-        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "2.3.0.0")]
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         [global::System.Runtime.Serialization.DataMemberAttribute()]
         public partial double? TestProperty { get => _testProperty = (_testPropertyHelper == null ? _testProperty : _testPropertyHelper.Value); }
 
-        [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "2.3.0.0")]
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         protected void InitializeOAPH()
         {

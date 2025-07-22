@@ -61,6 +61,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)ObservableAsProperty\ObservableAsPropertyGenerator{FromField}.Execute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ObservableAsProperty\ObservableAsPropertyGenerator{FromObservable}.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ObservableAsProperty\ObservableAsPropertyGenerator{FromObservable}.Execute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ReactiveCollection\Models\ReactiveCollectionFieldInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ReactiveCollection\ReactiveCollectionGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ReactiveCollection\ReactiveCollectionGenerator.Execute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ReactiveCommand\Models\CanExecuteTypeInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ReactiveCommand\Models\CommandInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ReactiveCommand\ReactiveCommandGenerator.cs" />
