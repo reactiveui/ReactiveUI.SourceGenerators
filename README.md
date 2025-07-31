@@ -41,6 +41,7 @@ ReactiveUI Source Generators automatically generate ReactiveUI objects to stream
 - `[RoutedControlHost("YourNameSpace.CustomControl")]`
 - `[ViewModelControlHost("YourNameSpace.CustomControl")]`
 - `[BindableDerivedList]` Generates a derived list from a ReadOnlyObservableCollection backing field
+- `[ReactiveCollection]` Generates property changed notifications on add, remove, new actions on a ObservableCollection backing field
 
 ### Compatibility Notes
 - For ReactiveUI versions **older than V19.5.31**, all `[ReactiveCommand]` options are supported except for async methods with a `CancellationToken`.
@@ -587,6 +588,24 @@ using ReactiveUI.SourceGenerators.WinForms;
 public partial class MyCustomViewModelControlHost;
 ```
 
+### ReactiveCollection
+```csharp
+using System.Collections.ObjectModel;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
+
+public partial class MyReactiveClass : ReactiveObject
+{
+    [ReactiveCollection]
+    private ObservableCollection<string> _myCollection;
+
+    public MyReactiveClass()
+    {
+        MyCollection = new ObservableCollection<string>();
+        _myCollection.Add("Item 1");
+    }
+}
+```
 
 ### TODO:
 - Add ObservableAsProperty to generate from a IObservable method with parameters.
