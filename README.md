@@ -567,6 +567,8 @@ public partial class MyReactiveControl : UserControl
 
 this will generate the following code to enable you register the marked Views as `IViewFor<ViewModel>` with Splat:
 ```csharp
+using ReactiveUI.SourceGenerators;
+
 Splat.Locator.CurrentMutable.RegisterViewsForViewModelsSourceGenerated();
 ```
 
