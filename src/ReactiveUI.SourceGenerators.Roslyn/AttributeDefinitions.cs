@@ -52,6 +52,14 @@ internal static class AttributeDefinitions
             Override,
             New,
         }
+
+        internal enum SplatRegistrationType
+        {
+            None,
+            LazySingleton,
+            Constant,
+            PerRequest,
+        }
         #nullable restore
         #pragma warning restore
         """;
@@ -344,7 +352,14 @@ namespace ReactiveUI.SourceGenerators;
 /// <param name="viewModelType">Type of the view model.</param>
 [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.IViewForGenerator", "1.1.0.0")]
 [global::System.AttributeUsage(global::System.AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-internal sealed class IViewForAttribute<T> : global::System.Attribute;
+internal sealed class IViewForAttribute<T> : global::System.Attribute
+{
+    /// <summary>
+    /// Gets the Splat registration type for Splat registration.
+    /// Registers IViewFor<T> in the Splat service locator.
+    /// </summary>
+    public SplatRegistrationType RegistrationType { get; init; } = SplatRegistrationType.None;
+}
 
 /// <summary>
 /// IViewForAttribute.
@@ -356,7 +371,14 @@ internal sealed class IViewForAttribute<T> : global::System.Attribute;
 /// <param name="viewModelType">Type of the view model.</param>
 [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.IViewForGenerator", "1.1.0.0")]
 [global::System.AttributeUsage(global::System.AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-internal sealed class IViewForAttribute(string? viewModelType) : global::System.Attribute;
+internal sealed class IViewForAttribute(string? viewModelType) : global::System.Attribute
+{
+    /// <summary>
+    /// Gets the Splat registration type for Splat registration.
+    /// Registers IViewFor<T> in the Splat service locator.
+    /// </summary>
+    public SplatRegistrationType RegistrationType { get; init; } = SplatRegistrationType.None;
+}
 #nullable restore
 #pragma warning restore
 """;
