@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="ReactiveUI" />
+    <PackageReference Include="Splat" />
   </ItemGroup>
 
   <ItemGroup>

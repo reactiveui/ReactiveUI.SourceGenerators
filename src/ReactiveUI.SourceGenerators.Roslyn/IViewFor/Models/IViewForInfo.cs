@@ -14,4 +14,5 @@ namespace ReactiveUI.SourceGenerators.Input.Models;
 internal sealed record IViewForInfo(
     TargetInfo TargetInfo,
     string ViewModelTypeName,
-    IViewForBaseType BaseType);
+    IViewForBaseType BaseType,
+    string SplatRegistrationType);

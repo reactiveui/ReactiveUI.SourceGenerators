@@ -6,19 +6,24 @@
 using System.Windows;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
+using Splat;
 
 namespace SGReactiveUI.SourceGenerators.Test;
 
 /// <summary>
 /// TestView.
 /// </summary>
-[IViewFor<TestViewModel>]
+[IViewFor<TestViewModel>(RegistrationType = SplatRegistrationType.PerRequest)]
 public partial class TestViewWpf : Window
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="TestViewWpf"/> class.
     /// </summary>
-    public TestViewWpf() => ViewModel = TestViewModel.Instance;
+    public TestViewWpf()
+    {
+        Locator.CurrentMutable.RegisterLazySingleton<IViewFor<TestViewModel>>(() => new TestViewWpf());
+        ViewModel = TestViewModel.Instance;
+    }
 
     /// <summary>
     /// Gets or sets the test property.
