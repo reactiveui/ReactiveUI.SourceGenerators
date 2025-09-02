@@ -6,17 +6,16 @@
 using global::ReactiveUI;
 using global::Splat;
 
-namespace ReactiveUI
+namespace ReactiveUI.SourceGenerators
 {
     /// <summary>
     /// Source-generated registration extensions for ReactiveUI views.
     /// </summary>
-    public static class ReactiveUISourceGeneratorsExtensions
+    internal static class ReactiveUISourceGeneratorsExtensions
     {
         public static void RegisterViewsForViewModelsSourceGenerated(this global::Splat.IMutableDependencyResolver resolver)
         {
             if (resolver is null) throw new global::System.ArgumentNullException(nameof(resolver));
-
         }
     }
 }
