@@ -23,7 +23,7 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(ctx =>
-            ctx.AddSource($"{AttributeDefinitions.IViewForAttributeType}.g.cs", SourceText.From(AttributeDefinitions.IViewForAttribute, Encoding.UTF8)));
+            ctx.AddSource(AttributeDefinitions.IViewForAttributeType + ".g.cs", SourceText.From(AttributeDefinitions.IViewForAttribute, Encoding.UTF8)));
 
         // Gather info for all annotated IViewFor Classes
         var iViewForInfo =
@@ -44,10 +44,19 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
                 static info => info)
                 .ToImmutableArray();
 
+            const string fileName = "ReactiveUI.ReactiveUISourceGeneratorsExtensions.g.cs";
+
             if (groupedPropertyInfo.Length == 0)
             {
+                // Even if there are no views, emit an empty extension to keep API stable.
+                var empty = GenerateRegistrationExtensions(ImmutableArray.Create<Input.Models.IViewForInfo>());
+                context.AddSource(fileName, SourceText.From(empty, Encoding.UTF8));
                 return;
             }
+
+            // Generate the IViewFor Splat Registration code for all classes in a single extension method here
+            var registrationSource = GenerateRegistrationExtensions(input);
+            context.AddSource(fileName, SourceText.From(registrationSource, Encoding.UTF8));
 
             foreach (var grouping in groupedPropertyInfo)
             {
@@ -59,7 +68,7 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
                 }
 
                 var source = GenerateSource(grouping.Key.TargetName, grouping.Key.TargetNamespace, grouping.Key.TargetVisibility, grouping.Key.TargetType, grouping.FirstOrDefault());
-                context.AddSource($"{grouping.Key.FileHintName}.IViewFor.g.cs", source);
+                context.AddSource(grouping.Key.FileHintName + ".IViewFor.g.cs", source);
             }
         });
     }

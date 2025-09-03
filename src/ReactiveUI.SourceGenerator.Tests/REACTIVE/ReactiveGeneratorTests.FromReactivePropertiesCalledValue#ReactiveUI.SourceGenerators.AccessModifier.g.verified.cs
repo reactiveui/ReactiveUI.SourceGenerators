@@ -33,5 +33,13 @@ internal enum InheritanceModifier
     Override,
     New,
 }
+
+internal enum SplatRegistrationType
+{
+    None,
+    LazySingleton,
+    Constant,
+    PerRequest,
+}
 #nullable restore
 #pragma warning restore

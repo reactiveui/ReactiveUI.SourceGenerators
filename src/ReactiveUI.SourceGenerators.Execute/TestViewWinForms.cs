@@ -11,7 +11,7 @@ namespace SGReactiveUI.SourceGenerators.Test
     /// TestViewWinForms.
     /// </summary>
     /// <seealso cref="System.Windows.Forms.Form" />
-    [IViewFor<TestViewModel>]
+    [IViewFor<TestViewModel>(RegistrationType = SplatRegistrationType.LazySingleton)]
     public partial class TestViewWinForms : Form
     {
         /// <summary>
