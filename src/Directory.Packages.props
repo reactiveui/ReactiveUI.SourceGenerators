@@ -9,6 +9,7 @@
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.7.115" />
     <PackageVersion Include="NuGet.Common" Version="6.14.0" />
     <PackageVersion Include="NuGet.Protocol" Version="6.14.0" />
+    <PackageVersion Include="Splat" Version="16.0.1" />
     <PackageVersion Include="stylecop.analyzers" Version="1.2.0-beta.556" />
     <PackageVersion Include="Roslynator.Analyzers" Version="4.14.0" />
     <PackageVersion Include="ReactiveUI" Version="20.4.1" />

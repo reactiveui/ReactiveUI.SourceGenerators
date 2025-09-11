@@ -12,7 +12,7 @@ namespace SGReactiveUI.SourceGenerators.Test;
 /// TestViewWpf2.
 /// </summary>
 /// <seealso cref="System.Windows.Window" />
-[IViewFor("TestViewModel2<int>")]
+[IViewFor("SGReactiveUI.SourceGenerators.Test.TestViewModel2<int>", RegistrationType = SplatRegistrationType.PerRequest)]
 public partial class TestViewWpf2 : Window
 {
     /// <summary>
