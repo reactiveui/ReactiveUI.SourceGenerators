@@ -38,10 +38,22 @@ ReactiveUI Source Generators automatically generate ReactiveUI objects to stream
 - `[ReactiveCommand(OutputScheduler = nameof(_isheduler))]` using a Scheduler defined in the class
 - `[ReactiveCommand][property: AttributeToAddToCommand]` with Attribute passthrough
 - `[IViewFor(nameof(ViewModelName))]`
+- `[IViewFor<YourViewModelType>]`
+- `[IViewFor("YourNameSpace.YourGenericViewModel<int>")]` Generic
+- `[IViewFor<YourViewModelType>(RegistrationType = SplatRegistrationType.PerRequest)]` with Splat Registration Type for IViewFor registration.
+- `[IViewFor<YourViewModelType>(RegistrationType = SplatRegistrationType.LazySingleton)]` Generic with Splat Registration Type for IViewFor registration.
+- `[IViewFor<YourViewModelType>(RegistrationType = SplatRegistrationType.Constant)]` Generic with Splat Registration Type for IViewFor registration.
 - `[RoutedControlHost("YourNameSpace.CustomControl")]`
 - `[ViewModelControlHost("YourNameSpace.CustomControl")]`
 - `[BindableDerivedList]` Generates a derived list from a ReadOnlyObservableCollection backing field
 - `[ReactiveCollection]` Generates property changed notifications on add, remove, new actions on a ObservableCollection backing field
+
+#### IViewFor Registration generator
+
+To register all views for view models registered via the IViewFor Source Generator with a specified `RegistrationType`, call the following method during application startup:
+```csharp
+Splat.Locator.CurrentMutable.RegisterViewsForViewModelsSourceGenerated();
+```
 
 ### Compatibility Notes
 - For ReactiveUI versions **older than V19.5.31**, all `[ReactiveCommand]` options are supported except for async methods with a `CancellationToken`.
@@ -63,10 +75,16 @@ Generates read-only properties backed by an `ObservableAsPropertyHelper` based o
 Generates commands, with options to add attributes or enable `CanExecute` functionality.
 
 ### `[IViewFor]`
-Links a view to a view model for data binding.
+Links a view to a view model for data binding. Supports generic types and Splat registration.
 
 ### `[RoutedControlHost]` and `[ViewModelControlHost]`
 Platform-specific attributes for control hosting in WinForms applications.
+
+### `[BindableDerivedList]`
+Generates a derived list from a `ReadOnlyObservableCollection` backing field.
+
+### `[ReactiveCollection]`
+Generates property changed notifications on add, remove, and new actions on an `ObservableCollection` backing field.
 
 ## Historical Approach
 
@@ -524,6 +542,35 @@ The class must inherit from a UI Control from any of the following platforms and
 - WinForms (System.Windows.Forms)
 - Avalonia (Avalonia)
 - Uno (Windows.UI.Xaml).
+
+### IViewFor with Splat Registration Type
+
+Choose from the following Splat Registration Types:
+- `SplatRegistrationType.PerRequest`
+- `SplatRegistrationType.LazySingleton`
+- `SplatRegistrationType.Constant`
+- `SplatRegistrationType.None` (Default if not specified - no registration is performed)
+
+```csharp
+using ReactiveUI.SourceGenerators;
+using Splat;
+[IViewFor<MyReactiveClass>(RegistrationType = SplatRegistrationType.PerRequest)]
+public partial class MyReactiveControl : UserControl
+{
+    public MyReactiveControl()
+    {
+        InitializeComponent();
+        ViewModel = Locator.Current.GetService<MyReactiveClass>();
+    }
+}
+```
+
+this will generate the following code to enable you register the marked Views as `IViewFor<ViewModel>` with Splat:
+```csharp
+using ReactiveUI.SourceGenerators;
+
+Splat.Locator.CurrentMutable.RegisterViewsForViewModelsSourceGenerated();
+```
 
 ### Usage IViewFor with ViewModel Name - Generic Types should be used with the fully qualified name, otherwise use nameof(ViewModelTypeName)
 ```csharp
