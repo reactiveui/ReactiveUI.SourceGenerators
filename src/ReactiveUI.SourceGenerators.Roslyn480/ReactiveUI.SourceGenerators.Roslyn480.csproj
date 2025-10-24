@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>$(RoslynTfm)</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
@@ -24,6 +24,13 @@
     <InternalsVisibleTo Include="ReactiveUI.CodeFixes" />
   </ItemGroup>
 
-  <Import Project="..\ReactiveUI.SourceGenerators.Roslyn\ReactiveUI.SourceGenerators.Roslyn.projitems" Label="Shared" />
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.SourceGenerators.Roslyn\**\*.cs" LinkBase="Shared" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\ReactiveUI.SourceGenerators.Roslyn\AnalyzerReleases.Shipped.md" />
+    <AdditionalFiles Include="..\ReactiveUI.SourceGenerators.Roslyn\AnalyzerReleases.Unshipped.md" />
+  </ItemGroup>
 
 </Project>

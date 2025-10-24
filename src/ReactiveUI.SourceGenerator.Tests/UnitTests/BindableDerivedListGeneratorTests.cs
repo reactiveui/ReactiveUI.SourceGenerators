@@ -4,20 +4,20 @@
 // See the LICENSE file in the project root for full license information.
 
 using ReactiveUI.SourceGenerators;
-using Xunit.Abstractions;
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
 /// <summary>
 /// BindableDerivedListGeneratorTests.
 /// </summary>
-public class BindableDerivedListGeneratorTests(ITestOutputHelper output) : TestBase<BindableDerivedListGenerator>(output)
+[TestFixture]
+public class BindableDerivedListGeneratorTests : TestBase<BindableDerivedListGenerator>
 {
     /// <summary>
     /// Tests that the source generator correctly generates reactive properties.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromReactiveProperties()
     {
         // Arrange: Setup the source code that matches the generator input expectations.

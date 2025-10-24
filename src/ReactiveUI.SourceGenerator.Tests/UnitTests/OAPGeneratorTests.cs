@@ -4,21 +4,20 @@
 // See the LICENSE file in the project root for full license information.
 
 using ReactiveUI.SourceGenerators;
-using Xunit.Abstractions;
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
 /// <summary>
 /// Unit tests for the ObservableAsProperty generator.
 /// </summary>
-/// <param name="output">The output helper.</param>
-public class OAPGeneratorTests(ITestOutputHelper output) : TestBase<ObservableAsPropertyGenerator>(output)
+[TestFixture]
+public class OAPGeneratorTests : TestBase<ObservableAsPropertyGenerator>
 {
     /// <summary>
     /// Tests that the source generator correctly generates observable properties.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromField()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -45,7 +44,7 @@ public class OAPGeneratorTests(ITestOutputHelper output) : TestBase<ObservableAs
     /// Tests that the source generator correctly generates observable properties.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromFieldNestedClass()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -90,7 +89,7 @@ public class OAPGeneratorTests(ITestOutputHelper output) : TestBase<ObservableAs
     /// Tests that the source generator correctly generates observable properties.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task NonReadOnlyFromField()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -117,7 +116,7 @@ public class OAPGeneratorTests(ITestOutputHelper output) : TestBase<ObservableAs
     /// Tests that the source generator correctly generates observable properties.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task NamedFromField()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -144,7 +143,7 @@ public class OAPGeneratorTests(ITestOutputHelper output) : TestBase<ObservableAs
     /// Tests that the source generator correctly generates observable properties.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task NonReadOnlyFromFieldProtected()
     {
         // Arrange: Setup the source code that matches the generator input expectations.

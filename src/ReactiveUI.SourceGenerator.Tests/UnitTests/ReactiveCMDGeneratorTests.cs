@@ -4,21 +4,20 @@
 // See the LICENSE file in the project root for full license information.
 
 using ReactiveUI.SourceGenerators;
-using Xunit.Abstractions;
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
 /// <summary>
 /// Unit tests for the ReactiveCommand generator.
 /// </summary>
-/// <param name="output">The output helper.</param>
-public class ReactiveCMDGeneratorTests(ITestOutputHelper output) : TestBase<ReactiveCommandGenerator>(output)
+[TestFixture]
+public class ReactiveCMDGeneratorTests : TestBase<ReactiveCommandGenerator>
 {
     /// <summary>
     /// Tests that the source generator correctly generates ReactiveCommands.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromReactiveCommand()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -46,7 +45,7 @@ public class ReactiveCMDGeneratorTests(ITestOutputHelper output) : TestBase<Reac
     /// Tests that the source generator correctly generates ReactiveCommands.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromReactiveCommandWithParameter()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -75,7 +74,7 @@ public class ReactiveCMDGeneratorTests(ITestOutputHelper output) : TestBase<Reac
     /// Tests that the source generator correctly generates ReactiveCommands.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromReactiveAsyncCommand()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -106,7 +105,7 @@ public class ReactiveCMDGeneratorTests(ITestOutputHelper output) : TestBase<Reac
     /// Tests that the source generator correctly generates ReactiveCommands.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromReactiveAsyncCommandWithParameter()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -138,7 +137,7 @@ public class ReactiveCMDGeneratorTests(ITestOutputHelper output) : TestBase<Reac
     /// Froms the reactive command with output scheduler.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromReactiveCommandWithOutputScheduler()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -164,7 +163,7 @@ public class ReactiveCMDGeneratorTests(ITestOutputHelper output) : TestBase<Reac
     /// Froms the reactive command with nested classes.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromReactiveCommandWithNestedClasses()
     {
         // Arrange: Setup the source code that matches the generator input expectations.

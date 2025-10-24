@@ -37,6 +37,25 @@
   <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
+
+  <!-- Centralized TFM Definitions -->
+  <PropertyGroup>
+    <!-- Roslyn projects target netstandard2.0 -->
+    <RoslynTfm>netstandard2.0</RoslynTfm>
+    <!-- Test projects multi-target net8.0, net9.0, and net10.0 -->
+    <TestTfms>net8.0;net9.0;net10.0</TestTfms>
+  </PropertyGroup>
+
+  <!-- MAUI TFMs with OS-specific conditional logic -->
+  <PropertyGroup>
+    <!-- Linux builds Android targets only -->
+    <MauiTfms Condition="$([MSBuild]::IsOSPlatform('Linux'))">net9.0-android;net10.0-android</MauiTfms>
+    <!-- macOS builds Android and Apple (iOS/MacCatalyst) targets -->
+    <MauiTfms Condition="$([MSBuild]::IsOSPlatform('OSX'))">net9.0-android;net9.0-ios;net9.0-maccatalyst;net10.0-android;net10.0-ios;net10.0-maccatalyst</MauiTfms>
+    <!-- Windows builds Android, Windows, and Apple targets (assuming paired Mac) -->
+    <MauiTfms Condition="$([MSBuild]::IsOSPlatform('Windows'))">net9.0-android;net9.0-ios;net9.0-maccatalyst;net9.0-windows10.0.19041.0;net10.0-android;net10.0-ios;net10.0-maccatalyst;net10.0-windows10.0.19041.0</MauiTfms>
+  </PropertyGroup>
+
   <ItemGroup Condition="'$(IsTestProject)' != 'true'">
     <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
   </ItemGroup>

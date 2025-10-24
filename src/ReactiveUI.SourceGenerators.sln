@@ -34,8 +34,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveUI.SourceGenerators
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NestedTest", "NestedTest", "{CAFBD27B-5078-4A0C-A4E9-19DCF2A7DF16}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "ReactiveUI.SourceGenerators.Roslyn", "ReactiveUI.SourceGenerators.Roslyn\ReactiveUI.SourceGenerators.Roslyn.shproj", "{BC460DAF-92ED-41D9-9EB4-2C92121D62A8}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveUI.SourceGenerators.Roslyn480", "ReactiveUI.SourceGenerators.Roslyn480\ReactiveUI.SourceGenerators.Roslyn480.csproj", "{7C308972-5697-464F-BEAE-02FE9E03BECE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveUI.SourceGenerators.Roslyn4120", "ReactiveUI.SourceGenerators.Roslyn4120\ReactiveUI.SourceGenerators.Roslyn4120.csproj", "{BF121262-7F30-4EC0-9F03-324AC3B834B8}"
@@ -100,10 +98,5 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {173F891B-86A2-4226-B563-A7318CE0E2EC}
-	EndGlobalSection
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		ReactiveUI.SourceGenerators.Roslyn\ReactiveUI.SourceGenerators.Roslyn.projitems*{7c308972-5697-464f-beae-02fe9e03bece}*SharedItemsImports = 5
-		ReactiveUI.SourceGenerators.Roslyn\ReactiveUI.SourceGenerators.Roslyn.projitems*{bc460daf-92ed-41d9-9eb4-2c92121d62a8}*SharedItemsImports = 13
-		ReactiveUI.SourceGenerators.Roslyn\ReactiveUI.SourceGenerators.Roslyn.projitems*{bf121262-7f30-4ec0-9f03-324ac3b834b8}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

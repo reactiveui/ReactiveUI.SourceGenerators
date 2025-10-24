@@ -4,19 +4,19 @@
 // See the LICENSE file in the project root for full license information.
 
 using ReactiveUI.SourceGenerator.Tests;
-using Xunit.Abstractions;
 
 namespace ReactiveUI.SourceGenerators.Tests;
 /// <summary>
 /// ReactiveCollectionGeneratorTests.
 /// </summary>
-public class ReactiveCollectionGeneratorTests(ITestOutputHelper output) : TestBase<ReactiveCollectionGenerator>(output)
+[TestFixture]
+public class ReactiveCollectionGeneratorTests : TestBase<ReactiveCollectionGenerator>
 {
     /// <summary>
     /// Tests that the source generator correctly generates reactive properties.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromReactiveCollectionField()
     {
         // Arrange: Setup the source code that matches the generator input expectations.

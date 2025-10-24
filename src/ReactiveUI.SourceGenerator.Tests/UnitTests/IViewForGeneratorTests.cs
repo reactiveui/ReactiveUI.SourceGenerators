@@ -4,20 +4,20 @@
 // See the LICENSE file in the project root for full license information.
 
 using ReactiveUI.SourceGenerators;
-using Xunit.Abstractions;
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
 /// <summary>
 /// IViewForGeneratorTests.
 /// </summary>
-public class IViewForGeneratorTests(ITestOutputHelper output) : TestBase<IViewForGenerator>(output)
+[TestFixture]
+public class IViewForGeneratorTests : TestBase<IViewForGenerator>
 {
     /// <summary>
     /// Tests that the source generator correctly generates reactive properties.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromIViewFor()
     {
         // Arrange: Setup the source code that matches the generator input expectations.

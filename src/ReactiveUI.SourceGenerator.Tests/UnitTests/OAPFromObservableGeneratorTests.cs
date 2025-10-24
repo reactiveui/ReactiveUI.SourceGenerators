@@ -4,21 +4,20 @@
 // See the LICENSE file in the project root for full license information.
 
 using ReactiveUI.SourceGenerators;
-using Xunit.Abstractions;
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
 /// <summary>
 /// Unit tests for the ObservableAsProperty generator.
 /// </summary>
-/// <param name="output">The output helper.</param>
-public class OAPFromObservableGeneratorTests(ITestOutputHelper output) : TestBase<ObservableAsPropertyGenerator>(output)
+[TestFixture]
+public class OAPFromObservableGeneratorTests : TestBase<ObservableAsPropertyGenerator>
 {
     /// <summary>
     /// Tests that the source generator correctly generates observable properties.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromObservableProp()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -45,7 +44,7 @@ public class OAPFromObservableGeneratorTests(ITestOutputHelper output) : TestBas
     /// Tests that the source generator correctly generates observable properties.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromObservablePropNestedClasses()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -90,7 +89,7 @@ public class OAPFromObservableGeneratorTests(ITestOutputHelper output) : TestBas
     /// Tests that the source generator correctly generates observable properties.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromObservableMethods()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -117,7 +116,7 @@ public class OAPFromObservableGeneratorTests(ITestOutputHelper output) : TestBas
     /// Tests that the source generator correctly generates observable properties.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromObservableMethodsWithName()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -144,7 +143,7 @@ public class OAPFromObservableGeneratorTests(ITestOutputHelper output) : TestBas
     /// Tests that the source generator correctly generates observable properties.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromObservablePropertiesWithName()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -171,7 +170,7 @@ public class OAPFromObservableGeneratorTests(ITestOutputHelper output) : TestBas
     /// Tests that the source generator correctly generates observable properties.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromObservablePropertiesWithAttribute()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -202,7 +201,7 @@ public class OAPFromObservableGeneratorTests(ITestOutputHelper output) : TestBas
     /// Tests that the source generator correctly generates observable properties.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromObservablePropertiesWithAttributeRef()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -233,7 +232,7 @@ public class OAPFromObservableGeneratorTests(ITestOutputHelper output) : TestBas
     /// Tests that the source generator correctly generates observable properties.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromObservablePropertiesWithAttributeNullableRef()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -266,7 +265,7 @@ public class OAPFromObservableGeneratorTests(ITestOutputHelper output) : TestBas
     /// <returns>
     /// A task to monitor the async.
     /// </returns>
-    [Fact]
+    [Test]
     public Task FromField()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -307,7 +306,7 @@ public class OAPFromObservableGeneratorTests(ITestOutputHelper output) : TestBas
     /// <returns>
     /// A task to monitor the async.
     /// </returns>
-    [Fact]
+    [Test]
     public Task FromPartialProperty()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
