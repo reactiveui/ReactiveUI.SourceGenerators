@@ -33,4 +33,9 @@
     <Compile Include="..\ReactiveUI.SourceGenerators.Roslyn\**\*.cs" LinkBase="Shared" />
   </ItemGroup>
 
+  <ItemGroup>
+    <AdditionalFiles Include="..\ReactiveUI.SourceGenerators.Roslyn\AnalyzerReleases.Shipped.md" />
+    <AdditionalFiles Include="..\ReactiveUI.SourceGenerators.Roslyn\AnalyzerReleases.Unshipped.md" />
+  </ItemGroup>
+
 </Project>
