@@ -10,14 +10,14 @@ using NuGet.Frameworks;
 using NuGet.LibraryModel;
 using NuGet.Versioning;
 
+using NUnit.Framework;
+
 using ReactiveMarbles.NuGet.Helpers;
 
 using ReactiveMarbles.SourceGenerator.TestNuGetHelper.Compilation;
 
 using ReactiveUI.SourceGenerators;
 using ReactiveUI.SourceGenerators.WinForms;
-
-using NUnit.Framework;
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
