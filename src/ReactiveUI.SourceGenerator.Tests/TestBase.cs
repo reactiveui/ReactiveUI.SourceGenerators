@@ -4,7 +4,6 @@
 // See the LICENSE file in the project root for full license information.
 
 using Microsoft.CodeAnalysis;
-using Xunit.Abstractions;
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
@@ -12,25 +11,29 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// A base class for handling test setup and teardown.
 /// </summary>
 /// <typeparam name="T">Type of Incremental Generator.</typeparam>
-/// <seealso cref="Xunit.IAsyncLifetime" />
 /// <seealso cref="System.IDisposable" />
-/// <param name="testOutputHelper">The output helper.</param>
-public abstract class TestBase<T>(ITestOutputHelper testOutputHelper) : IAsyncLifetime, IDisposable
+public abstract class TestBase<T> : IDisposable
         where T : IIncrementalGenerator, new()
 {
     /// <summary>
     /// Gets the TestHelper instance.
     /// </summary>
-    protected TestHelper<T> TestHelper { get; } = new(testOutputHelper);
+    protected TestHelper<T> TestHelper { get; } = new();
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Initializes the test helper asynchronously.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [OneTimeSetUp]
     public Task InitializeAsync() => TestHelper.InitializeAsync();
 
-    /// <inheritdoc/>
-    public Task DisposeAsync()
+    /// <summary>
+    /// Disposes the test helper.
+    /// </summary>
+    [OneTimeTearDown]
+    public void DisposeAsync()
     {
         TestHelper.Dispose();
-        return Task.CompletedTask;
     }
 
     /// <inheritdoc/>

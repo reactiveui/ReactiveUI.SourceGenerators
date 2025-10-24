@@ -3,8 +3,6 @@
 // The ReactiveUI and contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using FluentAssertions;
-
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -19,7 +17,7 @@ using ReactiveMarbles.SourceGenerator.TestNuGetHelper.Compilation;
 using ReactiveUI.SourceGenerators;
 using ReactiveUI.SourceGenerators.WinForms;
 
-using Xunit.Abstractions;
+using NUnit.Framework;
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
@@ -29,8 +27,7 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// </summary>
 /// <typeparam name="T">Type of Incremental Generator.</typeparam>
 /// <seealso cref="System.IDisposable" />
-/// <param name="testOutput">The test output helper for capturing test logs.</param>
-public sealed class TestHelper<T>(ITestOutputHelper testOutput) : IDisposable
+public sealed class TestHelper<T> : IDisposable
         where T : IIncrementalGenerator, new()
 {
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -127,7 +124,7 @@ public sealed class TestHelper<T>(ITestOutputHelper testOutput) : IDisposable
             throw new InvalidOperationException("Must have valid compiler instance.");
         }
 
-        var utility = new SourceGeneratorUtility(x => testOutput.WriteLine(x));
+        var utility = new SourceGeneratorUtility(x => TestContext.Out.WriteLine(x));
 
 #pragma warning disable IDE0053 // Use expression body for lambda expression
 #pragma warning disable RCS1021 // Convert lambda expression body to expression body
@@ -204,7 +201,7 @@ public sealed class TestHelper<T>(ITestOutputHelper testOutput) : IDisposable
             var prediagnostics = compilation.GetDiagnostics()
                 .Where(d => d.Severity > DiagnosticSeverity.Warning)
                 .ToList();
-            prediagnostics.Should().BeEmpty();
+            Assert.That(prediagnostics, Is.Empty);
         }
 
         var generator = new T();
@@ -224,7 +221,7 @@ public sealed class TestHelper<T>(ITestOutputHelper testOutput) : IDisposable
             {
                 foreach (var diagnostic in offendingDiagnostics)
                 {
-                    testOutput.WriteLine($"Diagnostic: {diagnostic.Id} - {diagnostic.GetMessage()}");
+                    TestContext.Out.WriteLine($"Diagnostic: {diagnostic.Id} - {diagnostic.GetMessage()}");
                 }
 
                 throw new InvalidOperationException("Compilation failed due to the above diagnostics.");

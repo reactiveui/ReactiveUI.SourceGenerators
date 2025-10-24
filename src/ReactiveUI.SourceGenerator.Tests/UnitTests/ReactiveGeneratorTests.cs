@@ -4,21 +4,21 @@
 // See the LICENSE file in the project root for full license information.
 
 using ReactiveUI.SourceGenerators;
-using Xunit.Abstractions;
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
 /// <summary>
 /// Unit tests for the Reactive generator.
 /// </summary>
-/// <param name="output">The output helper.</param>
-public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase<ReactiveGenerator>(output)
+[TestFixture]
+[TestFixture]
+public class ReactiveGeneratorTests : TestBase<ReactiveGenerator>
 {
     /// <summary>
     /// Tests that the source generator correctly generates reactive properties.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromReactiveProperties()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -45,7 +45,7 @@ public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase<Reactiv
     /// Tests that the source generator correctly generates reactive properties.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromReactivePropertiesCalledValue()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -72,7 +72,7 @@ public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase<Reactiv
     /// Tests that the source generator correctly generates reactive properties.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromReactivePropertiesWithAccess()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -99,7 +99,7 @@ public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase<Reactiv
     /// Froms the reactive properies with attributes.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromReactiveProperiesWithAttributes()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -130,7 +130,7 @@ public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase<Reactiv
     /// Froms the reactive properties with attributes and access and inheritance.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromReactivePropertiesWithAttributesAccessAndInheritance()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -161,7 +161,7 @@ public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase<Reactiv
     /// Froms the reactive properties with attributes and access and inheritance.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromReactivePropertiesWithIdenticalClass()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -204,7 +204,7 @@ public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase<Reactiv
     /// Froms the reactive properties with nested class.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromReactivePropertiesWithNestedClass()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -277,7 +277,7 @@ public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase<Reactiv
     /// Tests that the source generator correctly generates reactive properties.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromReactivePropertiesWithInit()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
@@ -304,7 +304,7 @@ public class ReactiveGeneratorTests(ITestOutputHelper output) : TestBase<Reactiv
     /// Tests that the source generator correctly generates reactive properties.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
-    [Fact]
+    [Test]
     public Task FromReactivePartialProperties()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
