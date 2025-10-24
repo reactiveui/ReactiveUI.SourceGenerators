@@ -20,8 +20,7 @@ RXUISG0013 | ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator | Error |
 RXUISG0014 | ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
 RXUISG0015 | ReactiveUI.SourceGenerators.ReactiveGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
 RXUISG0017 | ReactiveUI.SourceGenerators.ObservableAsPropertyFromObservableGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
-RXUISG0018 | ReactiveUI.SourceGenerators.ObservableAsPropertyFromObservableGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
-RXUISG0018 | ReactiveUI.SourceGenerators.ReactiveGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
+RXUISG0018 | ReactiveUI.SourceGenerators.ObservableAsPropertyFromObservableGenerator/ReactiveGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
 RXUISG0019 | ReactiveUI.SourceGenerators.BindableDerivedListGenerator | Error | See https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html
 
 ## Rules
@@ -78,11 +77,8 @@ This rule checks if there are any Properties to change to Reactive Field, change
 - RXUISG0017 - ObservableAsPropertyFromObservableGenerator
 This rule checks if the `ObservableAsProperty` has Invalid generated property declaration.
 
-- RXUISG0018 - ObservableAsPropertyFromObservableGenerator
-This rule checks if the `ObservableAsProperty` has Invalid class inheritance, must inherit from `ReactiveObject`.
-
-- RXUISG0018 - ReactiveGenerator
-This rule checks if the `Reactive` has Invalid class inheritance, must inherit from `ReactiveObject`.
+- RXUISG0018 - ObservableAsPropertyFromObservableGenerator/ReactiveGenerator
+This rule checks if the `ObservableAsProperty` or `Reactive` has Invalid class inheritance, must inherit from `ReactiveObject`.
 
 - RXUISG0019 - BindableDerivedListGenerator
 - This rule checks if the `BindableDerivedList` has Invalid property inheritance type.
