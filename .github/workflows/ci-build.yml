@@ -19,7 +19,7 @@ jobs:
     uses: reactiveui/actions-common/.github/workflows/workflow-common-setup-and-build.yml@main
     with:
       productNamespacePrefix: ReactiveUI.SourceGenerators
-      installWorkloads: false
+      installWorkloads: true
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
