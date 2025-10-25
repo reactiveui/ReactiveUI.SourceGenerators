@@ -200,6 +200,21 @@ public partial class MyReactiveClass : ReactiveObject
 }
 ```
 
+### Usage Reactive property with other source generators
+
+Roslyn source generators don’t have a defined run order and each generator sees the same initial compilation.
+Code/attributes that one generator emits aren’t visible to other generators in the same compilation round,
+so adding `[JsonPropertyName]`/`[JsonInclude]` from `ReactiveUI.SourceGenerators` won’t cause the `System.Text.Json`
+source generator to pick them up in that project. That’s by design of the generator pipeline (no inter-generator dependencies / ordering).
+
+So `System.Text.Json` needs special care. In the case that you want to Json-serialize `[Reactive]`
+properties, and you want to use the `System.Text.Json` source generator they must run in different
+assemblies. The same applies to other source generators depending on the output of `ReactiveUI.SourceGenerators`.
+
+Define types with `[Reactive]` properties in assembly `A`, and then define the
+`System.Text.Json.JsonSerializerContext` source generation context in assembly `B`, and let
+`B` reference `A`.
+
 ## Usage ObservableAsPropertyHelper `[ObservableAsProperty]`
 
 ObservableAsPropertyHelper is used to create a read-only property from an IObservable. The generated code will create a backing field and a property that returns the value of the backing field. The backing field is initialized with the value of the IObservable when the class is instantiated.
