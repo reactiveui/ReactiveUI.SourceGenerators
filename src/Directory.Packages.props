@@ -28,10 +28,10 @@
     <PackageVersion Include="Avalonia.ReactiveUI" Version="11.3.8" />
     <PackageVersion Include="Avalonia.Diagnostics" Version="11.3.8" />
     <PackageVersion Include="Avalonia.Desktop" Version="11.3.8" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
     <PackageVersion Include="ReactiveUI.Maui" Version="22.2.1" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.0" />
-    <PackageVersion Include="System.Formats.Asn1" Version="9.0.10" />
+    <PackageVersion Include="System.Formats.Asn1" Version="10.0.0" />
     <PackageVersion Include="NUnit" Version="4.4.0" />
     <PackageVersion Include="NUnit3TestAdapter" Version="5.2.0" />
     <PackageVersion Include="NUnit.Analyzers" Version="4.10.0" />
