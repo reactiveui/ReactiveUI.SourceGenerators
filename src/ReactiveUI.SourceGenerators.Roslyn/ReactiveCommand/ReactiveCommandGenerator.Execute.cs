@@ -36,8 +36,8 @@ public partial class ReactiveCommandGenerator
     private const string CreateT = ".CreateFromTask";
     private const string CanExecute = "CanExecute";
     private const string OutputScheduler = "OutputScheduler";
-    private const string MainThreadScheduler = "RxApp.MainThreadScheduler";
-    private const string TaskpoolScheduler = "RxApp.TaskpoolScheduler";
+    private const string MainThreadScheduler = "RxSchedulers.MainThreadScheduler";
+    private const string TaskpoolScheduler = "RxSchedulers.TaskpoolScheduler";
 
     private static CommandInfo? GetMethodInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
