@@ -21,7 +21,7 @@ public partial class TestViewWpf : Window
     /// </summary>
     public TestViewWpf()
     {
-        Locator.CurrentMutable.RegisterLazySingleton<IViewFor<TestViewModel>>(() => new TestViewWpf());
+        AppLocator.CurrentMutable.RegisterLazySingleton<IViewFor<TestViewModel>>(() => new TestViewWpf());
         ViewModel = TestViewModel.Instance;
     }
 

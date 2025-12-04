@@ -13,38 +13,16 @@
 
     <PackageDescription>A MVVM framework that integrates with the Reactive Extensions for .NET to create elegant, testable User Interfaces that run on any mobile or desktop platform. This is the Source Generators package for ReactiveUI</PackageDescription>
 
-    <!-- Necessary polyfills -->
-    <!--<CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
-    <PolySharpIncludeGeneratedTypes>-->
-      <!--System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;
-      System.Diagnostics.CodeAnalysis.MemberNotNullAttribute;
-      System.Diagnostics.CodeAnalysis.NotNullAttribute;
-      System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute;
-      System.Diagnostics.CodeAnalysis.RequiresUnreferencedCodeAttribute;
-      System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessageAttribute;
-      System.Runtime.CompilerServices.CallerArgumentExpressionAttribute;
-      System.Runtime.CompilerServices.SkipLocalsInitAttribute;-->
-      <!--System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
-      System.Diagnostics.CodeAnalysis.NotNullWhenAttribute;
-      System.Diagnostics.CodeAnalysis.UnscopedRefAttribute;
-      System.Runtime.CompilerServices.IsExternalInit;
-      System.Index;
-      System.Range;
-    </PolySharpIncludeGeneratedTypes>-->
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
-  <!-- Include PolySharp to generate polyfills for all projects (on their .NET Standard 2.x targets) -->
+
   <ItemGroup>
-    <!--<PackageReference Include="PolySharp">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>build; analyzers</IncludeAssets>
-    </PackageReference>-->
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <InternalsVisibleTo Include="ReactiveUI.CodeFixes" />
   </ItemGroup>
@@ -60,9 +38,4 @@
     <None Include="..\ReactiveUI.SourceGenerators.Roslyn480\bin\$(Configuration)\netstandard2.0\ReactiveUI.SourceGenerators.dll" PackagePath="analyzers\dotnet\roslyn4.8\cs" Pack="true" Visible="false" />
     <None Include="..\ReactiveUI.SourceGenerators.Roslyn4120\\bin\$(Configuration)\netstandard2.0\ReactiveUI.SourceGenerators.dll" PackagePath="analyzers\dotnet\roslyn4.12\cs" Pack="true" Visible="false" />
   </ItemGroup>
-
-  <!-- Include PolySharp generated code
-  <ItemGroup>
-    <Folder Include="Generated\" />
-  </ItemGroup> -->
 </Project>

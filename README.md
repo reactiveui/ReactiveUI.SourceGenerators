@@ -575,7 +575,7 @@ public partial class MyReactiveControl : UserControl
     public MyReactiveControl()
     {
         InitializeComponent();
-        ViewModel = Locator.Current.GetService<MyReactiveClass>();
+        ViewModel = AppLocator.Current.GetService<MyReactiveClass>();
     }
 }
 ```
@@ -584,7 +584,7 @@ this will generate the following code to enable you register the marked Views as
 ```csharp
 using ReactiveUI.SourceGenerators;
 
-Splat.Locator.CurrentMutable.RegisterViewsForViewModelsSourceGenerated();
+Splat.AppLocator.CurrentMutable.RegisterViewsForViewModelsSourceGenerated();
 ```
 
 ### Usage IViewFor with ViewModel Name - Generic Types should be used with the fully qualified name, otherwise use nameof(ViewModelTypeName)
