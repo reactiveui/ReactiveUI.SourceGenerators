@@ -3,7 +3,6 @@
 // The ReactiveUI and contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Models;
 
 namespace ReactiveUI.SourceGenerators.Input.Models;
@@ -15,4 +14,5 @@ internal sealed record IViewForInfo(
     TargetInfo TargetInfo,
     string ViewModelTypeName,
     IViewForBaseType BaseType,
-    string SplatRegistrationType);
+    string SplatRegistrationType,
+    string SplatViewModelRegistrationType);

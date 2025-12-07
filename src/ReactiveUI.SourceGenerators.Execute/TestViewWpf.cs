@@ -13,7 +13,7 @@ namespace SGReactiveUI.SourceGenerators.Test;
 /// <summary>
 /// TestView.
 /// </summary>
-[IViewFor<TestViewModel>(RegistrationType = SplatRegistrationType.PerRequest)]
+[IViewFor<TestViewModel>(RegistrationType = SplatRegistrationType.PerRequest, ViewModelRegistrationType = SplatRegistrationType.Constant)]
 public partial class TestViewWpf : Window
 {
     /// <summary>
