@@ -346,6 +346,12 @@ namespace {{containingNamespace}}
         foreach (var item in registrations)
         {
             var vmType = item.ViewModelTypeName;
+            if (string.IsNullOrWhiteSpace(vmType))
+            {
+                // Something's wrong, skip it
+                continue;
+            }
+
             if (!string.IsNullOrEmpty(vmType) && !vmType.StartsWith("global::", System.StringComparison.Ordinal))
             {
                 vmType = "global::" + vmType;
@@ -372,6 +378,12 @@ namespace {{containingNamespace}}
         foreach (var item in viewModelRegistrations)
         {
             var vmType = item.ViewModelTypeName;
+            if (string.IsNullOrWhiteSpace(vmType))
+            {
+                // Something's wrong, skip it
+                continue;
+            }
+
             if (!string.IsNullOrEmpty(vmType) && !vmType.StartsWith("global::", System.StringComparison.Ordinal))
             {
                 vmType = "global::" + vmType;
