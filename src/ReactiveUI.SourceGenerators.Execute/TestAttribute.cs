@@ -3,12 +3,15 @@
 // The ReactiveUI and contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace SGReactiveUI.SourceGenerators.Test;
 
 /// <summary>
 /// TestAttribute.
 /// </summary>
 /// <seealso cref="System.Attribute" />
+[ExcludeFromCodeCoverage]
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
 public sealed class TestAttribute : Attribute
 {

@@ -3,6 +3,7 @@
 // The ReactiveUI and contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System.Diagnostics.CodeAnalysis;
 using ReactiveUI.SourceGenerators.WinForms;
 
 namespace SGReactiveUI.SourceGenerators.Test;
@@ -13,5 +14,6 @@ namespace SGReactiveUI.SourceGenerators.Test;
 /// <seealso cref="System.Windows.Forms.UserControl" />
 /// <seealso cref="ReactiveUI.IReactiveObject" />
 /// <seealso cref="ReactiveUI.IViewFor" />
+[ExcludeFromCodeCoverage]
 [ViewModelControlHost(nameof(UserControl))]
 public partial class TestWinFormsVMCHost;
