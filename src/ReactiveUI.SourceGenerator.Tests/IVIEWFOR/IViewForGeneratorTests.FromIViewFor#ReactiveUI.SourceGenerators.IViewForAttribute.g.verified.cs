@@ -28,7 +28,7 @@ internal sealed class IViewForAttribute<T> : global::System.Attribute
 
     /// <summary>
     /// Gets the Splat registration type for Splat View Model registration.
-    /// Registers IViewFor<T> in the Splat service locator.
+    /// Registers the ViewModel (T) in the Splat service locator.
     /// </summary>
     public SplatRegistrationType ViewModelRegistrationType { get; init; } = SplatRegistrationType.None;
 }
@@ -52,7 +52,7 @@ internal sealed class IViewForAttribute(string? viewModelType) : global::System.
 
     /// <summary>
     /// Gets the Splat registration type for Splat View Model registration.
-    /// Registers IViewFor<T> in the Splat service locator.
+    /// Registers the ViewModel (T) in the Splat service locator.
     /// </summary>
     public SplatRegistrationType ViewModelRegistrationType { get; init; } = SplatRegistrationType.None;
 }
