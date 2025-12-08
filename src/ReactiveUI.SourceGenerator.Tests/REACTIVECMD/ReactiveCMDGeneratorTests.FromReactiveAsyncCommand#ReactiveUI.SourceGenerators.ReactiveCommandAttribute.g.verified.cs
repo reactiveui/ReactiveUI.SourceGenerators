@@ -31,6 +31,14 @@ internal sealed class ReactiveCommandAttribute : global::System.Attribute
     /// The output scheduler.
     /// </value>
     public string? OutputScheduler { get; init; }
+
+    /// <summary>
+    /// Gets the AccessModifier of the ReactiveCommand property.
+    /// </summary>
+    /// <value>
+    /// The AccessModifier of the property.
+    /// </value>
+    public PropertyAccessModifier AccessModifier { get; init; }
 }
 #nullable restore
 #pragma warning restore
