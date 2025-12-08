@@ -14,6 +14,5 @@ namespace SGReactiveUI.SourceGenerators.Test;
 /// <seealso cref="System.Windows.Forms.UserControl" />
 /// <seealso cref="ReactiveUI.IReactiveObject" />
 /// <seealso cref="ReactiveUI.IViewFor" />
-[ExcludeFromCodeCoverage]
 [ViewModelControlHost(nameof(UserControl))]
 public partial class TestWinFormsVMCHost;

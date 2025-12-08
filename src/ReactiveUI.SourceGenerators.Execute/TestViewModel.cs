@@ -28,7 +28,6 @@ namespace SGReactiveUI.SourceGenerators.Test;
 /// <seealso cref="ReactiveObject" />
 /// <seealso cref="IActivatableViewModel" />
 /// <seealso cref="IDisposable" />
-[ExcludeFromCodeCoverage]
 [DataContract]
 public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDisposable
 {

@@ -11,6 +11,5 @@ namespace SGReactiveUI.SourceGenerators.Test;
 /// <summary>
 /// TestWinFormsRCHost.
 /// </summary>
-[ExcludeFromCodeCoverage]
 [RoutedControlHost(nameof(UserControl))]
 public partial class TestWinFormsRCHost;
