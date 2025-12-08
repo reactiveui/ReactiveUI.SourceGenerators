@@ -337,7 +337,7 @@ namespace {{containingNamespace}}
 
         var viewModelRegistrations = iviewForInfo
             .Where(static x => !string.IsNullOrWhiteSpace(x.SplatViewModelRegistrationType))
-            .GroupBy(static x => (x.TargetInfo.TargetNamespaceWithNamespace, x.ViewModelTypeName, x.SplatRegistrationType))
+            .GroupBy(static x => (x.TargetInfo.TargetNamespaceWithNamespace, x.ViewModelTypeName, x.SplatViewModelRegistrationType))
             .Select(static g => g.First())
             .ToImmutableArray();
 
