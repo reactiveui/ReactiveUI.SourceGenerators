@@ -560,7 +560,7 @@ The class must inherit from a UI Control from any of the following platforms and
 
 ### IViewFor with Splat Registration Type
 
-Choose from the following Splat Registration Types:
+Choose from the following Splat Registration Types, option for IViewFor Registration and / or ViewModel Registration:
 - `SplatRegistrationType.PerRequest`
 - `SplatRegistrationType.LazySingleton`
 - `SplatRegistrationType.Constant`
@@ -569,7 +569,7 @@ Choose from the following Splat Registration Types:
 ```csharp
 using ReactiveUI.SourceGenerators;
 using Splat;
-[IViewFor<MyReactiveClass>(RegistrationType = SplatRegistrationType.PerRequest)]
+[IViewFor<MyReactiveClass>(RegistrationType = SplatRegistrationType.PerRequest, ViewModelRegistrationType = SplatRegistrationType.LazySingleton)]
 public partial class MyReactiveControl : UserControl
 {
     public MyReactiveControl()

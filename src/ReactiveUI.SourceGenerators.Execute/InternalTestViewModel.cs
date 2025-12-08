@@ -4,11 +4,13 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
 
 namespace SGReactiveUI.SourceGenerators.Test;
 
+[ExcludeFromCodeCoverage]
 internal partial class InternalTestViewModel : ReactiveObject
 {
     [ReactiveCollection]

@@ -30,19 +30,17 @@ namespace ReactiveUI.SourceGenerator.Tests;
 public sealed class TestHelper<T> : IDisposable
         where T : IIncrementalGenerator, new()
 {
-#pragma warning disable CS0618 // Type or member is obsolete
     /// <summary>
     /// Represents the NuGet library dependency for the Splat library.
     /// </summary>
     private static readonly LibraryRange SplatLibrary =
-        new("Splat", VersionRange.AllStableFloating, LibraryDependencyTarget.Package);
+        new("Splat", VersionRange.AllStable, LibraryDependencyTarget.Package);
 
     /// <summary>
     /// Represents the NuGet library dependency for the ReactiveUI library.
     /// </summary>
     private static readonly LibraryRange ReactiveuiLibrary =
-        new("ReactiveUI", VersionRange.AllStableFloating, LibraryDependencyTarget.Package);
-#pragma warning restore CS0618 // Type or member is obsolete
+        new("ReactiveUI", VersionRange.AllStable, LibraryDependencyTarget.Package);
 
     private static readonly string mscorlibPath = Path.Combine(
             System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory(),

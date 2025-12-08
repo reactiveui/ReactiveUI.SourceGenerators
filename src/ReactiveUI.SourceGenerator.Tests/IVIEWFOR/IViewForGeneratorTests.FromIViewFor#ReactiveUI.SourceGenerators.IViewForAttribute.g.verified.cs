@@ -21,10 +21,16 @@ namespace ReactiveUI.SourceGenerators;
 internal sealed class IViewForAttribute<T> : global::System.Attribute
 {
     /// <summary>
-    /// Gets the Splat registration type for Splat registration.
+    /// Gets the Splat registration type for Splat IViewFor registration.
     /// Registers IViewFor<T> in the Splat service locator.
     /// </summary>
     public SplatRegistrationType RegistrationType { get; init; } = SplatRegistrationType.None;
+
+    /// <summary>
+    /// Gets the Splat registration type for Splat View Model registration.
+    /// Registers the ViewModel (T) in the Splat service locator.
+    /// </summary>
+    public SplatRegistrationType ViewModelRegistrationType { get; init; } = SplatRegistrationType.None;
 }
 
 /// <summary>
@@ -39,10 +45,16 @@ internal sealed class IViewForAttribute<T> : global::System.Attribute
 internal sealed class IViewForAttribute(string? viewModelType) : global::System.Attribute
 {
     /// <summary>
-    /// Gets the Splat registration type for Splat registration.
+    /// Gets the Splat registration type for Splat IViewFor registration.
     /// Registers IViewFor<T> in the Splat service locator.
     /// </summary>
     public SplatRegistrationType RegistrationType { get; init; } = SplatRegistrationType.None;
+
+    /// <summary>
+    /// Gets the Splat registration type for Splat View Model registration.
+    /// Registers the ViewModel (T) in the Splat service locator.
+    /// </summary>
+    public SplatRegistrationType ViewModelRegistrationType { get; init; } = SplatRegistrationType.None;
 }
 #nullable restore
 #pragma warning restore

@@ -79,7 +79,7 @@ namespace ReactiveUI.SourceGenerators;
 /// ReactiveObjectAttribute.
 /// </summary>
 /// <seealso cref="System.Attribute" />
-[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveObjectGenerator", "1.1.0.0")]
+[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveObjectGenerator", "{{ReactiveGenerator.GeneratorVersion}}")]
 [global::System.AttributeUsage(global::System.AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 internal sealed class ReactiveObjectAttribute : global::System.Attribute;
 #nullable restore
@@ -109,7 +109,7 @@ namespace ReactiveUI.SourceGenerators;
 /// ReativeCommandAttribute.
 /// </summary>
 /// <seealso cref="Attribute" />
-[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveCommandGenerator", "1.1.0.0")]
+[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveCommandGenerator", "{{ReactiveGenerator.GeneratorVersion}}")]
 [global::System.AttributeUsage(global::System.AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 internal sealed class ReactiveCommandAttribute : global::System.Attribute
 {
@@ -242,7 +242,7 @@ namespace ReactiveUI.SourceGenerators;
 /// ObservableAsPropertyAttribute.
 /// </summary>
 /// <seealso cref="Attribute" />
-[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "1.1.0.0")]
+[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "{{ReactiveGenerator.GeneratorVersion}}")]
 [global::System.AttributeUsage(global::System.AttributeTargets.Field | global::System.AttributeTargets.Property | global::System.AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 internal sealed class ObservableAsPropertyAttribute : global::System.Attribute
 {
@@ -297,7 +297,7 @@ namespace ReactiveUI.SourceGenerators;
 /// ObservableAsPropertyAttribute.
 /// </summary>
 /// <seealso cref="Attribute" />
-[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "1.1.0.0")]
+[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator", "{{ReactiveGenerator.GeneratorVersion}}")]
 [global::System.AttributeUsage(global::System.AttributeTargets.Field | global::System.AttributeTargets.Property | global::System.AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 internal sealed class ObservableAsPropertyAttribute : global::System.Attribute
 {
@@ -350,15 +350,21 @@ namespace ReactiveUI.SourceGenerators;
 /// Initializes a new instance of the <see cref="IViewForAttribute"/> class.
 /// </remarks>
 /// <param name="viewModelType">Type of the view model.</param>
-[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.IViewForGenerator", "1.1.0.0")]
+[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.IViewForGenerator", "{{ReactiveGenerator.GeneratorVersion}}")]
 [global::System.AttributeUsage(global::System.AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 internal sealed class IViewForAttribute<T> : global::System.Attribute
 {
     /// <summary>
-    /// Gets the Splat registration type for Splat registration.
+    /// Gets the Splat registration type for Splat IViewFor registration.
     /// Registers IViewFor<T> in the Splat service locator.
     /// </summary>
     public SplatRegistrationType RegistrationType { get; init; } = SplatRegistrationType.None;
+
+    /// <summary>
+    /// Gets the Splat registration type for Splat View Model registration.
+    /// Registers the ViewModel (T) in the Splat service locator.
+    /// </summary>
+    public SplatRegistrationType ViewModelRegistrationType { get; init; } = SplatRegistrationType.None;
 }
 
 /// <summary>
@@ -369,15 +375,21 @@ internal sealed class IViewForAttribute<T> : global::System.Attribute
 /// Initializes a new instance of the <see cref="IViewForAttribute"/> class.
 /// </remarks>
 /// <param name="viewModelType">Type of the view model, ensure to use the full type name including namespace.</param>
-[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.IViewForGenerator", "1.1.0.0")]
+[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.IViewForGenerator", "{{ReactiveGenerator.GeneratorVersion}}")]
 [global::System.AttributeUsage(global::System.AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 internal sealed class IViewForAttribute(string? viewModelType) : global::System.Attribute
 {
     /// <summary>
-    /// Gets the Splat registration type for Splat registration.
+    /// Gets the Splat registration type for Splat IViewFor registration.
     /// Registers IViewFor<T> in the Splat service locator.
     /// </summary>
     public SplatRegistrationType RegistrationType { get; init; } = SplatRegistrationType.None;
+
+    /// <summary>
+    /// Gets the Splat registration type for Splat View Model registration.
+    /// Registers the ViewModel (T) in the Splat service locator.
+    /// </summary>
+    public SplatRegistrationType ViewModelRegistrationType { get; init; } = SplatRegistrationType.None;
 }
 #nullable restore
 #pragma warning restore
@@ -404,7 +416,7 @@ namespace ReactiveUI.SourceGenerators.WinForms;
 /// Initializes a new instance of the <see cref="ViewModelControlHostAttribute"/> class.
 /// </remarks>
 /// <param name="viewModelType">Type of the view model.</param>
-[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ViewModelControlHostGenerator", "1.1.0.0")]
+[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ViewModelControlHostGenerator", "{{ReactiveGenerator.GeneratorVersion}}")]
 [global::System.AttributeUsage(global::System.AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 internal sealed class ViewModelControlHostAttribute(string? baseType) : global::System.Attribute;
 #nullable restore
@@ -432,7 +444,7 @@ namespace ReactiveUI.SourceGenerators.WinForms;
 /// Initializes a new instance of the <see cref="RoutedControlHostAttribute"/> class.
 /// </remarks>
 /// <param name="viewModelType">Type of the view model.</param>
-[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.RoutedControlHostGenerator", "1.1.0.0")]
+[global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.RoutedControlHostGenerator", "{{ReactiveGenerator.GeneratorVersion}}")]
 [global::System.AttributeUsage(global::System.AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 internal sealed class RoutedControlHostAttribute(string? baseType) : global::System.Attribute;
 #nullable restore

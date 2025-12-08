@@ -103,11 +103,24 @@ public partial class IViewForGenerator
             _ => string.Empty,
         };
 
+        token.ThrowIfCancellationRequested();
+
+        // Get ViewModelRegistrationType enum value from the attribute
+        attributeData.TryGetNamedArgument("ViewModelRegistrationType", out int splatViewModelRegistrationType);
+        var viewModelRegistrationType = splatViewModelRegistrationType switch
+        {
+            1 => "RegisterLazySingleton",
+            2 => "RegisterConstant",
+            3 => "Register",
+            _ => string.Empty,
+        };
+
         return new(
             targetInfo,
             viewModelTypeName!,
             viewForBaseType,
-            registrationType);
+            registrationType,
+            viewModelRegistrationType);
     }
 
     private static string GenerateSource(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, IViewForInfo iviewForInfo)
@@ -322,12 +335,24 @@ namespace {{containingNamespace}}
             .Select(static g => g.First())
             .ToImmutableArray();
 
+        var viewModelRegistrations = iviewForInfo
+            .Where(static x => !string.IsNullOrWhiteSpace(x.SplatViewModelRegistrationType))
+            .GroupBy(static x => (x.TargetInfo.TargetNamespaceWithNamespace, x.ViewModelTypeName, x.SplatViewModelRegistrationType))
+            .Select(static g => g.First())
+            .ToImmutableArray();
+
         var sb = new StringBuilder();
         sb.AppendLine("if (resolver is null) throw new global::System.ArgumentNullException(nameof(resolver));");
         foreach (var item in registrations)
         {
             var vmType = item.ViewModelTypeName;
-            if (!string.IsNullOrEmpty(vmType) && !vmType.StartsWith("global::", System.StringComparison.Ordinal))
+            if (string.IsNullOrWhiteSpace(vmType))
+            {
+                // Something's wrong, skip it
+                continue;
+            }
+
+            if (!vmType.StartsWith("global::", System.StringComparison.Ordinal))
             {
                 vmType = "global::" + vmType;
             }
@@ -346,6 +371,35 @@ namespace {{containingNamespace}}
                     break;
                 case "RegisterConstant":
                     sb.AppendLine($"            resolver.{item.SplatRegistrationType}<{serviceType}>(new {viewType}());");
+                    break;
+            }
+        }
+
+        foreach (var item in viewModelRegistrations)
+        {
+            var vmType = item.ViewModelTypeName;
+            if (string.IsNullOrWhiteSpace(vmType))
+            {
+                // Something's wrong, skip it
+                continue;
+            }
+
+            if (!vmType.StartsWith("global::", System.StringComparison.Ordinal))
+            {
+                vmType = "global::" + vmType;
+            }
+
+            // resolver.Register*/<VM, VM>();
+            switch (item.SplatViewModelRegistrationType)
+            {
+                case "RegisterLazySingleton":
+                    sb.AppendLine($"            resolver.{item.SplatViewModelRegistrationType}<{vmType}>(() => new {vmType}());");
+                    break;
+                case "Register":
+                    sb.AppendLine($"            resolver.{item.SplatViewModelRegistrationType}<{vmType}, {vmType}>();");
+                    break;
+                case "RegisterConstant":
+                    sb.AppendLine($"            resolver.{item.SplatViewModelRegistrationType}<{vmType}>(new {vmType}());");
                     break;
             }
         }
