@@ -91,7 +91,7 @@ public partial class ReactiveCommandGenerator
 
         token.ThrowIfCancellationRequested();
 
-        // Get RegistrationType enum value from the attribute
+        // Get AccessModifier enum value from the attribute
         attributeData.TryGetNamedArgument("AccessModifier", out int propertyAccessModifier);
         var accessModifier = propertyAccessModifier switch
         {
