@@ -105,7 +105,7 @@ public partial class IViewForGenerator
 
         token.ThrowIfCancellationRequested();
 
-        // Get RegistrationType enum value from the attribute
+        // Get ViewModelRegistrationType enum value from the attribute
         attributeData.TryGetNamedArgument("ViewModelRegistrationType", out int splatViewModelRegistrationType);
         var viewModelRegistrationType = splatViewModelRegistrationType switch
         {
@@ -352,7 +352,7 @@ namespace {{containingNamespace}}
                 continue;
             }
 
-            if (!string.IsNullOrEmpty(vmType) && !vmType.StartsWith("global::", System.StringComparison.Ordinal))
+            if (!vmType.StartsWith("global::", System.StringComparison.Ordinal))
             {
                 vmType = "global::" + vmType;
             }
@@ -384,7 +384,7 @@ namespace {{containingNamespace}}
                 continue;
             }
 
-            if (!string.IsNullOrEmpty(vmType) && !vmType.StartsWith("global::", System.StringComparison.Ordinal))
+            if (!vmType.StartsWith("global::", System.StringComparison.Ordinal))
             {
                 vmType = "global::" + vmType;
             }
