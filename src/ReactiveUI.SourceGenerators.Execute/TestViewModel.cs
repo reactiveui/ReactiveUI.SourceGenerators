@@ -437,7 +437,7 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     /// </summary>
     /// <param name="i">The i.</param>
     /// <returns>An Observable of int.</returns>
-    [ReactiveCommand]
+    [ReactiveCommand(AccessModifier = PropertyAccessModifier.Internal)]
     private IObservable<double?> Test8Observable(int i) => Observable.Return<double?>(i + 10.0);
 
     [ReactiveCommand]

@@ -19,7 +19,8 @@ internal record CommandInfo(
     string? CanExecuteObservableName,
     CanExecuteTypeInfo? CanExecuteTypeInfo,
     string? OutputScheduler,
-    EquatableArray<string> ForwardedPropertyAttributes)
+    EquatableArray<string> ForwardedPropertyAttributes,
+    string AccessModifier)
 {
     private const string UnitTypeName = "global::System.Reactive.Unit";
 

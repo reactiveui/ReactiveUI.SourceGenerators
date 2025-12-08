@@ -91,6 +91,20 @@ public partial class ReactiveCommandGenerator
 
         token.ThrowIfCancellationRequested();
 
+        // Get RegistrationType enum value from the attribute
+        attributeData.TryGetNamedArgument("AccessModifier", out int propertyAccessModifier);
+        var accessModifier = propertyAccessModifier switch
+        {
+            1 => "protected",
+            2 => "internal",
+            3 => "private",
+            4 => "protected internal",
+            5 => "private protected",
+            _ => "public",
+        };
+
+        token.ThrowIfCancellationRequested();
+
         var methodSyntax = (MethodDeclarationSyntax)context.TargetNode;
 
         context.GetForwardedAttributes(
@@ -118,7 +132,8 @@ public partial class ReactiveCommandGenerator
             canExecuteObservableName,
             canExecuteTypeInfo,
             outputScheduler,
-            forwardedPropertyAttributes);
+            forwardedPropertyAttributes,
+            accessModifier);
     }
 
     private static string GenerateSource(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, CommandInfo[] commands)
@@ -202,7 +217,7 @@ $$"""
 
         [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
         {{forwardedPropertyAttributesString}}
-        public {{RxCmd}}<{{inputType}}, {{outputType}}> {{commandName}} { get => {{initializer}} }
+        {{commandExtensionInfo.AccessModifier}} {{RxCmd}}<{{inputType}}, {{outputType}}> {{commandName}} { get => {{initializer}} }
 """;
 
         static string GenerateBasicCommand(CommandInfo commandExtensionInfo, string fieldName)

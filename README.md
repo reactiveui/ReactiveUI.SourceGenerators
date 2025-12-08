@@ -37,12 +37,16 @@ ReactiveUI Source Generators automatically generate ReactiveUI objects to stream
 - `[ReactiveCommand(OutputScheduler = "RxApp.MainThreadScheduler")]` using a ReactiveUI Scheduler
 - `[ReactiveCommand(OutputScheduler = nameof(_isheduler))]` using a Scheduler defined in the class
 - `[ReactiveCommand][property: AttributeToAddToCommand]` with Attribute passthrough
+- `[ReactiveCommand(AccessModifier = PropertyAccessModifier.Internal)]` sets the access modifier of the generated command property
 - `[IViewFor(nameof(ViewModelName))]`
 - `[IViewFor<YourViewModelType>]`
 - `[IViewFor("YourNameSpace.YourGenericViewModel<int>")]` Generic
 - `[IViewFor<YourViewModelType>(RegistrationType = SplatRegistrationType.PerRequest)]` with Splat Registration Type for IViewFor registration.
 - `[IViewFor<YourViewModelType>(RegistrationType = SplatRegistrationType.LazySingleton)]` Generic with Splat Registration Type for IViewFor registration.
 - `[IViewFor<YourViewModelType>(RegistrationType = SplatRegistrationType.Constant)]` Generic with Splat Registration Type for IViewFor registration.
+- `[IViewFor<YourViewModelType>(ViewModelRegistrationType = SplatRegistrationType.PerRequest)]` Generic with Splat Registration Type for ViewModel registration.
+- `[IViewFor<YourViewModelType>(ViewModelRegistrationType = SplatRegistrationType.LazySingleton)]` Generic with Splat Registration Type for ViewModel registration.
+- `[IViewFor<YourViewModelType>(ViewModelRegistrationType = SplatRegistrationType.Constant)]` Generic with Splat Registration Type for ViewModel registration.
 - `[RoutedControlHost("YourNameSpace.CustomControl")]`
 - `[ViewModelControlHost("YourNameSpace.CustomControl")]`
 - `[BindableDerivedList]` Generates a derived list from a ReadOnlyObservableCollection backing field
@@ -540,6 +544,17 @@ public partial class MyReactiveClass
     private IScheduler _customScheduler = new TestScheduler();
 
     [ReactiveCommand(OutputScheduler = nameof(_customScheduler))]
+    private void Execute() { }
+}
+```
+
+### Usage ReactiveCommand with AccessModifier
+```csharp
+using ReactiveUI.SourceGenerators;
+
+public partial class MyReactiveClass
+{
+    [ReactiveCommand(AccessModifier = PropertyAccessModifier.Internal)]
     private void Execute() { }
 }
 ```
