@@ -119,8 +119,8 @@ public partial class ReactiveCommandGenerator
 
         token.ThrowIfCancellationRequested();
 
-        var methodReturnType = methodParameters.ToImmutable().SingleOrDefault()?.Type;
-        var methodParametersstring = methodReturnType?.GetFullyQualifiedNameWithNullabilityAnnotations();
+        var argumentType = methodParameters.ToImmutable().SingleOrDefault()?.Type;
+        var argumentTypeString = argumentType?.GetFullyQualifiedNameWithNullabilityAnnotations();
 
         token.ThrowIfCancellationRequested();
 
@@ -128,7 +128,7 @@ public partial class ReactiveCommandGenerator
             targetInfo,
             symbol.Name,
             realReturnType.GetFullyQualifiedNameWithNullabilityAnnotations(),
-            methodParametersstring,
+            argumentTypeString,
             isTask,
             isReturnTypeVoid,
             isObservable,
