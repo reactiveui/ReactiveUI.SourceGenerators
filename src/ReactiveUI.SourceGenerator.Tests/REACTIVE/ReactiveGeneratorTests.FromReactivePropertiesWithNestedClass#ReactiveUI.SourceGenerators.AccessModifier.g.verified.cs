@@ -24,6 +24,19 @@ internal enum AccessModifier
 }
 
 /// <summary>
+/// Property Access Modifier.
+/// </summary>
+internal enum PropertyAccessModifier
+{
+    Public,
+    Protected,
+    Internal,
+    Private,
+    InternalProtected,
+    PrivateProtected,
+}
+
+/// <summary>
 /// InheritanceModifier.
 /// </summary>
 internal enum InheritanceModifier

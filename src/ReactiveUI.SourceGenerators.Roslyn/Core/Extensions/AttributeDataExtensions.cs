@@ -3,6 +3,7 @@
 // The ReactiveUI and contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -42,6 +43,26 @@ internal static class AttributeDataExtensions
         value = default;
 
         return false;
+    }
+
+    /// <summary>
+    /// Gets the named argument.
+    /// </summary>
+    /// <typeparam name="T">The type of argument to get.</typeparam>
+    /// <param name="attributeData">The attribute data.</param>
+    /// <param name="name">The name.</param>
+    /// <returns>The named argument value.</returns>
+    public static T? GetNamedArgument<T>(this AttributeData attributeData, string name)
+    {
+        foreach (var properties in attributeData.NamedArguments)
+        {
+            if (properties.Key == name)
+            {
+                return (T?)properties.Value.Value;
+            }
+        }
+
+        return default;
     }
 
     /// <summary>
