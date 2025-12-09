@@ -16,6 +16,7 @@ using System.Text.Json.Serialization;
 using DynamicData;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
+using SGReactiveUI.SourceGenerators.Execute.Nested3;
 
 namespace SGReactiveUI.SourceGenerators.Test;
 
@@ -88,6 +89,7 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     [SetsRequiredMembers]
     public TestViewModel()
     {
+        var c = new Class1();
         var itv = new InternalTestViewModel { PublicRequiredPartialPropertyTest = true };
         MustBeSet = "Test";
         this.WhenActivated(disposables =>
@@ -452,4 +454,15 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     [ReactiveCommand]
     private Task<System.Collections.IEnumerable> GetData(CancellationToken ct) =>
         Task.FromResult<System.Collections.IEnumerable>(Array.Empty<System.Collections.IEnumerable>());
+
+    [ReactiveCommand]
+    private Execute.Nested2.Class1? SetProperty(Execute.Nested1.Class1? class1)
+    {
+        if (class1 == null)
+        {
+            return null;
+        }
+
+        return new() { Property1 = class1.Property1 };
+    }
 }
