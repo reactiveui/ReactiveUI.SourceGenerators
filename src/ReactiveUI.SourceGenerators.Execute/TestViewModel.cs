@@ -89,7 +89,6 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     [SetsRequiredMembers]
     public TestViewModel()
     {
-        var c = new Class1();
         var itv = new InternalTestViewModel { PublicRequiredPartialPropertyTest = true };
         MustBeSet = "Test";
         this.WhenActivated(disposables =>
