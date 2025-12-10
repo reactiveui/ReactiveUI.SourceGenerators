@@ -142,7 +142,7 @@ public partial class ReactiveCommandGenerator
     private static string GenerateSource(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, CommandInfo[] commands)
     {
         // Get Parent class details from properties.ParentInfo
-        var (parentClassDeclarationsString, closingBrackets) = TargetInfo.GenerateParentClassDeclarations(commands.Select(p => p.TargetInfo.ParentInfo).ToArray());
+        var (parentClassDeclarationsString, closingBrackets) = TargetInfo.GenerateParentClassDeclarations([.. commands.Select(p => p.TargetInfo.ParentInfo)]);
 
         var classes = GenerateClassWithCommands(containingTypeName, containingNamespace, containingClassVisibility, containingType, commands);
 
