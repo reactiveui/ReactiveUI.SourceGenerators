@@ -3,7 +3,7 @@
 // The ReactiveUI and contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
+using System;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -15,7 +15,6 @@ using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Input.Models;
 using ReactiveUI.SourceGenerators.Models;
-using static ReactiveUI.SourceGenerators.Diagnostics.DiagnosticDescriptors;
 
 namespace ReactiveUI.SourceGenerators;
 
@@ -120,11 +119,16 @@ public partial class ReactiveCommandGenerator
 
         token.ThrowIfCancellationRequested();
 
+        var argumentType = methodParameters.ToImmutable().SingleOrDefault()?.Type;
+        var argumentTypeString = argumentType?.GetFullyQualifiedNameWithNullabilityAnnotations();
+
+        token.ThrowIfCancellationRequested();
+
         return new(
             targetInfo,
             symbol.Name,
             realReturnType.GetFullyQualifiedNameWithNullabilityAnnotations(),
-            methodParameters.ToImmutable().SingleOrDefault()?.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+            argumentTypeString,
             isTask,
             isReturnTypeVoid,
             isObservable,
@@ -138,7 +142,7 @@ public partial class ReactiveCommandGenerator
     private static string GenerateSource(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, CommandInfo[] commands)
     {
         // Get Parent class details from properties.ParentInfo
-        var (parentClassDeclarationsString, closingBrackets) = TargetInfo.GenerateParentClassDeclarations(commands.Select(p => p.TargetInfo.ParentInfo).ToArray());
+        var (parentClassDeclarationsString, closingBrackets) = TargetInfo.GenerateParentClassDeclarations([.. commands.Select(p => p.TargetInfo.ParentInfo)]);
 
         var classes = GenerateClassWithCommands(containingTypeName, containingNamespace, containingClassVisibility, containingType, commands);
 

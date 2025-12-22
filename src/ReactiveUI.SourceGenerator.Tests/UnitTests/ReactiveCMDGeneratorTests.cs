@@ -238,4 +238,31 @@ public class ReactiveCMDGeneratorTests : TestBase<ReactiveCommandGenerator>
         """;
         return TestHelper.TestPass(sourceCode);
     }
+
+    /// <summary>
+    /// Froms the type of the reactive command with nullable type and nullable return.
+    /// </summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Test]
+    public Task FromReactiveCommandWithNullableTypeAndNullableReturnType()
+    {
+        const string sourceCode = """
+            using System;
+            using ReactiveUI;
+            using ReactiveUI.SourceGenerators;
+            namespace TestNs;
+
+            public class NullableInput
+            {
+                public string? Name { get; set; }
+            }
+
+            public partial class TestVM : ReactiveObject
+            {
+                [ReactiveCommand]
+                private NullableInput? Test1(NullableInput? input) => input;
+            }
+        """;
+        return TestHelper.TestPass(sourceCode);
+    }
 }
