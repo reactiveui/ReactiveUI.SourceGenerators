@@ -32,22 +32,7 @@ public partial class ReactiveObjectGenerator
         var symbol = context.TargetSymbol;
         token.ThrowIfCancellationRequested();
 
-        if (!symbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ReactiveObjectAttributeType, out var attributeData))
-        {
-            return default;
-        }
-
-        token.ThrowIfCancellationRequested();
         if (symbol is not INamedTypeSymbol classSymbol)
-        {
-            return default;
-        }
-
-        var constructorArgument = attributeData.GetConstructorArguments<string>().FirstOrDefault();
-        var genericArgument = attributeData.GetGenericType();
-        token.ThrowIfCancellationRequested();
-        var viewModelTypeName = string.IsNullOrWhiteSpace(constructorArgument) ? genericArgument : constructorArgument;
-        if (string.IsNullOrWhiteSpace(viewModelTypeName))
         {
             return default;
         }
@@ -58,9 +43,7 @@ public partial class ReactiveObjectGenerator
         var targetInfo = TargetInfo.From(classSymbol);
 
         token.ThrowIfCancellationRequested();
-        return new(
-            targetInfo,
-            viewModelTypeName!);
+        return new(targetInfo);
     }
 
     private static string GenerateSource(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, ReactiveObjectInfo reactiveObjectInfo) =>

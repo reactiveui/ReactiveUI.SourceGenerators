@@ -9,5 +9,4 @@ namespace ReactiveUI.SourceGenerators.Models;
 /// A model with gathered info on a given command method.
 /// </summary>
 internal sealed record ReactiveObjectInfo(
-    TargetInfo TargetInfo,
-    string ViewModelTypeName);
+    TargetInfo TargetInfo);
