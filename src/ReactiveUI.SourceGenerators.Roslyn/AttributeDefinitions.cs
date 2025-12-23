@@ -121,7 +121,7 @@ internal sealed class IReactiveObjectAttribute : global::System.Attribute;
 namespace ReactiveUI.SourceGenerators;
 
 /// <summary>
-/// ReativeCommandAttribute.
+/// ReactiveCommand Attribute.
 /// </summary>
 /// <seealso cref="Attribute" />
 [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveCommandGenerator", "{{ReactiveGenerator.GeneratorVersion}}")]

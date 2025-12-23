@@ -14,7 +14,7 @@ using ReactiveUI.SourceGenerators.Helpers;
 namespace ReactiveUI.SourceGenerators;
 
 /// <summary>
-/// A source generator for generating reative properties.
+/// A source generator for generating reactive properties.
 /// </summary>
 [Generator(LanguageNames.CSharp)]
 public sealed partial class ReactiveObjectGenerator : IIncrementalGenerator
@@ -25,7 +25,7 @@ public sealed partial class ReactiveObjectGenerator : IIncrementalGenerator
         context.RegisterPostInitializationOutput(ctx =>
             ctx.AddSource(AttributeDefinitions.ReactiveObjectAttributeType + ".g.cs", SourceText.From(AttributeDefinitions.ReactiveObjectAttribute, Encoding.UTF8)));
 
-        // Gather info for all annotated IViewFor Classes
+        // Gather info for all annotated IReactiveObject Classes
         var reactiveObjectInfo =
             context.SyntaxProvider
             .ForAttributeWithMetadataNameWithGenerics(
@@ -36,7 +36,7 @@ public sealed partial class ReactiveObjectGenerator : IIncrementalGenerator
             .Select((x, _) => x!)
             .Collect();
 
-        // Generate the requested properties and methods for IViewFor
+        // Generate the requested properties and methods for IReactiveObject
         context.RegisterSourceOutput(reactiveObjectInfo, static (context, input) =>
         {
             var groupedPropertyInfo = input.GroupBy(

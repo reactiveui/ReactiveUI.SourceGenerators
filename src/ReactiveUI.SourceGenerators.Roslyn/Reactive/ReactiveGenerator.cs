@@ -14,7 +14,7 @@ using ReactiveUI.SourceGenerators.Helpers;
 namespace ReactiveUI.SourceGenerators;
 
 /// <summary>
-/// A source generator for generating reative properties.
+/// A source generator for generating reactive properties.
 /// </summary>
 [Generator(LanguageNames.CSharp)]
 public sealed partial class ReactiveGenerator : IIncrementalGenerator
