@@ -40,6 +40,7 @@
     <Folder Include="OAPH\" />
     <Folder Include="REACTIVECMD\" />
     <Folder Include="REACTIVE\" />
+    <Folder Include="REACTIVEOBJ\" />
     <Folder Include="REACTIVECOLL\" />
   </ItemGroup>
 

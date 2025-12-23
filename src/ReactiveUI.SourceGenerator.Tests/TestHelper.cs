@@ -87,6 +87,7 @@ public sealed class TestHelper<T> : IDisposable
             nameof(ViewModelControlHostGenerator) => "CONTROLHOST",
             nameof(BindableDerivedListGenerator) => "DERIVEDLIST",
             nameof(ReactiveCollectionGenerator) => "REACTIVECOLL",
+            nameof(ReactiveObjectGenerator) => "REACTIVEOBJ",
             _ => name,
         };
     }
