@@ -6,7 +6,7 @@
 namespace ReactiveUI.SourceGenerators.Models;
 
 /// <summary>
-/// A model with gathered info on a given command method.
+/// A model with gathered information about a generated ReactiveObject (view model).
 /// </summary>
 internal sealed record ReactiveObjectInfo(
     TargetInfo TargetInfo);
