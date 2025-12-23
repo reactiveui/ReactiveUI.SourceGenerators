@@ -10,7 +10,7 @@
 namespace ReactiveUI.SourceGenerators;
 
 /// <summary>
-/// ReativeCommandAttribute.
+/// ReactiveCommand Attribute.
 /// </summary>
 /// <seealso cref="Attribute" />
 [global::System.AttributeUsage(global::System.AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
