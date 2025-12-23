@@ -14,7 +14,7 @@ namespace ReactiveUI.SourceGenerator.Tests;
 public class ReactiveObjectGeneratorTests : TestBase<ReactiveObjectGenerator>
 {
     /// <summary>
-    /// Froms the reactive object.
+    /// Tests the ReactiveObject generator with IReactiveObjectAttribute.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
