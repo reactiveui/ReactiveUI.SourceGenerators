@@ -19,7 +19,10 @@ namespace TestNs1
         { 
             get => _testInner1;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_testInner1")]
-            set => this.RaiseAndSetIfChanged(ref _testInner1, value);
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _testInner1, value);
+            }
         }
         
         /// <inheritdoc cref="_testInner11"/>
@@ -28,7 +31,10 @@ namespace TestNs1
         { 
             get => _testInner11;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_testInner11")]
-            set => this.RaiseAndSetIfChanged(ref _testInner11, value);
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _testInner11, value);
+            }
         }
     }
 }

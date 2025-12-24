@@ -70,7 +70,7 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     [Reactive(Inheritance = InheritanceModifier.Virtual, SetModifier = AccessModifier.Protected)]
     private string? _name;
 
-    [Reactive(SetModifier = AccessModifier.Init, UseRequired = true)]
+    [Reactive(nameof(MyDoubleProperty), nameof(MyStringProperty), SetModifier = AccessModifier.Init, UseRequired = true)]
     private string _mustBeSet;
 
     [Reactive]

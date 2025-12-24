@@ -11,15 +11,15 @@ namespace TestNs
     public partial class TestVM
     {
         
-        /// <inheritdoc cref="_test2"/>
+        /// <inheritdoc cref="_test4"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        public int Test2
+        public int Test4
         { 
-            get => _test2;
-            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_test2")]
+            get => _test4;
+            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_test4")]
             set
             {
-                this.RaiseAndSetIfChanged(ref _test2, value);
+                this.RaiseAndSetIfChanged(ref _test4, value);
             }
         }
     }

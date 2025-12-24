@@ -17,6 +17,14 @@ namespace ReactiveUI.SourceGenerators;
 internal sealed class ReactiveAttribute : global::System.Attribute
 {
     /// <summary>
+    /// Initializes a new instance of the <see cref="ReactiveAttribute"/> class.
+    /// </summary>
+    public ReactiveAttribute(params string[] alsoNotify)
+    {
+        AlsoNotify = alsoNotify;
+    }
+
+    /// <summary>
     /// Gets the AccessModifier of the set property.
     /// </summary>
     /// <value>
@@ -26,13 +34,18 @@ internal sealed class ReactiveAttribute : global::System.Attribute
 
     /// <summary>
     /// Gets the InheritanceModifier of the property.
-    /// </sumary>
+    /// </summary>
     public InheritanceModifier Inheritance { get; init; }
 
     /// <summary>
     /// Use Required attribute to indicate that the property is required.
     /// </summary>
     public bool UseRequired { get; init; }
+
+    /// <summary>
+    /// Gets the AlsoNotify properties to raise change notifications for.
+    /// </summary>
+    public string[]? AlsoNotify { get; }
 }
 #nullable restore
 #pragma warning restore

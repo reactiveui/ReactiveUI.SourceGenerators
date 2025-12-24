@@ -21,7 +21,10 @@ public partial class TestInnerClass2
         { 
             get => _testInner3;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_testInner3")]
-            set => this.RaiseAndSetIfChanged(ref _testInner3, value);
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _testInner3, value);
+            }
         }
         
         /// <inheritdoc cref="_testInner33"/>
@@ -30,7 +33,10 @@ public partial class TestInnerClass2
         { 
             get => _testInner33;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_testInner33")]
-            set => this.RaiseAndSetIfChanged(ref _testInner33, value);
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _testInner33, value);
+            }
         }
     }
 }
