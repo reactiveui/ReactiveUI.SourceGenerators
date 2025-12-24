@@ -17,7 +17,10 @@ namespace TestNs1
         { 
             get => _testVM3Property;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_testVM3Property")]
-            set => this.RaiseAndSetIfChanged(ref _testVM3Property, value);
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _testVM3Property, value);                
+            }
         }
         
         /// <inheritdoc cref="_testVM3Property2"/>
@@ -26,7 +29,10 @@ namespace TestNs1
         { 
             get => _testVM3Property2;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_testVM3Property2")]
-            set => this.RaiseAndSetIfChanged(ref _testVM3Property2, value);
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _testVM3Property2, value);                
+            }
         }
     }
 }

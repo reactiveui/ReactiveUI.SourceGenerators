@@ -28,6 +28,7 @@ ReactiveUI Source Generators automatically generate ReactiveUI objects to stream
 - `[Reactive(SetModifier = AccessModifier.Protected)]` With field and access modifiers, (Not Required for partial properties, configure set accessor with the property decalaration).
 - `[Reactive(Inheritance = InheritanceModifier.Virtual)]` With field and access modifiers. This will generate a virtual property.
 - `[Reactive(UseRequired = true)]` With field and access modifiers. This will generate a required property, (Not Required for partial properties, use required keyword for property decalaration).
+- `[Reactive(nameof(RaiseProperty1), nameof(RaiseProperty2))]` With field and property changed notification for additional properties.
 - `[ObservableAsProperty]` With field, method, Observable property and partial property support (C# 13 Visual Studio Version 17.12.0)
 - `[ObservableAsProperty(ReadOnly = false)]` Removes readonly keyword from the generated helper field
 - `[ObservableAsProperty(PropertyName = "ReadOnlyPropertyName")]`
@@ -90,6 +91,9 @@ Generates a derived list from a `ReadOnlyObservableCollection` backing field.
 
 ### `[ReactiveCollection]`
 Generates property changed notifications on add, remove, and new actions on an `ObservableCollection` backing field.
+
+### `[IReactiveObject]`
+Generates `IReactiveObject` implementation for classes not able to inherit from `ReactiveObject`.
 
 ## Historical Approach
 
@@ -685,7 +689,7 @@ public partial class MyReactiveClass : ReactiveObject
 }
 ```
 
-### ReactiveObject implementation for classes not able to inherit from ReactiveObject
+### IReactiveObject implementation for classes not able to inherit from ReactiveObject
 ```csharp
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;

@@ -149,6 +149,21 @@ public sealed partial class ReactiveGenerator
 
         token.ThrowIfCancellationRequested();
 
+        var alsoNotify = attributeData.GetConstructorArguments<string>();
+        using var alsoNotifyBuilder = ImmutableArrayBuilder<string>.Rent();
+        if (alsoNotify is not null)
+        {
+            foreach (var notify in alsoNotify)
+            {
+                if (!string.IsNullOrEmpty(notify) && !string.Equals(notify, propertyName, StringComparison.Ordinal))
+                {
+                    alsoNotifyBuilder.Add(notify!);
+                }
+            }
+        }
+
+        token.ThrowIfCancellationRequested();
+
         // Get the containing type info
         var targetInfo = TargetInfo.From(propertySymbol.ContainingType);
 
@@ -167,7 +182,8 @@ public sealed partial class ReactiveGenerator
             inheritance,
             useRequired,
             true,
-            propertyAccessModifier!),
+            propertyAccessModifier!,
+            alsoNotifyBuilder.ToImmutable()),
             builder.ToImmutable());
     }
 #endif
@@ -275,6 +291,21 @@ public sealed partial class ReactiveGenerator
 
         token.ThrowIfCancellationRequested();
 
+        var alsoNotify = attributeData.GetConstructorArguments<string>();
+        using var alsoNotifyBuilder = ImmutableArrayBuilder<string>.Rent();
+        if (alsoNotify is not null)
+        {
+            foreach (var notify in alsoNotify)
+            {
+                if (!string.IsNullOrEmpty(notify) && !string.Equals(notify, propertyName, StringComparison.Ordinal))
+                {
+                    alsoNotifyBuilder.Add(notify!);
+                }
+            }
+        }
+
+        token.ThrowIfCancellationRequested();
+
         // Get the containing type info
         var targetInfo = TargetInfo.From(fieldSymbol.ContainingType);
 
@@ -293,7 +324,8 @@ public sealed partial class ReactiveGenerator
             inheritance,
             useRequired,
             false,
-            "public"),
+            "public",
+            alsoNotifyBuilder.ToImmutable()),
             builder.ToImmutable());
     }
 
@@ -396,6 +428,16 @@ $$"""
             propertyAttributes = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage.Concat(propertyInfo.ForwardedAttributes));
         }
 
+        var alsoNotifyAttributes = string.Empty;
+        if (propertyInfo.AlsoNotify.IsEmpty)
+            {
+            alsoNotifyAttributes = string.Empty;
+        }
+        else
+        {
+            alsoNotifyAttributes = string.Concat(propertyInfo.AlsoNotify.Select(an => $"\n                this.RaisePropertyChanged(nameof({an}));"));
+        }
+
         var accessModifier = propertyInfo.PropertyAccessModifier;
         var setAccessModifier = propertyInfo.SetAccessModifier;
 
@@ -411,7 +453,10 @@ $$"""
         { 
             get => {{getFieldName}};
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("{{setFieldName}}")]
-            {{setAccessModifier}} => this.RaiseAndSetIfChanged(ref {{setFieldName}}, value);
+            {{setAccessModifier}}
+            {
+                this.RaiseAndSetIfChanged(ref {{setFieldName}}, value);{{alsoNotifyAttributes}}                
+            }
         }
 """;
         }
@@ -422,7 +467,14 @@ $$"""
         /// <inheritdoc cref="{{setFieldName}}"/>
         [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
         {{propertyAttributes}}
-        {{accessModifier}}{{propertyInfo.Inheritance}} {{propertyInfo.UseRequired}}{{partialModifier}}{{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} { get => {{getFieldName}}; {{setAccessModifier}} => this.RaiseAndSetIfChanged(ref {{setFieldName}}, value); }
+        {{accessModifier}}{{propertyInfo.Inheritance}} {{propertyInfo.UseRequired}}{{partialModifier}}{{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}}
+        {
+            get => {{getFieldName}};
+            {{setAccessModifier}}
+            {
+                this.RaiseAndSetIfChanged(ref {{setFieldName}}, value);{{alsoNotifyAttributes}}
+            }
+        }
 """;
     }
 }

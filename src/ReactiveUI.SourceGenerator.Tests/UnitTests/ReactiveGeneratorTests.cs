@@ -325,4 +325,32 @@ public class ReactiveGeneratorTests : TestBase<ReactiveGenerator>
         // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
         return TestHelper.TestPass(sourceCode);
     }
+
+    /// <summary>
+    /// Froms the reactive from partial with also notify.
+    /// </summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Test]
+    public Task FromReactiveFromPartialWithAlsoNotify()
+    {
+        // Arrange: Setup the source code that matches the generator input expectations.
+        const string sourceCode = """
+                using System;
+                using ReactiveUI;
+                using ReactiveUI.SourceGenerators;
+                using System.Reactive.Linq;
+                namespace TestNs;
+                public partial class TestVM : ReactiveObject
+                {
+                    [Reactive(nameof(OtherNotifyProperty))]
+                    private int _test4;
+
+                    // This property is notified when Test4 changes
+                    public int OtherNotifyProperty { get; set; }
+                }
+            """;
+
+        // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
+        return TestHelper.TestPass(sourceCode);
+    }
 }

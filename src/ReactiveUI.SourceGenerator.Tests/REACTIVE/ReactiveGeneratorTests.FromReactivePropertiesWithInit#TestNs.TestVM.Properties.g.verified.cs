@@ -17,7 +17,10 @@ namespace TestNs
         { 
             get => _mustBeSet;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_mustBeSet")]
-            set => this.RaiseAndSetIfChanged(ref _mustBeSet, value);
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _mustBeSet, value);                
+            }
         }
     }
 }
