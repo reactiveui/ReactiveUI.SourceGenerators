@@ -3,6 +3,7 @@
 // The ReactiveUI and contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -26,8 +27,8 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// It provides utilities to initialize dependencies, run generators, and verify the output.
 /// </summary>
 /// <typeparam name="T">Type of Incremental Generator.</typeparam>
-/// <seealso cref="System.IDisposable" />
-public sealed class TestHelper<T> : IDisposable
+/// <seealso cref="IDisposable" />
+public sealed partial class TestHelper<T> : IDisposable
         where T : IIncrementalGenerator, new()
 {
     /// <summary>
@@ -209,7 +210,7 @@ public sealed class TestHelper<T> : IDisposable
         if (rerunCompilation)
         {
             // Run the generator and capture diagnostics.
-            var rerunDriver = driver.RunGeneratorsAndUpdateCompilation(compilation, out _, out var diagnostics);
+            var rerunDriver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
 
             // If any warnings or errors are found, log them to the test output before throwing an exception.
             var offendingDiagnostics = diagnostics
@@ -226,11 +227,88 @@ public sealed class TestHelper<T> : IDisposable
                 throw new InvalidOperationException("Compilation failed due to the above diagnostics.");
             }
 
+            // Validate generated code contains expected features
+            ValidateGeneratedCode(code, rerunDriver);
+
             return VerifyGenerator(rerunDriver);
         }
 
         // If rerun is not needed, simply run the generator.
         return VerifyGenerator(driver.RunGenerators(compilation));
+    }
+
+    [GeneratedRegex(@"\[Reactive\((?:.*?nameof\((\w+)\))+", RegexOptions.Singleline)]
+    private static partial Regex ReactiveRegex();
+
+    [GeneratedRegex(@"nameof\((\w+)\)")]
+    private static partial Regex NameOfRegex();
+
+    /// <summary>
+    /// Validates that generated code contains expected features based on the source code attributes.
+    /// </summary>
+    /// <param name="sourceCode">The original source code.</param>
+    /// <param name="driver">The generator driver with generated output.</param>
+    private static void ValidateGeneratedCode(string sourceCode, GeneratorDriver driver)
+    {
+        var runResult = driver.GetRunResult();
+        var generatedTrees = runResult.Results.SelectMany(r => r.GeneratedSources).ToList();
+        var allGeneratedCode = string.Join("\n", generatedTrees.Select(t => t.SourceText.ToString()));
+
+        // Check for AlsoNotify feature in Reactive attributes
+        // Pattern matches: [Reactive(nameof(PropertyName))] or [Reactive(nameof(Prop1), nameof(Prop2))]
+        var alsoNotifyPattern = ReactiveRegex();
+        var nameofPattern = NameOfRegex();
+        var matches = alsoNotifyPattern.Matches(sourceCode);
+
+        TestContext.Out.WriteLine("=== VALIDATION DEBUG ===");
+        TestContext.Out.WriteLine("Found {0} Reactive attributes with nameof", matches.Count);
+
+        if (matches.Count > 0)
+        {
+            foreach (Match match in matches)
+            {
+                TestContext.Out.WriteLine("Checking attribute: {0}", match.Value);
+
+                // Extract all nameof() references within this attribute
+                var nameofMatches = nameofPattern.Matches(match.Value);
+                TestContext.Out.WriteLine("Found {0} nameof references in this attribute", nameofMatches.Count);
+
+                foreach (Match nameofMatch in nameofMatches)
+                {
+                    var propertyToNotify = nameofMatch.Groups[1].Value;
+                    TestContext.Out.WriteLine("Checking for notification of property: {0}", propertyToNotify);
+
+                    // Verify that the generated code contains calls to raise property changed for the additional property
+                    // Check for various forms of property change notification
+                    var hasNotification =
+                        allGeneratedCode.Contains($"this.RaisePropertyChanged(nameof({propertyToNotify}))") ||
+                        allGeneratedCode.Contains($"this.RaisePropertyChanged(\"{propertyToNotify}\")") ||
+                        allGeneratedCode.Contains($"RaisePropertyChanged(nameof({propertyToNotify}))") ||
+                        allGeneratedCode.Contains($"RaisePropertyChanged(\"{propertyToNotify}\")");
+
+                    TestContext.Out.WriteLine("Has notification: {0}", hasNotification);
+
+                    if (!hasNotification)
+                    {
+                        var errorMessage = $"Generated code does not include AlsoNotify for property '{propertyToNotify}'. " +
+                                         $"Expected to find property change notification for '{propertyToNotify}' in the generated code.\n" +
+                                         $"Source attribute: {match.Value}";
+
+                        TestContext.Out.WriteLine("=== VALIDATION FAILURE ===");
+                        TestContext.Out.WriteLine(errorMessage);
+                        TestContext.Out.WriteLine("=== SOURCE CODE SNIPPET ===");
+                        TestContext.Out.WriteLine(match.Value);
+                        TestContext.Out.WriteLine("=== GENERATED CODE ===");
+                        TestContext.Out.WriteLine(allGeneratedCode);
+                        TestContext.Out.WriteLine("=== END ===");
+
+                        throw new InvalidOperationException(errorMessage);
+                    }
+                }
+            }
+        }
+
+        TestContext.Out.WriteLine("=== END VALIDATION DEBUG ===");
     }
 
     private SettingsTask VerifyGenerator(GeneratorDriver driver) => Verify(driver).UseDirectory(VerifiedFilePath()).ScrubLinesContaining("[global::System.CodeDom.Compiler.GeneratedCode(\"");

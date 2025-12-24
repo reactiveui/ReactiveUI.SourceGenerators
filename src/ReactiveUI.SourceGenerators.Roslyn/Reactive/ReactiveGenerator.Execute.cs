@@ -4,7 +4,6 @@
 // See the LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
@@ -149,16 +148,7 @@ public sealed partial class ReactiveGenerator
 
         token.ThrowIfCancellationRequested();
 
-        var alsoNotify = attributeData.GetConstructorArguments<string>()
-            .Where(notify => !string.IsNullOrEmpty(notify) && !string.Equals(notify, propertyName, StringComparison.Ordinal));
-        using var alsoNotifyBuilder = ImmutableArrayBuilder<string>.Rent();
-        if (alsoNotify is not null)
-        {
-            foreach (var notify in alsoNotify)
-            {
-                alsoNotifyBuilder.Add(notify!);
-            }
-        }
+        var alsoNotify = GetAlsoNotifyValues(attributeData, propertyName, context.SemanticModel, token);
 
         token.ThrowIfCancellationRequested();
 
@@ -181,7 +171,7 @@ public sealed partial class ReactiveGenerator
             useRequired,
             true,
             propertyAccessModifier!,
-            alsoNotifyBuilder.ToImmutable()),
+            alsoNotify),
             builder.ToImmutable());
     }
 #endif
@@ -289,16 +279,7 @@ public sealed partial class ReactiveGenerator
 
         token.ThrowIfCancellationRequested();
 
-        var alsoNotify = attributeData.GetConstructorArguments<string>()
-            .Where(notify => !string.IsNullOrEmpty(notify) && !string.Equals(notify, propertyName, StringComparison.Ordinal));
-        using var alsoNotifyBuilder = ImmutableArrayBuilder<string>.Rent();
-        if (alsoNotify is not null)
-        {
-            foreach (var notify in alsoNotify)
-            {
-                alsoNotifyBuilder.Add(notify!);
-            }
-        }
+        var alsoNotify = GetAlsoNotifyValues(attributeData, propertyName, context.SemanticModel, token);
 
         token.ThrowIfCancellationRequested();
 
@@ -321,7 +302,7 @@ public sealed partial class ReactiveGenerator
             useRequired,
             false,
             "public",
-            alsoNotifyBuilder.ToImmutable()),
+            alsoNotify),
             builder.ToImmutable());
     }
 
@@ -374,7 +355,6 @@ namespace {{containingNamespace}}
 
         return
 $$"""
-
     {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}}
     {
 {{propertyDeclarations}}
@@ -468,5 +448,75 @@ $$"""
             }
         }
 """;
+    }
+
+    private static EquatableArray<string> GetAlsoNotifyValues(AttributeData attributeData, string propertyName, SemanticModel semanticModel, CancellationToken token)
+    {
+        using var builder = ImmutableArrayBuilder<string>.Rent();
+
+        // Prefer the helper that flattens params arrays reliably
+        foreach (var notify in attributeData.GetConstructorArguments<string>())
+        {
+            if (string.IsNullOrWhiteSpace(notify) || string.Equals(notify, propertyName, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            builder.Add(notify!);
+        }
+
+        // Fallback for safety with any remaining constructor arguments
+        foreach (var argument in attributeData.ConstructorArguments)
+        {
+            if (argument.Kind == TypedConstantKind.Array)
+            {
+                if (argument.Values.IsDefaultOrEmpty)
+                {
+                    continue;
+                }
+
+                foreach (var value in argument.Values)
+                {
+                    if (value.Value is string notifyValue &&
+                        !string.IsNullOrWhiteSpace(notifyValue) &&
+                        !string.Equals(notifyValue, propertyName, StringComparison.Ordinal))
+                    {
+                        builder.Add(notifyValue);
+                    }
+                }
+            }
+            else if (argument.Value is string notifyValue &&
+                     !string.IsNullOrWhiteSpace(notifyValue) &&
+                     !string.Equals(notifyValue, propertyName, StringComparison.Ordinal))
+            {
+                builder.Add(notifyValue);
+            }
+        }
+
+        // If nothing was resolved, try reading the syntax and semantic model directly
+        if (builder.Count == 0 && attributeData.ApplicationSyntaxReference?.GetSyntax(token) is AttributeSyntax attributeSyntax)
+        {
+            var arguments = attributeSyntax.ArgumentList?.Arguments;
+            if (arguments is not null)
+            {
+                foreach (var argument in arguments.Value)
+                {
+                    var constantValue = semanticModel.GetConstantValue(argument.Expression, token);
+                    if (!constantValue.HasValue || constantValue.Value is not string notifyValue)
+                    {
+                        continue;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(notifyValue) || string.Equals(notifyValue, propertyName, StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    builder.Add(notifyValue);
+                }
+            }
+        }
+
+        return builder.ToImmutable();
     }
 }

@@ -9,7 +9,6 @@ namespace TestNs1
 {
     public partial class TestViewModel3
 {
-
     public partial class TestInnerClass2
     {
         

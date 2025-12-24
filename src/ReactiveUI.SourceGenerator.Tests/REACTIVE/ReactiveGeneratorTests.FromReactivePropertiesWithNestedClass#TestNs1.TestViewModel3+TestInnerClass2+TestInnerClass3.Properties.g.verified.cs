@@ -11,7 +11,6 @@ namespace TestNs1
 {
 public partial class TestInnerClass2
 {
-
     public partial class TestInnerClass3
     {
         

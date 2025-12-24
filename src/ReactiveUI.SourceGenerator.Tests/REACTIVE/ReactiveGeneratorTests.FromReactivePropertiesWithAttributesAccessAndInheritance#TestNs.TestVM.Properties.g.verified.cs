@@ -7,8 +7,7 @@ using ReactiveUI;
 
 namespace TestNs
 {
-    
-    public partial class TestVM
+        public partial class TestVM
     {
         
         /// <inheritdoc cref="_name"/>
