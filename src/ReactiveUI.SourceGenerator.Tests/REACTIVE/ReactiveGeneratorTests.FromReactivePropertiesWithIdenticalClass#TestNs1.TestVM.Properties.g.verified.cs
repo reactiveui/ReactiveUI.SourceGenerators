@@ -21,7 +21,7 @@ namespace TestNs1
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_name")]
             set
             {
-                this.RaiseAndSetIfChanged(ref _name, value);                
+                this.RaiseAndSetIfChanged(ref _name, value);
             }
         }
     }

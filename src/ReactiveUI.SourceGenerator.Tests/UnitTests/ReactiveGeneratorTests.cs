@@ -327,7 +327,7 @@ public class ReactiveGeneratorTests : TestBase<ReactiveGenerator>
     }
 
     /// <summary>
-    /// Froms the reactive from partial with also notify.
+    /// Tests reactive property generation from a partial class with AlsoNotify support.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]

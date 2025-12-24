@@ -19,7 +19,7 @@ namespace TestNs
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("this.value")]
             set
             {
-                this.RaiseAndSetIfChanged(ref this.value, value);                
+                this.RaiseAndSetIfChanged(ref this.value, value);
             }
         }
     }

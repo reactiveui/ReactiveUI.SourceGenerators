@@ -21,7 +21,7 @@ namespace TestNs1
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_testInner2")]
             set
             {
-                this.RaiseAndSetIfChanged(ref _testInner2, value);                
+                this.RaiseAndSetIfChanged(ref _testInner2, value);
             }
         }
         
@@ -33,7 +33,7 @@ namespace TestNs1
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_testInner22")]
             set
             {
-                this.RaiseAndSetIfChanged(ref _testInner22, value);                
+                this.RaiseAndSetIfChanged(ref _testInner22, value);
             }
         }
     }

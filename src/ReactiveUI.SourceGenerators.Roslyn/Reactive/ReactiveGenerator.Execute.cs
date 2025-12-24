@@ -149,16 +149,14 @@ public sealed partial class ReactiveGenerator
 
         token.ThrowIfCancellationRequested();
 
-        var alsoNotify = attributeData.GetConstructorArguments<string>();
+        var alsoNotify = attributeData.GetConstructorArguments<string>()
+            .Where(notify => !string.IsNullOrEmpty(notify) && !string.Equals(notify, propertyName, StringComparison.Ordinal));
         using var alsoNotifyBuilder = ImmutableArrayBuilder<string>.Rent();
         if (alsoNotify is not null)
         {
             foreach (var notify in alsoNotify)
             {
-                if (!string.IsNullOrEmpty(notify) && !string.Equals(notify, propertyName, StringComparison.Ordinal))
-                {
-                    alsoNotifyBuilder.Add(notify!);
-                }
+                alsoNotifyBuilder.Add(notify!);
             }
         }
 
@@ -291,16 +289,14 @@ public sealed partial class ReactiveGenerator
 
         token.ThrowIfCancellationRequested();
 
-        var alsoNotify = attributeData.GetConstructorArguments<string>();
+        var alsoNotify = attributeData.GetConstructorArguments<string>()
+            .Where(notify => !string.IsNullOrEmpty(notify) && !string.Equals(notify, propertyName, StringComparison.Ordinal));
         using var alsoNotifyBuilder = ImmutableArrayBuilder<string>.Rent();
         if (alsoNotify is not null)
         {
             foreach (var notify in alsoNotify)
             {
-                if (!string.IsNullOrEmpty(notify) && !string.Equals(notify, propertyName, StringComparison.Ordinal))
-                {
-                    alsoNotifyBuilder.Add(notify!);
-                }
+                alsoNotifyBuilder.Add(notify!);
             }
         }
 
@@ -429,11 +425,7 @@ $$"""
         }
 
         var alsoNotifyAttributes = string.Empty;
-        if (propertyInfo.AlsoNotify.IsEmpty)
-            {
-            alsoNotifyAttributes = string.Empty;
-        }
-        else
+        if (!propertyInfo.AlsoNotify.IsEmpty)
         {
             alsoNotifyAttributes = string.Concat(propertyInfo.AlsoNotify.Select(an => $"\n                this.RaisePropertyChanged(nameof({an}));"));
         }
@@ -455,7 +447,7 @@ $$"""
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("{{setFieldName}}")]
             {{setAccessModifier}}
             {
-                this.RaiseAndSetIfChanged(ref {{setFieldName}}, value);{{alsoNotifyAttributes}}                
+                this.RaiseAndSetIfChanged(ref {{setFieldName}}, value);{{alsoNotifyAttributes}}
             }
         }
 """;

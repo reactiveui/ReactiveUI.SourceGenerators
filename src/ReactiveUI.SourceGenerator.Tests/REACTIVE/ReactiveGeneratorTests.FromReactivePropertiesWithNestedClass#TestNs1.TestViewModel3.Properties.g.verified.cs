@@ -19,7 +19,7 @@ namespace TestNs1
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_testVM3Property")]
             set
             {
-                this.RaiseAndSetIfChanged(ref _testVM3Property, value);                
+                this.RaiseAndSetIfChanged(ref _testVM3Property, value);
             }
         }
         
@@ -31,7 +31,7 @@ namespace TestNs1
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_testVM3Property2")]
             set
             {
-                this.RaiseAndSetIfChanged(ref _testVM3Property2, value);                
+                this.RaiseAndSetIfChanged(ref _testVM3Property2, value);
             }
         }
     }

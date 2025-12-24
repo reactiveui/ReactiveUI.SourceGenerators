@@ -23,7 +23,7 @@ public partial class TestInnerClass2
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_testInner3")]
             set
             {
-                this.RaiseAndSetIfChanged(ref _testInner3, value);                
+                this.RaiseAndSetIfChanged(ref _testInner3, value);
             }
         }
         
@@ -35,7 +35,7 @@ public partial class TestInnerClass2
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_testInner33")]
             set
             {
-                this.RaiseAndSetIfChanged(ref _testInner33, value);                
+                this.RaiseAndSetIfChanged(ref _testInner33, value);
             }
         }
     }
