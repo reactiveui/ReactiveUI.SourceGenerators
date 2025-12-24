@@ -7,8 +7,7 @@ using ReactiveUI;
 
 namespace TestNs
 {
-    
-    public partial class TestVM
+        public partial class TestVM
     {
         
         /// <inheritdoc cref="_test4"/>
@@ -20,6 +19,7 @@ namespace TestNs
             set
             {
                 this.RaiseAndSetIfChanged(ref _test4, value);
+                this.RaisePropertyChanged(nameof(OtherNotifyProperty));
             }
         }
     }

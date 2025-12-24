@@ -68,7 +68,12 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
                 }
 
                 var source = GenerateSource(grouping.Key.TargetName, grouping.Key.TargetNamespace, grouping.Key.TargetVisibility, grouping.Key.TargetType, grouping.FirstOrDefault());
-                context.AddSource(grouping.Key.FileHintName + ".IViewFor.g.cs", source);
+
+                // Only add source if it's not empty (i.e., a supported UI framework base type was detected)
+                if (!string.IsNullOrWhiteSpace(source))
+                {
+                    context.AddSource(grouping.Key.FileHintName + ".IViewFor.g.cs", source);
+                }
             }
         });
     }
