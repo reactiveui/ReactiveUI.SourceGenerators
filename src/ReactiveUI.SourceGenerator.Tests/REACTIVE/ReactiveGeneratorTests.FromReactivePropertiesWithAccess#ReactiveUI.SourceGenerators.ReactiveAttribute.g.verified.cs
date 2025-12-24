@@ -34,7 +34,7 @@ internal sealed class ReactiveAttribute : global::System.Attribute
 
     /// <summary>
     /// Gets the InheritanceModifier of the property.
-    /// </sumary>
+    /// </summary>
     public InheritanceModifier Inheritance { get; init; }
 
     /// <summary>
