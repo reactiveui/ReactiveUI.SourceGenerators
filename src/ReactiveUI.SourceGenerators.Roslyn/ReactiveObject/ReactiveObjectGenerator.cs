@@ -17,46 +17,32 @@ namespace ReactiveUI.SourceGenerators;
 /// A source generator for generating reactive properties.
 /// </summary>
 [Generator(LanguageNames.CSharp)]
-public sealed partial class IViewForGenerator : IIncrementalGenerator
+public sealed partial class ReactiveObjectGenerator : IIncrementalGenerator
 {
     /// <inheritdoc/>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(ctx =>
-            ctx.AddSource(AttributeDefinitions.IViewForAttributeType + ".g.cs", SourceText.From(AttributeDefinitions.IViewForAttribute, Encoding.UTF8)));
+            ctx.AddSource(AttributeDefinitions.ReactiveObjectAttributeType + ".g.cs", SourceText.From(AttributeDefinitions.ReactiveObjectAttribute, Encoding.UTF8)));
 
-        // Gather info for all annotated IViewFor Classes
-        var iViewForInfo =
+        // Gather info for all annotated IReactiveObject Classes
+        var reactiveObjectInfo =
             context.SyntaxProvider
             .ForAttributeWithMetadataNameWithGenerics(
-                AttributeDefinitions.IViewForAttributeType,
+                AttributeDefinitions.ReactiveObjectAttributeType,
                 static (node, _) => node is ClassDeclarationSyntax { AttributeLists.Count: > 0 },
                 static (context, token) => GetClassInfo(context, token))
             .Where(x => x != null)
             .Select((x, _) => x!)
             .Collect();
 
-        // Generate the requested properties and methods for IViewFor
-        context.RegisterSourceOutput(iViewForInfo, static (context, input) =>
+        // Generate the requested properties and methods for IReactiveObject
+        context.RegisterSourceOutput(reactiveObjectInfo, static (context, input) =>
         {
             var groupedPropertyInfo = input.GroupBy(
                 static info => (info.TargetInfo.FileHintName, info.TargetInfo.TargetName, info.TargetInfo.TargetNamespace, info.TargetInfo.TargetVisibility, info.TargetInfo.TargetType),
                 static info => info)
                 .ToImmutableArray();
-
-            const string fileName = "ReactiveUI.ReactiveUISourceGeneratorsExtensions.g.cs";
-
-            if (groupedPropertyInfo.Length == 0)
-            {
-                // Even if there are no views, emit an empty extension to keep API stable.
-                var empty = GenerateRegistrationExtensions(ImmutableArray.Create<Input.Models.IViewForInfo>());
-                context.AddSource(fileName, SourceText.From(empty, Encoding.UTF8));
-                return;
-            }
-
-            // Generate the IViewFor Splat Registration code for all classes in a single extension method here
-            var registrationSource = GenerateRegistrationExtensions(input);
-            context.AddSource(fileName, SourceText.From(registrationSource, Encoding.UTF8));
 
             foreach (var grouping in groupedPropertyInfo)
             {
@@ -68,7 +54,7 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
                 }
 
                 var source = GenerateSource(grouping.Key.TargetName, grouping.Key.TargetNamespace, grouping.Key.TargetVisibility, grouping.Key.TargetType, grouping.FirstOrDefault());
-                context.AddSource(grouping.Key.FileHintName + ".IViewFor.g.cs", source);
+                context.AddSource(grouping.Key.FileHintName + ".IReactiveObject.g.cs", source);
             }
         });
     }

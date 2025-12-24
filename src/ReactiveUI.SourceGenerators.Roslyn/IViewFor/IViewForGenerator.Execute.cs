@@ -26,8 +26,6 @@ public partial class IViewForGenerator
     internal static readonly string GeneratorName = typeof(IViewForGenerator).FullName!;
     internal static readonly string GeneratorVersion = typeof(IViewForGenerator).Assembly.GetName().Version.ToString();
 
-    private static readonly string[] excludeFromCodeCoverage = ["[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]"];
-
     private static IViewForInfo? GetClassInfo(in GenericGeneratorAttributeSyntaxContext context, CancellationToken token)
     {
         if (!(context.TargetNode is ClassDeclarationSyntax declaredClass && declaredClass.Modifiers.Any(SyntaxKind.PartialKeyword)))
@@ -126,7 +124,7 @@ public partial class IViewForGenerator
     private static string GenerateSource(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, IViewForInfo iviewForInfo)
     {
         // Prepare any forwarded property attributes
-        var forwardedAttributesString = string.Join("\n        ", excludeFromCodeCoverage);
+        var forwardedAttributesString = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage);
 
         switch (iviewForInfo.BaseType)
         {

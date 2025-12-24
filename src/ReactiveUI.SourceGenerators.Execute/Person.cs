@@ -4,7 +4,6 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Diagnostics.CodeAnalysis;
-using ReactiveUI;
 using ReactiveUI.SourceGenerators;
 
 namespace SGReactiveUI.SourceGenerators.Test;
@@ -14,7 +13,8 @@ namespace SGReactiveUI.SourceGenerators.Test;
 /// </summary>
 /// <seealso cref="ReactiveUI.ReactiveObject" />
 [ExcludeFromCodeCoverage]
-public partial class Person : ReactiveObject
+[IReactiveObject]
+public partial class Person
 {
     /// <summary>
     /// Gets or sets a value indicating whether this <see cref="Person"/> is deleted.
@@ -23,5 +23,5 @@ public partial class Person : ReactiveObject
     ///   <c>true</c> if deleted; otherwise, <c>false</c>.
     /// </value>
     [Reactive]
-    public bool Deleted { get; set; }
+    public partial bool Deleted { get; set; }
 }

@@ -15,7 +15,7 @@ using ReactiveUI.SourceGenerators.Helpers;
 namespace ReactiveUI.SourceGenerators.WinForms;
 
 /// <summary>
-/// A source generator for generating reative properties.
+/// A source generator for generating reactive properties.
 /// </summary>
 [Generator(LanguageNames.CSharp)]
 public sealed partial class RoutedControlHostGenerator : IIncrementalGenerator

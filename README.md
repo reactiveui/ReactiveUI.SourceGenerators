@@ -51,6 +51,7 @@ ReactiveUI Source Generators automatically generate ReactiveUI objects to stream
 - `[ViewModelControlHost("YourNameSpace.CustomControl")]`
 - `[BindableDerivedList]` Generates a derived list from a ReadOnlyObservableCollection backing field
 - `[ReactiveCollection]` Generates property changed notifications on add, remove, new actions on a ObservableCollection backing field
+- `[IReactiveObject]` Generates IReactiveObject implementation for classes not able to inherit from ReactiveObject
 
 #### IViewFor Registration generator
 
@@ -681,6 +682,19 @@ public partial class MyReactiveClass : ReactiveObject
         MyCollection = new ObservableCollection<string>();
         _myCollection.Add("Item 1");
     }
+}
+```
+
+### ReactiveObject implementation for classes not able to inherit from ReactiveObject
+```csharp
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
+
+[IReactiveObject]
+public partial class MyReactiveClass
+{
+    [Reactive]
+    private string _myProperty;
 }
 ```
 

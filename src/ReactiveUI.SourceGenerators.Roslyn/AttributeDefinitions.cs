@@ -77,6 +77,8 @@ internal static class AttributeDefinitions
         #pragma warning restore
         """;
 
+    public const string ReactiveObjectAttributeType = "ReactiveUI.SourceGenerators.IReactiveObjectAttribute";
+
     public static string ReactiveObjectAttribute => $$"""
 // Copyright (c) {{DateTime.Now.Year}} .NET Foundation and Contributors. All rights reserved.
 // Licensed to the .NET Foundation under one or more agreements.
@@ -89,12 +91,12 @@ internal static class AttributeDefinitions
 namespace ReactiveUI.SourceGenerators;
 
 /// <summary>
-/// ReactiveObjectAttribute.
+/// IReactiveObject Attribute.
 /// </summary>
 /// <seealso cref="System.Attribute" />
 [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveObjectGenerator", "{{ReactiveGenerator.GeneratorVersion}}")]
 [global::System.AttributeUsage(global::System.AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-internal sealed class ReactiveObjectAttribute : global::System.Attribute;
+internal sealed class IReactiveObjectAttribute : global::System.Attribute;
 #nullable restore
 #pragma warning restore
 """;
@@ -119,7 +121,7 @@ internal sealed class ReactiveObjectAttribute : global::System.Attribute;
 namespace ReactiveUI.SourceGenerators;
 
 /// <summary>
-/// ReativeCommandAttribute.
+/// ReactiveCommand Attribute.
 /// </summary>
 /// <seealso cref="Attribute" />
 [global::System.CodeDom.Compiler.GeneratedCode("ReactiveUI.SourceGenerators.ReactiveCommandGenerator", "{{ReactiveGenerator.GeneratorVersion}}")]
