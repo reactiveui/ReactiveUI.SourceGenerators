@@ -64,3 +64,5 @@ This rule checks if there are any Properties to change to Reactive Field, change
 - RXUISG0017 - ObservableAsPropertyFromObservableGenerator
 This rule checks if the `ObservableAsProperty` has Invalid generated property declaration.
 
+- RXUISG0020 - ReactiveUI.SourceGenerators.CodeFixers.ReactiveAttributeMisuseAnalyzer 
+This rule warns when `[Reactive]` is used on non-partial property/type.
