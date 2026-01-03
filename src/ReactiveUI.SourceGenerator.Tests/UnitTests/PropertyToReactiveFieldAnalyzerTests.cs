@@ -4,11 +4,9 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Collections.Immutable;
-using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
-using NUnit.Framework;
 using ReactiveUI.SourceGenerators.CodeFixers;
 
 namespace ReactiveUI.SourceGenerator.Tests;
@@ -72,10 +70,7 @@ public sealed class PropertyToReactiveFieldAnalyzerTests
         var compilation = CSharpCompilation.Create(
             assemblyName: "AnalyzerTests",
             syntaxTrees: [syntaxTree],
-            references: [
-                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
-            ],
+            references: TestCompilationReferences.CreateDefault(),
             options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
         var analyzer = new PropertyToReactiveFieldAnalyzer();

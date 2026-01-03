@@ -3,15 +3,11 @@
 // The ReactiveUI and contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
-using NUnit.Framework;
 using ReactiveUI.SourceGenerators.CodeFixers;
 
 namespace ReactiveUI.SourceGenerator.Tests;
@@ -54,10 +50,7 @@ public sealed class PropertyToReactiveFieldCodeFixProviderTests
         var compilation = CSharpCompilation.Create(
             "CodeFixTests",
             syntaxTrees: [tree],
-            references: [
-                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
-            ],
+            references: TestCompilationReferences.CreateDefault(),
             options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
         var diagnostic = compilation.WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(analyzer))
@@ -69,9 +62,12 @@ public sealed class PropertyToReactiveFieldCodeFixProviderTests
         var project = workspace.CurrentSolution
             .AddProject("p", "p", LanguageNames.CSharp)
             .WithParseOptions(CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp13))
-            .WithCompilationOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
-            .AddMetadataReference(MetadataReference.CreateFromFile(typeof(object).Assembly.Location))
-            .AddMetadataReference(MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location));
+            .WithCompilationOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        foreach (var reference in TestCompilationReferences.CreateDefault())
+        {
+            project = project.AddMetadataReference(reference);
+        }
 
         var document = project.AddDocument("t.cs", source);
 
