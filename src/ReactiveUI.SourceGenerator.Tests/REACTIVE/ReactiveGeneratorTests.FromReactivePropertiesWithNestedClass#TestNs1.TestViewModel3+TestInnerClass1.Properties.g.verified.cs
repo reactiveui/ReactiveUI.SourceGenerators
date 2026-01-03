@@ -35,6 +35,8 @@ namespace TestNs1
                 this.RaiseAndSetIfChanged(ref _testInner11, value);
             }
         }
+
+
     }
 }
 

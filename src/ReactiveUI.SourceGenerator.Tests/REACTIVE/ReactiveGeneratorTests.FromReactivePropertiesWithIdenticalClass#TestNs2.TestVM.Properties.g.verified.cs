@@ -23,6 +23,8 @@ namespace TestNs2
                 this.RaiseAndSetIfChanged(ref _name, value);
             }
         }
+
+
     }
 }
 #nullable restore

@@ -21,6 +21,8 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _mustBeSet, value);
             }
         }
+
+
     }
 }
 #nullable restore

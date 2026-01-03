@@ -339,7 +339,9 @@ public class ReactiveGeneratorTests : TestBase<ReactiveGenerator>
                 using ReactiveUI;
                 using ReactiveUI.SourceGenerators;
                 using System.Reactive.Linq;
+
                 namespace TestNs;
+
                 public partial class TestVM : ReactiveObject
                 {
                     [Reactive(nameof(OtherNotifyProperty))]
@@ -347,6 +349,39 @@ public class ReactiveGeneratorTests : TestBase<ReactiveGenerator>
 
                     // This property is notified when Test4 changes
                     public int OtherNotifyProperty { get; set; }
+                }
+            """;
+
+        // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
+        return TestHelper.TestPass(sourceCode);
+    }
+
+    /// <summary>
+    /// Tests reactive property generation from a partial class with WhenAnyValue support.
+    /// </summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Test]
+    public Task FromReactiveWithAnyValue()
+    {
+        // Arrange: Setup the source code that matches the generator input expectations.
+        const string sourceCode = """
+                using System;
+                using ReactiveUI;
+                using ReactiveUI.SourceGenerators;
+                using System.Reactive.Linq;
+
+                namespace TestNs;
+
+                public partial class TestVM : ReactiveObject
+                {
+                    [Reactive(WhenAnyValue = true, WhenAnyValueAccessModifier = PropertyAccessModifier.Private)]
+                    private int _test5;
+                    
+                    public TestVM()
+                    {
+                        WhenAnyTest5
+                            .Subscribe(value => Console.WriteLine($"Test5 changed to {value}"));
+                    }
                 }
             """;
 

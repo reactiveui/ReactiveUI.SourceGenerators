@@ -33,6 +33,8 @@ namespace TestNs1
                 this.RaiseAndSetIfChanged(ref _testVM3Property2, value);
             }
         }
+
+
     }
 }
 #nullable restore

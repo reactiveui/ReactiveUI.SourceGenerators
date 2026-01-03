@@ -73,7 +73,7 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     [Reactive(nameof(MyDoubleProperty), nameof(MyStringProperty), SetModifier = AccessModifier.Init, UseRequired = true)]
     private string _mustBeSet;
 
-    [Reactive]
+    [Reactive(WhenAnyValue = true, WhenAnyValueAccessModifier = PropertyAccessModifier.Private)]
     private IEnumerable<Person> _people = [new Person()];
     [Reactive]
     private double? _myDoubleProperty;
@@ -205,7 +205,7 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
         _fromPartialTestSubject.OnNext(11);
         Console.Out.WriteLine($"Observable updated, value should be 11, value is : {ObservableAsPropertyFromProperty}");
 
-        this.WhenAnyValue(vm => vm.People)
+        WhenAnyPeople
         .Subscribe(people => people
             .AsObservableChangeSet()
             .AutoRefresh(x => x.Deleted)

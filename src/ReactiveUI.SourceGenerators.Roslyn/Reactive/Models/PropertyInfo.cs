@@ -24,4 +24,6 @@ internal sealed record PropertyInfo(
     string UseRequired,
     bool IsProperty,
     string PropertyAccessModifier,
-    EquatableArray<string> AlsoNotify);
+    EquatableArray<string> AlsoNotify,
+    bool WhenAnyValue,
+    string WhenAnyValueAccessModifier);

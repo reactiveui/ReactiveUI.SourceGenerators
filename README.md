@@ -29,6 +29,7 @@ ReactiveUI Source Generators automatically generate ReactiveUI objects to stream
 - `[Reactive(Inheritance = InheritanceModifier.Virtual)]` With field and access modifiers. This will generate a virtual property.
 - `[Reactive(UseRequired = true)]` With field and access modifiers. This will generate a required property, (Not Required for partial properties, use required keyword for property declaration).
 - `[Reactive(nameof(RaiseProperty1), nameof(RaiseProperty2))]` With field and property changed notification for additional properties.
+- `[Reactive(WhenAnyValue = true, WhenAnyValueAccessModifier = PropertyAccessModifier.Private)]` With field and WhenAnyValue generation for the property. Has option to set the access modifier of the generated WhenAnyValue property.
 - `[ObservableAsProperty]` With field, method, Observable property and partial property support (C# 13 Visual Studio Version 17.12.0)
 - `[ObservableAsProperty(ReadOnly = false)]` Removes readonly keyword from the generated helper field
 - `[ObservableAsProperty(PropertyName = "ReadOnlyPropertyName")]`
@@ -163,6 +164,27 @@ public partial class MyReactiveClass : ReactiveObject
 {
     [Reactive(SetModifier = AccessModifier.Protected)]
     private string _myProperty;
+}
+```
+
+### Usage Reactive property with WhenAnyValue property generation
+```csharp
+using ReactiveUI.SourceGenerators;
+
+public partial class MyReactiveClass : ReactiveObject
+{
+    [Reactive(WhenAnyValue = true, WhenAnyValueAccessModifier = PropertyAccessModifier.Private)]
+    private string _myProperty;
+
+    public MyReactiveClass()
+    {
+        // You can now use the generated WhenAnyValue property
+        WhenAnyMyProperty
+            .Subscribe(value => 
+            {
+                // Handle value changes
+            });
+    }
 }
 ```
 

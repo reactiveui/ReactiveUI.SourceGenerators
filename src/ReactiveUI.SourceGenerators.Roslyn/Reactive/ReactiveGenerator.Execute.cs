@@ -152,6 +152,25 @@ public sealed partial class ReactiveGenerator
 
         token.ThrowIfCancellationRequested();
 
+        // Get WhenAnyValue bool value from the attribute
+        attributeData.TryGetNamedArgument("WhenAnyValue", out bool whenAnyValue);
+
+        token.ThrowIfCancellationRequested();
+
+        // Get WhenAnyValueAccessModifier enum value from the attribute
+        attributeData.TryGetNamedArgument("WhenAnyValueAccessModifier", out int whenAnyValueAccessModifierArgument);
+        var whenAnyValueAccessModifier = whenAnyValueAccessModifierArgument switch
+        {
+            1 => "protected",
+            2 => "internal",
+            3 => "private",
+            4 => "protected internal",
+            5 => "private protected",
+            _ => "public",
+        };
+
+        token.ThrowIfCancellationRequested();
+
         // Get the containing type info
         var targetInfo = TargetInfo.From(propertySymbol.ContainingType);
 
@@ -171,7 +190,9 @@ public sealed partial class ReactiveGenerator
             useRequired,
             true,
             propertyAccessModifier!,
-            alsoNotify),
+            alsoNotify,
+            whenAnyValue,
+            whenAnyValueAccessModifier),
             builder.ToImmutable());
     }
 #endif
@@ -283,6 +304,25 @@ public sealed partial class ReactiveGenerator
 
         token.ThrowIfCancellationRequested();
 
+        // Get WhenAnyValue bool value from the attribute
+        attributeData.TryGetNamedArgument("WhenAnyValue", out bool whenAnyValue);
+
+        token.ThrowIfCancellationRequested();
+
+        // Get WhenAnyValueAccessModifier enum value from the attribute
+        attributeData.TryGetNamedArgument("WhenAnyValueAccessModifier", out int whenAnyValueAccessModifierArgument);
+        var whenAnyValueAccessModifier = whenAnyValueAccessModifierArgument switch
+        {
+            1 => "protected",
+            2 => "internal",
+            3 => "private",
+            4 => "protected internal",
+            5 => "private protected",
+            _ => "public",
+        };
+
+        token.ThrowIfCancellationRequested();
+
         // Get the containing type info
         var targetInfo = TargetInfo.From(fieldSymbol.ContainingType);
 
@@ -302,7 +342,9 @@ public sealed partial class ReactiveGenerator
             useRequired,
             false,
             "public",
-            alsoNotify),
+            alsoNotify,
+            whenAnyValue,
+            whenAnyValueAccessModifier),
             builder.ToImmutable());
     }
 
@@ -353,11 +395,15 @@ namespace {{containingNamespace}}
         // Includes 2 tabs from the property declarations so no need to add them here.
         var propertyDeclarations = string.Join("\n", properties.Select(GetPropertySyntax));
 
+        var whenAnyValueDeclarations = string.Join("\n", properties.Select(GetWhenAnyValueObservable).Where(s => !string.IsNullOrEmpty(s)));
+
         return
 $$"""
     {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}}
     {
 {{propertyDeclarations}}
+
+{{whenAnyValueDeclarations}}
     }
 """;
     }
@@ -447,6 +493,24 @@ $$"""
                 this.RaiseAndSetIfChanged(ref {{setFieldName}}, value);{{alsoNotifyAttributes}}
             }
         }
+""";
+    }
+
+    private static string? GetWhenAnyValueObservable(PropertyInfo propertyInfo)
+    {
+        if (!propertyInfo.WhenAnyValue || propertyInfo.PropertyName is null)
+        {
+            return null;
+        }
+
+        return
+$$"""
+        /// <summary>
+        /// Gets an observable for when the <see cref="{{propertyInfo.PropertyName}}"/> property
+        /// changes.
+        /// </summary>
+        {{propertyInfo.WhenAnyValueAccessModifier}} global::System.IObservable<{{propertyInfo.TypeNameWithNullabilityAnnotations}}> WhenAny{{propertyInfo.PropertyName}} =>
+            this.WhenAnyValue(x => x.{{propertyInfo.PropertyName}});
 """;
     }
 

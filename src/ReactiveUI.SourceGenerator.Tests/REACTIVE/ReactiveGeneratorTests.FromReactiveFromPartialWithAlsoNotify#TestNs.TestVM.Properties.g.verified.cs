@@ -22,6 +22,8 @@ namespace TestNs
                 this.RaisePropertyChanged(nameof(OtherNotifyProperty));
             }
         }
+
+
     }
 }
 #nullable restore

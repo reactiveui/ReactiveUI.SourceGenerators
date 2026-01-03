@@ -37,6 +37,8 @@ public partial class TestInnerClass2
                 this.RaiseAndSetIfChanged(ref _testInner33, value);
             }
         }
+
+
     }
 }
 }
