@@ -4,9 +4,8 @@
 // See the LICENSE file in the project root for full license information.
 
 using ReactiveUI.SourceGenerators.Helpers;
-using ReactiveUI.SourceGenerators.Models;
 
-namespace ReactiveUI.SourceGenerators.Reactive.Models;
+namespace ReactiveUI.SourceGenerators.Models;
 
 /// <summary>
 /// A model with gathered info on a given field.

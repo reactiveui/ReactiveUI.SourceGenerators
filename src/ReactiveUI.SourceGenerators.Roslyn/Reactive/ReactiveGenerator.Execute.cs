@@ -12,7 +12,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Models;
-using ReactiveUI.SourceGenerators.Reactive.Models;
 using static ReactiveUI.SourceGenerators.Diagnostics.DiagnosticDescriptors;
 
 namespace ReactiveUI.SourceGenerators;

@@ -3,9 +3,7 @@
 // The ReactiveUI and contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using ReactiveUI.SourceGenerators.Models;
-
-namespace ReactiveUI.SourceGenerators.Input.Models;
+namespace ReactiveUI.SourceGenerators.Models;
 
 /// <summary>
 /// A model with gathered info on a given command method.
