@@ -164,7 +164,7 @@ internal sealed class ReactiveCommandAttribute : global::System.Attribute
     /// <value>
     /// The reactive attribute.
     /// </value>
-#if ROSYLN_412
+#if ROSYLN_412 || ROSYLN_500
     public static string ReactiveAttribute => $$"""
 // Copyright (c) {{DateTime.Now.Year}} .NET Foundation and Contributors. All rights reserved.
 // Licensed to the .NET Foundation under one or more agreements.
@@ -275,7 +275,7 @@ internal sealed class ReactiveAttribute : global::System.Attribute
 #endif
 
     public const string ObservableAsPropertyAttributeType = "ReactiveUI.SourceGenerators.ObservableAsPropertyAttribute";
-#if ROSYLN_412
+#if ROSYLN_412 || ROSYLN_500
     public static string ObservableAsPropertyAttribute => $$"""
 // Copyright (c) {{DateTime.Now.Year}} .NET Foundation and Contributors. All rights reserved.
 // Licensed to the .NET Foundation under one or more agreements.

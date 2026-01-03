@@ -159,7 +159,7 @@ public sealed partial class ObservableAsPropertyGenerator
 
                 isNullableType = propertySymbol.Type is INamedTypeSymbol nullcheck && nullcheck.TypeArguments[0].IsNullableType();
             }
-#if ROSYLN_412
+#if ROSYLN_412 || ROSYLN_500
             else
             {
                 if (!propertySymbol.IsPartialDefinition || propertySymbol.IsStatic)
