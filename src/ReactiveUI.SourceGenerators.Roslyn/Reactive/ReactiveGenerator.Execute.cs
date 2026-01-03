@@ -26,7 +26,7 @@ public sealed partial class ReactiveGenerator
     internal static readonly string GeneratorName = typeof(ReactiveGenerator).FullName!;
     internal static readonly string GeneratorVersion = typeof(ReactiveGenerator).Assembly.GetName().Version.ToString();
 
-#if ROSYLN_412
+#if ROSYLN_412 || ROSYLN_500
     private static Result<PropertyInfo?>? GetPropertyInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
         using var builder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
@@ -123,11 +123,17 @@ public sealed partial class ReactiveGenerator
 
         var typeNameWithNullabilityAnnotations = propertySymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations();
         var fieldName = propertySymbol.GetGeneratedFieldName();
-
+#if ROSYLN_500
+        if (context.SemanticModel.Compilation is CSharpCompilation compilation && compilation.LanguageVersion >= LanguageVersion.CSharp14)
+        {
+            fieldName = "field";
+        }
+#else
         if (context.SemanticModel.Compilation is CSharpCompilation compilation && compilation.LanguageVersion == LanguageVersion.Preview)
         {
             fieldName = "field";
         }
+#endif
 
         var propertyName = propertySymbol.Name;
 
@@ -176,14 +182,14 @@ public sealed partial class ReactiveGenerator
     }
 #endif
 
-    /// <summary>
-    /// Gets the observable method information.
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="token">The token.</param>
-    /// <returns>
-    /// The value.
-    /// </returns>
+        /// <summary>
+        /// Gets the observable method information.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <param name="token">The token.</param>
+        /// <returns>
+        /// The value.
+        /// </returns>
     private static Result<PropertyInfo?>? GetVariableInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
         using var builder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();

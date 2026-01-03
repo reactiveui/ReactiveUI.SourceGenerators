@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.10.35027.167
+# Visual Studio Version 18
+VisualStudioVersion = 18.1.11312.151 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionConfig", "SolutionConfig", "{F29AF2F3-DEC8-58BC-043A-1447862C832D}"
 	ProjectSection(SolutionItems) = preProject
@@ -37,6 +37,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveUI.SourceGenerators.Roslyn480", "ReactiveUI.SourceGenerators.Roslyn480\ReactiveUI.SourceGenerators.Roslyn480.csproj", "{7C308972-5697-464F-BEAE-02FE9E03BECE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveUI.SourceGenerators.Roslyn4120", "ReactiveUI.SourceGenerators.Roslyn4120\ReactiveUI.SourceGenerators.Roslyn4120.csproj", "{BF121262-7F30-4EC0-9F03-324AC3B834B8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveUI.SourceGenerators.Roslyn5000", "ReactiveUI.SourceGenerators.Roslyn5000\ReactiveUI.SourceGenerators.Roslyn5000.csproj", "{93D7DF9A-791F-4DCF-ADBA-95BFAF3E98A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -84,6 +86,10 @@ Global
 		{BF121262-7F30-4EC0-9F03-324AC3B834B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF121262-7F30-4EC0-9F03-324AC3B834B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF121262-7F30-4EC0-9F03-324AC3B834B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93D7DF9A-791F-4DCF-ADBA-95BFAF3E98A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93D7DF9A-791F-4DCF-ADBA-95BFAF3E98A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93D7DF9A-791F-4DCF-ADBA-95BFAF3E98A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93D7DF9A-791F-4DCF-ADBA-95BFAF3E98A7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

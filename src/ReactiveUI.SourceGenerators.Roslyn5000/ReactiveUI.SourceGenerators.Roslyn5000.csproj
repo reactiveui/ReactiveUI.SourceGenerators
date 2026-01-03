@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>$(RoslynTfm)</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <IsRoslynComponent>true</IsRoslynComponent>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <IsPackable>false</IsPackable>
+
+    <PackageDescription>A MVVM framework that integrates with the Reactive Extensions for .NET to create elegant, testable User Interfaces that run on any mobile or desktop platform. This is the Source Generators package for ReactiveUI</PackageDescription>
+    <AssemblyName>ReactiveUI.SourceGenerators</AssemblyName>
+    <DefineConstants>$(DefineConstants);ROSYLN_500</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" VersionOverride="5.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" PrivateAssets="all" VersionOverride="5.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" PrivateAssets="all" VersionOverride="5.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis" PrivateAssets="all" VersionOverride="5.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="all" VersionOverride="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ReactiveUI.CodeFixes" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.SourceGenerators.Roslyn\**\*.cs" LinkBase="Shared" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\ReactiveUI.SourceGenerators.Roslyn\AnalyzerReleases.Shipped.md" />
+    <AdditionalFiles Include="..\ReactiveUI.SourceGenerators.Roslyn\AnalyzerReleases.Unshipped.md" />
+  </ItemGroup>
+
+</Project>
