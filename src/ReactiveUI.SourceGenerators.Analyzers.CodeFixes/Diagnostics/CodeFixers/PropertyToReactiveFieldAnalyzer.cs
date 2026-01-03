@@ -54,10 +54,31 @@ public class PropertyToReactiveFieldAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        // Make sure the property is part of a class inherited from ReactiveObject
-        if (!propertySymbol.IsTargetTypeValid())
+        if (context.Node is not PropertyDeclarationSyntax propertyDeclaration)
         {
             return;
+        }
+
+        // Make sure the property is part of a class inherited from ReactiveObject.
+        // In some test harnesses, ReactiveUI types might not be referenced, so the semantic
+        // check can fail even when the syntax clearly indicates intended usage.
+        var isTargetTypeValid = propertySymbol.IsTargetTypeValid();
+
+        if (!isTargetTypeValid)
+        {
+            var containingTypeSyntax = propertyDeclaration.FirstAncestorOrSelf<TypeDeclarationSyntax>();
+
+            var baseTypes = containingTypeSyntax?.BaseList?.Types;
+            var hasReactiveBaseOrInterfaceInBaseList = baseTypes?.Any(t =>
+                t.Type is IdentifierNameSyntax { Identifier.ValueText: "ReactiveObject" } ||
+                t.Type is QualifiedNameSyntax { Right.Identifier.ValueText: "ReactiveObject" } ||
+                t.Type is IdentifierNameSyntax { Identifier.ValueText: "IReactiveObject" } ||
+                t.Type is QualifiedNameSyntax { Right.Identifier.ValueText: "IReactiveObject" }) == true;
+
+            if (!hasReactiveBaseOrInterfaceInBaseList)
+            {
+                return;
+            }
         }
 
         // Check if the property is an readonly property
@@ -72,7 +93,11 @@ public class PropertyToReactiveFieldAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        if (context.Node is not PropertyDeclarationSyntax propertyDeclaration)
+        // If semantic attributes are not available, fall back to syntax to detect [Reactive].
+        if (propertyDeclaration.AttributeLists
+            .SelectMany(static a => a.Attributes)
+            .Any(a => a.Name is IdentifierNameSyntax { Identifier.ValueText: "Reactive" } ||
+                      a.Name is QualifiedNameSyntax { Right.Identifier.ValueText: "Reactive" }))
         {
             return;
         }

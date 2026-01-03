@@ -26,4 +26,17 @@ internal static class DiagnosticDescriptors
         isEnabledByDefault: true,
         description: "Used to create a Read Write INPC Reactive Property for ReactiveUI, annotated with [Reactive].",
         helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
+
+    /// <summary>
+    /// The `[Reactive]` attribute was used on a property, but required `partial` modifiers are missing.
+    /// </summary>
+    public static readonly DiagnosticDescriptor ReactiveAttributeRequiresPartialRule = new(
+        id: "RXUISG0020",
+        title: "[Reactive] requires partial property and containing type",
+        messageFormat: "`[Reactive]` requires the property to be `partial` and the containing type to be `partial` so source generation can run.",
+        category: typeof(ReactiveAttributeMisuseAnalyzer).FullName,
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "Warns when `[Reactive]` is placed on a property or type that is not `partial`.",
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 }
