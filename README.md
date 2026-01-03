@@ -142,6 +142,18 @@ With ReactiveUI.Fody, you can simply declare a read-only property using the [Obs
 public string FirstName { get; }
 ```
 
+## Migration from ReactiveUI.Fody
+To migrate from ReactiveUI.Fody to ReactiveUI.SourceGenerators, follow these steps:
+1. **Remove ReactiveUI.Fody**: Uninstall the ReactiveUI.Fody NuGet package from your project.
+Remove the Fody support files from the project directory
+
+- FodyWeaver.xml
+- FodyWeavers.xsd
+2. **Install ReactiveUI.SourceGenerators**: Add the ReactiveUI.SourceGenerators NuGet package
+3. **Update Property Declarations**: Place `[Reactive]` and `[ObservableAsProperty]` attributes on your properties as shown in the examples below and ensure that your classes and properties are declared as `partial`. You can also use field backing for `[Reactive]` properties as shown in the examples. This is a change from ReactiveUI.Fody which only supported property backing.
+Remove using directives for `ReactiveUI.Fody.Helpers` and add using directives for `ReactiveUI.SourceGenerators`.
+4. **Rebuild Your Project**: Ensure that your project builds successfully and that the generated code behaves as expected.
+
 # Welcome to a new way - Source Generators
 
 ## Usage Reactive property `[Reactive]`
