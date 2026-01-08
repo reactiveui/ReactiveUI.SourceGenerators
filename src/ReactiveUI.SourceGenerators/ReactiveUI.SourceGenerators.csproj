@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ReactiveUI.SourceGenerators.Analyzers.CodeFixes\ReactiveUI.SourceGenerators.Analyzers.CodeFixes.csproj" />
+    <ProjectReference Include="..\ReactiveUI.SourceGenerators.Roslyn5000\ReactiveUI.SourceGenerators.Roslyn5000.csproj" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\ReactiveUI.SourceGenerators.Roslyn4120\ReactiveUI.SourceGenerators.Roslyn4120.csproj" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\ReactiveUI.SourceGenerators.Roslyn480\ReactiveUI.SourceGenerators.Roslyn480.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
@@ -37,5 +38,6 @@
   <ItemGroup>
     <None Include="..\ReactiveUI.SourceGenerators.Roslyn480\bin\$(Configuration)\netstandard2.0\ReactiveUI.SourceGenerators.dll" PackagePath="analyzers\dotnet\roslyn4.8\cs" Pack="true" Visible="false" />
     <None Include="..\ReactiveUI.SourceGenerators.Roslyn4120\\bin\$(Configuration)\netstandard2.0\ReactiveUI.SourceGenerators.dll" PackagePath="analyzers\dotnet\roslyn4.12\cs" Pack="true" Visible="false" />
+    <None Include="..\ReactiveUI.SourceGenerators.Roslyn5000\\bin\$(Configuration)\netstandard2.0\ReactiveUI.SourceGenerators.dll" PackagePath="analyzers\dotnet\roslyn5.0\cs" Pack="true" Visible="false" />
   </ItemGroup>
 </Project>
