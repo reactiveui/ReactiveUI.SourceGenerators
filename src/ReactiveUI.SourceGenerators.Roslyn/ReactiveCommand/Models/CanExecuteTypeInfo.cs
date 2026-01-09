@@ -3,7 +3,7 @@
 // The ReactiveUI and contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-namespace ReactiveUI.SourceGenerators.Input.Models;
+namespace ReactiveUI.SourceGenerators.Models;
 
 internal enum CanExecuteTypeInfo
 {

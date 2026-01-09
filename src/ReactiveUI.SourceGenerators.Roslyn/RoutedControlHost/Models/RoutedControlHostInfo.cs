@@ -5,7 +5,7 @@
 
 using ReactiveUI.SourceGenerators.Helpers;
 
-namespace ReactiveUI.SourceGenerators.Input.Models;
+namespace ReactiveUI.SourceGenerators.Models;
 
 /// <summary>
 /// A model with gathered info on a given command method.

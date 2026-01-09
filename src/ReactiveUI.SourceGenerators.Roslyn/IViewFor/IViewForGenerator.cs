@@ -49,7 +49,7 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
             if (groupedPropertyInfo.Length == 0)
             {
                 // Even if there are no views, emit an empty extension to keep API stable.
-                var empty = GenerateRegistrationExtensions(ImmutableArray.Create<Input.Models.IViewForInfo>());
+                var empty = GenerateRegistrationExtensions(ImmutableArray.Create<Models.IViewForInfo>());
                 context.AddSource(fileName, SourceText.From(empty, Encoding.UTF8));
                 return;
             }

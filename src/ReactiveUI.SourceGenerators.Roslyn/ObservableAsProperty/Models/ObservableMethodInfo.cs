@@ -5,9 +5,8 @@
 
 using System.Globalization;
 using ReactiveUI.SourceGenerators.Helpers;
-using ReactiveUI.SourceGenerators.Models;
 
-namespace ReactiveUI.SourceGenerators.ObservableAsProperty.Models
+namespace ReactiveUI.SourceGenerators.Models
 {
     internal record ObservableMethodInfo(
         TargetInfo TargetInfo,

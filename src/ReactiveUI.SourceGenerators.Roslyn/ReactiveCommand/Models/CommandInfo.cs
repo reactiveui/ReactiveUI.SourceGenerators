@@ -4,9 +4,8 @@
 // See the LICENSE file in the project root for full license information.
 
 using ReactiveUI.SourceGenerators.Helpers;
-using ReactiveUI.SourceGenerators.Models;
 
-namespace ReactiveUI.SourceGenerators.Input.Models;
+namespace ReactiveUI.SourceGenerators.Models;
 
 internal record CommandInfo(
     TargetInfo TargetInfo,
