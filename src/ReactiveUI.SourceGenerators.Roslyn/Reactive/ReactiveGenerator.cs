@@ -32,7 +32,7 @@ public sealed partial class ReactiveGenerator : IIncrementalGenerator
         });
 
         RunReactiveFromField(context);
-#if ROSYLN_412
+#if ROSYLN_412 || ROSYLN_500
         RunReactiveFromProperty(context);
 #endif
     }
@@ -87,7 +87,7 @@ public sealed partial class ReactiveGenerator : IIncrementalGenerator
         });
     }
 
-#if ROSYLN_412
+#if ROSYLN_412 || ROSYLN_500
     private static void RunReactiveFromProperty(IncrementalGeneratorInitializationContext context)
     {
         // Gather info for all annotated variable with at least one attribute.
