@@ -13,7 +13,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
-using ReactiveUI.SourceGenerators.Input.Models;
 using ReactiveUI.SourceGenerators.Models;
 
 namespace ReactiveUI.SourceGenerators;
@@ -27,7 +26,7 @@ public partial class ReactiveCommandGenerator
     internal static readonly string GeneratorName = typeof(ReactiveCommandGenerator).FullName!;
     internal static readonly string GeneratorVersion = typeof(ReactiveCommandGenerator).Assembly.GetName().Version.ToString();
 
-    private const string ReactiveUI = "ReactiveUI";
+    private const string ReactiveUI = "global::ReactiveUI";
     private const string ReactiveCommand = "ReactiveCommand";
     private const string RxCmd = ReactiveUI + "." + ReactiveCommand;
     private const string Create = ".Create";
@@ -35,8 +34,8 @@ public partial class ReactiveCommandGenerator
     private const string CreateT = ".CreateFromTask";
     private const string CanExecute = "CanExecute";
     private const string OutputScheduler = "OutputScheduler";
-    private const string MainThreadScheduler = "RxSchedulers.MainThreadScheduler";
-    private const string TaskpoolScheduler = "RxSchedulers.TaskpoolScheduler";
+    private const string MainThreadScheduler = ReactiveUI + ".RxSchedulers.MainThreadScheduler";
+    private const string TaskpoolScheduler = ReactiveUI + ".RxSchedulers.TaskpoolScheduler";
 
     private static CommandInfo? GetMethodInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
