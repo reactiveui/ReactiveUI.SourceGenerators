@@ -2,10 +2,10 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
-    <CodeAnalysisVersion>4.8.0</CodeAnalysisVersion>
+    <CodeAnalysisVersion>5.0.0</CodeAnalysisVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.102" />
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.9.50" />
     <PackageVersion Include="NuGet.Common" Version="6.14.0" />
     <PackageVersion Include="NuGet.Protocol" Version="6.14.0" />
