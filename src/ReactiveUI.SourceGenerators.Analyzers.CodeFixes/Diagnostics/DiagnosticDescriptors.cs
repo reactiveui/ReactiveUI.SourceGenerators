@@ -19,12 +19,12 @@ internal static class DiagnosticDescriptors
     /// </summary>
     public static readonly DiagnosticDescriptor PropertyToReactiveFieldRule = new(
         id: "RXUISG0016",
-        title: "Property To Reactive Field, change to [Reactive] private type _fieldName;",
+        title: "Property To Reactive Field, change to `[Reactive]` private type _fieldName;",
         messageFormat: "Replace the property with a INPC Reactive Property for ReactiveUI",
         category: typeof(PropertyToReactiveFieldAnalyzer).FullName,
         defaultSeverity: DiagnosticSeverity.Info,
         isEnabledByDefault: true,
-        description: "Used to create a Read Write INPC Reactive Property for ReactiveUI, annotated with [Reactive].",
+        description: "Used to create a Read Write INPC Reactive Property for ReactiveUI, annotated with `[Reactive]`.",
         helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>
@@ -33,7 +33,7 @@ internal static class DiagnosticDescriptors
     public static readonly DiagnosticDescriptor ReactiveAttributeRequiresPartialRule = new(
         id: "RXUISG0020",
         title: "[Reactive] requires partial property and containing type",
-        messageFormat: "`[Reactive]` requires the property to be `partial` and the containing type to be `partial` so source generation can run.",
+        messageFormat: "`[Reactive]` requires the property to be `partial` and the containing type to be partial so source generation can run",
         category: typeof(ReactiveAttributeMisuseAnalyzer).FullName,
         defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true,

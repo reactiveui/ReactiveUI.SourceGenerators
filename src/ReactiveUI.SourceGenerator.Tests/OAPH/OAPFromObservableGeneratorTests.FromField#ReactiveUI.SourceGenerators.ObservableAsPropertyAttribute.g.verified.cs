@@ -41,11 +41,10 @@ internal sealed class ObservableAsPropertyAttribute : global::System.Attribute
     public bool UseProtected { get; init; } = false;
 
     /// <summary>
-    /// Gets the Initial value of the OAPH property.
+    /// Gets the Initial Value of the OAPH property. 
+    /// This should be a string representation of the value. i.e. "42" or "DateTime.Now" or "new List&lt;string&gt;()".
+    /// String values are automatically quoted.
     /// </summary>
-    /// <value>
-    /// The initial value of the OAPH property.
-    /// </value>
     public string? InitialValue { get; init; }
 }
 #nullable restore

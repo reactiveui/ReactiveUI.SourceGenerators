@@ -78,6 +78,9 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     [Reactive]
     private double _myDoubleNonNullProperty;
 
+    [Reactive]
+    private PLCInstance _plcInstanceCore = new();
+
     [BindableDerivedList]
     private ReadOnlyObservableCollection<Person>? _visiblePeople;
 
@@ -211,6 +214,10 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
             .Bind(out _visiblePeople)
             .Subscribe());
 
+        _pLCActiveHelper = this.WhenAnyValue(x => x.PartialRequiredPropertyTest).ToProperty(this, nameof(PLCActive));
+        _pLCPortHelper = this.WhenAnyValue(x => x.Test1Property).ToProperty(this, nameof(PLCPort));
+        _instanceOfPLCHelper = this.WhenAnyValue(x => x.PlcInstanceCore).ToProperty(this, nameof(InstanceOfPLC));
+
         Console.ReadLine();
     }
 
@@ -318,6 +325,24 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     [ObservableAsProperty]
     [property: Test(AParameter = "Test Input")]
     public IObservable<int> ObservableAsPropertyTest2 => Observable.Return(9);
+
+    /// <summary>
+    /// Gets the current active PLC identifier or name.
+    /// </summary>
+    [ObservableAsProperty(InitialValue = "Not Connected")]
+    public partial string? PLCActive { get; }
+
+    /// <summary>
+    /// Gets the TCP port number used to communicate with the PLC.
+    /// </summary>
+    [ObservableAsProperty(InitialValue = "9000")]
+    public partial int PLCPort { get; }
+
+    /// <summary>
+    /// Gets the current instance of the PLC (Programmable Logic Controller) used by the application.
+    /// </summary>
+    [ObservableAsProperty(InitialValue = $"new {nameof(PLCInstance)}()")]
+    public partial PLCInstance InstanceOfPLC { get; }
 
     /// <summary>
     /// Gets the Activator which will be used by the View when Activation/Deactivation occurs.
