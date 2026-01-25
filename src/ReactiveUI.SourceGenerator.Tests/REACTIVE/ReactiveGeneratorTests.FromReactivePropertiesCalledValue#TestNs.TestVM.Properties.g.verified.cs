@@ -10,7 +10,7 @@ namespace TestNs
         public partial class TestVM
     {
         
-        /// <inheritdoc cref="this.value"/>
+        /// <inheritdoc cref="value"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public string Value
         { 
