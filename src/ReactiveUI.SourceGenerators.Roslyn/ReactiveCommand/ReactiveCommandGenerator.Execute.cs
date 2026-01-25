@@ -123,6 +123,19 @@ public partial class ReactiveCommandGenerator
 
         token.ThrowIfCancellationRequested();
 
+        var xmlTrivia = methodSymbol.GetDocumentationCommentXml(cancellationToken: token);
+
+        // Remove Member attributes from xmlTrivia on the first and last lines
+        if (xmlTrivia?.Length > 0)
+        {
+            var s = xmlTrivia.Split('\n').ToList();
+            s.RemoveAt(0);
+            s.Remove(s.Last());
+            s.Remove(s.Last());
+            xmlTrivia = string.Concat(s.Select(c => "        /// " + c.TrimStart() + "\n"));
+            xmlTrivia = xmlTrivia.TrimEnd();
+        }
+
         return new(
             targetInfo,
             symbol.Name,
@@ -135,7 +148,8 @@ public partial class ReactiveCommandGenerator
             canExecuteTypeInfo,
             outputScheduler,
             forwardedPropertyAttributes,
-            accessModifier);
+            accessModifier,
+            xmlTrivia);
     }
 
     private static string GenerateSource(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, CommandInfo[] commands)
@@ -217,6 +231,7 @@ $$"""
 $$"""
         private {{RxCmd}}<{{inputType}}, {{outputType}}>? {{fieldName}};
 
+{{commandExtensionInfo.XmlComment}}
         [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
         {{forwardedPropertyAttributesString}}
         {{commandExtensionInfo.AccessModifier}} {{RxCmd}}<{{inputType}}, {{outputType}}> {{commandName}} { get => {{initializer}} }
