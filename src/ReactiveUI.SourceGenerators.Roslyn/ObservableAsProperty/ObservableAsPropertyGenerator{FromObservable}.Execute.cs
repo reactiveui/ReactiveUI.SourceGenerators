@@ -308,7 +308,17 @@ $$"""
 
         var isPartialProperty = string.Empty;
         var propertyType = propertyInfo.ObservableType;
-        var initialValue = string.IsNullOrWhiteSpace(propertyInfo.InitialValue) ? string.Empty : " = " + propertyInfo.InitialValue;
+        string? initVal;
+        if (propertyType.EndsWith("##string") || propertyType.EndsWith("##string?"))
+        {
+            initVal = $""" = "{propertyInfo.InitialValue}";""";
+        }
+        else
+        {
+            initVal = $" = {propertyInfo.InitialValue};";
+        }
+
+        var initialValue = string.IsNullOrWhiteSpace(propertyInfo.InitialValue) ? ";" : initVal;
         if (propertyInfo.IsFromPartialProperty)
         {
             isPartialProperty = "partial ";
@@ -325,7 +335,7 @@ $$"""
 
         return $$"""
 /// <inheritdoc cref="{{propertyInfo.PropertyName}}"/>
-        private {{propertyType}} {{getterFieldIdentifierName}}{{initialValue}};
+        private {{propertyType}} {{getterFieldIdentifierName}}{{initialValue}}
 
         /// <inheritdoc cref="{{getterFieldIdentifierName}}Helper"/>
         {{helperTypeName}} {{getterFieldIdentifierName}}Helper;

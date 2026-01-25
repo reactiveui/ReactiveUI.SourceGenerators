@@ -1,0 +1,27 @@
+<Solution>
+  <Folder Name="/SolutionConfig/">
+    <File Path="../.editorconfig" />
+    <File Path="../.gitignore" />
+    <File Path="../LICENSE" />
+    <File Path="../README.md" />
+    <File Path="../version.json" />
+    <File Path="Directory.build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="stylecop.json" />
+  </Folder>
+  <Folder Name="/TestLibs/">
+    <Project Path="ReactiveUI.SourceGenerators.Execute.Maui/ReactiveUI.SourceGenerators.Execute.Maui.csproj" />
+    <Project Path="ReactiveUI.SourceGenerators.Execute/ReactiveUI.SourceGenerators.Execute.csproj" />
+  </Folder>
+  <Folder Name="/TestLibs/NestedTest/">
+    <Project Path="ReactiveUI.SourceGenerators.Execute.Nested1/ReactiveUI.SourceGenerators.Execute.Nested1.csproj" />
+    <Project Path="ReactiveUI.SourceGenerators.Execute.Nested2/ReactiveUI.SourceGenerators.Execute.Nested2.csproj" />
+    <Project Path="ReactiveUI.SourceGenerators.Execute.Nested3/ReactiveUI.SourceGenerators.Execute.Nested3.csproj" />
+  </Folder>
+  <Project Path="ReactiveUI.SourceGenerator.Tests/ReactiveUI.SourceGenerators.Tests.csproj" />
+  <Project Path="ReactiveUI.SourceGenerators.Analyzers.CodeFixes/ReactiveUI.SourceGenerators.Analyzers.CodeFixes.csproj" />
+  <Project Path="ReactiveUI.SourceGenerators.Roslyn4120/ReactiveUI.SourceGenerators.Roslyn4120.csproj" />
+  <Project Path="ReactiveUI.SourceGenerators.Roslyn480/ReactiveUI.SourceGenerators.Roslyn480.csproj" />
+  <Project Path="ReactiveUI.SourceGenerators.Roslyn5000/ReactiveUI.SourceGenerators.Roslyn5000.csproj" />
+  <Project Path="ReactiveUI.SourceGenerators/ReactiveUI.SourceGenerators.csproj" />
+</Solution>

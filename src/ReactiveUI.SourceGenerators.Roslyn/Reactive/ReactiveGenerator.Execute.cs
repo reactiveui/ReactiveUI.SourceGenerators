@@ -122,17 +122,10 @@ public sealed partial class ReactiveGenerator
 
         var typeNameWithNullabilityAnnotations = propertySymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations();
         var fieldName = propertySymbol.GetGeneratedFieldName();
-#if ROSYLN_500
-        if (context.SemanticModel.Compilation is CSharpCompilation compilation && compilation.LanguageVersion >= LanguageVersion.CSharp14)
+        if (context.SemanticModel.Compilation is CSharpCompilation compilation && compilation.LanguageVersion > LanguageVersion.CSharp13)
         {
             fieldName = "field";
         }
-#else
-        if (context.SemanticModel.Compilation is CSharpCompilation compilation && compilation.LanguageVersion == LanguageVersion.Preview)
-        {
-            fieldName = "field";
-        }
-#endif
 
         var propertyName = propertySymbol.Name;
 
