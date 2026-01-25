@@ -309,7 +309,7 @@ $$"""
         var isPartialProperty = string.Empty;
         var propertyType = propertyInfo.ObservableType;
         string? initVal;
-        if (propertyType.Equals("string") || propertyType.Equals("string?"))
+        if (propertyType.EndsWith("##string") || propertyType.EndsWith("##string?"))
         {
             initVal = $""" = "{propertyInfo.InitialValue}";""";
         }
