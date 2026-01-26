@@ -1,9 +1,7 @@
-﻿// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
+// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
 // Licensed to the ReactiveUI and contributors under one or more agreements.
 // The ReactiveUI and contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
-
-using ReactiveUI.SourceGenerators;
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
@@ -18,7 +16,7 @@ public class ReactiveCMDGeneratorTests : TestBase<ReactiveCommandGenerator>
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
-    public Task FromReactiveCommand()
+    public Task Basic()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
@@ -46,7 +44,7 @@ public class ReactiveCMDGeneratorTests : TestBase<ReactiveCommandGenerator>
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
-    public Task FromReactiveCommandWithParameter()
+    public Task WithParam()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
@@ -106,7 +104,7 @@ public class ReactiveCMDGeneratorTests : TestBase<ReactiveCommandGenerator>
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
-    public Task FromReactiveAsyncCommandWithParameter()
+    public Task AsyncWithParam()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
@@ -138,7 +136,7 @@ public class ReactiveCMDGeneratorTests : TestBase<ReactiveCommandGenerator>
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
-    public Task FromReactiveCommandWithOutputScheduler()
+    public Task Scheduler()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
@@ -164,7 +162,7 @@ public class ReactiveCMDGeneratorTests : TestBase<ReactiveCommandGenerator>
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
-    public Task FromReactiveCommandWithNestedClasses()
+    public Task Nested()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
@@ -223,7 +221,7 @@ public class ReactiveCMDGeneratorTests : TestBase<ReactiveCommandGenerator>
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
-    public Task FromReactiveCommandWithAccessModifier()
+    public Task Access()
     {
         const string sourceCode = """
             using System;
@@ -244,7 +242,7 @@ public class ReactiveCMDGeneratorTests : TestBase<ReactiveCommandGenerator>
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
-    public Task FromReactiveCommandWithNullableTypeAndNullableReturnType()
+    public Task NullableTypeReturn()
     {
         const string sourceCode = """
             using System;
