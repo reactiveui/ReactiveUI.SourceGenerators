@@ -358,6 +358,9 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     [ObservableAsProperty(InitialValue = "10")]
     public partial int ObservableAsPropertyFromProperty { get; }
 
+    /// <summary>
+    /// Gets or sets the value for internal use within the partial class or assembly.
+    /// </summary>
     [Reactive]
     internal partial int InternalPartialPropertyTest { get; set; }
 

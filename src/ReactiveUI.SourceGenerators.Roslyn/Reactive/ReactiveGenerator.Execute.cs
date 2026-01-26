@@ -155,6 +155,19 @@ public sealed partial class ReactiveGenerator
 
         token.ThrowIfCancellationRequested();
 
+        var xmlTrivia = propertySymbol.GetDocumentationCommentXml(cancellationToken: token);
+
+        // Remove Member attributes from xmlTrivia on the first and last lines
+        if (xmlTrivia?.Length > 0)
+        {
+            var s = xmlTrivia.Split('\n').ToList();
+            s.RemoveAt(0);
+            s.Remove(s.Last());
+            s.Remove(s.Last());
+            xmlTrivia = string.Concat(s.Select(c => "        /// " + c.TrimStart() + "\n"));
+            xmlTrivia = xmlTrivia.TrimEnd();
+        }
+
         return new(
             new(
             targetInfo,
@@ -169,19 +182,20 @@ public sealed partial class ReactiveGenerator
             useRequired,
             true,
             propertyAccessModifier!,
-            alsoNotify),
+            alsoNotify,
+            xmlTrivia),
             builder.ToImmutable());
     }
 #endif
 
-        /// <summary>
-        /// Gets the observable method information.
-        /// </summary>
-        /// <param name="context">The context.</param>
-        /// <param name="token">The token.</param>
-        /// <returns>
-        /// The value.
-        /// </returns>
+    /// <summary>
+    /// Gets the observable method information.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <param name="token">The token.</param>
+    /// <returns>
+    /// The value.
+    /// </returns>
     private static Result<PropertyInfo?>? GetVariableInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
         using var builder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
@@ -300,7 +314,8 @@ public sealed partial class ReactiveGenerator
             useRequired,
             false,
             "public",
-            alsoNotify),
+            alsoNotify,
+            string.Empty),
             builder.ToImmutable());
     }
 
@@ -393,12 +408,18 @@ $$"""
 """;
         }
 
+        var docSource = string.Empty;
         if (propertyInfo.IsProperty)
         {
+            docSource = !string.IsNullOrWhiteSpace(propertyInfo.XmlComment)
+                ? propertyInfo.XmlComment
+                : $$"""        /// <inheritdoc cref="{{propertyInfo.PropertyName}}"/>""";
+
             propertyAttributes = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage);
         }
         else
         {
+            docSource = $$"""        /// <inheritdoc cref="{{getFieldName}}"/>""";
             propertyAttributes = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage.Concat(propertyInfo.ForwardedAttributes));
         }
 
@@ -416,7 +437,7 @@ $$"""
             return
 $$"""
         {{fieldSyntax}}
-        /// <inheritdoc cref="{{setFieldName}}"/>
+{{docSource}}
         [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
         {{propertyAttributes}}
         {{accessModifier}}{{propertyInfo.Inheritance}} {{propertyInfo.UseRequired}}{{partialModifier}}{{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}}
@@ -434,7 +455,7 @@ $$"""
         return
 $$"""
         {{fieldSyntax}}
-        /// <inheritdoc cref="{{setFieldName}}"/>
+{{docSource}}
         [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
         {{propertyAttributes}}
         {{accessModifier}}{{propertyInfo.Inheritance}} {{propertyInfo.UseRequired}}{{partialModifier}}{{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}}
