@@ -32,6 +32,17 @@
 
   <ItemGroup>
     <Using Include="NUnit.Framework" />
+    <Using Include="ReactiveUI.SourceGenerators" />
+    <Using Include="System.Text.RegularExpressions" />
+    <Using Include="Microsoft.CodeAnalysis" />
+    <Using Include="Microsoft.CodeAnalysis.CSharp" />
+    <Using Include="NuGet.Frameworks" />
+    <Using Include="NuGet.LibraryModel" />
+    <Using Include="NuGet.Versioning" />
+    <Using Include="System.Collections.Immutable" />
+    <Using Include="Microsoft.CodeAnalysis.Diagnostics" />
+    <Using Include="ReactiveUI.SourceGenerators.CodeFixers" />
+    <Using Include="System.Runtime.CompilerServices" />
   </ItemGroup>
 
   <ItemGroup>

@@ -3,21 +3,9 @@
 // The ReactiveUI and contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Text.RegularExpressions;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-
-using NuGet.Frameworks;
-using NuGet.LibraryModel;
-using NuGet.Versioning;
-
-using NUnit.Framework;
-
 using ReactiveMarbles.NuGet.Helpers;
 
 using ReactiveMarbles.SourceGenerator.TestNuGetHelper.Compilation;
-
-using ReactiveUI.SourceGenerators;
 using ReactiveUI.SourceGenerators.WinForms;
 
 namespace ReactiveUI.SourceGenerator.Tests;
@@ -311,5 +299,7 @@ public sealed partial class TestHelper<T> : IDisposable
         TestContext.Out.WriteLine("=== END VALIDATION DEBUG ===");
     }
 
-    private SettingsTask VerifyGenerator(GeneratorDriver driver) => Verify(driver).UseDirectory(VerifiedFilePath()).ScrubLinesContaining("[global::System.CodeDom.Compiler.GeneratedCode(\"");
+    private SettingsTask VerifyGenerator(GeneratorDriver driver) => Verify(driver)
+        .UseDirectory(VerifiedFilePath())
+        .ScrubLinesContaining("[global::System.CodeDom.Compiler.GeneratedCode(\"");
 }

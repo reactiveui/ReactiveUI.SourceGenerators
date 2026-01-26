@@ -3,8 +3,6 @@
 // The ReactiveUI and contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Runtime.CompilerServices;
-
 /// <summary>
 /// Initializes the source generator verifiers.
 /// </summary>

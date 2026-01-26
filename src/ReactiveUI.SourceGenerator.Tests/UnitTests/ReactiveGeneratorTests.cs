@@ -1,9 +1,7 @@
-﻿// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
+// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
 // Licensed to the ReactiveUI and contributors under one or more agreements.
 // The ReactiveUI and contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
-
-using ReactiveUI.SourceGenerators;
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
@@ -18,7 +16,7 @@ public class ReactiveGeneratorTests : TestBase<ReactiveGenerator>
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
-    public Task FromReactiveProperties()
+    public Task Basic()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
@@ -45,7 +43,7 @@ public class ReactiveGeneratorTests : TestBase<ReactiveGenerator>
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
-    public Task FromReactivePropertiesCalledValue()
+    public Task CalledValue()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
@@ -72,7 +70,7 @@ public class ReactiveGeneratorTests : TestBase<ReactiveGenerator>
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
-    public Task FromReactivePropertiesWithAccess()
+    public Task WithAccess()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
@@ -99,7 +97,7 @@ public class ReactiveGeneratorTests : TestBase<ReactiveGenerator>
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
-    public Task FromReactiveProperiesWithAttributes()
+    public Task WithAttributes()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
@@ -130,7 +128,7 @@ public class ReactiveGeneratorTests : TestBase<ReactiveGenerator>
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
-    public Task FromReactivePropertiesWithAttributesAccessAndInheritance()
+    public Task WithAttrAccessInherit()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
@@ -161,7 +159,7 @@ public class ReactiveGeneratorTests : TestBase<ReactiveGenerator>
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
-    public Task FromReactivePropertiesWithIdenticalClass()
+    public Task WithIdenticalClass()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
@@ -204,7 +202,7 @@ public class ReactiveGeneratorTests : TestBase<ReactiveGenerator>
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
-    public Task FromReactivePropertiesWithNestedClass()
+    public Task WithNestedClass()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
@@ -277,7 +275,7 @@ public class ReactiveGeneratorTests : TestBase<ReactiveGenerator>
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
-    public Task FromReactivePropertiesWithInit()
+    public Task WithInit()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
@@ -304,7 +302,7 @@ public class ReactiveGeneratorTests : TestBase<ReactiveGenerator>
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
-    public Task FromReactivePartialProperties()
+    public Task Partial()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
@@ -331,7 +329,7 @@ public class ReactiveGeneratorTests : TestBase<ReactiveGenerator>
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
-    public Task FromReactiveFromPartialWithAlsoNotify()
+    public Task PartialAlsoNotify()
     {
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
