@@ -32,9 +32,9 @@
     <PackageVersion Include="ReactiveUI.Maui" Version="22.3.1" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
     <PackageVersion Include="System.Formats.Asn1" Version="10.0.0" />
-    <PackageVersion Include="NUnit" Version="4.5.0" />
+    <PackageVersion Include="NUnit" Version="4.5.1" />
     <PackageVersion Include="NUnit3TestAdapter" Version="6.1.0" />
-    <PackageVersion Include="NUnit.Analyzers" Version="4.11.2" />
+    <PackageVersion Include="NUnit.Analyzers" Version="4.12.0" />
     <PackageVersion Include="Microsoft.Reactive.Testing" Version="6.1.0" />
     <PackageVersion Include="PublicApiGenerator" Version="11.5.4" />
     <PackageVersion Include="coverlet.msbuild" Version="8.0.0" />
