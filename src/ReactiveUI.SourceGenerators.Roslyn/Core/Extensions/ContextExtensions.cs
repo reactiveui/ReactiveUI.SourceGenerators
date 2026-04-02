@@ -111,4 +111,11 @@ internal static class ContextExtensions
         var attributes = forwardedAttributeBuilder.ToImmutable();
         forwardedAttributes = attributes.Select(static a => a.ToString()).ToImmutableArray();
     }
+
+    internal static IncrementalValueProvider<bool> ReactiveUIVersionIsGreaterThan22(this in IncrementalGeneratorInitializationContext context) =>
+        context.CompilationProvider.Select(static (compilation, token) =>
+        {
+            token.ThrowIfCancellationRequested();
+            return compilation.ReferencedAssemblyNames.FirstOrDefault(a => a.Name == AttributeDefinitions.ReactiveUI)?.Version.Major > 22;
+        });
 }

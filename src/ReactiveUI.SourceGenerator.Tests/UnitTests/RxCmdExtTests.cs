@@ -462,7 +462,7 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
             {
                 public IObservable<bool> CanExecuteCommand => Observable.Return(true);
 
-                [ReactiveCommand(CanExecute = nameof(CanExecuteCommand), OutputScheduler = "RxApp.MainThreadScheduler")]
+                [ReactiveCommand(CanExecute = nameof(CanExecuteCommand), OutputScheduler = "RxScheduler.MainThreadScheduler")]
                 private async Task<string> ExecuteWithScheduler()
                 {
                     await Task.Delay(100);

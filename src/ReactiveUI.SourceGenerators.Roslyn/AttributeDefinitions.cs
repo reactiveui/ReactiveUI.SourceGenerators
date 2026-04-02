@@ -13,8 +13,9 @@ internal static class AttributeDefinitions
 {
     public const string GeneratedCode = "global::System.CodeDom.Compiler.GeneratedCode";
     public const string Obsolete = "global::System.Obsolete";
-
     public const string AccessModifierType = "ReactiveUI.SourceGenerators.AccessModifier";
+    public const string ReactiveUI = "ReactiveUI";
+
     public static string[] ExcludeFromCodeCoverage = ["[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]"];
 
     public static string GetAccessModifierEnum() => $$"""

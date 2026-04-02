@@ -8,6 +8,7 @@ This documentation covers using ReactiveUI Source Generators to simplify and enh
   - **ReactiveUI Version**: 19.5.31+
 
 ## Table of Contents
+- [Installation](#installation)
 - [Overview](#overview)
 - [Supported Attributes & Features](#supported-attributes)
 - [Detailed Usage](#welcome-to-a-new-way---source-generators)
@@ -19,6 +20,12 @@ This documentation covers using ReactiveUI Source Generators to simplify and enh
   - [Platform-Specific Attributes](#platform-specific-attributes)
 - [Compatibility Notes](#compatibility-notes)
 - [Credits](#credits)
+
+## Installation
+
+dotnet add package ReactiveUI.SourceGenerators
+
+Ensure the package is loaded with `PrivateAssets="all"` to avoid issues with generated code in consuming projects.
 
 ## Overview
 
@@ -35,7 +42,7 @@ ReactiveUI Source Generators automatically generate ReactiveUI objects to stream
 - `[ObservableAsProperty(InitialValue = "Default Value")]` Only valid for partial properties using (C# 13 Visual Studio Version 17.12.0)
 - `[ReactiveCommand]`
 - `[ReactiveCommand(CanExecute = nameof(IObservableBoolName))]` with CanExecute
-- `[ReactiveCommand(OutputScheduler = "RxApp.MainThreadScheduler")]` using a ReactiveUI Scheduler
+- `[ReactiveCommand(OutputScheduler = "RxSchedulers.MainThreadScheduler")]` using a ReactiveUI Scheduler
 - `[ReactiveCommand(OutputScheduler = nameof(_isheduler))]` using a Scheduler defined in the class
 - `[ReactiveCommand][property: AttributeToAddToCommand]` with Attribute passthrough
 - `[ReactiveCommand(AccessModifier = PropertyAccessModifier.Internal)]` sets the access modifier of the generated command property
@@ -547,7 +554,7 @@ using ReactiveUI.SourceGenerators;
 
 public partial class MyReactiveClass
 {
-    [ReactiveCommand(OutputScheduler = "RxApp.MainThreadScheduler")]
+    [ReactiveCommand(OutputScheduler = "RxSchedulers.MainThreadScheduler")]
     private void Execute() { }
 }
 ```

@@ -9,6 +9,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 
 namespace ReactiveUI.SourceGenerators.WinForms;
@@ -25,6 +26,8 @@ public sealed partial class ViewModelControlHostGenerator : IIncrementalGenerato
         context.RegisterPostInitializationOutput(ctx =>
             ctx.AddSource($"{AttributeDefinitions.ViewModelControlHostAttributeType}.g.cs", SourceText.From(AttributeDefinitions.ViewModelControlHostAttribute, Encoding.UTF8)));
 
+        var reactiveUiVersionProvider = context.ReactiveUIVersionIsGreaterThan22();
+
         // Gather info for all annotated IViewFor Classes
         var vmcInfo =
             context.SyntaxProvider
@@ -34,12 +37,13 @@ public sealed partial class ViewModelControlHostGenerator : IIncrementalGenerato
                 static (context, token) => GetClassInfo(context, token))
             .Where(x => x != null)
             .Select((x, _) => x!)
-            .Collect();
+            .Collect()
+            .Combine(reactiveUiVersionProvider);
 
         // Generate the requested properties and methods for IViewFor
         context.RegisterSourceOutput(vmcInfo, static (context, input) =>
         {
-            var groupedPropertyInfo = input.GroupBy(
+            var groupedPropertyInfo = input.Left.GroupBy(
                 static info => (info.FileHintName, info.TargetName, info.TargetNamespace, info.TargetVisibility, info.TargetType),
                 static info => info)
                 .ToImmutableArray();
@@ -58,7 +62,7 @@ public sealed partial class ViewModelControlHostGenerator : IIncrementalGenerato
                     continue;
                 }
 
-                var source = GetViewModelControlHost(grouping.Key.TargetName, grouping.Key.TargetNamespace, grouping.Key.TargetVisibility, grouping.Key.TargetType, grouping.FirstOrDefault());
+                var source = GetViewModelControlHost(grouping.Key.TargetName, grouping.Key.TargetNamespace, grouping.Key.TargetVisibility, grouping.Key.TargetType, grouping.FirstOrDefault(), input.Right);
                 context.AddSource($"{grouping.Key.FileHintName}.ViewModelControlHost.g.cs", source);
             }
         });
