@@ -29,7 +29,7 @@
     <PackageVersion Include="Avalonia.Diagnostics" Version="11.3.12" />
     <PackageVersion Include="Avalonia.Desktop" Version="11.3.12" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
-    <PackageVersion Include="ReactiveUI.Maui" Version="22.3.1" />
+    <PackageVersion Include="ReactiveUI.Maui" Version="23.1.8" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
     <PackageVersion Include="System.Formats.Asn1" Version="10.0.0" />
     <PackageVersion Include="NUnit" Version="4.5.1" />
