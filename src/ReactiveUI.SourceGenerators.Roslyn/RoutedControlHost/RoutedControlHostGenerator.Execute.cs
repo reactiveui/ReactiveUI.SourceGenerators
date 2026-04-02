@@ -80,10 +80,13 @@ public partial class RoutedControlHostGenerator
             classAttributesInfo);
     }
 
-    private static string GetRoutedControlHost(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, RoutedControlHostInfo vmcInfo)
+    private static string GetRoutedControlHost(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, RoutedControlHostInfo vmcInfo, bool isNewerThan22)
     {
         // Prepare any forwarded property attributes
         var forwardedAttributesString = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage.Concat(vmcInfo.ForwardedAttributes));
+        var exceptionHandler = isNewerThan22
+            ? "RxState.DefaultExceptionHandler!.OnNext"
+            : "RxApp.DefaultExceptionHandler!.OnNext";
 
         return
 $$"""
@@ -162,7 +165,7 @@ namespace {{containingNamespace}}
                 }
 
                 ResumeLayout();
-            }, RxApp.DefaultExceptionHandler!.OnNext));
+            }, {{exceptionHandler}}));
         }
 
         /// <inheritdoc/>

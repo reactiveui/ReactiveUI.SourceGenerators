@@ -148,7 +148,7 @@ public class ReactiveCMDGeneratorTests : TestBase<ReactiveCommandGenerator>
                 namespace TestNs;
                 public partial class TestVM : ReactiveObject
                 {
-                    [ReactiveCommand(OutputScheduler = "RxApp.MainThreadScheduler")]
+                    [ReactiveCommand(OutputScheduler = "RxSchedulers.MainThreadScheduler")]
                     private int Test1() => 10;
                 }
             """;

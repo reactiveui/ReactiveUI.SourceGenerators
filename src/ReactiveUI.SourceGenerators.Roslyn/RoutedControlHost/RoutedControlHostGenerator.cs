@@ -9,6 +9,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 
 namespace ReactiveUI.SourceGenerators.WinForms;
@@ -25,6 +26,8 @@ public sealed partial class RoutedControlHostGenerator : IIncrementalGenerator
         context.RegisterPostInitializationOutput(ctx =>
             ctx.AddSource($"{AttributeDefinitions.RoutedControlHostAttributeType}.g.cs", SourceText.From(AttributeDefinitions.GetRoutedControlHostAttribute(), Encoding.UTF8)));
 
+        var reactiveUiVersionProvider = context.ReactiveUIVersionIsGreaterThan22();
+
         // Gather info for all annotated IViewFor Classes
         var rchInfo =
             context.SyntaxProvider
@@ -34,12 +37,13 @@ public sealed partial class RoutedControlHostGenerator : IIncrementalGenerator
                 static (context, token) => GetClassInfo(context, token))
             .Where(x => x != null)
             .Select((x, _) => x!)
-            .Collect();
+            .Collect()
+            .Combine(reactiveUiVersionProvider);
 
         // Generate the requested properties and methods for IViewFor
         context.RegisterSourceOutput(rchInfo, static (context, input) =>
         {
-            var groupedPropertyInfo = input.GroupBy(
+            var groupedPropertyInfo = input.Left.GroupBy(
                 static info => (info.FileHintName, info.TargetName, info.TargetNamespace, info.TargetVisibility, info.TargetType),
                 static info => info)
                 .ToImmutableArray();
@@ -58,7 +62,7 @@ public sealed partial class RoutedControlHostGenerator : IIncrementalGenerator
                     continue;
                 }
 
-                var source = GetRoutedControlHost(grouping.Key.TargetName, grouping.Key.TargetNamespace, grouping.Key.TargetVisibility, grouping.Key.TargetType, grouping.FirstOrDefault());
+                var source = GetRoutedControlHost(grouping.Key.TargetName, grouping.Key.TargetNamespace, grouping.Key.TargetVisibility, grouping.Key.TargetType, grouping.FirstOrDefault(), input.Right);
                 context.AddSource($"{grouping.Key.FileHintName}.RoutedControlHost.g.cs", source);
             }
         });

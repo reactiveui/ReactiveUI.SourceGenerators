@@ -73,10 +73,13 @@ public partial class ViewModelControlHostGenerator
             classAttributesInfo);
     }
 
-    private static string GetViewModelControlHost(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, ViewModelControlHostInfo vmcInfo)
+    private static string GetViewModelControlHost(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, ViewModelControlHostInfo vmcInfo, bool isNewerThan22)
     {
         // Prepare any forwarded property attributes
         var forwardedAttributesString = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage.Concat(vmcInfo.ForwardedAttributes));
+        var exceptionHandler = isNewerThan22
+            ? "RxState.DefaultExceptionHandler!.OnNext"
+            : "RxApp.DefaultExceptionHandler!.OnNext";
 
         return
 $$"""
@@ -263,7 +266,7 @@ namespace {{containingNamespace}}
                     view.ViewModel = x.ViewModel;
                     Content = view;
                 }
-            }, RxApp.DefaultExceptionHandler!.OnNext);
+            }, {{exceptionHandler}});
         }
     }
 }
