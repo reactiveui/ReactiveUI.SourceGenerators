@@ -4,6 +4,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Reflection;
+using System.Runtime.InteropServices;
 using ReactiveUI.SourceGenerators.WinForms;
 
 namespace ReactiveUI.SourceGenerator.Tests;
@@ -170,6 +171,18 @@ public sealed partial class TestHelper<T> : IDisposable
                 GetAttributeDefinitionsPropertyResult("ReactiveAttribute"),
                 parseOptions,
                 path: "ReactiveAttribute.g.cs"));
+        }
+
+        // On non-Windows platforms the Microsoft.WindowsDesktop.App shared framework is unavailable,
+        // so test sources that inherit from System.Windows.Window (WPF) or use Windows Forms types
+        // cannot resolve those types from assembly references. Inject lightweight source stubs so
+        // the in-memory compilation succeeds cross-platform.
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            syntaxTrees.Add(CSharpSyntaxTree.ParseText(
+                TestCompilationReferences.WindowsDesktopStubs,
+                parseOptions,
+                path: "WindowsDesktopStubs.g.cs"));
         }
 
         // Create a compilation with the provided source code.

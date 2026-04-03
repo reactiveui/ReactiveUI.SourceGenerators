@@ -11,6 +11,34 @@ namespace ReactiveUI.SourceGenerator.Tests;
 internal static class TestCompilationReferences
 {
     /// <summary>
+    /// Minimal source stubs for WPF and WinForms types that are only available
+    /// via the Microsoft.WindowsDesktop.App shared framework on Windows.
+    /// Used in non-Windows test compilations to allow test sources that reference
+    /// <c>System.Windows.Window</c> or <c>System.Windows.Forms.UserControl</c>
+    /// to compile cross-platform without requiring platform-specific assemblies.
+    /// </summary>
+    internal const string WindowsDesktopStubs = """
+        namespace System.Windows
+        {
+            public class DependencyObject { }
+            public class UIElement : DependencyObject { }
+            public class FrameworkElement : UIElement { }
+            public class Window : FrameworkElement { }
+        }
+        namespace System.Windows.Controls
+        {
+            public class UserControl : System.Windows.FrameworkElement { }
+            public class Page : System.Windows.FrameworkElement { }
+        }
+        namespace System.Windows.Forms
+        {
+            public class Control { }
+            public class Form : Control { }
+            public class UserControl : Control { }
+        }
+        """;
+
+    /// <summary>
     /// Returns metadata references for all assemblies required by the in-memory test compilations.
     /// Uses only runtime assemblies already loaded into the current process — no NuGet downloads,
     /// no Basic.Reference.Assemblies mixing — to avoid CS1704/CS0433/CS0518 duplicate-type errors.
