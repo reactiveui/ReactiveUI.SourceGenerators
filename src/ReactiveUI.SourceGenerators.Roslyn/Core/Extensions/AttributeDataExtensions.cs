@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
@@ -34,9 +35,7 @@ internal static class AttributeDataExtensions
         {
             if (properties.Key == name)
             {
-                value = (T?)properties.Value.Value;
-
-                return true;
+                return TryConvertNamedArgument(properties.Value, out value);
             }
         }
 
@@ -58,7 +57,7 @@ internal static class AttributeDataExtensions
         {
             if (properties.Key == name)
             {
-                return (T?)properties.Value.Value;
+                return TryConvertNamedArgument(properties.Value, out T? value) ? value : default;
             }
         }
 
@@ -171,5 +170,69 @@ internal static class AttributeDataExtensions
         var success = attributeData?.AttributeClass?.ToDisplayString();
         var start = success?.IndexOf('<') + 1 ?? 0;
         return success?.Substring(start, success.Length - start - 1);
+    }
+
+    private static bool TryConvertNamedArgument<T>(in TypedConstant typedConstant, out T? value)
+    {
+        var rawValue = TryGetRawValue(typedConstant);
+
+        if (rawValue is null)
+        {
+            value = default;
+            return false;
+        }
+
+        if (rawValue is T typedValue)
+        {
+            value = typedValue;
+            return true;
+        }
+
+        var targetType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+
+        try
+        {
+            value = (T)Convert.ChangeType(rawValue, targetType, CultureInfo.InvariantCulture);
+            return true;
+        }
+        catch (InvalidCastException)
+        {
+            value = default;
+            return false;
+        }
+        catch (FormatException)
+        {
+            value = default;
+            return false;
+        }
+        catch (OverflowException)
+        {
+            value = default;
+            return false;
+        }
+    }
+
+    private static object? TryGetRawValue(in TypedConstant typedConstant)
+    {
+        if (typedConstant.Type?.TypeKind == TypeKind.Enum)
+        {
+            if (typedConstant.Value is IFieldSymbol fieldSymbol)
+            {
+                return fieldSymbol.ConstantValue;
+            }
+
+            if (typedConstant.Value is not null)
+            {
+                return typedConstant.Value;
+            }
+
+            if (typedConstant.Type is INamedTypeSymbol enumType)
+            {
+                var enumMemberName = typedConstant.ToCSharpString().Split('.').LastOrDefault();
+                return enumType.GetMembers(enumMemberName ?? string.Empty).OfType<IFieldSymbol>().FirstOrDefault()?.ConstantValue;
+            }
+        }
+
+        return typedConstant.Value;
     }
 }
