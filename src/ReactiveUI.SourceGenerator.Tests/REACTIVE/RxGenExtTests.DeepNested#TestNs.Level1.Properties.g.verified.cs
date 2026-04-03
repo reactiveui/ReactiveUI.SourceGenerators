@@ -13,8 +13,9 @@ namespace TestNs
         /// <inheritdoc cref="_level1Prop"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int Level1Prop
-        {
+        { 
             get => _level1Prop;
+            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_level1Prop")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _level1Prop, value);

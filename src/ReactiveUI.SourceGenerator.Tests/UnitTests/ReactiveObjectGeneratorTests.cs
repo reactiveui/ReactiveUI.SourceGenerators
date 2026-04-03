@@ -8,7 +8,6 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// <summary>
 /// Unit tests for the Reactive generator.
 /// </summary>
-[TestFixture]
 public class ReactiveObjectGeneratorTests : TestBase<ReactiveObjectGenerator>
 {
     /// <summary>

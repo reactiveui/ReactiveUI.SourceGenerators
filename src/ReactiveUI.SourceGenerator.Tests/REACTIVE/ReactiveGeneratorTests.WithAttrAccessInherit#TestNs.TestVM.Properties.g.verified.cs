@@ -14,11 +14,11 @@ namespace TestNs
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         [global::System.Runtime.Serialization.DataMemberAttribute()]
         [global::System.Text.Json.Serialization.JsonIncludeAttribute()]
-        public virtual string? Name
+        public string? Name
         { 
             get => _name;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_name")]
-            protected set
+            set
             {
                 this.RaiseAndSetIfChanged(ref _name, value);
             }

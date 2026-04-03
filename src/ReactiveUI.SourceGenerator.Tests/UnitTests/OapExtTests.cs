@@ -8,7 +8,6 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// <summary>
 /// Extended unit tests for the ObservableAsProperty generator covering edge cases.
 /// </summary>
-[TestFixture]
 public class OapExtTests : TestBase<ObservableAsPropertyGenerator>
 {
     /// <summary>

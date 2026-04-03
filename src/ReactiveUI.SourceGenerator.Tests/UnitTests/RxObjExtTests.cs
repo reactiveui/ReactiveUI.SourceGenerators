@@ -8,7 +8,6 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// <summary>
 /// Extended unit tests for the ReactiveObject generator covering edge cases.
 /// </summary>
-[TestFixture]
 public class RxObjExtTests : TestBase<ReactiveObjectGenerator>
 {
     /// <summary>

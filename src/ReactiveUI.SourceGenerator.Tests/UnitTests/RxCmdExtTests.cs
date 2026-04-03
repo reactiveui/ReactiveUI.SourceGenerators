@@ -8,7 +8,6 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// <summary>
 /// Extended unit tests for the ReactiveCommand generator covering edge cases.
 /// </summary>
-[TestFixture]
 public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
 {
     /// <summary>

@@ -18,22 +18,6 @@ public abstract class TestBase<T> : IDisposable
     /// </summary>
     protected TestHelper<T> TestHelper { get; } = new();
 
-    /// <summary>
-    /// Initializes the test helper asynchronously.
-    /// </summary>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    [OneTimeSetUp]
-    public Task InitializeAsync() => TestHelper.InitializeAsync();
-
-    /// <summary>
-    /// Disposes the test helper.
-    /// </summary>
-    [OneTimeTearDown]
-    public void DisposeAsync()
-    {
-        TestHelper.Dispose();
-    }
-
     /// <inheritdoc/>
     public void Dispose()
     {

@@ -8,7 +8,6 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// <summary>
 /// Extended unit tests for <see cref="ReactiveAttributeMisuseAnalyzer" />.
 /// </summary>
-[TestFixture]
 public sealed class AttrMisuseExtTests
 {
     /// <summary>
@@ -32,7 +31,7 @@ public sealed class AttrMisuseExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0020"), Is.True);
+        AssertContainsDiagnostic(diagnostics, "RXUISG0020");
     }
 
     /// <summary>
@@ -56,7 +55,7 @@ public sealed class AttrMisuseExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0020"), Is.True);
+        AssertContainsDiagnostic(diagnostics, "RXUISG0020");
     }
 
     /// <summary>
@@ -80,7 +79,7 @@ public sealed class AttrMisuseExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0020"), Is.False);
+        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0020");
     }
 
     /// <summary>
@@ -107,7 +106,7 @@ public sealed class AttrMisuseExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0020"), Is.True);
+        AssertContainsDiagnostic(diagnostics, "RXUISG0020");
     }
 
     /// <summary>
@@ -134,7 +133,7 @@ public sealed class AttrMisuseExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0020"), Is.False);
+        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0020");
     }
 
     /// <summary>
@@ -158,7 +157,7 @@ public sealed class AttrMisuseExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0020"), Is.True);
+        AssertContainsDiagnostic(diagnostics, "RXUISG0020");
     }
 
     /// <summary>
@@ -182,7 +181,7 @@ public sealed class AttrMisuseExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0020"), Is.False);
+        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0020");
     }
 
     /// <summary>
@@ -212,7 +211,7 @@ public sealed class AttrMisuseExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Count(d => d.Id == "RXUISG0020"), Is.EqualTo(3));
+        AssertDiagnosticCount(diagnostics, "RXUISG0020", 3);
     }
 
     /// <summary>
@@ -236,7 +235,7 @@ public sealed class AttrMisuseExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0020"), Is.False);
+        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0020");
     }
 
     /// <summary>
@@ -266,7 +265,7 @@ public sealed class AttrMisuseExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0020"), Is.True);
+        AssertContainsDiagnostic(diagnostics, "RXUISG0020");
     }
 
     /// <summary>
@@ -296,7 +295,7 @@ public sealed class AttrMisuseExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0020"), Is.False);
+        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0020");
     }
 
     /// <summary>
@@ -319,7 +318,7 @@ public sealed class AttrMisuseExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0020"), Is.True);
+        AssertContainsDiagnostic(diagnostics, "RXUISG0020");
     }
 
     /// <summary>
@@ -341,7 +340,7 @@ public sealed class AttrMisuseExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0020"), Is.False);
+        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0020");
     }
 
     /// <summary>
@@ -365,7 +364,7 @@ public sealed class AttrMisuseExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0020"), Is.True);
+        AssertContainsDiagnostic(diagnostics, "RXUISG0020");
     }
 
     /// <summary>
@@ -389,7 +388,7 @@ public sealed class AttrMisuseExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0020"), Is.False);
+        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0020");
     }
 
     /// <summary>
@@ -413,7 +412,7 @@ public sealed class AttrMisuseExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0020"), Is.True);
+        AssertContainsDiagnostic(diagnostics, "RXUISG0020");
     }
 
     /// <summary>
@@ -439,7 +438,7 @@ public sealed class AttrMisuseExtTests
 
         // [Reactive] on non-partial property should produce RXUISG0020
         // because the attribute requires the property to be partial
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0020"), Is.True);
+        AssertContainsDiagnostic(diagnostics, "RXUISG0020");
     }
 
     private static Diagnostic[] GetDiagnostics(string source)
@@ -459,5 +458,30 @@ public sealed class AttrMisuseExtTests
 
         var compilationWithAnalyzers = compilation.WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(analyzer));
         return compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync().GetAwaiter().GetResult().ToArray();
+    }
+
+    private static void AssertContainsDiagnostic(IEnumerable<Diagnostic> diagnostics, string diagnosticId)
+    {
+        if (!diagnostics.Any(d => d.Id == diagnosticId))
+        {
+            throw new InvalidOperationException($"Expected diagnostic '{diagnosticId}' was not reported.");
+        }
+    }
+
+    private static void AssertDoesNotContainDiagnostic(IEnumerable<Diagnostic> diagnostics, string diagnosticId)
+    {
+        if (diagnostics.Any(d => d.Id == diagnosticId))
+        {
+            throw new InvalidOperationException($"Diagnostic '{diagnosticId}' was reported unexpectedly.");
+        }
+    }
+
+    private static void AssertDiagnosticCount(IEnumerable<Diagnostic> diagnostics, string diagnosticId, int expectedCount)
+    {
+        var actualCount = diagnostics.Count(d => d.Id == diagnosticId);
+        if (actualCount != expectedCount)
+        {
+            throw new InvalidOperationException($"Expected {expectedCount} '{diagnosticId}' diagnostics but found {actualCount}.");
+        }
     }
 }

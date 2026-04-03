@@ -43,7 +43,7 @@ internal static class TestCompilationReferences
     {
         try
         {
-            var loaded = Assembly.Load(assemblyName);
+            var loaded = System.Reflection.Assembly.Load(assemblyName);
 
             if (!string.IsNullOrWhiteSpace(loaded.Location))
             {
@@ -54,7 +54,7 @@ internal static class TestCompilationReferences
             {
                 try
                 {
-                    var referencedLoaded = Assembly.Load(referenced);
+                    var referencedLoaded = System.Reflection.Assembly.Load(referenced);
 
                     if (!string.IsNullOrWhiteSpace(referencedLoaded.Location))
                     {

@@ -13,8 +13,9 @@ namespace TestNs
         /// <inheritdoc cref="_duration"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.TimeSpan Duration
-        {
+        { 
             get => _duration;
+            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_duration")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _duration, value);
@@ -24,8 +25,9 @@ namespace TestNs
         /// <inheritdoc cref="_optionalDuration"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.TimeSpan? OptionalDuration
-        {
+        { 
             get => _optionalDuration;
+            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_optionalDuration")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _optionalDuration, value);
@@ -35,8 +37,9 @@ namespace TestNs
         /// <inheritdoc cref="_timestamp"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.DateTimeOffset Timestamp
-        {
+        { 
             get => _timestamp;
+            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_timestamp")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _timestamp, value);
@@ -46,8 +49,9 @@ namespace TestNs
         /// <inheritdoc cref="_optionalTimestamp"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.DateTimeOffset? OptionalTimestamp
-        {
+        { 
             get => _optionalTimestamp;
+            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_optionalTimestamp")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _optionalTimestamp, value);
@@ -57,8 +61,9 @@ namespace TestNs
         /// <inheritdoc cref="_timeOnly"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.TimeOnly TimeOnly
-        {
+        { 
             get => _timeOnly;
+            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_timeOnly")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _timeOnly, value);
@@ -68,8 +73,9 @@ namespace TestNs
         /// <inheritdoc cref="_dateOnly"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.DateOnly DateOnly
-        {
+        { 
             get => _dateOnly;
+            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_dateOnly")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _dateOnly, value);

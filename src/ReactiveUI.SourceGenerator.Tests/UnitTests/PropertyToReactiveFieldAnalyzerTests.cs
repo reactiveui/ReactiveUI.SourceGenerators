@@ -8,9 +8,26 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// <summary>
 /// Unit tests for <see cref="PropertyToReactiveFieldAnalyzer" />.
 /// </summary>
-[TestFixture]
 public sealed class PropertyToReactiveFieldAnalyzerTests
 {
+    /// <summary>
+    /// Validates the analyzer rejects a null analysis context.
+    /// </summary>
+    [Test]
+    public void InitializeWithNullContextThrows()
+    {
+        var analyzer = new PropertyToReactiveFieldAnalyzer();
+
+        try
+        {
+            analyzer.Initialize(null!);
+            throw new InvalidOperationException("Expected ArgumentNullException was not thrown.");
+        }
+        catch (ArgumentNullException ex) when (ex.ParamName == "context")
+        {
+        }
+    }
+
     /// <summary>
     /// Validates a public auto-property triggers the suggestion to convert it into a reactive field.
     /// </summary>
@@ -30,7 +47,7 @@ public sealed class PropertyToReactiveFieldAnalyzerTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0016"), Is.True);
+        AssertContainsDiagnostic(diagnostics, "RXUISG0016");
     }
 
     /// <summary>
@@ -54,7 +71,50 @@ public sealed class PropertyToReactiveFieldAnalyzerTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0016"), Is.False);
+        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
+    }
+
+    /// <summary>
+    /// Validates the syntax-based Reactive attribute fallback handles qualified names.
+    /// </summary>
+    [Test]
+    public void WhenQualifiedReactiveAttributePresentThenDoesNotReportDiagnostic()
+    {
+        const string source = """
+            using ReactiveUI;
+
+            namespace TestNs;
+
+            public partial class TestVM : ReactiveObject
+            {
+                [ReactiveUI.SourceGenerators.Reactive]
+                public bool IsVisible { get; set; }
+            }
+            """;
+
+        var diagnostics = GetDiagnostics(source);
+
+        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
+    }
+
+    /// <summary>
+    /// Validates the analyzer recognizes a fully qualified ReactiveObject base type.
+    /// </summary>
+    [Test]
+    public void WhenQualifiedReactiveBaseTypeThenReportsDiagnostic()
+    {
+        const string source = """
+            namespace TestNs;
+
+            public partial class TestVM : ReactiveUI.ReactiveObject
+            {
+                public bool IsVisible { get; set; }
+            }
+            """;
+
+        var diagnostics = GetDiagnostics(source);
+
+        AssertContainsDiagnostic(diagnostics, "RXUISG0016");
     }
 
     private static Diagnostic[] GetDiagnostics(string source)
@@ -71,5 +131,21 @@ public sealed class PropertyToReactiveFieldAnalyzerTests
 
         var compilationWithAnalyzers = compilation.WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(analyzer));
         return compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync().GetAwaiter().GetResult().ToArray();
+    }
+
+    private static void AssertContainsDiagnostic(IEnumerable<Diagnostic> diagnostics, string diagnosticId)
+    {
+        if (!diagnostics.Any(d => d.Id == diagnosticId))
+        {
+            throw new InvalidOperationException($"Expected diagnostic '{diagnosticId}' was not reported.");
+        }
+    }
+
+    private static void AssertDoesNotContainDiagnostic(IEnumerable<Diagnostic> diagnostics, string diagnosticId)
+    {
+        if (diagnostics.Any(d => d.Id == diagnosticId))
+        {
+            throw new InvalidOperationException($"Diagnostic '{diagnosticId}' was reported unexpectedly.");
+        }
     }
 }

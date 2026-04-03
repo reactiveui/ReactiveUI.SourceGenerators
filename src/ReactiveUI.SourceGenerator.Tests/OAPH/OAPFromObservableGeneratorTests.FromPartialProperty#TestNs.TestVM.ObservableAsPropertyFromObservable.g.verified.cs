@@ -11,14 +11,13 @@ namespace TestNs
     public partial class TestVM
     {
         /// <inheritdoc cref="TestProperty"/>
-        private double? _testProperty = 1.1d;
+        private double? _testProperty;
 
         /// <inheritdoc cref="_testPropertyHelper"/>
         private readonly ReactiveUI.ObservableAsPropertyHelper<double?> _testPropertyHelper;
 
         /// <inheritdoc cref="_testProperty"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        [global::System.Text.Json.Serialization.JsonIncludeAttribute()]
         [global::System.Runtime.Serialization.DataMemberAttribute()]
         public partial double? TestProperty { get => _testProperty = (_testPropertyHelper == null ? _testProperty : _testPropertyHelper.Value); }
 

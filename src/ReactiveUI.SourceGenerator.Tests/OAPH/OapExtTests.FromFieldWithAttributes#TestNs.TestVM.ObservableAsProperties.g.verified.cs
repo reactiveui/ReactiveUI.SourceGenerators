@@ -12,7 +12,7 @@ namespace TestNs
 
         /// <inheritdoc cref="_computedValue"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        [global::System.Runtime.Serialization.DataMemberAttribute(Name="computedValue")]
+        [global::System.Runtime.Serialization.DataMemberAttribute()]
         [global::System.Text.Json.Serialization.JsonPropertyNameAttribute("computed_value")]
         [global::System.Text.Json.Serialization.JsonIncludeAttribute()]
         public int ComputedValue { get => _computedValue = _computedValueHelper?.Value ?? _computedValue; }

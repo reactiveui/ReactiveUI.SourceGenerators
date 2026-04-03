@@ -17,8 +17,9 @@ public partial class TestInnerClass2
         /// <inheritdoc cref="_testInner3"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int TestInner3
-        {
+        { 
             get => _testInner3;
+            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_testInner3")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _testInner3, value);
@@ -28,8 +29,9 @@ public partial class TestInnerClass2
         /// <inheritdoc cref="_testInner33"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int TestInner33
-        {
+        { 
             get => _testInner33;
+            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_testInner33")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _testInner33, value);

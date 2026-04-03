@@ -9,7 +9,6 @@ namespace ReactiveUI.SourceGenerators.Tests;
 /// <summary>
 /// ReactiveCollectionGeneratorTests.
 /// </summary>
-[TestFixture]
 public class ReactiveCollectionGeneratorTests : TestBase<ReactiveCollectionGenerator>
 {
     /// <summary>

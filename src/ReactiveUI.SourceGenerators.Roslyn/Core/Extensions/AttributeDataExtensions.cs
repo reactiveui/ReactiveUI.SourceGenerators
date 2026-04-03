@@ -31,12 +31,24 @@ internal static class AttributeDataExtensions
     /// <returns>Whether or not <paramref name="attributeData"/> contains an argument named <paramref name="name"/> with a valid value.</returns>
     public static bool TryGetNamedArgument<T>(this AttributeData attributeData, string name, out T? value)
     {
-        foreach (var properties in attributeData.NamedArguments)
+        if (attributeData is null)
         {
-            if (properties.Key == name)
+            value = default;
+            return false;
+        }
+
+        try
+        {
+            foreach (var properties in attributeData.NamedArguments)
             {
-                return TryConvertNamedArgument(properties.Value, out value);
+                if (properties.Key == name)
+                {
+                    return TryConvertNamedArgument(properties.Value, out value);
+                }
             }
+        }
+        catch (NullReferenceException)
+        {
         }
 
         value = default;
@@ -53,12 +65,23 @@ internal static class AttributeDataExtensions
     /// <returns>The named argument value.</returns>
     public static T? GetNamedArgument<T>(this AttributeData attributeData, string name)
     {
-        foreach (var properties in attributeData.NamedArguments)
+        if (attributeData is null)
         {
-            if (properties.Key == name)
+            return default;
+        }
+
+        try
+        {
+            foreach (var properties in attributeData.NamedArguments)
             {
-                return TryConvertNamedArgument(properties.Value, out T? value) ? value : default;
+                if (properties.Key == name)
+                {
+                    return TryConvertNamedArgument(properties.Value, out T? value) ? value : default;
+                }
             }
+        }
+        catch (NullReferenceException)
+        {
         }
 
         return default;
@@ -168,8 +191,18 @@ internal static class AttributeDataExtensions
     public static string? GetGenericType(this AttributeData attributeData)
     {
         var success = attributeData?.AttributeClass?.ToDisplayString();
-        var start = success?.IndexOf('<') + 1 ?? 0;
-        return success?.Substring(start, success.Length - start - 1);
+        if (string.IsNullOrWhiteSpace(success))
+        {
+            return null;
+        }
+
+        var attributeClassName = success ?? string.Empty;
+        var start = attributeClassName.IndexOf('<');
+        var end = attributeClassName.LastIndexOf('>');
+
+        return start >= 0 && end > start
+            ? attributeClassName.Substring(start + 1, end - start - 1)
+            : null;
     }
 
     private static bool TryConvertNamedArgument<T>(in TypedConstant typedConstant, out T? value)
@@ -189,6 +222,26 @@ internal static class AttributeDataExtensions
         }
 
         var targetType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+
+        if (targetType.IsEnum)
+        {
+            try
+            {
+                if (rawValue is string enumName)
+                {
+                    value = (T)Enum.Parse(targetType, enumName, ignoreCase: false);
+                    return true;
+                }
+
+                value = (T)Enum.ToObject(targetType, rawValue);
+                return true;
+            }
+            catch (ArgumentException)
+            {
+                value = default;
+                return false;
+            }
+        }
 
         try
         {
@@ -214,6 +267,11 @@ internal static class AttributeDataExtensions
 
     private static object? TryGetRawValue(in TypedConstant typedConstant)
     {
+        if (typedConstant.Kind == TypedConstantKind.Error)
+        {
+            return null;
+        }
+
         if (typedConstant.Type?.TypeKind == TypeKind.Enum)
         {
             if (typedConstant.Value is IFieldSymbol fieldSymbol)
@@ -228,9 +286,16 @@ internal static class AttributeDataExtensions
 
             if (typedConstant.Type is INamedTypeSymbol enumType)
             {
-                var enumMemberName = typedConstant.ToCSharpString().Split('.').LastOrDefault();
-                return enumType.GetMembers(enumMemberName ?? string.Empty).OfType<IFieldSymbol>().FirstOrDefault()?.ConstantValue;
+                var csharpValue = typedConstant.ToCSharpString();
+
+                if (!string.IsNullOrWhiteSpace(csharpValue))
+                {
+                    var enumMemberName = csharpValue.Split('.').LastOrDefault();
+                    return enumType.GetMembers(enumMemberName ?? string.Empty).OfType<IFieldSymbol>().FirstOrDefault()?.ConstantValue;
+                }
             }
+
+            return null;
         }
 
         return typedConstant.Value;

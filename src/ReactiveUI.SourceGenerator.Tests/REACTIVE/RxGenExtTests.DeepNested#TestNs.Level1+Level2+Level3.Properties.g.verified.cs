@@ -17,8 +17,9 @@ public partial class Level2
         /// <inheritdoc cref="_level3Prop"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int Level3Prop
-        {
+        { 
             get => _level3Prop;
+            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_level3Prop")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _level3Prop, value);

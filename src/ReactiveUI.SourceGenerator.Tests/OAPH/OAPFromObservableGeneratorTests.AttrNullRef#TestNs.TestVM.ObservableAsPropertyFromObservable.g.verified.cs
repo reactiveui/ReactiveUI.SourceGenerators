@@ -10,23 +10,22 @@ namespace TestNs
     
     public partial class TestVM
     {
-        /// <inheritdoc cref="MyNamedProperty"/>
-        private object? _myNamedProperty;
+        /// <inheritdoc cref="Test7Property"/>
+        private object? _test7Property;
 
-        /// <inheritdoc cref="_myNamedPropertyHelper"/>
-        private ReactiveUI.ObservableAsPropertyHelper<object?>? _myNamedPropertyHelper;
+        /// <inheritdoc cref="_test7PropertyHelper"/>
+        private ReactiveUI.ObservableAsPropertyHelper<object?>? _test7PropertyHelper;
 
-        /// <inheritdoc cref="_myNamedProperty"/>
+        /// <inheritdoc cref="_test7Property"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        [global::System.Text.Json.Serialization.JsonIncludeAttribute()]
         [global::System.Runtime.Serialization.DataMemberAttribute()]
         [global::System.Text.Json.Serialization.JsonIncludeAttribute()]
-        public object? MyNamedProperty { get => _myNamedProperty = (_myNamedPropertyHelper == null ? _myNamedProperty : _myNamedPropertyHelper.Value); }
+        public object? Test7Property { get => _test7Property = (_test7PropertyHelper == null ? _test7Property : _test7PropertyHelper.Value); }
 
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         protected void InitializeOAPH()
         {
-            _myNamedPropertyHelper = Test7!.ToProperty(this, nameof(MyNamedProperty));
+            _test7PropertyHelper = Test7!.ToProperty(this, nameof(Test7Property));
         }
     }
 }

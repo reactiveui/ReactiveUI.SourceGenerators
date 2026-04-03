@@ -8,7 +8,6 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// <summary>
 /// Unit tests for the ObservableAsProperty generator.
 /// </summary>
-[TestFixture]
 public class OAPGeneratorTests : TestBase<ObservableAsPropertyGenerator>
 {
     /// <summary>

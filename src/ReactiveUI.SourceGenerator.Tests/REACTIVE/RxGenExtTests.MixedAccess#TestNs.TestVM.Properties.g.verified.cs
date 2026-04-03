@@ -28,7 +28,7 @@ namespace TestNs
         { 
             get => _protectedSet;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_protectedSet")]
-            protected set
+            set
             {
                 this.RaiseAndSetIfChanged(ref _protectedSet, value);
             }
@@ -40,7 +40,7 @@ namespace TestNs
         { 
             get => _internalSet;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_internalSet")]
-            internal set
+            set
             {
                 this.RaiseAndSetIfChanged(ref _internalSet, value);
             }
@@ -52,7 +52,7 @@ namespace TestNs
         { 
             get => _privateSet;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_privateSet")]
-            private set
+            set
             {
                 this.RaiseAndSetIfChanged(ref _privateSet, value);
             }
@@ -64,7 +64,7 @@ namespace TestNs
         { 
             get => _internalProtectedSet;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_internalProtectedSet")]
-            protected internal set
+            set
             {
                 this.RaiseAndSetIfChanged(ref _internalProtectedSet, value);
             }
@@ -76,7 +76,7 @@ namespace TestNs
         { 
             get => _privateProtectedSet;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_privateProtectedSet")]
-            private protected set
+            set
             {
                 this.RaiseAndSetIfChanged(ref _privateProtectedSet, value);
             }

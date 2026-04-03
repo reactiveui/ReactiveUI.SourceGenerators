@@ -25,8 +25,9 @@ namespace TestNs
         /// <inheritdoc cref="_age"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int Age
-        {
+        { 
             get => _age;
+            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_age")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _age, value);

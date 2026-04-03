@@ -8,7 +8,6 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// <summary>
 /// BindableDerivedListGeneratorTests.
 /// </summary>
-[TestFixture]
 public class BindableDerivedListGeneratorTests : TestBase<BindableDerivedListGenerator>
 {
     /// <summary>

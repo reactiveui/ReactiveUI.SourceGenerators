@@ -8,7 +8,6 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// <summary>
 /// Unit tests for the ReactiveCommand generator.
 /// </summary>
-[TestFixture]
 public class ReactiveCMDGeneratorTests : TestBase<ReactiveCommandGenerator>
 {
     /// <summary>

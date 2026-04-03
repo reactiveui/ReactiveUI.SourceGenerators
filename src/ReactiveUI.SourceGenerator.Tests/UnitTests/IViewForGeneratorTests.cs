@@ -8,7 +8,6 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// <summary>
 /// IViewForGeneratorTests.
 /// </summary>
-[TestFixture]
 public class IViewForGeneratorTests : TestBase<IViewForGenerator>
 {
     /// <summary>

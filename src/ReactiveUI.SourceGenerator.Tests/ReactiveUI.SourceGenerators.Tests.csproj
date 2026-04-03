@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>13.0</LangVersion>
+    <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <NoWarn>$(NoWarn);CA1812;CA1001</NoWarn>
@@ -16,11 +17,9 @@
     <PackageReference Include="NuGet.Common" />
     <PackageReference Include="NuGet.Protocol" />
     <PackageReference Include="System.Formats.Asn1" />
-    <PackageReference Include="NUnit" />
-    <PackageReference Include="NUnit3TestAdapter" />
-    <PackageReference Include="NUnit.Analyzers" />
+    <PackageReference Include="TUnit" />
+    <PackageReference Include="Verify.TUnit" />
     <PackageReference Include="ReactiveMarbles.SourceGenerator.TestNuGetHelper" />
-    <PackageReference Include="Verify.NUnit" />
     <PackageReference Include="Verify.SourceGenerators" />
     <PackageReference Include="Basic.Reference.Assemblies.Net100" />
     <PackageReference Include="Basic.Reference.Assemblies.Net90" />
@@ -35,7 +34,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="NUnit.Framework" />
+    <Using Include="TUnit.Assertions" />
+    <Using Include="TUnit.Core" />
     <Using Include="ReactiveUI.SourceGenerators" />
     <Using Include="System.Text.RegularExpressions" />
     <Using Include="Microsoft.CodeAnalysis" />

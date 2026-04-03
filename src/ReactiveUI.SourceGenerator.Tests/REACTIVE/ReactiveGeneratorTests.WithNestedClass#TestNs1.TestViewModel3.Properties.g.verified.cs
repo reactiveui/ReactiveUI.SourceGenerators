@@ -13,8 +13,9 @@ namespace TestNs1
         /// <inheritdoc cref="_testVM3Property"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public float TestVM3Property
-        {
+        { 
             get => _testVM3Property;
+            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_testVM3Property")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _testVM3Property, value);
@@ -24,8 +25,9 @@ namespace TestNs1
         /// <inheritdoc cref="_testVM3Property2"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public float TestVM3Property2
-        {
+        { 
             get => _testVM3Property2;
+            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_testVM3Property2")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _testVM3Property2, value);

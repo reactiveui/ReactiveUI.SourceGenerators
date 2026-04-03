@@ -24,8 +24,9 @@ namespace TestNs
         /// <inheritdoc cref="_optionalPoint"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::TestNs.ImmutablePoint? OptionalPoint
-        {
+        { 
             get => _optionalPoint;
+            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_optionalPoint")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _optionalPoint, value);

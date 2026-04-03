@@ -26,13 +26,13 @@ namespace TestNs
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int ItemCount { get => _itemCount = _itemCountHelper?.Value ?? _itemCount; }
         /// <inheritdoc cref="_progressHelper"/>
-        protected readonly ReactiveUI.ObservableAsPropertyHelper<double> _progressHelper;
+        private readonly ReactiveUI.ObservableAsPropertyHelper<double> _progressHelper;
 
         /// <inheritdoc cref="_progress"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public double Progress { get => _progress = _progressHelper?.Value ?? _progress; }
         /// <inheritdoc cref="_statusHelper"/>
-        private ReactiveUI.ObservableAsPropertyHelper<string>? _statusHelper;
+        private readonly ReactiveUI.ObservableAsPropertyHelper<string> _statusHelper;
 
         /// <inheritdoc cref="_status"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]

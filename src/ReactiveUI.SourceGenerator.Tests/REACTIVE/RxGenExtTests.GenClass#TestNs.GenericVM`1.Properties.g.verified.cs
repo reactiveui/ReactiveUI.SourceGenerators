@@ -25,8 +25,9 @@ namespace TestNs
         /// <inheritdoc cref="_count"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int Count
-        {
+        { 
             get => _count;
+            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_count")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _count, value);

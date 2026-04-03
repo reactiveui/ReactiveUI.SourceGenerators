@@ -12,7 +12,7 @@ namespace TestNs
         
         /// <inheritdoc cref="_shadowedProp"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        public new string? ShadowedProp
+        public string? ShadowedProp
         { 
             get => _shadowedProp;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_shadowedProp")]

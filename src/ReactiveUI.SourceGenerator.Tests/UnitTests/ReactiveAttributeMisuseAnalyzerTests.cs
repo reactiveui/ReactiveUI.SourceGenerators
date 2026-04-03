@@ -8,9 +8,26 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// <summary>
 /// Unit tests for <see cref="ReactiveAttributeMisuseAnalyzer" />.
 /// </summary>
-[TestFixture]
 public sealed class ReactiveAttributeMisuseAnalyzerTests
 {
+    /// <summary>
+    /// Validates the analyzer rejects a null analysis context.
+    /// </summary>
+    [Test]
+    public void InitializeWithNullContextThrows()
+    {
+        var analyzer = new ReactiveAttributeMisuseAnalyzer();
+
+        try
+        {
+            analyzer.Initialize(null!);
+            throw new InvalidOperationException("Expected ArgumentNullException was not thrown.");
+        }
+        catch (ArgumentNullException ex) when (ex.ParamName == "context")
+        {
+        }
+    }
+
     /// <summary>
     /// Verifies a non-partial property annotated with <c>[Reactive]</c> produces a warning.
     /// </summary>
@@ -32,7 +49,7 @@ public sealed class ReactiveAttributeMisuseAnalyzerTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0020"), Is.True);
+        AssertContainsDiagnostic(diagnostics, "RXUISG0020");
     }
 
     /// <summary>
@@ -56,7 +73,7 @@ public sealed class ReactiveAttributeMisuseAnalyzerTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0020"), Is.True);
+        AssertContainsDiagnostic(diagnostics, "RXUISG0020");
     }
 
     /// <summary>
@@ -80,7 +97,55 @@ public sealed class ReactiveAttributeMisuseAnalyzerTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0020"), Is.False);
+        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0020");
+    }
+
+    /// <summary>
+    /// Verifies the analyzer recognizes the explicit ReactiveAttribute name.
+    /// </summary>
+    [Test]
+    public void WhenReactiveAttributeSuffixUsedThenWarns()
+    {
+        const string source = """
+            using ReactiveUI;
+            using ReactiveUI.SourceGenerators;
+
+            namespace TestNs;
+
+            public partial class TestVM : ReactiveObject
+            {
+                [ReactiveAttribute]
+                public bool IsVisible { get; set; }
+            }
+            """;
+
+        var diagnostics = GetDiagnostics(source);
+
+        AssertContainsDiagnostic(diagnostics, "RXUISG0020");
+    }
+
+    /// <summary>
+    /// Verifies unrelated attributes do not trigger the diagnostic.
+    /// </summary>
+    [Test]
+    public void WhenOnlyNonReactiveAttributesExistThenDoesNotWarn()
+    {
+        const string source = """
+            using System;
+            using ReactiveUI;
+
+            namespace TestNs;
+
+            public partial class TestVM : ReactiveObject
+            {
+                [Obsolete]
+                public bool IsVisible { get; set; }
+            }
+            """;
+
+        var diagnostics = GetDiagnostics(source);
+
+        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0020");
     }
 
     private static Diagnostic[] GetDiagnostics(string source)
@@ -100,5 +165,21 @@ public sealed class ReactiveAttributeMisuseAnalyzerTests
 
         var compilationWithAnalyzers = compilation.WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(analyzer));
         return compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync().GetAwaiter().GetResult().ToArray();
+    }
+
+    private static void AssertContainsDiagnostic(IEnumerable<Diagnostic> diagnostics, string diagnosticId)
+    {
+        if (!diagnostics.Any(d => d.Id == diagnosticId))
+        {
+            throw new InvalidOperationException($"Expected diagnostic '{diagnosticId}' was not reported.");
+        }
+    }
+
+    private static void AssertDoesNotContainDiagnostic(IEnumerable<Diagnostic> diagnostics, string diagnosticId)
+    {
+        if (diagnostics.Any(d => d.Id == diagnosticId))
+        {
+            throw new InvalidOperationException($"Diagnostic '{diagnosticId}' was reported unexpectedly.");
+        }
     }
 }
