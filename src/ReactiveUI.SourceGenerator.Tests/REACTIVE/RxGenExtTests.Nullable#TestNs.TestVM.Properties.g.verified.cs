@@ -13,9 +13,8 @@ namespace TestNs
         /// <inheritdoc cref="_nullableInt"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int? NullableInt
-        { 
+        {
             get => _nullableInt;
-            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_nullableInt")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _nullableInt, value);
@@ -25,9 +24,8 @@ namespace TestNs
         /// <inheritdoc cref="_nullableDateTime"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.DateTime? NullableDateTime
-        { 
+        {
             get => _nullableDateTime;
-            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_nullableDateTime")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _nullableDateTime, value);
@@ -37,9 +35,8 @@ namespace TestNs
         /// <inheritdoc cref="_nullableGuid"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Guid? NullableGuid
-        { 
+        {
             get => _nullableGuid;
-            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_nullableGuid")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _nullableGuid, value);
@@ -49,9 +46,8 @@ namespace TestNs
         /// <inheritdoc cref="_nullableDecimal"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public decimal? NullableDecimal
-        { 
+        {
             get => _nullableDecimal;
-            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_nullableDecimal")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _nullableDecimal, value);

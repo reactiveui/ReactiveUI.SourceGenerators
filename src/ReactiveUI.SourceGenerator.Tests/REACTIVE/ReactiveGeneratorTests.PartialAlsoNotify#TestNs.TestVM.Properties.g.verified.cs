@@ -13,12 +13,12 @@ namespace TestNs
         /// <inheritdoc cref="_test4"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int Test4
-        { 
+        {
             get => _test4;
-            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_test4")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _test4, value);
+                this.RaisePropertyChanged(nameof(OtherNotifyProperty));
                 this.RaisePropertyChanged(nameof(OtherNotifyProperty));
             }
         }

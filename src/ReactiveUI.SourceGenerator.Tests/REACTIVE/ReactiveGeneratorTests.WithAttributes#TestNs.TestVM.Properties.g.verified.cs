@@ -15,9 +15,8 @@ namespace TestNs
         [global::System.Runtime.Serialization.DataMemberAttribute()]
         [global::System.Text.Json.Serialization.JsonIncludeAttribute()]
         public int Test3
-        { 
+        {
             get => _test3;
-            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_test3")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _test3, value);

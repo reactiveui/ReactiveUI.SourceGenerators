@@ -8,7 +8,7 @@ namespace TestNs
     public partial class TestVM
     {
         /// <inheritdoc cref="_statusFieldHelper"/>
-        private readonly ReactiveUI.ObservableAsPropertyHelper<string> _statusFieldHelper;
+        protected ReactiveUI.ObservableAsPropertyHelper<string>? _statusFieldHelper;
 
         /// <inheritdoc cref="_statusField"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]

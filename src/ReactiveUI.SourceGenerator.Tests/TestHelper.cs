@@ -3,6 +3,7 @@
 // The ReactiveUI and contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System.Reflection;
 using ReactiveMarbles.NuGet.Helpers;
 
 using ReactiveMarbles.SourceGenerator.TestNuGetHelper.Compilation;
@@ -35,21 +36,13 @@ public sealed partial class TestHelper<T> : IDisposable
             System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory(),
             "mscorlib.dll");
 
-    private static readonly MetadataReference[] References =
+    private static readonly Assembly[] References =
     [
-        MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-        MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
-        MetadataReference.CreateFromFile(typeof(T).Assembly.Location),
-        MetadataReference.CreateFromFile(typeof(TestHelper<T>).Assembly.Location),
-
-        // Create mscorlib Reference
-        MetadataReference.CreateFromFile(mscorlibPath)
-
-        // Wpf references
-        ////MetadataReference.CreateFromFile(Assembly.Load("PresentationCore").Location),
-        ////MetadataReference.CreateFromFile(Assembly.Load("PresentationFramework").Location),
-        ////MetadataReference.CreateFromFile(Assembly.Load("WindowsBase").Location),
-        ////MetadataReference.CreateFromFile(Assembly.Load("System.Xaml").Location),
+        typeof(object).Assembly,
+        typeof(Enumerable).Assembly,
+        typeof(T).Assembly,
+        typeof(TestHelper<T>).Assembly,
+        typeof(IViewFor).Assembly,
     ];
 
     /// <summary>
@@ -87,7 +80,13 @@ public sealed partial class TestHelper<T> : IDisposable
     /// <returns>A task representing the asynchronous initialization operation.</returns>
     public async Task InitializeAsync()
     {
+#if NET10_0_OR_GREATER
+        NuGetFramework[] targetFrameworks = [new NuGetFramework(".NETCoreApp", new Version(10, 0, 0, 0))];
+        #elif NET9_0_OR_GREATER
+        NuGetFramework[] targetFrameworks = [new NuGetFramework(".NETCoreApp", new Version(9, 0, 0, 0))];
+#else
         NuGetFramework[] targetFrameworks = [new NuGetFramework(".NETCoreApp", new Version(8, 0, 0, 0))];
+#endif
 
         // Download necessary NuGet package files.
         var inputGroup = await NuGetPackageHelper.DownloadPackageFilesAndFolder(
@@ -166,10 +165,22 @@ public sealed partial class TestHelper<T> : IDisposable
             throw new InvalidOperationException("Must have a valid compiler instance.");
         }
 
+        IEnumerable<MetadataReference> basicReferences;
+#if NET10_0_OR_GREATER
+        basicReferences = Basic.Reference.Assemblies.Net100.References.All;
+#elif NET9_0_OR_GREATER
+        basicReferences = Basic.Reference.Assemblies.Net90.References.All;
+#else
+        basicReferences = Basic.Reference.Assemblies.Net80.References.All;
+#endif
+
+        basicReferences.Concat([MetadataReference.CreateFromFile(mscorlibPath)]);
+        basicReferences.Concat(GetTransitiveReferences(References));
+
         // Collect required assembly references.
         var assemblies = new HashSet<MetadataReference>(
-            Basic.Reference.Assemblies.Net80.References.All
-            .Concat(References)
+        basicReferences
+            .Concat(basicReferences)
             .Concat(_eventCompiler.Modules.Select(x => MetadataReference.CreateFromFile(x.PEFile!.FileName)))
             .Concat(_eventCompiler.ReferencedModules.Select(x => MetadataReference.CreateFromFile(x.PEFile!.FileName)))
             .Concat(_eventCompiler.NeededModules.Select(x => MetadataReference.CreateFromFile(x.PEFile!.FileName))));
@@ -297,6 +308,46 @@ public sealed partial class TestHelper<T> : IDisposable
         }
 
         TestContext.Out.WriteLine("=== END VALIDATION DEBUG ===");
+    }
+
+    /// <summary>
+    /// Recursively walks assembly references from the seed assemblies to collect
+    /// all transitive dependencies as metadata references.
+    /// </summary>
+    /// <param name="seedAssemblies">The root assemblies to start from.</param>
+    /// <returns>Metadata references for all reachable assemblies.</returns>
+    private static IEnumerable<MetadataReference> GetTransitiveReferences(params Assembly[] seedAssemblies)
+    {
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var queue = new Queue<Assembly>(seedAssemblies);
+
+        while (queue.Count > 0)
+        {
+            var assembly = queue.Dequeue();
+            if (assembly.IsDynamic || string.IsNullOrEmpty(assembly.Location))
+            {
+                continue;
+            }
+
+            if (!seen.Add(assembly.Location))
+            {
+                continue;
+            }
+
+            yield return MetadataReference.CreateFromFile(assembly.Location);
+
+            foreach (var referencedName in assembly.GetReferencedAssemblies())
+            {
+                try
+                {
+                    queue.Enqueue(System.Reflection.Assembly.Load(referencedName));
+                }
+                catch
+                {
+                    // System assemblies already covered by Basic.Reference.Assemblies
+                }
+            }
+        }
     }
 
     private SettingsTask VerifyGenerator(GeneratorDriver driver) => Verify(driver)

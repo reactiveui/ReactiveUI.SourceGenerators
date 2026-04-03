@@ -13,9 +13,8 @@ namespace TestNs
         /// <inheritdoc cref="_test1"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int Test1
-        { 
+        {
             get => _test1;
-            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_test1")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _test1, value);

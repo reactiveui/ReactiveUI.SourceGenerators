@@ -12,7 +12,7 @@ namespace TestNs
         
         /// <inheritdoc cref="_baseName"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        public string? BaseName
+        public override string? BaseName
         { 
             get => _baseName;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_baseName")]

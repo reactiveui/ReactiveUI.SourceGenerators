@@ -10,30 +10,30 @@ namespace TestNs
     
     public partial class TestVM
     {
-        /// <inheritdoc cref="GetLoadingStateProperty"/>
-        private bool _getLoadingStateProperty;
+        /// <inheritdoc cref="IsLoading"/>
+        private bool _isLoading;
 
-        /// <inheritdoc cref="_getLoadingStatePropertyHelper"/>
-        private ReactiveUI.ObservableAsPropertyHelper<bool>? _getLoadingStatePropertyHelper;
+        /// <inheritdoc cref="_isLoadingHelper"/>
+        private ReactiveUI.ObservableAsPropertyHelper<bool>? _isLoadingHelper;
 
-        /// <inheritdoc cref="_getLoadingStateProperty"/>
+        /// <inheritdoc cref="_isLoading"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        public bool GetLoadingStateProperty { get => _getLoadingStateProperty = _getLoadingStatePropertyHelper?.Value ?? _getLoadingStateProperty; }
-/// <inheritdoc cref="GetErrorProperty"/>
-        private string? _getErrorProperty;
+        public bool IsLoading { get => _isLoading = _isLoadingHelper?.Value ?? _isLoading; }
+/// <inheritdoc cref="ErrorMessage"/>
+        private string? _errorMessage;
 
-        /// <inheritdoc cref="_getErrorPropertyHelper"/>
-        private ReactiveUI.ObservableAsPropertyHelper<string?>? _getErrorPropertyHelper;
+        /// <inheritdoc cref="_errorMessageHelper"/>
+        private ReactiveUI.ObservableAsPropertyHelper<string?>? _errorMessageHelper;
 
-        /// <inheritdoc cref="_getErrorProperty"/>
+        /// <inheritdoc cref="_errorMessage"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        public string? GetErrorProperty { get => _getErrorProperty = (_getErrorPropertyHelper == null ? _getErrorProperty : _getErrorPropertyHelper.Value); }
+        public string? ErrorMessage { get => _errorMessage = (_errorMessageHelper == null ? _errorMessage : _errorMessageHelper.Value); }
 
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         protected void InitializeOAPH()
         {
-            _getLoadingStatePropertyHelper = GetLoadingState()!.ToProperty(this, nameof(GetLoadingStateProperty));
-            _getErrorPropertyHelper = GetError()!.ToProperty(this, nameof(GetErrorProperty));
+            _isLoadingHelper = GetLoadingState()!.ToProperty(this, nameof(IsLoading));
+            _errorMessageHelper = GetError()!.ToProperty(this, nameof(ErrorMessage));
         }
     }
 }

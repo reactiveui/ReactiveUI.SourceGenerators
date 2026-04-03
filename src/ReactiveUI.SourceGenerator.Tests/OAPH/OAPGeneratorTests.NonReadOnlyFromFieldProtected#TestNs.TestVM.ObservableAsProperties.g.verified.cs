@@ -8,7 +8,7 @@ namespace TestNs
     public partial class TestVM
     {
         /// <inheritdoc cref="_test5Helper"/>
-        private readonly ReactiveUI.ObservableAsPropertyHelper<int> _test5Helper;
+        protected readonly ReactiveUI.ObservableAsPropertyHelper<int> _test5Helper;
 
         /// <inheritdoc cref="_test5"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]

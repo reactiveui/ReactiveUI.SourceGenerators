@@ -18,6 +18,7 @@ namespace TestNs
 
         /// <inheritdoc cref="_internalStateProperty"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+        [global::System.Text.Json.Serialization.JsonIgnoreAttribute()]
         [global::System.Runtime.Serialization.IgnoreDataMemberAttribute()]
         [global::System.Text.Json.Serialization.JsonIgnoreAttribute()]
         public string InternalStateProperty { get => _internalStateProperty = _internalStatePropertyHelper?.Value ?? _internalStateProperty; }
