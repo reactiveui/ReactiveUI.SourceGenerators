@@ -12,7 +12,7 @@ namespace TestNs
         
         /// <inheritdoc cref="_userName"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        [global::System.Runtime.Serialization.DataMemberAttribute()]
+        [global::System.Runtime.Serialization.DataMemberAttribute(Name="userName")]
         [global::System.Text.Json.Serialization.JsonIncludeAttribute()]
         [global::System.Text.Json.Serialization.JsonPropertyNameAttribute("user_name")]
         public string? UserName

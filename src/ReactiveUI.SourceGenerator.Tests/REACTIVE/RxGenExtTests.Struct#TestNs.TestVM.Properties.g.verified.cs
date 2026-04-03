@@ -24,9 +24,8 @@ namespace TestNs
         /// <inheritdoc cref="_optionalLocation"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::TestNs.Point? OptionalLocation
-        { 
+        {
             get => _optionalLocation;
-            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_optionalLocation")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _optionalLocation, value);

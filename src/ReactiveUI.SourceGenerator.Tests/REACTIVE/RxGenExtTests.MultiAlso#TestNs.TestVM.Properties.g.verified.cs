@@ -21,6 +21,8 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _firstName, value);
                 this.RaisePropertyChanged(nameof(FullName));
                 this.RaisePropertyChanged(nameof(DisplayName));
+                this.RaisePropertyChanged(nameof(FullName));
+                this.RaisePropertyChanged(nameof(DisplayName));
             }
         }
         
@@ -33,6 +35,8 @@ namespace TestNs
             set
             {
                 this.RaiseAndSetIfChanged(ref _lastName, value);
+                this.RaisePropertyChanged(nameof(FullName));
+                this.RaisePropertyChanged(nameof(DisplayName));
                 this.RaisePropertyChanged(nameof(FullName));
                 this.RaisePropertyChanged(nameof(DisplayName));
             }
