@@ -20,6 +20,7 @@ public class IViewForGeneratorTests : TestBase<IViewForGenerator>
         // Arrange: Setup the source code that matches the generator input expectations.
         const string sourceCode = """
                 using System.Collections.ObjectModel;
+                using System.Windows;
                 using ReactiveUI;
                 using ReactiveUI.SourceGenerators;
 

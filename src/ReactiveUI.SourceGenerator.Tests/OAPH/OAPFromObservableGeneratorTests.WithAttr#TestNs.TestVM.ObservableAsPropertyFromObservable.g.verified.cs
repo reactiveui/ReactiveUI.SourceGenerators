@@ -10,22 +10,23 @@ namespace TestNs
     
     public partial class TestVM
     {
-        /// <inheritdoc cref="Test5Property"/>
-        private int _test5Property;
+        /// <inheritdoc cref="MyNamedProperty"/>
+        private int _myNamedProperty;
 
-        /// <inheritdoc cref="_test5PropertyHelper"/>
-        private ReactiveUI.ObservableAsPropertyHelper<int>? _test5PropertyHelper;
+        /// <inheritdoc cref="_myNamedPropertyHelper"/>
+        private ReactiveUI.ObservableAsPropertyHelper<int>? _myNamedPropertyHelper;
 
-        /// <inheritdoc cref="_test5Property"/>
+        /// <inheritdoc cref="_myNamedProperty"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+        [global::System.Text.Json.Serialization.JsonIncludeAttribute()]
         [global::System.Runtime.Serialization.DataMemberAttribute()]
         [global::System.Text.Json.Serialization.JsonIncludeAttribute()]
-        public int Test5Property { get => _test5Property = _test5PropertyHelper?.Value ?? _test5Property; }
+        public int MyNamedProperty { get => _myNamedProperty = _myNamedPropertyHelper?.Value ?? _myNamedProperty; }
 
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         protected void InitializeOAPH()
         {
-            _test5PropertyHelper = Test5!.ToProperty(this, nameof(Test5Property));
+            _myNamedPropertyHelper = Test5!.ToProperty(this, nameof(MyNamedProperty));
         }
     }
 }

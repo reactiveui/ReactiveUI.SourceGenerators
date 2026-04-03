@@ -24,9 +24,8 @@ namespace TestNs
         /// <inheritdoc cref="_nullableStatus"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::TestNs.Status? NullableStatus
-        { 
+        {
             get => _nullableStatus;
-            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_nullableStatus")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _nullableStatus, value);

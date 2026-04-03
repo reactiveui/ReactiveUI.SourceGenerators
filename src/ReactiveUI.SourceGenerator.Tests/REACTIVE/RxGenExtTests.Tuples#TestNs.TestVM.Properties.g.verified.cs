@@ -13,9 +13,8 @@ namespace TestNs
         /// <inheritdoc cref="_namedTuple"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public (int Id, string Name)? NamedTuple
-        { 
+        {
             get => _namedTuple;
-            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_namedTuple")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _namedTuple, value);
@@ -37,9 +36,8 @@ namespace TestNs
         /// <inheritdoc cref="_valueTuple"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public (string, int, bool) ValueTuple
-        { 
+        {
             get => _valueTuple;
-            [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_valueTuple")]
             set
             {
                 this.RaiseAndSetIfChanged(ref _valueTuple, value);

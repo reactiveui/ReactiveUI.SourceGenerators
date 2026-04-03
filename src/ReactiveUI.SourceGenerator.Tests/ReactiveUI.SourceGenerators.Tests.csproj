@@ -9,27 +9,23 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <NoWarn>$(NoWarn);CA1812;CA1001</NoWarn>
+    <ExcludeFromCodeCoverage>true</ExcludeFromCodeCoverage>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="coverlet.msbuild" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
-    <PackageReference Include="NuGet.Common" />
-    <PackageReference Include="NuGet.Protocol" />
     <PackageReference Include="System.Formats.Asn1" />
     <PackageReference Include="TUnit" />
     <PackageReference Include="Verify.TUnit" />
-    <PackageReference Include="ReactiveMarbles.SourceGenerator.TestNuGetHelper" />
     <PackageReference Include="Verify.SourceGenerators" />
-    <PackageReference Include="Basic.Reference.Assemblies.Net100" />
-    <PackageReference Include="Basic.Reference.Assemblies.Net90" />
-    <PackageReference Include="Basic.Reference.Assemblies.Net80" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" VersionOverride="4.12.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" PrivateAssets="all" VersionOverride="4.12.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" PrivateAssets="all" VersionOverride="4.12.0" />
     <PackageReference Include="Microsoft.CodeAnalysis" PrivateAssets="all" VersionOverride="4.12.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="all" VersionOverride="4.12.0" />
     <PackageReference Include="ReactiveUI" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="System.Formats.Asn1" />
     <PackageReference Include="Splat" />
   </ItemGroup>
 
@@ -40,9 +36,15 @@
     <Using Include="System.Text.RegularExpressions" />
     <Using Include="Microsoft.CodeAnalysis" />
     <Using Include="Microsoft.CodeAnalysis.CSharp" />
-    <Using Include="NuGet.Frameworks" />
-    <Using Include="NuGet.LibraryModel" />
-    <Using Include="NuGet.Versioning" />
+    <Using Include="System.Collections.Immutable" />
+    <Using Include="Microsoft.CodeAnalysis.Diagnostics" />
+    <Using Include="ReactiveUI.SourceGenerators.CodeFixers" />
+    <Using Include="TUnit.Assertions" />
+    <Using Include="TUnit.Core" />
+    <Using Include="ReactiveUI.SourceGenerators" />
+    <Using Include="System.Text.RegularExpressions" />
+    <Using Include="Microsoft.CodeAnalysis" />
+    <Using Include="Microsoft.CodeAnalysis.CSharp" />
     <Using Include="System.Collections.Immutable" />
     <Using Include="Microsoft.CodeAnalysis.Diagnostics" />
     <Using Include="ReactiveUI.SourceGenerators.CodeFixers" />

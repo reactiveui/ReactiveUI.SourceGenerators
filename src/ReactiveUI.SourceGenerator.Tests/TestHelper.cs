@@ -4,10 +4,6 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using ReactiveMarbles.NuGet.Helpers;
-
-using ReactiveMarbles.SourceGenerator.TestNuGetHelper.Compilation;
 using ReactiveUI.SourceGenerators.WinForms;
 
 namespace ReactiveUI.SourceGenerator.Tests;
@@ -21,38 +17,6 @@ namespace ReactiveUI.SourceGenerator.Tests;
 public sealed partial class TestHelper<T> : IDisposable
         where T : IIncrementalGenerator, new()
 {
-    /// <summary>
-    /// Represents the NuGet library dependency for the Splat library.
-    /// </summary>
-    private static readonly LibraryRange SplatLibrary =
-        new("Splat", VersionRange.AllStable, LibraryDependencyTarget.Package);
-
-    /// <summary>
-    /// Represents the NuGet library dependency for the ReactiveUI library.
-    /// </summary>
-    private static readonly LibraryRange ReactiveuiLibrary =
-        new("ReactiveUI", VersionRange.AllStable, LibraryDependencyTarget.Package);
-
-    private static readonly string mscorlibPath = Path.Combine(
-            System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory(),
-            "mscorlib.dll");
-
-    private static readonly Assembly[] References =
-    [
-        typeof(object).Assembly,
-        typeof(Enumerable).Assembly,
-        typeof(T).Assembly,
-        typeof(TestHelper<T>).Assembly,
-        typeof(IViewFor).Assembly,
-    ];
-
-    /// <summary>
-    /// Holds the compiler instance used for event-related code generation.
-    /// </summary>
-    private static readonly Lazy<Task<EventBuilderCompiler>> SharedEventCompiler = new(CreateSharedEventCompilerAsync);
-
-    private EventBuilderCompiler? _eventCompiler;
-
     /// <summary>
     /// Verifieds the file path.
     /// </summary>
@@ -78,28 +42,26 @@ public sealed partial class TestHelper<T> : IDisposable
     }
 
     /// <summary>
-    /// Asynchronously initializes the source generator helper by downloading required packages.
+    /// Asynchronously initializes the source generator helper.
     /// </summary>
-    /// <returns>A task representing the asynchronous initialization operation.</returns>
-    public async Task InitializeAsync() => _eventCompiler = await SharedEventCompiler.Value.ConfigureAwait(false);
+    /// <returns>A task representing the completed initialization operation.</returns>
+    public Task InitializeAsync() => Task.CompletedTask;
 
     /// <summary>
     /// Tests a generator expecting it to fail by throwing an <see cref="InvalidOperationException"/>.
     /// </summary>
     /// <param name="source">The source code to test.</param>
     /// <returns>A task representing the asynchronous assertion operation.</returns>
-    public async Task TestFail(
+    public Task TestFail(
         string source)
     {
-        await EnsureInitializedAsync().ConfigureAwait(false);
-
-        var utility = new SourceGeneratorUtility(WriteTestOutput);
-
 #pragma warning disable IDE0053 // Use expression body for lambda expression
 #pragma warning disable RCS1021 // Convert lambda expression body to expression body
         Assert.Throws<InvalidOperationException>(() => { RunGeneratorAndCheck(source); });
 #pragma warning restore RCS1021 // Convert lambda expression body to expression body
 #pragma warning restore IDE0053 // Use expression body for lambda expression
+
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -110,14 +72,10 @@ public sealed partial class TestHelper<T> : IDisposable
     /// <returns>A task representing the asynchronous verification operation.</returns>
     /// <exception cref="InvalidOperationException">Must have valid compiler instance.</exception>
     /// <exception cref="ArgumentNullException">callerType.</exception>
-    public async Task TestPass(
+    public Task TestPass(
         string source,
         bool withPreDiagnosics = false)
-    {
-        await EnsureInitializedAsync().ConfigureAwait(false);
-
-        await RunGeneratorAndCheck(source, withPreDiagnosics);
-    }
+        => RunGeneratorAndCheck(source, withPreDiagnosics);
 
     /// <inheritdoc/>
     public void Dispose()
@@ -133,41 +91,86 @@ public sealed partial class TestHelper<T> : IDisposable
     /// <returns>
     /// The generator driver used to run the generator.
     /// </returns>
-    /// <exception cref="InvalidOperationException">Thrown if the compiler instance is not valid or if the compilation fails.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the compilation fails.</exception>
     public SettingsTask RunGeneratorAndCheck(
         string code,
         bool withPreDiagnosics = false,
         bool rerunCompilation = true)
     {
-        if (_eventCompiler is null)
-        {
-            throw new InvalidOperationException("Must have a valid compiler instance.");
-        }
-
-        IEnumerable<MetadataReference> basicReferences;
-#if NET10_0_OR_GREATER
-        basicReferences = Basic.Reference.Assemblies.Net100.References.All;
-#elif NET9_0_OR_GREATER
-        basicReferences = Basic.Reference.Assemblies.Net90.References.All;
-#else
-        basicReferences = Basic.Reference.Assemblies.Net80.References.All;
-#endif
-
-        // Collect required assembly references.
+        // Collect required assembly references: runtime assemblies plus a support assembly
+        // that provides attribute/enum definitions for generators OTHER than the active generator T.
+        // Generator T injects its own definitions via RegisterPostInitializationOutput, so those
+        // are excluded from the support assembly to avoid CS0433 duplicate-type errors.
         var assemblies = new HashSet<MetadataReference>(
-        basicReferences
-            .Concat([MetadataReference.CreateFromFile(mscorlibPath)])
-            .Concat(basicReferences)
-            .Concat(GetTransitiveReferences(References))
-            .Concat(_eventCompiler.Modules.Select(x => MetadataReference.CreateFromFile(x.PEFile!.FileName)))
-            .Concat(_eventCompiler.ReferencedModules.Select(x => MetadataReference.CreateFromFile(x.PEFile!.FileName)))
-            .Concat(_eventCompiler.NeededModules.Select(x => MetadataReference.CreateFromFile(x.PEFile!.FileName))));
+            TestCompilationReferences.CreateDefault().Concat(CreateSupportReferences()));
 
         var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp13);
         var syntaxTrees = new List<SyntaxTree>
         {
+            // Mirror the test project's GlobalUsings.g.cs so test sources can use unqualified
+            // attribute names (e.g. [BindableDerivedList]) without an explicit 'using' directive.
+            CSharpSyntaxTree.ParseText(
+                "global using ReactiveUI.SourceGenerators;",
+                parseOptions,
+                path: "GlobalUsings.g.cs"),
             CSharpSyntaxTree.ParseText(code, parseOptions),
         };
+
+        // When the active generator is NOT ReactiveGenerator, the shared enum types
+        // (AccessModifier, PropertyAccessModifier, InheritanceModifier, SplatRegistrationType)
+        // are not injected by any generator but may be referenced by test source code or by the
+        // generator's own output.  Add them directly as source trees so they are visible in both
+        // the input and output compilations at the correct (non-internal) accessibility level.
+        if (typeof(T) != typeof(ReactiveGenerator))
+        {
+            syntaxTrees.Add(CSharpSyntaxTree.ParseText(
+                GetAttributeDefinitionsMethodResult("GetAccessModifierEnum"),
+                parseOptions,
+                path: "AccessModifierEnum.g.cs"));
+        }
+
+        // When the active generator is IViewForGenerator, the [Reactive] and [ReactiveCommand]
+        // attributes are not injected (those belong to ReactiveGenerator and ReactiveCommandGenerator).
+        // They are also excluded from the support DLL (above), so add them directly as inline source
+        // trees — this makes them visible in the test source compilation without CS0122.
+        if (typeof(T) == typeof(IViewForGenerator))
+        {
+            syntaxTrees.Add(CSharpSyntaxTree.ParseText(
+                GetAttributeDefinitionsPropertyResult("ReactiveAttribute"),
+                parseOptions,
+                path: "ReactiveAttribute.g.cs"));
+            syntaxTrees.Add(CSharpSyntaxTree.ParseText(
+                GetAttributeDefinitionsPropertyResult("ReactiveCommandAttribute"),
+                parseOptions,
+                path: "ReactiveCommandAttribute.g.cs"));
+        }
+
+        // When the active generator is ReactiveObjectGenerator, [Reactive] and [ObservableAsProperty]
+        // attributes are not injected by this generator (they belong to ReactiveGenerator and
+        // ObservableAsPropertyGenerator). They are excluded from the support DLL to avoid CS0433,
+        // so add them directly as inline source trees for accessibility.
+        if (typeof(T) == typeof(ReactiveObjectGenerator))
+        {
+            syntaxTrees.Add(CSharpSyntaxTree.ParseText(
+                GetAttributeDefinitionsPropertyResult("ReactiveAttribute"),
+                parseOptions,
+                path: "ReactiveAttribute.g.cs"));
+            syntaxTrees.Add(CSharpSyntaxTree.ParseText(
+                GetAttributeDefinitionsPropertyResult("ObservableAsPropertyAttribute"),
+                parseOptions,
+                path: "ObservableAsPropertyAttribute.g.cs"));
+        }
+
+        // BindableDerivedListGenerator and ReactiveCollectionGenerator inject their own attribute
+        // via RegisterPostInitializationOutput. Tests that also use [Reactive] (WithReactive tests)
+        // need ReactiveAttribute as an inline source tree because it is excluded from the support DLL.
+        if (typeof(T) == typeof(BindableDerivedListGenerator) || typeof(T) == typeof(ReactiveCollectionGenerator))
+        {
+            syntaxTrees.Add(CSharpSyntaxTree.ParseText(
+                GetAttributeDefinitionsPropertyResult("ReactiveAttribute"),
+                parseOptions,
+                path: "ReactiveAttribute.g.cs"));
+        }
 
         // Create a compilation with the provided source code.
         var compilation = CSharpCompilation.Create(
@@ -217,6 +220,23 @@ public sealed partial class TestHelper<T> : IDisposable
                 throw new InvalidOperationException("Compilation failed due to the above diagnostics.");
             }
 
+            var outputDiagnosticsToReport = outputCompilation.GetDiagnostics()
+                .Where(d => d.Severity >= DiagnosticSeverity.Error)
+                .Where(d => !IsKnownExpectedOutputDiagnostic(d))
+                .ToList();
+
+            if (outputDiagnosticsToReport.Count > 0)
+            {
+                var diagnosticMessage = string.Join(Environment.NewLine, outputDiagnosticsToReport.Select(static d => $"{d.Id} - {d.GetMessage()}"));
+
+                foreach (var diagnostic in outputDiagnosticsToReport)
+                {
+                    WriteTestOutput($"Output diagnostic: {diagnostic.Id} - {diagnostic.GetMessage()}");
+                }
+
+                throw new InvalidOperationException($"Output compilation failed due to the above diagnostics.{Environment.NewLine}{diagnosticMessage}");
+            }
+
             // Validate generated code contains expected features
             ValidateGeneratedCode(code, rerunDriver);
 
@@ -227,65 +247,85 @@ public sealed partial class TestHelper<T> : IDisposable
         return VerifyGenerator(driver.RunGenerators(compilation));
     }
 
+    /// <summary>
+    /// Returns all attribute/enum source strings that are NOT already injected by generator T
+    /// via RegisterPostInitializationOutput. Including sources that the active generator also
+    /// emits would create CS0433 (duplicate type) in the output compilation.
+    /// </summary>
     private static IEnumerable<string> GetGeneratedSupportSources()
     {
-        yield return "using System.Runtime.CompilerServices;\n[assembly: InternalsVisibleTo(\"TestProject\")]";
-
+        // Always include the shared enum block (AccessModifier, PropertyAccessModifier,
+        // InheritanceModifier, SplatRegistrationType).  These are internal types so they
+        // live inside the support-assembly DLL and never cause CS0433 conflicts, even when
+        // ReactiveGenerator also injects them into the test compilation as source.
+        // Omitting this block breaks ReactiveCommandAttribute (needs PropertyAccessModifier)
+        // and IViewForAttribute (needs SplatRegistrationType).
         yield return GetAttributeDefinitionsMethodResult("GetAccessModifierEnum");
 
-        if (typeof(T) == typeof(ReactiveCommandGenerator))
+        // Yield each attribute definition only if generator T does NOT inject it.
+        // Note: for IViewForGenerator, ReactiveAttribute and ReactiveCommandAttribute are
+        // added as inline SyntaxTrees below (not in the support DLL) so they are accessible
+        // in the test source compilation without CS0122 internal-visibility errors.
+        if (typeof(T) != typeof(ReactiveCommandGenerator) && typeof(T) != typeof(IViewForGenerator))
         {
             yield return GetAttributeDefinitionsPropertyResult("ReactiveCommandAttribute");
+        }
+
+        if (typeof(T) != typeof(ReactiveGenerator) && typeof(T) != typeof(IViewForGenerator) && typeof(T) != typeof(ReactiveObjectGenerator)
+            && typeof(T) != typeof(BindableDerivedListGenerator) && typeof(T) != typeof(ReactiveCollectionGenerator))
+        {
             yield return GetAttributeDefinitionsPropertyResult("ReactiveAttribute");
         }
-        else if (typeof(T) == typeof(IViewForGenerator))
+
+        if (typeof(T) != typeof(IViewForGenerator))
         {
             yield return GetAttributeDefinitionsPropertyResult("IViewForAttribute");
         }
-        else if (typeof(T) == typeof(ReactiveGenerator))
-        {
-            yield return GetAttributeDefinitionsPropertyResult("ReactiveAttribute");
-        }
-        else if (typeof(T) == typeof(ObservableAsPropertyGenerator))
+
+        if (typeof(T) != typeof(ObservableAsPropertyGenerator) && typeof(T) != typeof(ReactiveObjectGenerator))
         {
             yield return GetAttributeDefinitionsPropertyResult("ObservableAsPropertyAttribute");
         }
-        else if (typeof(T) == typeof(BindableDerivedListGenerator))
+
+        if (typeof(T) != typeof(BindableDerivedListGenerator))
         {
             yield return GetAttributeDefinitionsPropertyResult("BindableDerivedListAttribute");
         }
-        else if (typeof(T) == typeof(ReactiveCollectionGenerator))
+
+        if (typeof(T) != typeof(ReactiveCollectionGenerator))
         {
             yield return GetAttributeDefinitionsPropertyResult("ReactiveCollectionAttribute");
         }
-        else if (typeof(T) == typeof(ReactiveObjectGenerator))
+
+        if (typeof(T) != typeof(ReactiveObjectGenerator))
         {
             yield return GetAttributeDefinitionsPropertyResult("ReactiveObjectAttribute");
+        }
+
+        if (typeof(T) != typeof(RoutedControlHostGenerator))
+        {
+            yield return GetAttributeDefinitionsMethodResult("GetRoutedControlHostAttribute");
+        }
+
+        if (typeof(T) != typeof(ViewModelControlHostGenerator))
+        {
+            yield return GetAttributeDefinitionsPropertyResult("ViewModelControlHostAttribute");
         }
     }
 
     private static ImmutableArray<MetadataReference> CreateSupportReferences()
     {
         var supportSources = GetGeneratedSupportSources().ToArray();
-
         if (supportSources.Length == 0)
         {
             return [];
         }
 
-        IEnumerable<MetadataReference> basicReferences;
-#if NET10_0_OR_GREATER
-        basicReferences = Basic.Reference.Assemblies.Net100.References.All;
-#elif NET9_0_OR_GREATER
-        basicReferences = Basic.Reference.Assemblies.Net90.References.All;
-#else
-        basicReferences = Basic.Reference.Assemblies.Net80.References.All;
-#endif
-
+        var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp13);
         var supportCompilation = CSharpCompilation.Create(
             $"{typeof(T).Name}.Support",
-            supportSources.Select((source, index) => CSharpSyntaxTree.ParseText(source, path: $"Support{index}.g.cs")),
-            basicReferences.Concat([MetadataReference.CreateFromFile(mscorlibPath)]),
+            supportSources.Select((source, index) => CSharpSyntaxTree.ParseText(source, parseOptions, path: $"Support{index}.g.cs")),
+            TestCompilationReferences.CreateDefault(),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, deterministic: true));
 
         using var stream = new MemoryStream();
@@ -294,7 +334,7 @@ public sealed partial class TestHelper<T> : IDisposable
         if (!emitResult.Success)
         {
             var diagnostics = string.Join(Environment.NewLine, emitResult.Diagnostics.Select(static d => d.ToString()));
-            throw new InvalidOperationException($"Failed to compile support sources for {typeof(T).Name}.{Environment.NewLine}{diagnostics}");
+            throw new InvalidOperationException($"Support assembly compilation failed for {typeof(T).Name}.{Environment.NewLine}{diagnostics}");
         }
 
         return [MetadataReference.CreateFromImage(stream.ToArray())];
@@ -324,6 +364,9 @@ public sealed partial class TestHelper<T> : IDisposable
             ?? throw new InvalidOperationException($"AttributeDefinitions.{propertyName} returned null.");
     }
 
+    private static bool IsKnownExpectedOutputDiagnostic(Diagnostic d) =>
+        d.Id is "CS0579" or "CS8864" or "CS0115" or "CS8867" or "CS8866";
+
     [GeneratedRegex(@"\[Reactive\((?:.*?nameof\((\w+)\))+", RegexOptions.Singleline)]
     private static partial Regex ReactiveRegex();
 
@@ -340,6 +383,27 @@ public sealed partial class TestHelper<T> : IDisposable
         var runResult = driver.GetRunResult();
         var generatedTrees = runResult.Results.SelectMany(r => r.GeneratedSources).ToList();
         var allGeneratedCode = string.Join("\n", generatedTrees.Select(t => t.SourceText.ToString()));
+
+        if (typeof(T) == typeof(ReactiveCommandGenerator))
+        {
+            var hasReactiveCommandOutput = generatedTrees.Any(static s => s.HintName.EndsWith(".ReactiveCommands.g.cs", StringComparison.Ordinal));
+
+            if (!hasReactiveCommandOutput)
+            {
+                WriteTestOutput("=== VALIDATION FAILURE ===");
+                WriteTestOutput("ReactiveCommand generator produced no command source output.");
+                WriteTestOutput("=== GENERATED HINTS ===");
+
+                foreach (var generatedTree in generatedTrees)
+                {
+                    WriteTestOutput(generatedTree.HintName);
+                }
+
+                WriteTestOutput("=== END ===");
+
+                throw new InvalidOperationException("ReactiveCommand generator produced no command source output.");
+            }
+        }
 
         // Check for AlsoNotify feature in Reactive attributes
         // Pattern matches: [Reactive(nameof(PropertyName))] or [Reactive(nameof(Prop1), nameof(Prop2))]
@@ -387,76 +451,10 @@ public sealed partial class TestHelper<T> : IDisposable
         }
     }
 
-    /// <summary>
-    /// Recursively walks assembly references from the seed assemblies to collect
-    /// all transitive dependencies as metadata references.
-    /// </summary>
-    /// <param name="seedAssemblies">The root assemblies to start from.</param>
-    /// <returns>Metadata references for all reachable assemblies.</returns>
-    private static IEnumerable<MetadataReference> GetTransitiveReferences(params Assembly[] seedAssemblies)
-    {
-        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        var queue = new Queue<Assembly>(seedAssemblies);
-
-        while (queue.Count > 0)
-        {
-            var assembly = queue.Dequeue();
-            if (assembly.IsDynamic || string.IsNullOrEmpty(assembly.Location))
-            {
-                continue;
-            }
-
-            if (!seen.Add(assembly.Location))
-            {
-                continue;
-            }
-
-            yield return MetadataReference.CreateFromFile(assembly.Location);
-
-            foreach (var referencedName in assembly.GetReferencedAssemblies())
-            {
-                try
-                {
-                    queue.Enqueue(System.Reflection.Assembly.Load(referencedName));
-                }
-                catch
-                {
-                    // System assemblies already covered by Basic.Reference.Assemblies
-                }
-            }
-        }
-    }
-
     private static void WriteTestOutput(string message) => TestContext.Current?.OutputWriter.WriteLine(message);
 
-    private static async Task<EventBuilderCompiler> CreateSharedEventCompilerAsync()
-    {
-#if NET10_0_OR_GREATER
-        NuGetFramework[] targetFrameworks = [new NuGetFramework(".NETCoreApp", new Version(10, 0, 0, 0))];
-#elif NET9_0_OR_GREATER
-        NuGetFramework[] targetFrameworks = [new NuGetFramework(".NETCoreApp", new Version(9, 0, 0, 0))];
-#else
-        NuGetFramework[] targetFrameworks = [new NuGetFramework(".NETCoreApp", new Version(8, 0, 0, 0))];
-#endif
-
-        var inputGroup = await NuGetPackageHelper.DownloadPackageFilesAndFolder(
-            [SplatLibrary, ReactiveuiLibrary],
-            targetFrameworks,
-            packageOutputDirectory: null).ConfigureAwait(false);
-
-        var framework = targetFrameworks[0];
-        return new EventBuilderCompiler(inputGroup, inputGroup, framework);
+    private SettingsTask VerifyGenerator(GeneratorDriver driver)
+        => Verify(driver)
+            .UseDirectory(VerifiedFilePath())
+            .ScrubLinesContaining("[global::System.CodeDom.Compiler.GeneratedCode(\"");
     }
-
-    private SettingsTask VerifyGenerator(GeneratorDriver driver) => Verify(driver)
-        .UseDirectory(VerifiedFilePath())
-        .ScrubLinesContaining("[global::System.CodeDom.Compiler.GeneratedCode(\"");
-
-    private async Task EnsureInitializedAsync()
-    {
-        if (_eventCompiler is null)
-        {
-            await InitializeAsync().ConfigureAwait(false);
-        }
-    }
-}

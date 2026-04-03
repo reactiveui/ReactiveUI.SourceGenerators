@@ -486,8 +486,6 @@ public class RxObjExtTests : TestBase<ReactiveObjectGenerator>
 
                 [Reactive]
                 private string? _lastName;
-
-                public string FullName => $"{FirstName} {LastName}";
             }
             """;
 

@@ -67,7 +67,7 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
                     continue;
                 }
 
-                var source = GenerateSource(grouping.Key.TargetName, grouping.Key.TargetNamespace, grouping.Key.TargetVisibility, grouping.Key.TargetType, grouping.FirstOrDefault());
+                var source = GenerateSource(grouping.Key.TargetName, grouping.Key.TargetNamespace, grouping.Key.TargetVisibility, grouping.Key.TargetType, grouping.FirstOrDefault(), grouping.FirstOrDefault()?.TargetInfo?.ParentInfo);
 
                 // Only add source if it's not empty (i.e., a supported UI framework base type was detected)
                 if (!string.IsNullOrWhiteSpace(source))

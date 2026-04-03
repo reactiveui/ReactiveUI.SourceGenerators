@@ -10,20 +10,20 @@ namespace TestNs
     
     public partial class TestVM
     {
-        /// <inheritdoc cref="Test3Property"/>
-        private int _test3Property;
+        /// <inheritdoc cref="MyNamedProperty"/>
+        private int _myNamedProperty;
 
-        /// <inheritdoc cref="_test3PropertyHelper"/>
-        private ReactiveUI.ObservableAsPropertyHelper<int>? _test3PropertyHelper;
+        /// <inheritdoc cref="_myNamedPropertyHelper"/>
+        private ReactiveUI.ObservableAsPropertyHelper<int>? _myNamedPropertyHelper;
 
-        /// <inheritdoc cref="_test3Property"/>
+        /// <inheritdoc cref="_myNamedProperty"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        public int Test3Property { get => _test3Property = _test3PropertyHelper?.Value ?? _test3Property; }
+        public int MyNamedProperty { get => _myNamedProperty = _myNamedPropertyHelper?.Value ?? _myNamedProperty; }
 
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         protected void InitializeOAPH()
         {
-            _test3PropertyHelper = Test3()!.ToProperty(this, nameof(Test3Property));
+            _myNamedPropertyHelper = Test3()!.ToProperty(this, nameof(MyNamedProperty));
         }
     }
 }

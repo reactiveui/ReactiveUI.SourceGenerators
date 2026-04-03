@@ -14,11 +14,11 @@ namespace TestNs
 
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::ReactiveUI.ReactiveCommand<T?, T?> ProcessItemCommand { get => _processItemCommand ??= global::ReactiveUI.ReactiveCommand.Create<T?, T?>(ProcessItem); }
-        private global::ReactiveUI.ReactiveCommand<T?, T?>? _processItemCommand;
+        private global::ReactiveUI.ReactiveCommand<T?, T?>? _processItemLaterCommand;
 
 
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        public global::ReactiveUI.ReactiveCommand<T?, T?> ProcessItemCommand { get => _processItemCommand ??= global::ReactiveUI.ReactiveCommand.CreateFromTask<T?, T?>(ProcessItemAsync); }
+        public global::ReactiveUI.ReactiveCommand<T?, T?> ProcessItemLaterCommand { get => _processItemLaterCommand ??= global::ReactiveUI.ReactiveCommand.CreateFromTask<T?, T?>(ProcessItemLater); }
     }
 }
 #nullable restore

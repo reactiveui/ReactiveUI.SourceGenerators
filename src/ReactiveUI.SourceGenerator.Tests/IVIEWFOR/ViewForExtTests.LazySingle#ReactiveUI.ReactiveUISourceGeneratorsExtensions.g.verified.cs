@@ -16,6 +16,7 @@ namespace ReactiveUI.SourceGenerators
         public static void RegisterViewsForViewModelsSourceGenerated(this global::Splat.IMutableDependencyResolver resolver)
         {
             if (resolver is null) throw new global::System.ArgumentNullException(nameof(resolver));
+            resolver.RegisterLazySingleton<global::ReactiveUI.IViewFor<global::TestNs.TestViewModel>>(() => new global::TestNs.TestView());
         }
     }
 }
