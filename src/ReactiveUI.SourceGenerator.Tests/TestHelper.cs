@@ -18,6 +18,12 @@ namespace ReactiveUI.SourceGenerator.Tests;
 public sealed partial class TestHelper<T> : IDisposable
         where T : IIncrementalGenerator, new()
 {
+    // Cache support references per generator type T.  The support assembly compiles attribute
+    // definitions that are NOT injected by T via RegisterPostInitializationOutput — an expensive
+    // Roslyn compilation + Emit step that produces an identical result for every test in the same
+    // generator class.  Compute it once and reuse it for all subsequent tests.
+    private static readonly Lazy<ImmutableArray<MetadataReference>> supportReferences =
+        new(CreateSupportReferences, LazyThreadSafetyMode.ExecutionAndPublication);
     /// <summary>
     /// Verifieds the file path.
     /// </summary>
@@ -103,7 +109,7 @@ public sealed partial class TestHelper<T> : IDisposable
         // Generator T injects its own definitions via RegisterPostInitializationOutput, so those
         // are excluded from the support assembly to avoid CS0433 duplicate-type errors.
         var assemblies = new HashSet<MetadataReference>(
-            TestCompilationReferences.CreateDefault().Concat(CreateSupportReferences()));
+            TestCompilationReferences.CreateDefault().Concat(supportReferences.Value));
 
         var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp13);
         var syntaxTrees = new List<SyntaxTree>

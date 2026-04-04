@@ -50,12 +50,20 @@ internal static class TestCompilationReferences
         }
         """;
 
+    // Cache the default references so that the expensive assembly-scanning/file-I/O is only
+    // performed once per process, not on every test invocation.
+    private static readonly Lazy<ImmutableArray<MetadataReference>> defaultReferences =
+        new(CreateDefaultCore, LazyThreadSafetyMode.ExecutionAndPublication);
+
     /// <summary>
     /// Returns metadata references for all assemblies required by the in-memory test compilations.
     /// Uses only runtime assemblies already loaded into the current process — no NuGet downloads,
     /// no Basic.Reference.Assemblies mixing — to avoid CS1704/CS0433/CS0518 duplicate-type errors.
+    /// The result is cached after the first call to avoid repeated assembly scanning and file I/O.
     /// </summary>
-    internal static ImmutableArray<MetadataReference> CreateDefault()
+    internal static ImmutableArray<MetadataReference> CreateDefault() => defaultReferences.Value;
+
+    private static ImmutableArray<MetadataReference> CreateDefaultCore()
     {
         var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var result = ImmutableArray.CreateBuilder<MetadataReference>();
