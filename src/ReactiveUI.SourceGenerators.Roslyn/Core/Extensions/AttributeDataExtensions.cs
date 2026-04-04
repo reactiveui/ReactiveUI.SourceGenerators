@@ -37,7 +37,9 @@ internal static class AttributeDataExtensions
             return false;
         }
 
-        try
+        // NamedArguments returns a default ImmutableArray when attribute data is incomplete/malformed.
+        // Guard with IsDefaultOrEmpty rather than catching NullReferenceException to avoid masking real bugs.
+        if (!attributeData.NamedArguments.IsDefaultOrEmpty)
         {
             foreach (var properties in attributeData.NamedArguments)
             {
@@ -46,9 +48,6 @@ internal static class AttributeDataExtensions
                     return TryConvertNamedArgument(properties.Value, out value);
                 }
             }
-        }
-        catch (NullReferenceException)
-        {
         }
 
         value = default;
@@ -70,7 +69,9 @@ internal static class AttributeDataExtensions
             return default;
         }
 
-        try
+        // NamedArguments returns a default ImmutableArray when attribute data is incomplete/malformed.
+        // Guard with IsDefaultOrEmpty rather than catching NullReferenceException to avoid masking real bugs.
+        if (!attributeData.NamedArguments.IsDefaultOrEmpty)
         {
             foreach (var properties in attributeData.NamedArguments)
             {
@@ -79,9 +80,6 @@ internal static class AttributeDataExtensions
                     return TryConvertNamedArgument(properties.Value, out T? value) ? value : default;
                 }
             }
-        }
-        catch (NullReferenceException)
-        {
         }
 
         return default;
