@@ -402,4 +402,66 @@ public class DerivedListExtTests : TestBase<BindableDerivedListGenerator>
 
         return TestHelper.TestPass(sourceCode);
     }
+
+    /// <summary>
+    /// Tests BindableDerivedList always generates public properties even for internal classes.
+    /// </summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Test]
+    public Task InternalClassGeneratesPublicProperty()
+    {
+        const string sourceCode = """
+            using System.Collections.ObjectModel;
+            using DynamicData;
+            using ReactiveUI;
+
+            namespace TestNs;
+
+            internal partial class ViewModel : ReactiveObject
+            {
+                [BindableDerivedList]
+                private readonly ReadOnlyObservableCollection<string>? _theList;
+            }
+            """;
+
+        return TestHelper.TestPass(sourceCode);
+    }
+
+    /// <summary>
+    /// Tests BindableDerivedList with all supported property access modifiers.
+    /// </summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Test]
+    public Task AccessModifiers()
+    {
+        const string sourceCode = """
+            using System.Collections.ObjectModel;
+            using DynamicData;
+
+            namespace TestNs;
+
+            public partial class TestVM
+            {
+                [BindableDerivedList(AccessModifier = PropertyAccessModifier.Public)]
+                private ReadOnlyObservableCollection<string>? _publicItems;
+
+                [BindableDerivedList(AccessModifier = PropertyAccessModifier.Protected)]
+                private ReadOnlyObservableCollection<string>? _protectedItems;
+
+                [BindableDerivedList(AccessModifier = PropertyAccessModifier.Internal)]
+                private ReadOnlyObservableCollection<string>? _internalItems;
+
+                [BindableDerivedList(AccessModifier = PropertyAccessModifier.Private)]
+                private ReadOnlyObservableCollection<string>? _privateItems;
+
+                [BindableDerivedList(AccessModifier = PropertyAccessModifier.InternalProtected)]
+                private ReadOnlyObservableCollection<string>? _internalProtectedItems;
+
+                [BindableDerivedList(AccessModifier = PropertyAccessModifier.PrivateProtected)]
+                private ReadOnlyObservableCollection<string>? _privateProtectedItems;
+            }
+            """;
+
+        return TestHelper.TestPass(sourceCode);
+    }
 }

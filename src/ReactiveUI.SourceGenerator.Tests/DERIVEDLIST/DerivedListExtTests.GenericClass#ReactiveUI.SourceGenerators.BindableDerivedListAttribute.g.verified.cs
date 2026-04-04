@@ -14,6 +14,15 @@ namespace ReactiveUI.SourceGenerators;
 /// </summary>
 /// <seealso cref="Attribute" />
 [global::System.AttributeUsage(global::System.AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
-internal sealed class BindableDerivedListAttribute : global::System.Attribute;
+internal sealed class BindableDerivedListAttribute : global::System.Attribute
+{
+    /// <summary>
+    /// Gets the AccessModifier of the BindableDerivedList property.
+    /// </summary>
+    /// <value>
+    /// The AccessModifier of the property.
+    /// </value>
+    public PropertyAccessModifier AccessModifier { get; init; }
+}
 #nullable restore
 #pragma warning restore

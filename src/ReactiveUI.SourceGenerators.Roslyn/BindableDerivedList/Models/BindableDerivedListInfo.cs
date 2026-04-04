@@ -18,4 +18,5 @@ internal sealed record BindableDerivedListInfo(
     string PropertyName,
     bool IsReferenceTypeOrUnconstrainedTypeParameter,
     bool IncludeMemberNotNullOnSetAccessor,
-    EquatableArray<string> ForwardedAttributes);
+    EquatableArray<string> ForwardedAttributes,
+    string AccessModifier);
