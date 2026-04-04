@@ -8,7 +8,6 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// <summary>
 /// Extended unit tests for the ReactiveCommand generator covering edge cases.
 /// </summary>
-[TestFixture]
 public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
 {
     /// <summary>
@@ -40,6 +39,33 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
     }
 
     /// <summary>
+    /// Tests ReactiveCommand with CanExecute observable method.
+    /// </summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Test]
+    public Task FromReactiveCommandWithCanExecuteMethod()
+    {
+        const string sourceCode = """
+            using System;
+            using System.Reactive.Linq;
+            using ReactiveUI;
+            using ReactiveUI.SourceGenerators;
+
+            namespace TestNs;
+
+            public partial class TestVM : ReactiveObject
+            {
+                [ReactiveCommand(CanExecute = nameof(CanRun))]
+                private int Run() => 42;
+
+                private IObservable<bool> CanRun() => Observable.Return(true);
+            }
+            """;
+
+        return TestHelper.TestPass(sourceCode);
+    }
+
+    /// <summary>
     /// Tests ReactiveCommand with CancellationToken parameter.
     /// </summary>
     /// <returns>A task to monitor the async.</returns>
@@ -61,6 +87,41 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
                 private async Task LongRunningOperation(CancellationToken ct)
                 {
                     await Task.Delay(1000, ct);
+                }
+            }
+            """;
+
+        return TestHelper.TestPass(sourceCode);
+    }
+
+    /// <summary>
+    /// Tests ReactiveCommands distributed across partial declarations.
+    /// </summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Test]
+    public Task FromReactiveCommandsAcrossPartialDeclarations()
+    {
+        const string sourceCode = """
+            using System;
+            using System.Threading.Tasks;
+            using ReactiveUI;
+            using ReactiveUI.SourceGenerators;
+
+            namespace TestNs;
+
+            public partial class TestVM : ReactiveObject
+            {
+                [ReactiveCommand]
+                private void Create() { }
+            }
+
+            public partial class TestVM
+            {
+                [ReactiveCommand]
+                private async Task<int> LoadAsync()
+                {
+                    await Task.Delay(10);
+                    return 5;
                 }
             }
             """;
@@ -337,7 +398,7 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
                 }
 
                 [ReactiveCommand]
-                private async Task<T?> ProcessItemAsync(T? item)
+                private async Task<T?> ProcessItemLater(T? item)
                 {
                     await Task.Delay(10);
                     return item;
@@ -530,7 +591,7 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
 
             namespace TestNs;
 
-            public partial record TestVMRecord : ReactiveObject
+            public partial record TestVMRecord
             {
                 [ReactiveCommand]
                 private void DoSomething() { }

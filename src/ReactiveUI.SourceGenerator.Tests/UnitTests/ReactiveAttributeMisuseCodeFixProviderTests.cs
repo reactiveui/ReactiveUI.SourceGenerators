@@ -10,9 +10,34 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// <summary>
 /// Unit tests for <see cref="ReactiveAttributeMisuseCodeFixProvider" />.
 /// </summary>
-[TestFixture]
 public sealed class ReactiveAttributeMisuseCodeFixProviderTests
 {
+    /// <summary>
+    /// Validates the code fix provider advertises the expected diagnostic ID.
+    /// </summary>
+    [Test]
+    public void FixableDiagnosticIdsIncludesReactivePartialRule()
+    {
+        var provider = new ReactiveAttributeMisuseCodeFixProvider();
+        if (!provider.FixableDiagnosticIds.Contains("RXUISG0020"))
+        {
+            throw new InvalidOperationException("Expected RXUISG0020 to be fixable.");
+        }
+    }
+
+    /// <summary>
+    /// Validates the code fix provider exposes a fix-all implementation.
+    /// </summary>
+    [Test]
+    public void GetFixAllProviderReturnsBatchFixer()
+    {
+        var provider = new ReactiveAttributeMisuseCodeFixProvider();
+        if (provider.GetFixAllProvider() is null)
+        {
+            throw new InvalidOperationException("Expected a fix-all provider.");
+        }
+    }
+
     /// <summary>
     /// Verifies `required` stays before `partial` when applying the code fix.
     /// </summary>
@@ -34,8 +59,49 @@ public sealed class ReactiveAttributeMisuseCodeFixProviderTests
 
         var fixedSource = ApplyFix(source);
 
-        Assert.That(fixedSource, Does.Contain("public required partial string? PartialRequiredPropertyTest"));
-        Assert.That(fixedSource, Does.Not.Contain("public partial required string? PartialRequiredPropertyTest"));
+        AssertContains(fixedSource, "public required partial string? PartialRequiredPropertyTest");
+        AssertDoesNotContain(fixedSource, "public partial required string? PartialRequiredPropertyTest");
+    }
+
+    /// <summary>
+    /// Verifies no code fix is registered when the diagnostic location is outside a property declaration.
+    /// </summary>
+    [Test]
+    public void WhenDiagnosticDoesNotTargetAPropertyThenNoCodeFixIsRegistered()
+    {
+        const string source = """
+            using ReactiveUI;
+
+            namespace TestNs;
+
+            public class TestVM : ReactiveObject
+            {
+            }
+            """;
+
+        using var workspace = new AdhocWorkspace();
+        var project = workspace.CurrentSolution
+            .AddProject("p", "p", LanguageNames.CSharp)
+            .WithParseOptions(CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp13))
+            .WithCompilationOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
+            .AddMetadataReference(MetadataReference.CreateFromFile(typeof(object).Assembly.Location))
+            .AddMetadataReference(MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location));
+
+        var document = project.AddDocument("t.cs", source);
+        var root = document.GetSyntaxRootAsync(CancellationToken.None).GetAwaiter().GetResult()!;
+        var classDeclaration = root.DescendantNodes().OfType<Microsoft.CodeAnalysis.CSharp.Syntax.ClassDeclarationSyntax>().Single();
+        var diagnosticDescriptor = new ReactiveAttributeMisuseAnalyzer().SupportedDiagnostics.Single(d => d.Id == "RXUISG0020");
+        var diagnostic = Diagnostic.Create(diagnosticDescriptor, classDeclaration.Identifier.GetLocation());
+        var actions = new List<Microsoft.CodeAnalysis.CodeActions.CodeAction>();
+        var context = new CodeFixContext(document, diagnostic, (a, _) => actions.Add(a), CancellationToken.None);
+
+        var provider = new ReactiveAttributeMisuseCodeFixProvider();
+        provider.RegisterCodeFixesAsync(context).GetAwaiter().GetResult();
+
+        if (actions.Count != 0)
+        {
+            throw new InvalidOperationException("Expected no code fixes to be registered.");
+        }
     }
 
     private static string ApplyFix(string source)
@@ -84,5 +150,21 @@ public sealed class ReactiveAttributeMisuseCodeFixProviderTests
 
         var updatedDoc = document.Project.Solution.Workspace.CurrentSolution.GetDocument(document.Id);
         return updatedDoc!.GetTextAsync(CancellationToken.None).GetAwaiter().GetResult().ToString();
+    }
+
+    private static void AssertContains(string actual, string expected)
+    {
+        if (!actual.Contains(expected, StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException($"Expected output to contain '{expected}'.");
+        }
+    }
+
+    private static void AssertDoesNotContain(string actual, string unexpected)
+    {
+        if (actual.Contains(unexpected, StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException($"Expected output not to contain '{unexpected}'.");
+        }
     }
 }

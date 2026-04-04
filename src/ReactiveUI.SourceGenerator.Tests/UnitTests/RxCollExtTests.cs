@@ -10,7 +10,6 @@ namespace ReactiveUI.SourceGenerators.Tests;
 /// <summary>
 /// Extended unit tests for the ReactiveCollection generator covering edge cases.
 /// </summary>
-[TestFixture]
 public class RxCollExtTests : TestBase<ReactiveCollectionGenerator>
 {
     /// <summary>

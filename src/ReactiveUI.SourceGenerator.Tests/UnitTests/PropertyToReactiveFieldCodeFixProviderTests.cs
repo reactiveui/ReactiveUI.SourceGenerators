@@ -10,9 +10,34 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// <summary>
 /// Unit tests for <see cref="PropertyToReactiveFieldCodeFixProvider" />.
 /// </summary>
-[TestFixture]
 public sealed class PropertyToReactiveFieldCodeFixProviderTests
 {
+    /// <summary>
+    /// Validates the code fix provider advertises the expected diagnostic ID.
+    /// </summary>
+    [Test]
+    public void FixableDiagnosticIdsIncludesReactiveFieldRule()
+    {
+        var provider = new PropertyToReactiveFieldCodeFixProvider();
+        if (!provider.FixableDiagnosticIds.Contains("RXUISG0016"))
+        {
+            throw new InvalidOperationException("Expected RXUISG0016 to be fixable.");
+        }
+    }
+
+    /// <summary>
+    /// Validates the code fix provider exposes a fix-all implementation.
+    /// </summary>
+    [Test]
+    public void GetFixAllProviderReturnsBatchFixer()
+    {
+        var provider = new PropertyToReactiveFieldCodeFixProvider();
+        if (provider.GetFixAllProvider() is null)
+        {
+            throw new InvalidOperationException("Expected a fix-all provider.");
+        }
+    }
+
     /// <summary>
     /// Validates a public auto-property is converted to a private field annotated with <c>[Reactive]</c>.
     /// </summary>
@@ -32,9 +57,9 @@ public sealed class PropertyToReactiveFieldCodeFixProviderTests
 
         var fixedSource = ApplyFix(source);
 
-        Assert.That(fixedSource, Does.Contain("[ReactiveUI.SourceGenerators.Reactive]"));
-        Assert.That(fixedSource, Does.Contain("private bool _isVisible"));
-        Assert.That(fixedSource, Does.Not.Contain("public bool IsVisible"));
+        AssertContains(fixedSource, "[ReactiveUI.SourceGenerators.Reactive]");
+        AssertContains(fixedSource, "private bool _isVisible");
+        AssertDoesNotContain(fixedSource, "public bool IsVisible");
     }
 
     private static string ApplyFix(string source)
@@ -82,5 +107,21 @@ public sealed class PropertyToReactiveFieldCodeFixProviderTests
 
         var updatedDoc = document.Project.Solution.Workspace.CurrentSolution.GetDocument(document.Id);
         return updatedDoc!.GetTextAsync(CancellationToken.None).GetAwaiter().GetResult().ToString();
+    }
+
+    private static void AssertContains(string actual, string expected)
+    {
+        if (!actual.Contains(expected, StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException($"Expected output to contain '{expected}'.");
+        }
+    }
+
+    private static void AssertDoesNotContain(string actual, string unexpected)
+    {
+        if (actual.Contains(unexpected, StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException($"Expected output not to contain '{unexpected}'.");
+        }
     }
 }

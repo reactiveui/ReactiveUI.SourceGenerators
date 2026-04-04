@@ -8,7 +8,6 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// <summary>
 /// Extended unit tests for the BindableDerivedList generator covering edge cases.
 /// </summary>
-[TestFixture]
 public class DerivedListExtTests : TestBase<BindableDerivedListGenerator>
 {
     /// <summary>

@@ -8,7 +8,6 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// <summary>
 /// Extended unit tests for the IViewFor generator covering edge cases.
 /// </summary>
-[TestFixture]
 public class ViewForExtTests : TestBase<IViewForGenerator>
 {
     /// <summary>
@@ -20,6 +19,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
     {
         const string sourceCode = """
             using System.Collections.ObjectModel;
+            using System.Windows;
             using ReactiveUI;
             using ReactiveUI.SourceGenerators;
 
@@ -49,6 +49,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
     {
         const string sourceCode = """
             using System.Collections.ObjectModel;
+            using System.Windows;
             using ReactiveUI;
             using ReactiveUI.SourceGenerators;
 
@@ -78,6 +79,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
     {
         const string sourceCode = """
             using System.Collections.ObjectModel;
+            using System.Windows;
             using ReactiveUI;
             using ReactiveUI.SourceGenerators;
 
@@ -107,6 +109,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
     {
         const string sourceCode = """
             using System.Collections.ObjectModel;
+            using System.Windows;
             using ReactiveUI;
             using ReactiveUI.SourceGenerators;
 
@@ -138,6 +141,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
     {
         const string sourceCode = """
             using System.Collections.ObjectModel;
+            using System.Windows;
             using ReactiveUI;
             using ReactiveUI.SourceGenerators;
 
@@ -172,6 +176,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
     {
         const string sourceCode = """
             using System.Collections.ObjectModel;
+            using System.Windows;
             using ReactiveUI;
             using ReactiveUI.SourceGenerators;
 
@@ -201,25 +206,28 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
     {
         const string sourceCode = """
             using System.Collections.ObjectModel;
+            using System.Windows;
             using ReactiveUI;
             using ReactiveUI.SourceGenerators;
 
-            namespace ViewModels;
-
-            public partial class ProductViewModel : ReactiveObject
+            namespace ViewModels
             {
-                public string? ProductName { get; set; }
-                public decimal Price { get; set; }
+                public partial class ProductViewModel : ReactiveObject
+                {
+                    public string? ProductName { get; set; }
+                    public decimal Price { get; set; }
+                }
             }
 
-            namespace Views;
-
-            using ViewModels;
-
-            [IViewFor<ProductViewModel>]
-            public partial class ProductView : Window
+            namespace Views
             {
-                public ProductView() => ViewModel = new ProductViewModel();
+                using ViewModels;
+
+                [IViewFor<ProductViewModel>]
+                public partial class ProductView : Window
+                {
+                    public ProductView() => ViewModel = new ProductViewModel();
+                }
             }
             """;
 
@@ -235,6 +243,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
     {
         const string sourceCode = """
             using System.Collections.ObjectModel;
+            using System.Windows;
             using ReactiveUI;
             using ReactiveUI.SourceGenerators;
 
@@ -286,12 +295,13 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
     {
         const string sourceCode = """
             using System.Collections.ObjectModel;
+            using System.Windows;
             using ReactiveUI;
             using ReactiveUI.SourceGenerators;
 
             namespace TestNs;
 
-            public partial class GenericViewModel<T> : ReactiveObject where T : class
+            public partial class GenericViewModel<T>
             {
                 public T? Item { get; set; }
             }
@@ -315,12 +325,13 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
     {
         const string sourceCode = """
             using System.Collections.ObjectModel;
+            using System.Windows;
             using ReactiveUI;
             using ReactiveUI.SourceGenerators;
 
             namespace TestNs;
 
-            public partial record RecordViewModel : ReactiveObject
+            public partial record RecordViewModel
             {
                 public string? Name { get; set; }
                 public int Age { get; set; }
@@ -345,6 +356,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
     {
         const string sourceCode = """
             using System.Collections.ObjectModel;
+            using System.Windows;
             using ReactiveUI;
             using ReactiveUI.SourceGenerators;
 
@@ -380,12 +392,13 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
     {
         const string sourceCode = """
             using System.Collections.ObjectModel;
+            using System.Windows;
             using ReactiveUI;
             using ReactiveUI.SourceGenerators;
 
             namespace TestNs;
 
-            public partial class ReactivePropertiesViewModel : ReactiveObject
+            public partial class ReactivePropertiesViewModel
             {
                 [Reactive]
                 private string? _firstName;
@@ -418,6 +431,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
             using System;
             using System.Threading.Tasks;
             using System.Collections.ObjectModel;
+            using System.Windows;
             using ReactiveUI;
             using ReactiveUI.SourceGenerators;
 
@@ -454,12 +468,13 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
     {
         const string sourceCode = """
             using System.Collections.ObjectModel;
+            using System.Windows;
             using ReactiveUI;
             using ReactiveUI.SourceGenerators;
 
             namespace TestNs;
 
-            public partial class FullViewModel : ReactiveObject
+            public partial class FullViewModel
             {
                 public string? Title { get; set; }
             }
@@ -485,6 +500,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
     {
         const string sourceCode = """
             using System.Collections.ObjectModel;
+            using System.Windows;
             using ReactiveUI;
             using ReactiveUI.SourceGenerators;
 
@@ -519,6 +535,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
     {
         const string sourceCode = """
             using System.Collections.ObjectModel;
+            using System.Windows;
             using ReactiveUI;
             using ReactiveUI.SourceGenerators;
 

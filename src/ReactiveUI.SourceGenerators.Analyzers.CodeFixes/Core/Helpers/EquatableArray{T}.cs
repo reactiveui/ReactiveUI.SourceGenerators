@@ -98,7 +98,7 @@ internal readonly struct EquatableArray<T>(ImmutableArray<T> array) : IEquatable
     /// </summary>
     /// <param name="obj">The object.</param>
     /// <returns>A bool.</returns>
-    public override bool Equals([NotNullWhen(true)] object? obj) => obj is EquatableArray<T> array && Equals(this, array);
+    public override bool Equals([NotNullWhen(true)] object? obj) => obj is EquatableArray<T> array && Equals(array);
 
     /// <summary>
     /// Gets the hash code.

@@ -8,7 +8,6 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// <summary>
 /// Extended unit tests for <see cref="PropertyToReactiveFieldAnalyzer" />.
 /// </summary>
-[TestFixture]
 public sealed class PropAnalyzerExtTests
 {
     /// <summary>
@@ -30,7 +29,7 @@ public sealed class PropAnalyzerExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0016"), Is.False);
+        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
     }
 
     /// <summary>
@@ -52,7 +51,7 @@ public sealed class PropAnalyzerExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0016"), Is.False);
+        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
     }
 
     /// <summary>
@@ -74,7 +73,7 @@ public sealed class PropAnalyzerExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0016"), Is.False);
+        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
     }
 
     /// <summary>
@@ -96,7 +95,7 @@ public sealed class PropAnalyzerExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0016"), Is.False);
+        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
     }
 
     /// <summary>
@@ -119,7 +118,7 @@ public sealed class PropAnalyzerExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0016"), Is.False);
+        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
     }
 
     /// <summary>
@@ -146,7 +145,7 @@ public sealed class PropAnalyzerExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0016"), Is.False);
+        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
     }
 
     /// <summary>
@@ -169,7 +168,7 @@ public sealed class PropAnalyzerExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0016"), Is.False);
+        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
     }
 
     /// <summary>
@@ -191,7 +190,7 @@ public sealed class PropAnalyzerExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0016"), Is.False);
+        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
     }
 
     /// <summary>
@@ -215,7 +214,7 @@ public sealed class PropAnalyzerExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0016"), Is.False);
+        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
     }
 
     /// <summary>
@@ -239,7 +238,7 @@ public sealed class PropAnalyzerExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Count(d => d.Id == "RXUISG0016"), Is.EqualTo(3));
+        AssertDiagnosticCount(diagnostics, "RXUISG0016", 3);
     }
 
     /// <summary>
@@ -259,7 +258,7 @@ public sealed class PropAnalyzerExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0016"), Is.False);
+        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
     }
 
     /// <summary>
@@ -284,7 +283,7 @@ public sealed class PropAnalyzerExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0016"), Is.True);
+        AssertContainsDiagnostic(diagnostics, "RXUISG0016");
     }
 
     /// <summary>
@@ -309,7 +308,7 @@ public sealed class PropAnalyzerExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0016"), Is.True);
+        AssertContainsDiagnostic(diagnostics, "RXUISG0016");
     }
 
     /// <summary>
@@ -331,7 +330,7 @@ public sealed class PropAnalyzerExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0016"), Is.False);
+        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
     }
 
     /// <summary>
@@ -353,7 +352,7 @@ public sealed class PropAnalyzerExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0016"), Is.False);
+        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
     }
 
     /// <summary>
@@ -375,7 +374,7 @@ public sealed class PropAnalyzerExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0016"), Is.False);
+        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
     }
 
     /// <summary>
@@ -397,7 +396,7 @@ public sealed class PropAnalyzerExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0016"), Is.True);
+        AssertContainsDiagnostic(diagnostics, "RXUISG0016");
     }
 
     /// <summary>
@@ -420,7 +419,7 @@ public sealed class PropAnalyzerExtTests
         var diagnostics = GetDiagnostics(source);
 
         // Init-only properties have a setter (init), so the analyzer reports them
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0016"), Is.True);
+        AssertContainsDiagnostic(diagnostics, "RXUISG0016");
     }
 
     /// <summary>
@@ -442,7 +441,7 @@ public sealed class PropAnalyzerExtTests
 
         var diagnostics = GetDiagnostics(source);
 
-        Assert.That(diagnostics.Any(d => d.Id == "RXUISG0016"), Is.True);
+        AssertContainsDiagnostic(diagnostics, "RXUISG0016");
     }
 
     private static Diagnostic[] GetDiagnostics(string source)
@@ -459,5 +458,30 @@ public sealed class PropAnalyzerExtTests
 
         var compilationWithAnalyzers = compilation.WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(analyzer));
         return compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync().GetAwaiter().GetResult().ToArray();
+    }
+
+    private static void AssertContainsDiagnostic(IEnumerable<Diagnostic> diagnostics, string diagnosticId)
+    {
+        if (!diagnostics.Any(d => d.Id == diagnosticId))
+        {
+            throw new InvalidOperationException($"Expected diagnostic '{diagnosticId}' was not reported.");
+        }
+    }
+
+    private static void AssertDoesNotContainDiagnostic(IEnumerable<Diagnostic> diagnostics, string diagnosticId)
+    {
+        if (diagnostics.Any(d => d.Id == diagnosticId))
+        {
+            throw new InvalidOperationException($"Diagnostic '{diagnosticId}' was reported unexpectedly.");
+        }
+    }
+
+    private static void AssertDiagnosticCount(IEnumerable<Diagnostic> diagnostics, string diagnosticId, int expectedCount)
+    {
+        var actualCount = diagnostics.Count(d => d.Id == diagnosticId);
+        if (actualCount != expectedCount)
+        {
+            throw new InvalidOperationException($"Expected {expectedCount} '{diagnosticId}' diagnostics but found {actualCount}.");
+        }
     }
 }

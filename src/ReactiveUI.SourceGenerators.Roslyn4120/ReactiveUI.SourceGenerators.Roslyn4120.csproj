@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="ReactiveUI.CodeFixes" />
+    <InternalsVisibleTo Include="ReactiveUI.SourceGenerators.Tests" />
   </ItemGroup>
 
   <ItemGroup>

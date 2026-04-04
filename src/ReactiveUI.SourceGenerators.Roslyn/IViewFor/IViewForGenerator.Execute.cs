@@ -120,10 +120,15 @@ public partial class IViewForGenerator
             viewModelRegistrationType);
     }
 
-    private static string GenerateSource(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, IViewForInfo iviewForInfo)
+    private static string GenerateSource(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, IViewForInfo iviewForInfo, Models.TargetInfo? parentInfo = null)
     {
         // Prepare any forwarded property attributes
         var forwardedAttributesString = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage);
+
+        // Build parent class wrapping (for nested types)
+        var (parentDeclarations, parentClosing) = parentInfo is null
+            ? (string.Empty, string.Empty)
+            : Models.TargetInfo.GenerateParentClassDeclarations([parentInfo]);
 
         switch (iviewForInfo.BaseType)
         {
@@ -158,7 +163,7 @@ $$"""
 
 namespace {{containingNamespace}}
 {
-    /// <summary>
+{{parentDeclarations}}    /// <summary>
     /// Partial class for the {{containingTypeName}} which contains ReactiveUI IViewFor initialization.
     /// </summary>
     {{forwardedAttributesString}}
@@ -181,7 +186,7 @@ namespace {{containingNamespace}}
         /// <inheritdoc/>
         object? IViewFor.ViewModel { get => ViewModel; set => ViewModel = ({{iviewForInfo.ViewModelTypeName}})value; }
     }
-}
+{{parentClosing}}}
 #nullable restore
 #pragma warning restore
 """;
@@ -196,7 +201,7 @@ using System.ComponentModel;
 
 namespace {{containingNamespace}}
 {
-    /// <summary>
+{{parentDeclarations}}    /// <summary>
     /// Partial class for the {{containingTypeName}} which contains ReactiveUI IViewFor initialization.
     /// </summary>
     {{forwardedAttributesString}}
@@ -213,7 +218,7 @@ namespace {{containingNamespace}}
         /// <inheritdoc/>
         object? IViewFor.ViewModel {get => ViewModel; set => ViewModel = ({{iviewForInfo.ViewModelTypeName}}? )value; }
     }
-}
+{{parentClosing}}}
 #nullable restore
 #pragma warning restore
 """;
@@ -230,7 +235,7 @@ using Avalonia.Controls;
 
 namespace {{containingNamespace}}
 {
-    /// <summary>
+{{parentDeclarations}}    /// <summary>
     /// Partial class for the {{containingTypeName}} which contains ReactiveUI IViewFor initialization.
     /// </summary>
     {{forwardedAttributesString}}
@@ -273,7 +278,7 @@ namespace {{containingNamespace}}
             }
         }
     }
-}
+{{parentClosing}}}
 #nullable restore
 #pragma warning restore
 """;
@@ -289,7 +294,7 @@ using Microsoft.Maui.Controls;
 
 namespace {{containingNamespace}}
 {
-    {{forwardedAttributesString}}
+{{parentDeclarations}}    {{forwardedAttributesString}}
     {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}} : IViewFor<{{iviewForInfo.ViewModelTypeName}}>
     {
         public static readonly BindableProperty ViewModelProperty = BindableProperty.Create(nameof(ViewModel), typeof({{iviewForInfo.ViewModelTypeName}}), typeof(IViewFor<{{iviewForInfo.ViewModelTypeName}}>), default({{iviewForInfo.ViewModelTypeName}}), BindingMode.OneWay, propertyChanged: OnViewModelChanged);
@@ -314,7 +319,7 @@ namespace {{containingNamespace}}
 
         private static void OnViewModelChanged(BindableObject bindableObject, object oldValue, object newValue) => bindableObject.BindingContext = newValue;
     }
-}
+{{parentClosing}}}
 #nullable restore
 #pragma warning restore
 """;

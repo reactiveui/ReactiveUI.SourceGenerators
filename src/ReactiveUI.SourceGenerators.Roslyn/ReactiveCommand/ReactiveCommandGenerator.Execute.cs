@@ -40,15 +40,13 @@ public partial class ReactiveCommandGenerator
     private static CommandInfo? GetMethodInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
         var symbol = context.TargetSymbol;
-        if (!symbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ReactiveCommandAttributeType, out var attributeData))
-        {
-            return null;
-        }
 
         if (symbol is not IMethodSymbol methodSymbol)
         {
             return default;
         }
+
+        var attributeData = context.Attributes[0];
 
         token.ThrowIfCancellationRequested();
         using var builder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
