@@ -25,7 +25,7 @@ public sealed partial class TestHelper<T> : IDisposable
     private static readonly Lazy<ImmutableArray<MetadataReference>> supportReferences =
         new(CreateSupportReferences, LazyThreadSafetyMode.ExecutionAndPublication);
     /// <summary>
-    /// Verifieds the file path.
+    /// Gets the verified file path for generator type <typeparamref name="T"/>.
     /// </summary>
     /// <returns>
     /// A string.
