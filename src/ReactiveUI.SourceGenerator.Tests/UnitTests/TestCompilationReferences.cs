@@ -20,7 +20,19 @@ internal static class TestCompilationReferences
     internal const string WindowsDesktopStubs = """
         namespace System.Windows
         {
-            public class DependencyObject { }
+            public class DependencyProperty
+            {
+                public static DependencyProperty Register(string name, global::System.Type propertyType, global::System.Type ownerType, PropertyMetadata typeMetadata) => null!;
+            }
+            public class PropertyMetadata
+            {
+                public PropertyMetadata(object? defaultValue) { }
+            }
+            public class DependencyObject
+            {
+                public object GetValue(DependencyProperty dp) => null!;
+                public void SetValue(DependencyProperty dp, object value) { }
+            }
             public class UIElement : DependencyObject { }
             public class FrameworkElement : UIElement { }
             public class Window : FrameworkElement { }
