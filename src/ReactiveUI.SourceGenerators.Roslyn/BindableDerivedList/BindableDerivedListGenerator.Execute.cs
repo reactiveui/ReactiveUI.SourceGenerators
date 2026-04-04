@@ -73,6 +73,19 @@ public sealed partial class BindableDerivedListGenerator
 
         token.ThrowIfCancellationRequested();
 
+        // Get AccessModifier enum value from the attribute
+        var accessModifier = attributeData.GetNamedArgument<int>("AccessModifier") switch
+        {
+            1 => "protected",
+            2 => "internal",
+            3 => "private",
+            4 => "protected internal",
+            5 => "private protected",
+            _ => "public",
+        };
+
+        token.ThrowIfCancellationRequested();
+
         // Get the nullability info for the property
         fieldSymbol.GetNullabilityInfo(
         context.SemanticModel,
@@ -104,7 +117,8 @@ public sealed partial class BindableDerivedListGenerator
             propertyName,
             isReferenceTypeOrUnconstraindTypeParameter,
             includeMemberNotNullOnSetAccessor,
-            forwardedAttributesString),
+            forwardedAttributesString,
+            accessModifier),
             builder.ToImmutable());
     }
 
@@ -177,7 +191,7 @@ $$"""
 $$"""
         /// <inheritdoc cref="{{propertyInfo.FieldName}}"/>
         {{propertyAttributes}}
-        {{propertyInfo.TargetInfo.TargetVisibility}} {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} => {{propertyInfo.FieldName}};
+        {{propertyInfo.AccessModifier}} {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} => {{propertyInfo.FieldName}};
 """;
     }
 }
