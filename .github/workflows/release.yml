@@ -12,7 +12,6 @@ jobs:
     uses: reactiveui/actions-common/.github/workflows/workflow-common-release.yml@main
     with:
       configuration: Release
-      productNamespacePrefix: "SourceGenerators"
       installWorkflows: true
     secrets:
       SIGN_ACCOUNT_NAME: ${{ secrets.SIGN_ACCOUNT_NAME }}
