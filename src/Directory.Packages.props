@@ -32,7 +32,7 @@
     <PackageVersion Include="ReactiveUI" Version="23.2.1" />
     <PackageVersion Include="ReactiveUI.Maui" Version="23.2.1" />
     <PackageVersion Include="System.Reactive" Version="6.1.0" />
-    <PackageVersion Include="TUnit" Version="1.24.31" />
+    <PackageVersion Include="TUnit" Version="1.37.36" />
     <PackageVersion Include="Verify.TUnit" Version="31.15.0" />
     <PackageVersion Include="Verify.SourceGenerators" Version="2.5.0" />
   </ItemGroup>
