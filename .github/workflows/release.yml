@@ -12,7 +12,6 @@ jobs:
     uses: reactiveui/actions-common/.github/workflows/workflow-common-release.yml@main
     with:
       configuration: Release
-      installWorkflows: true
     secrets:
       SIGN_ACCOUNT_NAME: ${{ secrets.SIGN_ACCOUNT_NAME }}
       SIGN_PROFILE_NAME: ${{ secrets.SIGN_PROFILE_NAME }}
