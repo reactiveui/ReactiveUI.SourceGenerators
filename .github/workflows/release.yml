@@ -23,7 +23,6 @@ jobs:
     with:
       solutionFile: ReactiveUI.SourceGenerators.slnx
       installWorkloads: true
-      versioningTool: minver
       minverMinimumMajorMinor: '2.7'
       bump: ${{ inputs.bump }}
     secrets:
