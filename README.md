@@ -72,6 +72,17 @@ Splat.Locator.CurrentMutable.RegisterViewsForViewModelsSourceGenerated();
 - For ReactiveUI versions **older than V19.5.31**, all `[ReactiveCommand]` options are supported except for async methods with a `CancellationToken`.
 - For **.NET Framework 4.8 and older**, add [Polyfill by Simon Cropp](https://github.com/SimonCropp/Polyfill) or [PolySharp by Sergio Pedri](https://github.com/Sergio0694/PolySharp) to your project and set the `LangVersion` to 12.0 or later in your project file.
 
+### Roslyn / Visual Studio support
+
+The generators ship two Roslyn analyzer bands and the matching one is selected automatically by your compiler:
+
+| Band (`analyzers/dotnet/...`) | Roslyn | Tooling |
+| --- | --- | --- |
+| `roslyn4.14` | 4.14 | Visual Studio 2022 17.14, .NET SDK 9.0.3xx |
+| `roslyn5.0` | 5.0 | Visual Studio 2026, .NET 10 SDK |
+
+**Why only 4.14 and 5.0?** Per the [Visual Studio 2022 lifecycle](https://learn.microsoft.com/en-us/lifecycle/products/visual-studio-2022), **17.14 (Roslyn 4.14) is the only serviced VS 2022 baseline** — 17.8 (Roslyn 4.8) is already out of support, and 17.12 (Roslyn 4.12) reaches end of support shortly. Rather than carry soon-to-be-unsupported bands, we target the latest supported VS 2022 Roslyn (4.14) as the baseline and ship a 5.0 band for VS 2026 / .NET 10. If you are on an older Roslyn, stay on a previous release of this package or update Visual Studio.
+
 For more information on analyzer codes, see the [analyzer codes documentation](https://github.com/reactiveui/ReactiveUI.SourceGenerators/blob/main/src/ReactiveUI.SourceGenerators/AnalyzerReleases.Shipped.md).
 
 ---

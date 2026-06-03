@@ -14,14 +14,21 @@
 
     <PackageDescription>A MVVM framework that integrates with the Reactive Extensions for .NET to create elegant, testable User Interfaces that run on any mobile or desktop platform. This is the Source Generators package for ReactiveUI</PackageDescription>
     <AssemblyName>ReactiveUI.SourceGenerators</AssemblyName>
+    <!-- ROSYLN_412 is the "Roslyn 4.12+ API surface" feature flag; 4.14 satisfies it. -->
+    <DefineConstants>$(DefineConstants);ROSYLN_412</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" VersionOverride="4.14.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" PrivateAssets="all" VersionOverride="4.14.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" PrivateAssets="all" VersionOverride="4.14.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis" PrivateAssets="all" VersionOverride="4.14.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="all" VersionOverride="4.14.0" />
   </ItemGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="ReactiveUI.CodeFixes" />
+    <InternalsVisibleTo Include="ReactiveUI.SourceGenerators.Tests" />
   </ItemGroup>
 
   <ItemGroup>

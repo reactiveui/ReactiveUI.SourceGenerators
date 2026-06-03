@@ -18,11 +18,11 @@
     <PackageReference Include="TUnit" />
     <PackageReference Include="Verify.TUnit" />
     <PackageReference Include="Verify.SourceGenerators" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" VersionOverride="4.12.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" PrivateAssets="all" VersionOverride="4.12.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" PrivateAssets="all" VersionOverride="4.12.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis" PrivateAssets="all" VersionOverride="4.12.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="all" VersionOverride="4.12.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" VersionOverride="4.14.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" PrivateAssets="all" VersionOverride="4.14.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" PrivateAssets="all" VersionOverride="4.14.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis" PrivateAssets="all" VersionOverride="4.14.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="all" VersionOverride="4.14.0" />
     <PackageReference Include="ReactiveUI" />
     <PackageReference Include="Splat" />
   </ItemGroup>
@@ -61,7 +61,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ReactiveUI.SourceGenerators.Analyzers.CodeFixes\ReactiveUI.SourceGenerators.Analyzers.CodeFixes.csproj" />
-    <ProjectReference Include="..\ReactiveUI.SourceGenerators.Roslyn4120\ReactiveUI.SourceGenerators.Roslyn4120.csproj" />
+    <ProjectReference Include="..\ReactiveUI.SourceGenerators.Roslyn4140\ReactiveUI.SourceGenerators.Roslyn4140.csproj" />
   </ItemGroup>
 
 </Project>

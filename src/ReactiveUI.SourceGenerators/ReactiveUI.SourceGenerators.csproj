@@ -30,14 +30,14 @@
   <ItemGroup>
     <ProjectReference Include="..\ReactiveUI.SourceGenerators.Analyzers.CodeFixes\ReactiveUI.SourceGenerators.Analyzers.CodeFixes.csproj" />
     <ProjectReference Include="..\ReactiveUI.SourceGenerators.Roslyn5000\ReactiveUI.SourceGenerators.Roslyn5000.csproj" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\ReactiveUI.SourceGenerators.Roslyn4120\ReactiveUI.SourceGenerators.Roslyn4120.csproj" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\ReactiveUI.SourceGenerators.Roslyn480\ReactiveUI.SourceGenerators.Roslyn480.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\ReactiveUI.SourceGenerators.Roslyn4140\ReactiveUI.SourceGenerators.Roslyn4140.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
-  <!-- This ensures the library will be packaged as a source generator when we use `dotnet pack` -->
+  <!-- This ensures the library will be packaged as a source generator when we use `dotnet pack`.
+       Only Roslyn 4.14 (VS 2022 17.14 — the only serviced VS 2022 baseline) and 5.0 (VS 2026) are
+       shipped; the 4.8/4.12 bands were dropped — see README for the rationale. -->
   <ItemGroup>
-    <None Include="..\ReactiveUI.SourceGenerators.Roslyn480\bin\$(Configuration)\netstandard2.0\ReactiveUI.SourceGenerators.dll" PackagePath="analyzers\dotnet\roslyn4.8\cs" Pack="true" Visible="false" />
-    <None Include="..\ReactiveUI.SourceGenerators.Roslyn4120\\bin\$(Configuration)\netstandard2.0\ReactiveUI.SourceGenerators.dll" PackagePath="analyzers\dotnet\roslyn4.12\cs" Pack="true" Visible="false" />
-    <None Include="..\ReactiveUI.SourceGenerators.Roslyn5000\\bin\$(Configuration)\netstandard2.0\ReactiveUI.SourceGenerators.dll" PackagePath="analyzers\dotnet\roslyn5.0\cs" Pack="true" Visible="false" />
+    <None Include="..\ReactiveUI.SourceGenerators.Roslyn4140\bin\$(Configuration)\netstandard2.0\ReactiveUI.SourceGenerators.dll" PackagePath="analyzers\dotnet\roslyn4.14\cs" Pack="true" Visible="false" />
+    <None Include="..\ReactiveUI.SourceGenerators.Roslyn5000\bin\$(Configuration)\netstandard2.0\ReactiveUI.SourceGenerators.dll" PackagePath="analyzers\dotnet\roslyn5.0\cs" Pack="true" Visible="false" />
   </ItemGroup>
 </Project>
