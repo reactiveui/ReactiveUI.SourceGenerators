@@ -4,8 +4,8 @@ This documentation covers using ReactiveUI Source Generators to simplify and enh
 
 - **Minimum Requirements**:
   - **C# Version**: 12.0
-  - **Visual Studio Version**: 17.8.0
-  - **ReactiveUI Version**: 19.5.31+
+  - **Visual Studio Version**: 17.14.0 (Roslyn 4.14) — or Visual Studio 2026 (Roslyn 5.0)
+  - **ReactiveUI Version**: 23.2.28+
 
 ## Table of Contents
 - [Installation](#installation)
@@ -29,7 +29,7 @@ Ensure the package is loaded with `PrivateAssets="all"` to avoid issues with gen
 
 ## Overview
 
-ReactiveUI Source Generators automatically generate ReactiveUI objects to streamline your code. These Source Generators are designed to work with ReactiveUI V19.5.31+ and support the following features:
+ReactiveUI Source Generators automatically generate ReactiveUI objects to streamline your code. These Source Generators are designed to work with ReactiveUI V23.2.28+ and support the following features:
 
 - `[Reactive]` With field and access modifiers, partial property support (C# 13 Visual Studio Version 17.12.0), partial properties with initializer support (C# 14+/preview only)
 - `[Reactive(SetModifier = AccessModifier.Protected)]` With field and access modifiers, (Not Required for partial properties, configure set accessor with the property declaration).
@@ -69,7 +69,6 @@ Splat.Locator.CurrentMutable.RegisterViewsForViewModelsSourceGenerated();
 ```
 
 ### Compatibility Notes
-- For ReactiveUI versions **older than V19.5.31**, all `[ReactiveCommand]` options are supported except for async methods with a `CancellationToken`.
 - For **.NET Framework 4.8 and older**, add [Polyfill by Simon Cropp](https://github.com/SimonCropp/Polyfill) or [PolySharp by Sergio Pedri](https://github.com/Sergio0694/PolySharp) to your project and set the `LangVersion` to 12.0 or later in your project file.
 
 ### Roslyn / Visual Studio support
