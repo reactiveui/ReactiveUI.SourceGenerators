@@ -22,6 +22,7 @@
   </Folder>
   <Project Path="ReactiveUI.SourceGenerator.Tests/ReactiveUI.SourceGenerators.Tests.csproj" />
   <Project Path="ReactiveUI.SourceGenerators.Analyzers.CodeFixes/ReactiveUI.SourceGenerators.Analyzers.CodeFixes.csproj" />
+  <Project Path="ReactiveUI.SourceGenerators.Roslyn480/ReactiveUI.SourceGenerators.Roslyn480.csproj" />
   <Project Path="ReactiveUI.SourceGenerators.Roslyn4140/ReactiveUI.SourceGenerators.Roslyn4140.csproj" />
   <Project Path="ReactiveUI.SourceGenerators.Roslyn5000/ReactiveUI.SourceGenerators.Roslyn5000.csproj" />
   <Project Path="ReactiveUI.SourceGenerators/ReactiveUI.SourceGenerators.csproj" />

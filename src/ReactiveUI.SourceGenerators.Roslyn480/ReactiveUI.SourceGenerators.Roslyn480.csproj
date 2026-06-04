@@ -9,27 +9,34 @@
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <IncludeBuildOutput>false</IncludeBuildOutput>
-    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
     <DevelopmentDependency>true</DevelopmentDependency>
-    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <IsPackable>false</IsPackable>
 
-    <NoWarn>$(NoWarn);RS1038;RS2007;NU5128</NoWarn>
     <PackageDescription>A MVVM framework that integrates with the Reactive Extensions for .NET to create elegant, testable User Interfaces that run on any mobile or desktop platform. This is the Source Generators package for ReactiveUI</PackageDescription>
+    <AssemblyName>ReactiveUI.SourceGenerators</AssemblyName>
+    <!-- Roslyn 4.8 baseline band (VS 2022 17.8, .NET 8.0.1xx SDK). No ROSYLN_412 — the
+         4.12+ API surface is compiled out, so this band compiles against the 4.8 API only. -->
   </PropertyGroup>
-  
-  <!-- Pinned to 4.8.0: the code-fix assembly ships in the version-less analyzers/dotnet/cs
-       folder, which the compiler loads on EVERY host. Building it against the 4.8 API keeps it
-       forward-compatible on all hosts (4.8 -> 5.0) with no CS9057 (that warning only fires when an
-       analyzer references a NEWER compiler than the running one), so .NET 8 (Roslyn 4.8) consumers
-       — including -warnaserror builds — are not broken by the code fixes. -->
+
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" VersionOverride="4.8.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" PrivateAssets="all" VersionOverride="4.8.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" PrivateAssets="all" VersionOverride="4.8.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis" PrivateAssets="all" VersionOverride="4.8.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="all" VersionOverride="4.8.0" />
   </ItemGroup>
 
-  <!-- This ensures the library will be packaged as a source generator when we use `dotnet pack` -->
   <ItemGroup>
-    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <InternalsVisibleTo Include="ReactiveUI.CodeFixes" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.SourceGenerators.Roslyn\**\*.cs" LinkBase="Shared" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\ReactiveUI.SourceGenerators.Roslyn\AnalyzerReleases.Shipped.md" />
+    <AdditionalFiles Include="..\ReactiveUI.SourceGenerators.Roslyn\AnalyzerReleases.Unshipped.md" />
+  </ItemGroup>
+
 </Project>

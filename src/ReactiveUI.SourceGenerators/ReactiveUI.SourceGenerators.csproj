@@ -31,12 +31,18 @@
     <ProjectReference Include="..\ReactiveUI.SourceGenerators.Analyzers.CodeFixes\ReactiveUI.SourceGenerators.Analyzers.CodeFixes.csproj" />
     <ProjectReference Include="..\ReactiveUI.SourceGenerators.Roslyn5000\ReactiveUI.SourceGenerators.Roslyn5000.csproj" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\ReactiveUI.SourceGenerators.Roslyn4140\ReactiveUI.SourceGenerators.Roslyn4140.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\ReactiveUI.SourceGenerators.Roslyn480\ReactiveUI.SourceGenerators.Roslyn480.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <!-- This ensures the library will be packaged as a source generator when we use `dotnet pack`.
-       Only Roslyn 4.14 (VS 2022 17.14 — the only serviced VS 2022 baseline) and 5.0 (VS 2026) are
-       shipped; the 4.8/4.12 bands were dropped — see README for the rationale. -->
+       Three Roslyn bands ship; the compiler auto-selects the highest one <= its own version:
+         roslyn4.8  — VS 2022 17.8+, the whole .NET 8 SDK line (8.0.1xx Roslyn 4.8 .. 8.0.4xx Roslyn 4.11)
+                      plus VS 17.12/17.13 (Roslyn 4.12/4.13), since the next band is 4.14
+         roslyn4.14 — VS 2022 17.14, .NET SDK 9.0.3xx
+         roslyn5.0  — VS 2026, .NET 10 SDK
+       The 4.8 baseline keeps the supported .NET 8 line (through Nov 2026) working — see README. -->
   <ItemGroup>
+    <None Include="..\ReactiveUI.SourceGenerators.Roslyn480\bin\$(Configuration)\netstandard2.0\ReactiveUI.SourceGenerators.dll" PackagePath="analyzers\dotnet\roslyn4.8\cs" Pack="true" Visible="false" />
     <None Include="..\ReactiveUI.SourceGenerators.Roslyn4140\bin\$(Configuration)\netstandard2.0\ReactiveUI.SourceGenerators.dll" PackagePath="analyzers\dotnet\roslyn4.14\cs" Pack="true" Visible="false" />
     <None Include="..\ReactiveUI.SourceGenerators.Roslyn5000\bin\$(Configuration)\netstandard2.0\ReactiveUI.SourceGenerators.dll" PackagePath="analyzers\dotnet\roslyn5.0\cs" Pack="true" Visible="false" />
   </ItemGroup>

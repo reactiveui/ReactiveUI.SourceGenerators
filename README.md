@@ -73,22 +73,23 @@ Splat.Locator.CurrentMutable.RegisterViewsForViewModelsSourceGenerated();
 
 ### Roslyn / Visual Studio support
 
-The generators ship two Roslyn analyzer bands and the matching one is selected automatically by your compiler:
+The generators ship three Roslyn analyzer bands and the matching one is selected automatically by your compiler (it picks the highest band that is less than or equal to its own Roslyn version):
 
-| Band (`analyzers/dotnet/...`) | Roslyn | Minimum tooling |
+| Band (`analyzers/dotnet/...`) | Roslyn | Minimum tooling | Covers |
+| --- | --- | --- | --- |
+| `roslyn4.8` | 4.8 | Visual Studio 2022 17.8, .NET 8 SDK (8.0.1xx) | The whole .NET 8 SDK line (Roslyn 4.8–4.11) plus VS 17.12/17.13 (Roslyn 4.12/4.13) |
+| `roslyn4.14` | 4.14 | Visual Studio 2022 17.14, .NET SDK 9.0.3xx | VS 17.14, current .NET 9 SDK |
+| `roslyn5.0` | 5.0 | Visual Studio 2026, .NET 10 SDK | VS 2026, .NET 10 SDK |
+
+The **`roslyn4.8` baseline keeps the entire .NET 8 SDK line working** — .NET 8 is supported through November 2026 and its SDK feature bands carry Roslyn 4.8 (`8.0.1xx`) through 4.11 (`8.0.4xx`); all of them select the `roslyn4.8` band. The 4.8 band compiles against the Roslyn 4.8 API only (the 4.12+ surface is compiled out), so it loads on those compilers without the `CS9057` "analyzer references a newer compiler" error. See the official [Roslyn package version mappings](https://learn.microsoft.com/en-us/visualstudio/extensibility/roslyn-version-support).
+
+| Visual Studio 2022 LTSC | Roslyn | .NET SDK band |
 | --- | --- | --- |
-| `roslyn4.14` | 4.14 | Visual Studio 2022 17.14, .NET SDK 9.0.3xx |
-| `roslyn5.0` | 5.0 | Visual Studio 2026, .NET 10 SDK |
-
-Roslyn 4.14 is the baseline: 17.14 is the only [Visual Studio 2022](https://learn.microsoft.com/en-us/lifecycle/products/visual-studio-2022) servicing baseline still in support, so the 4.8 and 4.12 bands are not shipped.
-
-| Visual Studio 2022 LTSC | Roslyn | End of support |
-| --- | --- | --- |
-| 17.8 | 4.8 | 2025-07-08 |
-| 17.12 | 4.12 | 2026-07-14 |
-| 17.14 | 4.14 | 2032-01-13 |
-
-To use these generators, build with Visual Studio 2022 17.14+ (or Visual Studio 2026 / .NET 10 SDK), or stay on a previous release of this package.
+| 17.8 | 4.8 | 8.0.1xx |
+| 17.9 | 4.9 | 8.0.2xx |
+| 17.10 | 4.10 | 8.0.3xx |
+| 17.11 | 4.11 | 8.0.4xx |
+| 17.14 | 4.14 | 9.0.3xx |
 
 For more information on analyzer codes, see the [analyzer codes documentation](https://github.com/reactiveui/ReactiveUI.SourceGenerators/blob/main/src/ReactiveUI.SourceGenerators/AnalyzerReleases.Shipped.md).
 
