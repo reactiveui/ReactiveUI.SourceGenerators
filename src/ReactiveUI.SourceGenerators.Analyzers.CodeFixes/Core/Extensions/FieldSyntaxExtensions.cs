@@ -5,7 +5,7 @@
 
 using Microsoft.CodeAnalysis;
 
-namespace ReactiveUI.SourceGenerators.Extensions;
+namespace ReactiveUI.SourceGenerators.CodeFixers.Extensions;
 
 internal static class FieldSyntaxExtensions
 {

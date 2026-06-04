@@ -11,7 +11,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-namespace ReactiveUI.SourceGenerators.Helpers;
+namespace ReactiveUI.SourceGenerators.CodeFixers.Helpers;
 
 /// <summary>
 /// An immutable, equatable array. This is equivalent to <see cref="ImmutableArray{T}"/> but with value equality support.

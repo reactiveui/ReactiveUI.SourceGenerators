@@ -8,8 +8,10 @@ using ReactiveUI.SourceGenerators.Extensions;
 namespace ReactiveUI.SourceGenerator.Tests;
 
 /// <summary>
-/// Unit tests for <see cref="ISymbolExtensions"/>, <see cref="ITypeSymbolExtensions"/>,
-/// <see cref="INamedTypeSymbolExtensions"/>, and <see cref="CompilationExtensions"/>.
+/// Unit tests for <see cref="ReactiveUI.SourceGenerators.Extensions.ISymbolExtensions"/>,
+/// <see cref="ReactiveUI.SourceGenerators.Extensions.ITypeSymbolExtensions"/>,
+/// <see cref="ReactiveUI.SourceGenerators.Extensions.INamedTypeSymbolExtensions"/>, and
+/// <see cref="ReactiveUI.SourceGenerators.Extensions.CompilationExtensions"/>.
 /// All tests compile small in-memory programs to obtain real Roslyn symbol instances.
 /// </summary>
 public sealed class SymbolExtensionTests

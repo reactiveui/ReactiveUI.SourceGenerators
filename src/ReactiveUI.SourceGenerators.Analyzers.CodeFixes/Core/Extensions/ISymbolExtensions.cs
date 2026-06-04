@@ -5,7 +5,7 @@
 
 using Microsoft.CodeAnalysis;
 
-namespace ReactiveUI.SourceGenerators.Extensions;
+namespace ReactiveUI.SourceGenerators.CodeFixers.Extensions;
 
 /// <summary>
 /// Extension methods for the <see cref="ISymbol"/> type.

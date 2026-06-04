@@ -5,9 +5,9 @@
 
 using System;
 using Microsoft.CodeAnalysis;
-using ReactiveUI.SourceGenerators.Helpers;
+using ReactiveUI.SourceGenerators.CodeFixers.Helpers;
 
-namespace ReactiveUI.SourceGenerators.Extensions;
+namespace ReactiveUI.SourceGenerators.CodeFixers.Extensions;
 
 /// <summary>
 /// Extension methods for the <see cref="ITypeSymbol"/> type.

@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using ReactiveUI.SourceGenerators.Extensions;
+using ReactiveUI.SourceGenerators.CodeFixers.Extensions;
 using static ReactiveUI.SourceGenerators.CodeFixers.Diagnostics.DiagnosticDescriptors;
 
 namespace ReactiveUI.SourceGenerators.CodeFixers;
