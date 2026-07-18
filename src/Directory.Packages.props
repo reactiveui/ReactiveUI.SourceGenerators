@@ -24,7 +24,7 @@
     <PackageVersion Include="ReactiveUI.Avalonia" Version="12.0.3" />
     <PackageVersion Include="Avalonia.Diagnostics" Version="11.3.18" />
     <PackageVersion Include="Avalonia.Desktop" Version="12.1.0" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.10" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.7.0" />
     <PackageVersion Include="System.Formats.Asn1" Version="10.0.9" />
     <PackageVersion Include="PublicApiGenerator" Version="11.5.4" />
