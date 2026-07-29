@@ -1,39 +1,43 @@
-﻿// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using Microsoft.CodeAnalysis;
 
 namespace ReactiveUI.SourceGenerators.CodeFixers.Extensions;
 
+/// <summary>Extension methods for field and property symbols.</summary>
 internal static class FieldSyntaxExtensions
 {
-    /// <summary>
-    /// Validates the containing type for a given field being annotated.
-    /// </summary>
-    /// <param name="fieldSymbol">The input <see cref="IFieldSymbol"/> instance to process.</param>
-    /// <returns>Whether or not the containing type for <paramref name="fieldSymbol"/> is valid.</returns>
-    internal static bool IsTargetTypeValid(this IFieldSymbol fieldSymbol)
+    /// <summary>Extension methods for <see cref="IFieldSymbol"/> instances.</summary>
+    /// <param name="fieldSymbol">The field symbol to extend.</param>
+    extension(IFieldSymbol fieldSymbol)
     {
-        var isObservableObject = fieldSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.ReactiveObject");
-        var isIObservableObject = fieldSymbol.ContainingType.ImplementsFullyQualifiedMetadataName("ReactiveUI.IReactiveObject");
-        var hasObservableObjectAttribute = fieldSymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName("ReactiveUI.SourceGenerators.ReactiveObjectAttribute");
+        /// <summary>Validates the containing type for a given field being annotated.</summary>
+        /// <returns>Whether or not the containing type is valid.</returns>
+        internal bool IsTargetTypeValid()
+        {
+            var isObservableObject = fieldSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.ReactiveObject");
+            var isIObservableObject = fieldSymbol.ContainingType.ImplementsFullyQualifiedMetadataName("ReactiveUI.IReactiveObject");
+            var hasObservableObjectAttribute = fieldSymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName("ReactiveUI.SourceGenerators.ReactiveObjectAttribute");
 
-        return isIObservableObject || isObservableObject || hasObservableObjectAttribute;
+            return isIObservableObject || isObservableObject || hasObservableObjectAttribute;
+        }
     }
 
-    /// <summary>
-    /// Validates the containing type for a given field being annotated.
-    /// </summary>
-    /// <param name="propertySymbol">The input <see cref="IFieldSymbol"/> instance to process.</param>
-    /// <returns>Whether or not the containing type for <paramref name="propertySymbol"/> is valid.</returns>
-    internal static bool IsTargetTypeValid(this IPropertySymbol propertySymbol)
+    /// <summary>Extension methods for <see cref="IPropertySymbol"/> instances.</summary>
+    /// <param name="propertySymbol">The property symbol to extend.</param>
+    extension(IPropertySymbol propertySymbol)
     {
-        var isObservableObject = propertySymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.ReactiveObject");
-        var isIObservableObject = propertySymbol.ContainingType.ImplementsFullyQualifiedMetadataName("ReactiveUI.IReactiveObject");
-        var hasObservableObjectAttribute = propertySymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName("ReactiveUI.SourceGenerators.ReactiveObjectAttribute");
+        /// <summary>Validates the containing type for a given property being annotated.</summary>
+        /// <returns>Whether or not the containing type is valid.</returns>
+        internal bool IsTargetTypeValid()
+        {
+            var isObservableObject = propertySymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.ReactiveObject");
+            var isIObservableObject = propertySymbol.ContainingType.ImplementsFullyQualifiedMetadataName("ReactiveUI.IReactiveObject");
+            var hasObservableObjectAttribute = propertySymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName("ReactiveUI.SourceGenerators.ReactiveObjectAttribute");
 
-        return isIObservableObject || isObservableObject || hasObservableObjectAttribute;
+            return isIObservableObject || isObservableObject || hasObservableObjectAttribute;
+        }
     }
 }

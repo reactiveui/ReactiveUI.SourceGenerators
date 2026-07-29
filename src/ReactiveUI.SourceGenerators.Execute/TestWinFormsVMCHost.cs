@@ -1,18 +1,18 @@
-﻿// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Diagnostics.CodeAnalysis;
 using ReactiveUI.SourceGenerators.WinForms;
 
 namespace SGReactiveUI.SourceGenerators.Test;
 
-/// <summary>
-/// TestWinFormsVMCHost.
-/// </summary>
+/// <summary>Provides the view-model Windows Forms host generation sample.</summary>
 /// <seealso cref="System.Windows.Forms.UserControl" />
 /// <seealso cref="ReactiveUI.IReactiveObject" />
 /// <seealso cref="ReactiveUI.IViewFor" />
 [ViewModelControlHost(nameof(UserControl))]
-public partial class TestWinFormsVMCHost;
+public partial class TestWinFormsVMCHost
+{
+    /// <summary>Gets a value indicating whether the view-model host sample is available.</summary>
+    internal static bool IsSampleAvailable => true;
+}

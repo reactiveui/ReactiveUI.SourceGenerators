@@ -1,20 +1,15 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using ReactiveUI.SourceGenerator.Tests;
 
 namespace ReactiveUI.SourceGenerators.Tests;
 
-/// <summary>
-/// Extended unit tests for the ReactiveCollection generator covering edge cases.
-/// </summary>
+/// <summary>Extended unit tests for the ReactiveCollection generator covering edge cases.</summary>
 public class RxCollExtTests : TestBase<ReactiveCollectionGenerator>
 {
-    /// <summary>
-    /// Tests ReactiveCollection with multiple collections.
-    /// </summary>
+    /// <summary>Tests ReactiveCollection with multiple collections.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Multiple()
@@ -42,9 +37,7 @@ public class RxCollExtTests : TestBase<ReactiveCollectionGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCollection with complex generic type.
-    /// </summary>
+    /// <summary>Tests ReactiveCollection with complex generic type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task ComplexType()
@@ -72,9 +65,7 @@ public class RxCollExtTests : TestBase<ReactiveCollectionGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCollection in nested class.
-    /// </summary>
+    /// <summary>Tests ReactiveCollection in nested class.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Nested()
@@ -108,9 +99,7 @@ public class RxCollExtTests : TestBase<ReactiveCollectionGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCollection with generic class.
-    /// </summary>
+    /// <summary>Tests ReactiveCollection with generic class.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Generic()
@@ -132,9 +121,7 @@ public class RxCollExtTests : TestBase<ReactiveCollectionGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCollection with record type.
-    /// </summary>
+    /// <summary>Tests ReactiveCollection with record type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Record()
@@ -159,9 +146,7 @@ public class RxCollExtTests : TestBase<ReactiveCollectionGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCollection with interface element type.
-    /// </summary>
+    /// <summary>Tests ReactiveCollection with interface element type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Interface()
@@ -193,9 +178,7 @@ public class RxCollExtTests : TestBase<ReactiveCollectionGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCollection with tuple type elements.
-    /// </summary>
+    /// <summary>Tests ReactiveCollection with tuple type elements.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Tuple()
@@ -217,9 +200,7 @@ public class RxCollExtTests : TestBase<ReactiveCollectionGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCollection in different namespaces.
-    /// </summary>
+    /// <summary>Tests ReactiveCollection in different namespaces.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task DiffNs()
@@ -251,9 +232,7 @@ public class RxCollExtTests : TestBase<ReactiveCollectionGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCollection with enum element type.
-    /// </summary>
+    /// <summary>Tests ReactiveCollection with enum element type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Enum()
@@ -277,9 +256,7 @@ public class RxCollExtTests : TestBase<ReactiveCollectionGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCollection with struct element type.
-    /// </summary>
+    /// <summary>Tests ReactiveCollection with struct element type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Struct()
@@ -307,9 +284,7 @@ public class RxCollExtTests : TestBase<ReactiveCollectionGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCollection with Guid element type.
-    /// </summary>
+    /// <summary>Tests ReactiveCollection with Guid element type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Guid()
@@ -332,9 +307,7 @@ public class RxCollExtTests : TestBase<ReactiveCollectionGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCollection with DateTime element type.
-    /// </summary>
+    /// <summary>Tests ReactiveCollection with DateTime element type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task DateTime()
@@ -360,9 +333,7 @@ public class RxCollExtTests : TestBase<ReactiveCollectionGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCollection combined with reactive properties.
-    /// </summary>
+    /// <summary>Tests ReactiveCollection combined with reactive properties.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task WithReactive()
@@ -393,9 +364,7 @@ public class RxCollExtTests : TestBase<ReactiveCollectionGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCollection with nullable element type.
-    /// </summary>
+    /// <summary>Tests ReactiveCollection with nullable element type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Nullable()
@@ -420,9 +389,7 @@ public class RxCollExtTests : TestBase<ReactiveCollectionGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCollection with byte array element type.
-    /// </summary>
+    /// <summary>Tests ReactiveCollection with byte array element type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task ByteArray()

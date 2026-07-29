@@ -1,59 +1,40 @@
-﻿// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System.Diagnostics.CodeAnalysis;
-using ReactiveUI;
+using ReactiveUI.Reactive;
 using ReactiveUI.SourceGenerators;
 
 namespace SGReactiveUI.SourceGenerators.Test;
 
-/// <summary>
-/// TestClassOAPH VM.
-/// </summary>
+/// <summary>TestClassOAPH VM.</summary>
 [ExcludeFromCodeCoverage]
 public partial class TestClassOAPH_VM : ReactiveObject
 {
+    /// <summary>Stores the observable boolean field.</summary>
     [ObservableAsProperty]
     private bool _observableTestField;
 
+    /// <summary>Stores the reactive boolean field.</summary>
     [Reactive]
     private bool _reactiveTestField;
 
+    /// <summary>Stores the reactive string value.</summary>
     [Reactive]
-#pragma warning disable SX1309 // Field names should begin with underscore
-    private string value = string.Empty;
-#pragma warning restore SX1309 // Field names should begin with underscore
+    private string _value = string.Empty;
 
+    /// <summary>Stores the nullable test property.</summary>
     [Reactive]
     private string? _testProperty;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="TestClassOAPH_VM"/> class.
-    /// </summary>
+    /// <summary>Initializes a new instance of the <see cref="TestClassOAPH_VM"/> class.</summary>
     public TestClassOAPH_VM()
     {
-        _observableTestPropertyHelper = this.WhenAnyValue(x => x.ReactiveTestProperty)
-            .ToProperty(this, x => x.ObservableTestProperty);
-
-        _observableTestFieldHelper = this.WhenAnyValue(x => x.ReactiveTestField)
-            .ToProperty(this, x => x.ObservableTestField);
-
-        _testHelper = this.WhenAnyValue(x => x.TestProperty).ToProperty(this, x => x.Test);
-
-        TestProperty = null;
-        var t0 = Test;
-
-        TestProperty = "Test";
-
-        var t1 = Test;
-
-        TestProperty = null;
-        var t2 = Test;
-
+        _observableTestPropertyHelper = CreateObservableTestPropertyHelper();
+        _observableTestFieldHelper = CreateObservableTestFieldHelper();
+        _testHelper = CreateTestHelper();
         TestProperty = "Test2";
-        var t3 = Test;
     }
 
     /// <summary>
@@ -82,4 +63,19 @@ public partial class TestClassOAPH_VM : ReactiveObject
     /// </value>
     [ObservableAsProperty]
     public partial string? Test { get; }
+
+    /// <summary>Creates the helper that projects the reactive property to its observable counterpart.</summary>
+    /// <returns>The initialized observable property helper.</returns>
+    private ObservableAsPropertyHelper<bool> CreateObservableTestPropertyHelper() =>
+        this.WhenAnyValue(x => x.ReactiveTestProperty).ToProperty(this, x => x.ObservableTestProperty);
+
+    /// <summary>Creates the helper that projects the reactive field to its observable counterpart.</summary>
+    /// <returns>The initialized observable field helper.</returns>
+    private ObservableAsPropertyHelper<bool> CreateObservableTestFieldHelper() =>
+        this.WhenAnyValue(x => x.ReactiveTestField).ToProperty(this, x => x.ObservableTestField);
+
+    /// <summary>Creates the helper that projects the test property.</summary>
+    /// <returns>The initialized test helper.</returns>
+    private ObservableAsPropertyHelper<string?> CreateTestHelper() =>
+        this.WhenAnyValue(x => x.TestProperty).ToProperty(this, x => x.Test);
 }

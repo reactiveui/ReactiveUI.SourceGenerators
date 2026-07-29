@@ -1,48 +1,39 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using Microsoft.CodeAnalysis.CodeFixes;
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
-/// <summary>
-/// Unit tests for <see cref="ReactiveAttributeMisuseCodeFixProvider" />.
-/// </summary>
+/// <summary>Unit tests for <see cref="ReactiveAttributeMisuseCodeFixProvider" />.</summary>
 public sealed class ReactiveAttributeMisuseCodeFixProviderTests
 {
-    /// <summary>
-    /// Validates the code fix provider advertises the expected diagnostic ID.
-    /// </summary>
+    /// <summary>Identifies the diagnostic validated by this test class.</summary>
+    private const string ReactivePartialDiagnosticId = "RXUISG0020";
+
+    /// <summary>Validates the code fix provider advertises the expected diagnostic ID.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void FixableDiagnosticIdsIncludesReactivePartialRule()
+    public async Task FixableDiagnosticIdsIncludesReactivePartialRule()
     {
         var provider = new ReactiveAttributeMisuseCodeFixProvider();
-        if (!provider.FixableDiagnosticIds.Contains("RXUISG0020"))
-        {
-            throw new InvalidOperationException("Expected RXUISG0020 to be fixable.");
-        }
+        await Assert.That(provider.FixableDiagnosticIds.Contains(ReactivePartialDiagnosticId)).IsTrue();
     }
 
-    /// <summary>
-    /// Validates the code fix provider exposes a fix-all implementation.
-    /// </summary>
+    /// <summary>Validates the code fix provider exposes a fix-all implementation.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void GetFixAllProviderReturnsBatchFixer()
+    public async Task GetFixAllProviderReturnsBatchFixer()
     {
         var provider = new ReactiveAttributeMisuseCodeFixProvider();
-        if (provider.GetFixAllProvider() is null)
-        {
-            throw new InvalidOperationException("Expected a fix-all provider.");
-        }
+        await Assert.That(provider.GetFixAllProvider()).IsNotNull();
     }
 
-    /// <summary>
-    /// Verifies `required` stays before `partial` when applying the code fix.
-    /// </summary>
+    /// <summary>Verifies `required` stays before `partial` when applying the code fix.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void WhenRequiredPropertyThenPartialInsertedAfterRequired()
+    public async Task WhenRequiredPropertyThenPartialInsertedAfterRequired()
     {
         const string source = """
             using ReactiveUI;
@@ -57,17 +48,16 @@ public sealed class ReactiveAttributeMisuseCodeFixProviderTests
             }
             """;
 
-        var fixedSource = ApplyFix(source);
+        var fixedSource = await ApplyFix(source);
 
-        AssertContains(fixedSource, "public required partial string? PartialRequiredPropertyTest");
-        AssertDoesNotContain(fixedSource, "public partial required string? PartialRequiredPropertyTest");
+        await Assert.That(fixedSource.Contains("public required partial string? PartialRequiredPropertyTest", StringComparison.Ordinal)).IsTrue();
+        await Assert.That(fixedSource.Contains("public partial required string? PartialRequiredPropertyTest", StringComparison.Ordinal)).IsFalse();
     }
 
-    /// <summary>
-    /// Verifies no code fix is registered when the diagnostic location is outside a property declaration.
-    /// </summary>
+    /// <summary>Verifies no code fix is registered when the diagnostic location is outside a property declaration.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void WhenDiagnosticDoesNotTargetAPropertyThenNoCodeFixIsRegistered()
+    public async Task WhenDiagnosticDoesNotTargetAPropertyThenNoCodeFixIsRegistered()
     {
         const string source = """
             using ReactiveUI;
@@ -88,27 +78,45 @@ public sealed class ReactiveAttributeMisuseCodeFixProviderTests
             .AddMetadataReference(MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location));
 
         var document = project.AddDocument("t.cs", source);
-        var root = document.GetSyntaxRootAsync(CancellationToken.None).GetAwaiter().GetResult()!;
-        var classDeclaration = root.DescendantNodes().OfType<Microsoft.CodeAnalysis.CSharp.Syntax.ClassDeclarationSyntax>().Single();
-        var diagnosticDescriptor = new ReactiveAttributeMisuseAnalyzer().SupportedDiagnostics.Single(d => d.Id == "RXUISG0020");
-        var diagnostic = Diagnostic.Create(diagnosticDescriptor, classDeclaration.Identifier.GetLocation());
+        var root = (await document.GetSyntaxRootAsync(CancellationToken.None))!;
+        Microsoft.CodeAnalysis.CSharp.Syntax.ClassDeclarationSyntax? classDeclaration = null;
+        foreach (var node in root.DescendantNodes())
+        {
+            if (node is Microsoft.CodeAnalysis.CSharp.Syntax.ClassDeclarationSyntax declaration)
+            {
+                classDeclaration = declaration;
+                break;
+            }
+        }
+
+        await Assert.That(classDeclaration).IsNotNull();
+
+        DiagnosticDescriptor? diagnosticDescriptor = null;
+        foreach (var descriptor in new ReactiveAttributeMisuseAnalyzer().SupportedDiagnostics)
+        {
+            if (descriptor.Id == ReactivePartialDiagnosticId)
+            {
+                diagnosticDescriptor = descriptor;
+                break;
+            }
+        }
+
+        await Assert.That(diagnosticDescriptor).IsNotNull();
+        var diagnostic = Diagnostic.Create(diagnosticDescriptor!, classDeclaration!.Identifier.GetLocation());
         var actions = new List<Microsoft.CodeAnalysis.CodeActions.CodeAction>();
         var context = new CodeFixContext(document, diagnostic, (a, _) => actions.Add(a), CancellationToken.None);
 
         var provider = new ReactiveAttributeMisuseCodeFixProvider();
-        provider.RegisterCodeFixesAsync(context).GetAwaiter().GetResult();
-
-        if (actions.Count != 0)
-        {
-            throw new InvalidOperationException("Expected no code fixes to be registered.");
-        }
+        await provider.RegisterCodeFixesAsync(context);
+        await Assert.That(actions.Count).IsEqualTo(0);
     }
 
-    private static string ApplyFix(string source)
+    /// <summary>Applies the code fix to the supplied source.</summary>
+    /// <param name="source">The source to fix.</param>
+    /// <returns>A task that resolves to the fixed source.</returns>
+    private static async Task<string> ApplyFix(string source)
     {
         var tree = CSharpSyntaxTree.ParseText(source, CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp13));
-        var root = tree.GetRoot();
-
         var analyzer = new ReactiveAttributeMisuseAnalyzer();
         var compilation = CSharpCompilation.Create(
             "CodeFixTests",
@@ -117,12 +125,10 @@ public sealed class ReactiveAttributeMisuseCodeFixProviderTests
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
             ],
-            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            options: new(OutputKind.DynamicallyLinkedLibrary));
 
-        var diagnostic = compilation.WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(analyzer))
-            .GetAnalyzerDiagnosticsAsync()
-            .GetAwaiter().GetResult()
-            .Single(d => d.Id == "RXUISG0020");
+        var diagnostics = await compilation.WithAnalyzers([analyzer]).GetAnalyzerDiagnosticsAsync();
+        var diagnostic = diagnostics.Single(static d => d.Id == ReactivePartialDiagnosticId);
 
         using var workspace = new AdhocWorkspace();
         var project = workspace.CurrentSolution
@@ -143,28 +149,12 @@ public sealed class ReactiveAttributeMisuseCodeFixProviderTests
             (a, _) => actions.Add(a),
             CancellationToken.None);
 
-        provider.RegisterCodeFixesAsync(context).GetAwaiter().GetResult();
+        await provider.RegisterCodeFixesAsync(context);
 
-        var operation = actions.Single().GetOperationsAsync(CancellationToken.None).GetAwaiter().GetResult().Single();
+        var operation = (await actions[0].GetOperationsAsync(CancellationToken.None))[0];
         operation.Apply(document.Project.Solution.Workspace, CancellationToken.None);
 
         var updatedDoc = document.Project.Solution.Workspace.CurrentSolution.GetDocument(document.Id);
-        return updatedDoc!.GetTextAsync(CancellationToken.None).GetAwaiter().GetResult().ToString();
-    }
-
-    private static void AssertContains(string actual, string expected)
-    {
-        if (!actual.Contains(expected, StringComparison.Ordinal))
-        {
-            throw new InvalidOperationException($"Expected output to contain '{expected}'.");
-        }
-    }
-
-    private static void AssertDoesNotContain(string actual, string unexpected)
-    {
-        if (actual.Contains(unexpected, StringComparison.Ordinal))
-        {
-            throw new InvalidOperationException($"Expected output not to contain '{unexpected}'.");
-        }
+        return (await updatedDoc!.GetTextAsync(CancellationToken.None)).ToString();
     }
 }

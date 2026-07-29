@@ -1,6 +1,5 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System;
@@ -9,18 +8,17 @@ using Microsoft.CodeAnalysis;
 
 namespace ReactiveUI.SourceGenerators.Extensions;
 
-/// <summary>
-/// Extension methods for the <see cref="INamedTypeSymbol"/> type.
-/// </summary>
+/// <summary>Extension methods for the <see cref="INamedTypeSymbol"/> type.</summary>
 internal static class INamedTypeSymbolExtensions
 {
-    /// <summary>
-    /// Gets all member symbols from a given <see cref="INamedTypeSymbol"/> instance, including inherited ones.
-    /// </summary>
-    /// <param name="symbol">The input <see cref="INamedTypeSymbol"/> instance.</param>
-    /// <returns>A sequence of all member symbols for <paramref name="symbol"/>.</returns>
-    public static IEnumerable<ISymbol> GetAllMembers(this INamedTypeSymbol symbol)
+    /// <summary>Provides extension members for a named type symbol.</summary>
+    /// <param name="symbol">The named type symbol to extend.</param>
+    extension(INamedTypeSymbol symbol)
     {
+        /// <summary>Gets all member symbols from this instance, including inherited ones.</summary>
+        /// <returns>A sequence of all member symbols.</returns>
+        internal IEnumerable<ISymbol> GetAllMembers()
+        {
         for (var currentSymbol = symbol; currentSymbol is { SpecialType: not SpecialType.System_Object }; currentSymbol = currentSymbol.BaseType)
         {
             foreach (var memberSymbol in currentSymbol.GetMembers())
@@ -28,16 +26,13 @@ internal static class INamedTypeSymbolExtensions
                 yield return memberSymbol;
             }
         }
-    }
+        }
 
-    /// <summary>
-    /// Gets all member symbols from a given <see cref="INamedTypeSymbol"/> instance, including inherited ones.
-    /// </summary>
-    /// <param name="symbol">The input <see cref="INamedTypeSymbol"/> instance.</param>
-    /// <param name="name">The name of the members to look for.</param>
-    /// <returns>A sequence of all member symbols for <paramref name="symbol"/>.</returns>
-    public static IEnumerable<ISymbol> GetAllMembers(this INamedTypeSymbol symbol, string name)
-    {
+        /// <summary>Gets all member symbols with a given name from this instance, including inherited ones.</summary>
+        /// <param name="name">The name of the members to look for.</param>
+        /// <returns>A sequence of all matching member symbols.</returns>
+        internal IEnumerable<ISymbol> GetAllMembers(string name)
+        {
         for (var currentSymbol = symbol; currentSymbol is { SpecialType: not SpecialType.System_Object }; currentSymbol = currentSymbol.BaseType)
         {
             foreach (var memberSymbol in currentSymbol.GetMembers(name))
@@ -45,30 +40,28 @@ internal static class INamedTypeSymbolExtensions
                 yield return memberSymbol;
             }
         }
-    }
+        }
 
-    /// <summary>
-    /// Returns a string representation of the type, such as "class", "struct", or "interface".
-    /// </summary>
-    /// <param name="namedTypeSymbol">The type symbol to analyze.</param>
-    /// <returns>A string representing the type kind.</returns>
-    public static string GetTypeString(this INamedTypeSymbol namedTypeSymbol)
-    {
-        if (namedTypeSymbol.TypeKind == TypeKind.Interface)
+        /// <summary>Returns a string representation of this type, such as "class", "struct", or "interface".</summary>
+        /// <returns>A string representing the type kind.</returns>
+        internal string GetTypeString()
+        {
+        if (symbol.TypeKind == TypeKind.Interface)
         {
             return "interface";
         }
 
-        if (namedTypeSymbol.TypeKind == TypeKind.Struct)
+        if (symbol.TypeKind == TypeKind.Struct)
         {
-            return namedTypeSymbol.IsRecord ? "record struct" : "struct";
+            return symbol.IsRecord ? "record struct" : "struct";
         }
 
-        if (namedTypeSymbol.TypeKind == TypeKind.Class)
+        if (symbol.TypeKind == TypeKind.Class)
         {
-            return namedTypeSymbol.IsRecord ? "record" : "class";
+            return symbol.IsRecord ? "record" : "class";
         }
 
         throw new InvalidOperationException("Unknown type kind.");
+        }
     }
 }

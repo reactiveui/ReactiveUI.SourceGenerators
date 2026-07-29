@@ -1,33 +1,32 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using Microsoft.CodeAnalysis;
 
 namespace ReactiveUI.SourceGenerators.CodeFixers.Extensions;
 
-/// <summary>
-/// Extension methods for the <see cref="ISymbol"/> type.
-/// </summary>
+/// <summary>Extension methods for the <see cref="ISymbol"/> type.</summary>
 internal static class ISymbolExtensions
 {
-    /// <summary>
-    /// Checks whether or not a given symbol has an attribute with the specified fully qualified metadata name.
-    /// </summary>
-    /// <param name="symbol">The input <see cref="ISymbol"/> instance to check.</param>
-    /// <param name="name">The attribute name to look for.</param>
-    /// <returns>Whether or not <paramref name="symbol"/> has an attribute with the specified name.</returns>
-    public static bool HasAttributeWithFullyQualifiedMetadataName(this ISymbol symbol, string name)
+    /// <summary>Extension methods for <see cref="ISymbol"/> instances.</summary>
+    /// <param name="symbol">The symbol to extend.</param>
+    extension(ISymbol symbol)
     {
-        foreach (var attribute in symbol.GetAttributes())
+        /// <summary>Checks whether or not a symbol has an attribute with the specified fully qualified metadata name.</summary>
+        /// <param name="name">The attribute name to look for.</param>
+        /// <returns>Whether the symbol has an attribute with the specified name.</returns>
+        internal bool HasAttributeWithFullyQualifiedMetadataName(string name)
         {
-            if (attribute.AttributeClass?.HasFullyQualifiedMetadataName(name) == true)
+            foreach (var attribute in symbol.GetAttributes())
             {
-                return true;
+                if (attribute.AttributeClass?.HasFullyQualifiedMetadataName(name) == true)
+                {
+                    return true;
+                }
             }
-        }
 
-        return false;
+            return false;
+        }
     }
 }

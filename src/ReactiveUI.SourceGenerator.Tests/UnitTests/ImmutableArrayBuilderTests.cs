@@ -1,20 +1,60 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using ReactiveUI.SourceGenerators.Helpers;
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
-/// <summary>
-/// Unit tests for <see cref="ImmutableArrayBuilder{T}"/>.
-/// </summary>
+/// <summary>Unit tests for <see cref="ImmutableArrayBuilder{T}"/>.</summary>
 public sealed class ImmutableArrayBuilderTests
 {
-    /// <summary>
-    /// A freshly rented builder starts with Count == 0.
-    /// </summary>
+    /// <summary>The expected answer value.</summary>
+    private const int Answer = 42;
+
+    /// <summary>The first item index.</summary>
+    private const int FirstIndex = 0;
+
+    /// <summary>The second item index.</summary>
+    private const int SecondIndex = 1;
+
+    /// <summary>The count for two items.</summary>
+    private const int TwoItems = 2;
+
+    /// <summary>The count for three items.</summary>
+    private const int ThreeItems = 3;
+
+    /// <summary>The count for four items.</summary>
+    private const int FourItems = 4;
+
+    /// <summary>The count for five items.</summary>
+    private const int FiveItems = 5;
+
+    /// <summary>The first WrittenSpan test value.</summary>
+    private const int Seven = 7;
+
+    /// <summary>The second WrittenSpan test value.</summary>
+    private const int Eight = 8;
+
+    /// <summary>The first ordered test value.</summary>
+    private const int Ten = 10;
+
+    /// <summary>The second ordered test value.</summary>
+    private const int Twenty = 20;
+
+    /// <summary>The third ordered test value.</summary>
+    private const int Thirty = 30;
+
+    /// <summary>The final index in a hundred item collection.</summary>
+    private const int NinetyNine = 99;
+
+    /// <summary>The collection growth count.</summary>
+    private const int OneHundred = 100;
+
+    /// <summary>The second enumerable test value.</summary>
+    private const int TwoHundred = 200;
+
+    /// <summary>A freshly rented builder starts with Count == 0.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenRentedThenCountIsZero()
@@ -28,9 +68,7 @@ public sealed class ImmutableArrayBuilderTests
         await Assert.That(count).IsEqualTo(0);
     }
 
-    /// <summary>
-    /// Adding a single item increments Count to 1.
-    /// </summary>
+    /// <summary>Adding a single item increments Count to 1.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenItemAddedThenCountIncrements()
@@ -38,16 +76,14 @@ public sealed class ImmutableArrayBuilderTests
         int count;
         using (var builder = ImmutableArrayBuilder<int>.Rent())
         {
-            builder.Add(42);
+            builder.Add(Answer);
             count = builder.Count;
         }
 
         await Assert.That(count).IsEqualTo(1);
     }
 
-    /// <summary>
-    /// Multiple adds are reflected in Count.
-    /// </summary>
+    /// <summary>Multiple adds are reflected in Count.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenMultipleItemsAddedThenCountMatchesAdded()
@@ -56,17 +92,15 @@ public sealed class ImmutableArrayBuilderTests
         using (var builder = ImmutableArrayBuilder<int>.Rent())
         {
             builder.Add(1);
-            builder.Add(2);
-            builder.Add(3);
+            builder.Add(TwoItems);
+            builder.Add(ThreeItems);
             count = builder.Count;
         }
 
-        await Assert.That(count).IsEqualTo(3);
+        await Assert.That(count).IsEqualTo(ThreeItems);
     }
 
-    /// <summary>
-    /// ToImmutable returns an array containing all added items in order.
-    /// </summary>
+    /// <summary>ToImmutable returns an array containing all added items in order.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenToImmutableCalledThenContainsAddedItems()
@@ -74,21 +108,19 @@ public sealed class ImmutableArrayBuilderTests
         ImmutableArray<int> result;
         using (var builder = ImmutableArrayBuilder<int>.Rent())
         {
-            builder.Add(10);
-            builder.Add(20);
-            builder.Add(30);
+            builder.Add(Ten);
+            builder.Add(Twenty);
+            builder.Add(Thirty);
             result = builder.ToImmutable();
         }
 
-        await Assert.That(result.Length).IsEqualTo(3);
-        await Assert.That(result[0]).IsEqualTo(10);
-        await Assert.That(result[1]).IsEqualTo(20);
-        await Assert.That(result[2]).IsEqualTo(30);
+        await Assert.That(result.Length).IsEqualTo(ThreeItems);
+        await Assert.That(result[FirstIndex]).IsEqualTo(Ten);
+        await Assert.That(result[SecondIndex]).IsEqualTo(Twenty);
+        await Assert.That(result[TwoItems]).IsEqualTo(Thirty);
     }
 
-    /// <summary>
-    /// ToArray returns a mutable array with the same elements.
-    /// </summary>
+    /// <summary>ToArray returns a mutable array with the same elements.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenToArrayCalledThenReturnsMutableArray()
@@ -101,14 +133,12 @@ public sealed class ImmutableArrayBuilderTests
             result = builder.ToArray();
         }
 
-        await Assert.That(result.Length).IsEqualTo(2);
-        await Assert.That(result[0]).IsEqualTo("a");
-        await Assert.That(result[1]).IsEqualTo("b");
+        await Assert.That(result.Length).IsEqualTo(TwoItems);
+        await Assert.That(result[FirstIndex]).IsEqualTo("a");
+        await Assert.That(result[SecondIndex]).IsEqualTo("b");
     }
 
-    /// <summary>
-    /// AddRange appends all items from the span.
-    /// </summary>
+    /// <summary>AddRange appends all items from the span.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenAddRangeCalledThenAllItemsAppended()
@@ -117,49 +147,40 @@ public sealed class ImmutableArrayBuilderTests
         ImmutableArray<int> result;
         using (var builder = ImmutableArrayBuilder<int>.Rent())
         {
-            ReadOnlySpan<int> items = [1, 2, 3, 4, 5];
+            ReadOnlySpan<int> items = [1, TwoItems, ThreeItems, FourItems, FiveItems];
             builder.AddRange(items);
             count = builder.Count;
             result = builder.ToImmutable();
         }
 
-        await Assert.That(count).IsEqualTo(5);
-        await Assert.That(result[4]).IsEqualTo(5);
+        await Assert.That(count).IsEqualTo(FiveItems);
+        await Assert.That(result[FourItems]).IsEqualTo(FiveItems);
     }
 
-    /// <summary>
-    /// WrittenSpan reflects the items added so far.
-    /// </summary>
+    /// <summary>WrittenSpan reflects the items added so far.</summary>
+    /// <returns>A task to monitor the async.</returns>
     [Test]
-    public void WhenWrittenSpanAccessedThenReflectsCurrentItems()
+    public async Task WhenWrittenSpanAccessedThenReflectsCurrentItems()
     {
         int length;
         int first;
         int second;
         using (var builder = ImmutableArrayBuilder<int>.Rent())
         {
-            builder.Add(7);
-            builder.Add(8);
+            builder.Add(Seven);
+            builder.Add(Eight);
             var span = builder.WrittenSpan;
             length = span.Length;
-            first = span[0];
-            second = span[1];
+            first = span[FirstIndex];
+            second = span[SecondIndex];
         }
 
-        if (length != 2)
-        {
-            throw new InvalidOperationException($"Expected WrittenSpan.Length 2, got {length}.");
-        }
-
-        if (first != 7 || second != 8)
-        {
-            throw new InvalidOperationException($"Expected 7, 8 but got {first}, {second}.");
-        }
+        await Assert.That(length).IsEqualTo(TwoItems);
+        await Assert.That(first).IsEqualTo(Seven);
+        await Assert.That(second).IsEqualTo(Eight);
     }
 
-    /// <summary>
-    /// AsEnumerable returns an IEnumerable containing all added items.
-    /// </summary>
+    /// <summary>AsEnumerable returns an IEnumerable containing all added items.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenAsEnumerableCalledThenYieldsAllItems()
@@ -167,19 +188,17 @@ public sealed class ImmutableArrayBuilderTests
         List<int> list;
         using (var builder = ImmutableArrayBuilder<int>.Rent())
         {
-            builder.Add(100);
-            builder.Add(200);
-            list = builder.AsEnumerable().ToList();
+            builder.Add(OneHundred);
+            builder.Add(TwoHundred);
+            list = [.. builder.AsEnumerable()];
         }
 
-        await Assert.That(list.Count).IsEqualTo(2);
-        await Assert.That(list[0]).IsEqualTo(100);
-        await Assert.That(list[1]).IsEqualTo(200);
+        await Assert.That(list.Count).IsEqualTo(TwoItems);
+        await Assert.That(list[FirstIndex]).IsEqualTo(OneHundred);
+        await Assert.That(list[SecondIndex]).IsEqualTo(TwoHundred);
     }
 
-    /// <summary>
-    /// Builder can hold more than the initial capacity (pool growth).
-    /// </summary>
+    /// <summary>Builder can hold more than the initial capacity (pool growth).</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenManyItemsAddedThenBuilderGrowsCorrectly()
@@ -188,7 +207,7 @@ public sealed class ImmutableArrayBuilderTests
         ImmutableArray<int> result;
         using (var builder = ImmutableArrayBuilder<int>.Rent())
         {
-            for (var i = 0; i < 100; i++)
+            for (var i = 0; i < OneHundred; i++)
             {
                 builder.Add(i);
             }
@@ -197,13 +216,11 @@ public sealed class ImmutableArrayBuilderTests
             result = builder.ToImmutable();
         }
 
-        await Assert.That(count).IsEqualTo(100);
-        await Assert.That(result[99]).IsEqualTo(99);
+        await Assert.That(count).IsEqualTo(OneHundred);
+        await Assert.That(result[NinetyNine]).IsEqualTo(NinetyNine);
     }
 
-    /// <summary>
-    /// ToImmutable on an empty builder returns an empty ImmutableArray.
-    /// </summary>
+    /// <summary>ToImmutable on an empty builder returns an empty ImmutableArray.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenEmptyThenToImmutableReturnsEmpty()
@@ -217,9 +234,7 @@ public sealed class ImmutableArrayBuilderTests
         await Assert.That(result.IsEmpty).IsTrue();
     }
 
-    /// <summary>
-    /// ToString returns the WrittenSpan string representation without throwing.
-    /// </summary>
+    /// <summary>ToString returns the WrittenSpan string representation without throwing.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenToStringCalledThenDoesNotThrow()
@@ -235,21 +250,21 @@ public sealed class ImmutableArrayBuilderTests
         await Assert.That(result).IsNotNull();
     }
 
-    /// <summary>
-    /// Dispose can be called multiple times without throwing.
-    /// </summary>
+    /// <summary>Dispose can be called multiple times without throwing.</summary>
+    /// <returns>A task to monitor the async.</returns>
     [Test]
-    public void WhenDisposedTwiceThenDoesNotThrow()
+    public async Task WhenDisposedTwiceThenDoesNotThrow()
     {
         var builder = ImmutableArrayBuilder<int>.Rent();
         builder.Add(1);
+        var completed = false;
         builder.Dispose();
         builder.Dispose();
+        completed = true;
+        await Assert.That(completed).IsTrue();
     }
 
-    /// <summary>
-    /// AddRange followed by Add correctly appends items in order.
-    /// </summary>
+    /// <summary>AddRange followed by Add correctly appends items in order.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenAddRangeThenAddThenOrderPreserved()
@@ -257,13 +272,13 @@ public sealed class ImmutableArrayBuilderTests
         ImmutableArray<int> result;
         using (var builder = ImmutableArrayBuilder<int>.Rent())
         {
-            ReadOnlySpan<int> range = [1, 2, 3];
+            ReadOnlySpan<int> range = [1, TwoItems, ThreeItems];
             builder.AddRange(range);
-            builder.Add(4);
+            builder.Add(FourItems);
             result = builder.ToImmutable();
         }
 
-        await Assert.That(result.Length).IsEqualTo(4);
-        await Assert.That(result[3]).IsEqualTo(4);
+        await Assert.That(result.Length).IsEqualTo(FourItems);
+        await Assert.That(result[ThreeItems]).IsEqualTo(FourItems);
     }
 }

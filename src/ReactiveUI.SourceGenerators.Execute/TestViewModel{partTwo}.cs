@@ -1,25 +1,19 @@
-﻿// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System.Diagnostics.CodeAnalysis;
 using ReactiveUI.SourceGenerators;
 
-namespace SGReactiveUI.SourceGenerators.Test
+namespace SGReactiveUI.SourceGenerators.Test;
+
+/// <summary>Provides a secondary partial view-model command sample.</summary>
+/// <seealso cref="ReactiveUI.Reactive.ReactiveObject" />
+[ExcludeFromCodeCoverage]
+public partial class TestViewModel
 {
-    /// <summary>
-    /// TestViewModel.
-    /// </summary>
-    /// <seealso cref="ReactiveUI.ReactiveObject" />
-    [ExcludeFromCodeCoverage]
-    public partial class TestViewModel
-    {
-        /// <summary>
-        /// Test2s this instance.
-        /// </summary>
-        /// <returns>Rectangle.</returns>
-        [ReactiveCommand]
-        private Point Test2() => default;
-    }
+    /// <summary>Returns the secondary generated command value.</summary>
+    /// <returns>The generated point.</returns>
+    [ReactiveCommand]
+    private static Point Test2() => default;
 }

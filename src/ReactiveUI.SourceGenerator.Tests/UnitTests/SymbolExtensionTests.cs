@@ -1,24 +1,27 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using ReactiveUI.SourceGenerators.Extensions;
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
-/// <summary>
-/// Unit tests for <see cref="ReactiveUI.SourceGenerators.Extensions.ISymbolExtensions"/>,
-/// <see cref="ReactiveUI.SourceGenerators.Extensions.ITypeSymbolExtensions"/>,
-/// <see cref="ReactiveUI.SourceGenerators.Extensions.INamedTypeSymbolExtensions"/>, and
-/// <see cref="ReactiveUI.SourceGenerators.Extensions.CompilationExtensions"/>.
-/// All tests compile small in-memory programs to obtain real Roslyn symbol instances.
-/// </summary>
+/// <summary>Unit tests for symbol and compilation extensions using real in-memory Roslyn symbols.</summary>
 public sealed class SymbolExtensionTests
 {
-    /// <summary>
-    /// GetFullyQualifiedName returns the global:: prefixed name.
-    /// </summary>
+    /// <summary>The fully qualified metadata name of <see cref="ObsoleteAttribute"/>.</summary>
+    private const string ObsoleteAttributeMetadataName = "System.ObsoleteAttribute";
+
+    /// <summary>The fully qualified metadata name of the test-derived type.</summary>
+    private const string DerivedTypeMetadataName = "T.Derived";
+
+    /// <summary>Source for a public class in the shared test namespace.</summary>
+    private const string PublicClassSource = """
+        namespace T;
+        public class C { }
+        """;
+
+    /// <summary>GetFullyQualifiedName returns the global:: prefixed name.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenGetFullyQualifiedNameCalledThenReturnsGlobalPrefixedName()
@@ -35,9 +38,7 @@ public sealed class SymbolExtensionTests
         await Assert.That(name).IsEqualTo("global::Foo.Bar.MyClass");
     }
 
-    /// <summary>
-    /// GetFullyQualifiedNameWithNullabilityAnnotations includes the nullable annotation marker.
-    /// </summary>
+    /// <summary>GetFullyQualifiedNameWithNullabilityAnnotations includes the nullable annotation marker.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenGetFullyQualifiedNameWithNullabilityCalledThenIncludesAnnotation()
@@ -58,9 +59,7 @@ public sealed class SymbolExtensionTests
         await Assert.That(name).IsEqualTo("string?");
     }
 
-    /// <summary>
-    /// HasAttributeWithFullyQualifiedMetadataName returns true when the attribute is present.
-    /// </summary>
+    /// <summary>HasAttributeWithFullyQualifiedMetadataName returns true when the attribute is present.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenAttributePresentThenHasAttributeWithNameReturnsTrue()
@@ -74,33 +73,29 @@ public sealed class SymbolExtensionTests
             """,
             "C");
 
-        var result = symbol.HasAttributeWithFullyQualifiedMetadataName("System.ObsoleteAttribute");
+        var result = symbol.HasAttributeWithFullyQualifiedMetadataName(ObsoleteAttributeMetadataName);
 
         await Assert.That(result).IsTrue();
     }
 
-    /// <summary>
-    /// HasAttributeWithFullyQualifiedMetadataName returns false when the attribute is absent.
-    /// </summary>
+    /// <summary>HasAttributeWithFullyQualifiedMetadataName returns false when the attribute is absent.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenAttributeAbsentThenHasAttributeWithNameReturnsFalse()
     {
         var symbol = GetTypeSymbol(
             """
-            namespace T;
+            namespace AttributeFreeTest;
             public class C { }
             """,
             "C");
 
-        var result = symbol.HasAttributeWithFullyQualifiedMetadataName("System.ObsoleteAttribute");
+        var result = symbol.HasAttributeWithFullyQualifiedMetadataName(ObsoleteAttributeMetadataName);
 
         await Assert.That(result).IsFalse();
     }
 
-    /// <summary>
-    /// TryGetAttributeWithFullyQualifiedMetadataName returns true and outputs AttributeData when present.
-    /// </summary>
+    /// <summary>TryGetAttributeWithFullyQualifiedMetadataName returns true and outputs AttributeData when present.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenAttributePresentThenTryGetAttributeSucceeds()
@@ -115,57 +110,46 @@ public sealed class SymbolExtensionTests
             "C");
 
         var found = symbol.TryGetAttributeWithFullyQualifiedMetadataName(
-            "System.ObsoleteAttribute",
+            ObsoleteAttributeMetadataName,
             out var attributeData);
 
         await Assert.That(found).IsTrue();
         await Assert.That(attributeData).IsNotNull();
     }
 
-    /// <summary>
-    /// TryGetAttributeWithFullyQualifiedMetadataName returns false when attribute is absent.
-    /// </summary>
+    /// <summary>TryGetAttributeWithFullyQualifiedMetadataName returns false when attribute is absent.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenAttributeAbsentThenTryGetAttributeFails()
     {
         var symbol = GetTypeSymbol(
             """
-            namespace T;
+            namespace AttributeLookupTest;
             public class C { }
             """,
             "C");
 
         var found = symbol.TryGetAttributeWithFullyQualifiedMetadataName(
-            "System.ObsoleteAttribute",
+            ObsoleteAttributeMetadataName,
             out var attributeData);
 
         await Assert.That(found).IsFalse();
         await Assert.That(attributeData).IsNull();
     }
 
-    /// <summary>
-    /// GetEffectiveAccessibility returns Public for a public class.
-    /// </summary>
+    /// <summary>GetEffectiveAccessibility returns Public for a public class.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenPublicClassThenEffectiveAccessibilityIsPublic()
     {
-        var symbol = GetTypeSymbol(
-            """
-            namespace T;
-            public class C { }
-            """,
-            "C");
+        var symbol = GetTypeSymbol(PublicClassSource, "C");
 
         var accessibility = symbol.GetEffectiveAccessibility();
 
         await Assert.That(accessibility).IsEqualTo(Accessibility.Public);
     }
 
-    /// <summary>
-    /// GetEffectiveAccessibility returns Internal for an internal class.
-    /// </summary>
+    /// <summary>GetEffectiveAccessibility returns Internal for an internal class.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenInternalClassThenEffectiveAccessibilityIsInternal()
@@ -182,26 +166,17 @@ public sealed class SymbolExtensionTests
         await Assert.That(accessibility).IsEqualTo(Accessibility.Internal);
     }
 
-    /// <summary>
-    /// GetAccessibilityString returns "public" for a public symbol.
-    /// </summary>
+    /// <summary>GetAccessibilityString returns "public" for a public symbol.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenPublicThenGetAccessibilityStringReturnsPublic()
     {
-        var symbol = GetTypeSymbol(
-            """
-            namespace T;
-            public class C { }
-            """,
-            "C");
+        var symbol = GetTypeSymbol(PublicClassSource, "C");
 
         await Assert.That(symbol.GetAccessibilityString()).IsEqualTo("public");
     }
 
-    /// <summary>
-    /// GetAccessibilityString returns "internal" for an internal symbol.
-    /// </summary>
+    /// <summary>GetAccessibilityString returns "internal" for an internal symbol.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenInternalThenGetAccessibilityStringReturnsInternal()
@@ -216,28 +191,19 @@ public sealed class SymbolExtensionTests
         await Assert.That(symbol.GetAccessibilityString()).IsEqualTo("internal");
     }
 
-    /// <summary>
-    /// HasOrInheritsFromFullyQualifiedMetadataName returns true for the type itself.
-    /// </summary>
+    /// <summary>HasOrInheritsFromFullyQualifiedMetadataName returns true for the type itself.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenTypeIsSelfThenHasOrInheritsReturnsTrue()
     {
-        var symbol = GetTypeSymbol(
-            """
-            namespace T;
-            public class C { }
-            """,
-            "C");
+        var symbol = GetTypeSymbol(PublicClassSource, "C");
 
         var result = symbol.HasOrInheritsFromFullyQualifiedMetadataName("T.C");
 
         await Assert.That(result).IsTrue();
     }
 
-    /// <summary>
-    /// HasOrInheritsFromFullyQualifiedMetadataName returns true for a direct base class.
-    /// </summary>
+    /// <summary>HasOrInheritsFromFullyQualifiedMetadataName returns true for a direct base class.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenTypeDerivedFromBaseThenHasOrInheritsReturnsTrue()
@@ -248,15 +214,13 @@ public sealed class SymbolExtensionTests
             public class Derived : Base { }
             """);
 
-        var derived = compilation.GetTypeByMetadataName("T.Derived")!;
+        var derived = compilation.GetTypeByMetadataName(DerivedTypeMetadataName)!;
         var result = derived.HasOrInheritsFromFullyQualifiedMetadataName("T.Base");
 
         await Assert.That(result).IsTrue();
     }
 
-    /// <summary>
-    /// HasOrInheritsFromFullyQualifiedMetadataName returns false for an unrelated type.
-    /// </summary>
+    /// <summary>HasOrInheritsFromFullyQualifiedMetadataName returns false for an unrelated type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenTypeUnrelatedThenHasOrInheritsReturnsFalse()
@@ -273,28 +237,19 @@ public sealed class SymbolExtensionTests
         await Assert.That(result).IsFalse();
     }
 
-    /// <summary>
-    /// InheritsFromFullyQualifiedMetadataName returns false for the type itself (not inherited).
-    /// </summary>
+    /// <summary>InheritsFromFullyQualifiedMetadataName returns false for the type itself (not inherited).</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenTypeSelfThenInheritsReturnsFalse()
     {
-        var symbol = GetTypeSymbol(
-            """
-            namespace T;
-            public class C { }
-            """,
-            "C");
+        var symbol = GetTypeSymbol(PublicClassSource, "C");
 
         var result = symbol.InheritsFromFullyQualifiedMetadataName("T.C");
 
         await Assert.That(result).IsFalse();
     }
 
-    /// <summary>
-    /// ImplementsFullyQualifiedMetadataName returns true when the interface is implemented.
-    /// </summary>
+    /// <summary>ImplementsFullyQualifiedMetadataName returns true when the interface is implemented.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenInterfaceImplementedThenImplementsReturnsTrue()
@@ -311,9 +266,7 @@ public sealed class SymbolExtensionTests
         await Assert.That(result).IsTrue();
     }
 
-    /// <summary>
-    /// GetFullyQualifiedMetadataName returns dotted name without global:: prefix.
-    /// </summary>
+    /// <summary>GetFullyQualifiedMetadataName returns dotted name without global:: prefix.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenGetFullyQualifiedMetadataNameCalledThenReturnsDottedName()
@@ -330,9 +283,7 @@ public sealed class SymbolExtensionTests
         await Assert.That(name).IsEqualTo("Foo.Bar.Baz");
     }
 
-    /// <summary>
-    /// GetAllMembers returns members from both the type and its base types.
-    /// </summary>
+    /// <summary>GetAllMembers returns members from both the type and its base types.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenGetAllMembersCalledThenIncludesInheritedMembers()
@@ -349,16 +300,18 @@ public sealed class SymbolExtensionTests
             }
             """);
 
-        var derived = (INamedTypeSymbol)compilation.GetTypeByMetadataName("T.Derived")!;
-        var members = derived.GetAllMembers().Select(m => m.Name).ToList();
+        var derived = (INamedTypeSymbol)compilation.GetTypeByMetadataName(DerivedTypeMetadataName)!;
+        var members = new List<string>();
+        foreach (var member in derived.GetAllMembers())
+        {
+            members.Add(member.Name);
+        }
 
         await Assert.That(members.Contains("DerivedField")).IsTrue();
         await Assert.That(members.Contains("BaseField")).IsTrue();
     }
 
-    /// <summary>
-    /// GetAllMembers(name) returns members with the matching name from base types.
-    /// </summary>
+    /// <summary>GetAllMembers(name) returns members with the matching name from base types.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenGetAllMembersWithNameCalledThenFiltersCorrectly()
@@ -375,33 +328,24 @@ public sealed class SymbolExtensionTests
             }
             """);
 
-        var derived = (INamedTypeSymbol)compilation.GetTypeByMetadataName("T.Derived")!;
-        var members = derived.GetAllMembers("Shared").ToList();
+        var derived = (INamedTypeSymbol)compilation.GetTypeByMetadataName(DerivedTypeMetadataName)!;
+        List<ISymbol> members = [.. derived.GetAllMembers("Shared")];
 
         await Assert.That(members.Count).IsEqualTo(1);
         await Assert.That(members[0].Name).IsEqualTo("Shared");
     }
 
-    /// <summary>
-    /// GetTypeString returns "class" for a regular class.
-    /// </summary>
+    /// <summary>GetTypeString returns "class" for a regular class.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenRegularClassThenGetTypeStringReturnsClass()
     {
-        var symbol = (INamedTypeSymbol)GetTypeSymbol(
-            """
-            namespace T;
-            public class C { }
-            """,
-            "C");
+        var symbol = (INamedTypeSymbol)GetTypeSymbol(PublicClassSource, "C");
 
         await Assert.That(symbol.GetTypeString()).IsEqualTo("class");
     }
 
-    /// <summary>
-    /// GetTypeString returns "record" for a record class.
-    /// </summary>
+    /// <summary>GetTypeString returns "record" for a record class.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenRecordClassThenGetTypeStringReturnsRecord()
@@ -416,9 +360,7 @@ public sealed class SymbolExtensionTests
         await Assert.That(symbol.GetTypeString()).IsEqualTo("record");
     }
 
-    /// <summary>
-    /// GetTypeString returns "struct" for a regular struct.
-    /// </summary>
+    /// <summary>GetTypeString returns "struct" for a regular struct.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenStructThenGetTypeStringReturnsStruct()
@@ -433,9 +375,7 @@ public sealed class SymbolExtensionTests
         await Assert.That(symbol.GetTypeString()).IsEqualTo("struct");
     }
 
-    /// <summary>
-    /// GetTypeString returns "record struct" for a record struct.
-    /// </summary>
+    /// <summary>GetTypeString returns "record struct" for a record struct.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenRecordStructThenGetTypeStringReturnsRecordStruct()
@@ -450,9 +390,7 @@ public sealed class SymbolExtensionTests
         await Assert.That(symbol.GetTypeString()).IsEqualTo("record struct");
     }
 
-    /// <summary>
-    /// GetTypeString returns "interface" for an interface.
-    /// </summary>
+    /// <summary>GetTypeString returns "interface" for an interface.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenInterfaceThenGetTypeStringReturnsInterface()
@@ -467,9 +405,7 @@ public sealed class SymbolExtensionTests
         await Assert.That(symbol.GetTypeString()).IsEqualTo("interface");
     }
 
-    /// <summary>
-    /// HasAccessibleTypeWithMetadataName returns true for System.String (always accessible).
-    /// </summary>
+    /// <summary>HasAccessibleTypeWithMetadataName returns true for System.String (always accessible).</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenWellKnownTypeThenHasAccessibleTypeReturnsTrue()
@@ -481,9 +417,7 @@ public sealed class SymbolExtensionTests
         await Assert.That(result).IsTrue();
     }
 
-    /// <summary>
-    /// HasAccessibleTypeWithMetadataName returns false for a type that doesn't exist.
-    /// </summary>
+    /// <summary>HasAccessibleTypeWithMetadataName returns false for a type that doesn't exist.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenUnknownTypeThenHasAccessibleTypeReturnsFalse()
@@ -495,22 +429,45 @@ public sealed class SymbolExtensionTests
         await Assert.That(result).IsFalse();
     }
 
+    /// <summary>Finds the single type symbol with the requested name.</summary>
+    /// <param name="source">The source text containing the type.</param>
+    /// <param name="typeName">The type name to find.</param>
+    /// <returns>The matching type symbol.</returns>
     private static ITypeSymbol GetTypeSymbol(string source, string typeName)
     {
         var compilation = CreateCompilation(source);
-        return compilation.GetSymbolsWithName(typeName, SymbolFilter.Type)
-            .OfType<ITypeSymbol>()
-            .Single();
+        foreach (var symbol in compilation.GetSymbolsWithName(typeName, SymbolFilter.Type))
+        {
+            if (symbol is ITypeSymbol typeSymbol)
+            {
+                return typeSymbol;
+            }
+        }
+
+        throw new InvalidOperationException($"Type '{typeName}' was not found.");
     }
 
+    /// <summary>Finds the single field symbol with the requested name.</summary>
+    /// <param name="source">The source text containing the field.</param>
+    /// <param name="fieldName">The field name to find.</param>
+    /// <returns>The matching field symbol.</returns>
     private static IFieldSymbol GetFieldSymbol(string source, string fieldName)
     {
         var compilation = CreateCompilation(source);
-        return compilation.GetSymbolsWithName(fieldName, SymbolFilter.Member)
-            .OfType<IFieldSymbol>()
-            .Single();
+        foreach (var symbol in compilation.GetSymbolsWithName(fieldName, SymbolFilter.Member))
+        {
+            if (symbol is IFieldSymbol fieldSymbol)
+            {
+                return fieldSymbol;
+            }
+        }
+
+        throw new InvalidOperationException($"Field '{fieldName}' was not found.");
     }
 
+    /// <summary>Creates an in-memory compilation for a symbol extension test source.</summary>
+    /// <param name="source">The source text to compile.</param>
+    /// <returns>The created compilation.</returns>
     private static CSharpCompilation CreateCompilation(string source)
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(
@@ -521,6 +478,6 @@ public sealed class SymbolExtensionTests
             assemblyName: "SymbolExtTests",
             syntaxTrees: [syntaxTree],
             references: TestCompilationReferences.CreateDefault(),
-            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            options: new(OutputKind.DynamicallyLinkedLibrary));
     }
 }

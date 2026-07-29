@@ -27,6 +27,10 @@ dotnet add package ReactiveUI.SourceGenerators
 
 Ensure the package is loaded with `PrivateAssets="all"` to avoid issues with generated code in consuming projects.
 
+ReactiveUI V24.x.x consumers can reference either `ReactiveUI` for the primitives-based API without
+System.Reactive, or `ReactiveUI.Reactive` for the System.Reactive-based API. The generators detect
+the referenced API surface automatically. ReactiveUI releases from 23.2.28 remain supported.
+
 ## Overview
 
 ReactiveUI Source Generators automatically generate ReactiveUI objects to streamline your code. These Source Generators are designed to work with ReactiveUI V23.2.28+ and support the following features:

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>$(TestTfms)</TargetFrameworks>
@@ -23,8 +23,11 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" PrivateAssets="all" VersionOverride="4.14.0" />
     <PackageReference Include="Microsoft.CodeAnalysis" PrivateAssets="all" VersionOverride="4.14.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="all" VersionOverride="4.14.0" />
+    <PackageReference Include="DynamicData" PrivateAssets="all" />
     <PackageReference Include="ReactiveUI" />
+    <PackageReference Include="ReactiveUI.Reactive" PrivateAssets="all" />
     <PackageReference Include="Splat" />
+    <PackageReference Include="System.Reactive" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

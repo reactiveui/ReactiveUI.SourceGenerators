@@ -1,29 +1,26 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using Microsoft.CodeAnalysis;
 
-#pragma warning disable IDE0090 // Use 'new DiagnosticDescriptor(...)'
-
 namespace ReactiveUI.SourceGenerators.Diagnostics;
 
-/// <summary>
-/// A container for all <see cref="DiagnosticDescriptor"/> instances for errors reported by analyzers in this project.
-/// </summary>
+/// <summary>A container for all <see cref="DiagnosticDescriptor"/> instances for errors reported by analyzers in this project.</summary>
 internal static class DiagnosticDescriptors
 {
     /// <summary>
     /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a generated property created with <c>[Reactive]</c> would collide with the source field.
     /// <para>
-    /// Format: <c>"The field {0}.{1} cannot be used to generate an observable property, as its name would collide with the field name (instance fields should use the "lowerCamel", "_lowerCamel" or "m_lowerCamel" pattern)</c>.
+    /// Format: <c>"The field {0}.{1} cannot be used to generate an observable property, as its name would collide with the field name.</c>
+    /// Instance fields should use the <c>lowerCamel</c>, <c>_lowerCamel</c>, or <c>m_lowerCamel</c> pattern.
     /// </para>
     /// </summary>
-    public static readonly DiagnosticDescriptor ReactivePropertyNameCollisionError = new DiagnosticDescriptor(
+    internal static readonly DiagnosticDescriptor ReactivePropertyNameCollisionError = new(
         id: "RXUISG0009",
         title: "Name collision for generated property",
-        messageFormat: "The field {0}.{1} cannot be used to generate an reactive property, as its name would collide with the field name (instance fields should use the \"lowerCamel\", \"_lowerCamel\" or \"m_lowerCamel\" pattern)",
+        messageFormat: "The field {0}.{1} cannot be used to generate an reactive property, as its name would collide with the field name "
+            + "(instance fields should use the \"lowerCamel\", \"_lowerCamel\" or \"m_lowerCamel\" pattern)",
         category: typeof(ReactiveGenerator).FullName,
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
@@ -36,7 +33,7 @@ internal static class DiagnosticDescriptors
     /// Format: <c>"The field {0} annotated with [Reactive] is using attribute "{1}" which was not recognized as a valid type (are you missing a using directive?)"</c>.
     /// </para>
     /// </summary>
-    public static readonly DiagnosticDescriptor InvalidPropertyTargetedAttributeOnReactiveField = new DiagnosticDescriptor(
+    internal static readonly DiagnosticDescriptor InvalidPropertyTargetedAttributeOnReactiveField = new(
         id: "RXUISG0010",
         title: "Invalid property targeted attribute type",
         messageFormat: "The field {0} annotated with [Reactive] is using attribute \"{1}\" which was not recognized as a valid type (are you missing a using directive?)",
@@ -52,7 +49,7 @@ internal static class DiagnosticDescriptors
     /// Format: <c>"The field {0} annotated with [Reactive] is using attribute "{1}" with an invalid expression (are you passing any incorrect parameters to the attribute constructor?)"</c>.
     /// </para>
     /// </summary>
-    public static readonly DiagnosticDescriptor InvalidPropertyTargetedAttributeExpressionOnReactiveField = new DiagnosticDescriptor(
+    internal static readonly DiagnosticDescriptor InvalidPropertyTargetedAttributeExpressionOnReactiveField = new(
         id: "RXUISG0011",
         title: "Invalid property targeted attribute expression",
         messageFormat: "The field {0} annotated with [Reactive] is using attribute \"{1}\" with an invalid expression (are you passing any incorrect parameters to the attribute constructor?)",
@@ -68,7 +65,7 @@ internal static class DiagnosticDescriptors
     /// Format: <c>"The field {0} annotated with [ObservableAsProperty] is using attribute "{1}" which was not recognized as a valid type (are you missing a using directive?)"</c>.
     /// </para>
     /// </summary>
-    public static readonly DiagnosticDescriptor InvalidPropertyTargetedAttributeOnObservableAsPropertyField = new DiagnosticDescriptor(
+    internal static readonly DiagnosticDescriptor InvalidPropertyTargetedAttributeOnObservableAsPropertyField = new(
         id: "RXUISG0012",
         title: "Invalid property targeted attribute type",
         messageFormat: "The field {0} annotated with [ObservableAsProperty] is using attribute \"{1}\" which was not recognized as a valid type (are you missing a using directive?)",
@@ -81,13 +78,15 @@ internal static class DiagnosticDescriptors
     /// <summary>
     /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a field with <c>[ObservableAsProperty]</c> is using an invalid attribute expression targeting the property.
     /// <para>
-    /// Format: <c>"The field {0} annotated with [ObservableAsProperty] is using attribute "{1}" with an invalid expression (are you passing any incorrect parameters to the attribute constructor?)"</c>.
+    /// Format: <c>"The field {0} annotated with [ObservableAsProperty] is using attribute "{1}" with an invalid expression.</c>
+    /// The attribute constructor parameters might be incorrect.
     /// </para>
     /// </summary>
-    public static readonly DiagnosticDescriptor InvalidPropertyTargetedAttributeExpressionOnObservableAsPropertyField = new DiagnosticDescriptor(
+    internal static readonly DiagnosticDescriptor InvalidPropertyTargetedAttributeExpressionOnObservableAsPropertyField = new(
         id: "RXUISG0013",
         title: "Invalid property targeted attribute expression",
-        messageFormat: "The field {0} annotated with [ObservableAsProperty] is using attribute \"{1}\" with an invalid expression (are you passing any incorrect parameters to the attribute constructor?)",
+        messageFormat: "The field {0} annotated with [ObservableAsProperty] is using attribute \"{1}\" with an invalid expression "
+            + "(are you passing any incorrect parameters to the attribute constructor?)",
         category: "ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
@@ -100,7 +99,7 @@ internal static class DiagnosticDescriptors
     /// Format: <c>"The field {0}.{1} cannot be used to generate an observable property, as its name or type would cause conflicts with other generated members"</c>.
     /// </para>
     /// </summary>
-    public static readonly DiagnosticDescriptor InvalidObservableAsPropertyError = new DiagnosticDescriptor(
+    internal static readonly DiagnosticDescriptor InvalidObservableAsPropertyError = new(
         id: "RXUISG0014",
         title: "Invalid generated property declaration",
         messageFormat: "The field {0}.{1} cannot be used to generate an observable As property, as its name or type would cause conflicts with other generated members",
@@ -116,7 +115,7 @@ internal static class DiagnosticDescriptors
     /// Format: <c>"The field {0}.{1} cannot be used to generate an observable property, as its name or type would cause conflicts with other generated members"</c>.
     /// </para>
     /// </summary>
-    public static readonly DiagnosticDescriptor InvalidReactiveError = new DiagnosticDescriptor(
+    internal static readonly DiagnosticDescriptor InvalidReactiveError = new(
         id: "RXUISG0015",
         title: "Invalid generated property declaration",
         messageFormat: "The field {0}.{1} cannot be used to generate an reactive property, as its name or type would cause conflicts with other generated members",
@@ -126,10 +125,8 @@ internal static class DiagnosticDescriptors
         description: "The fields annotated with [Reactive] cannot result in a property name or have a type that would cause conflicts with other generated members.",
         helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
-    /// <summary>
-    /// The observable as property method has parameters error.
-    /// </summary>
-    public static readonly DiagnosticDescriptor ObservableAsPropertyMethodHasParametersError = new DiagnosticDescriptor(
+    /// <summary>The observable as property method has parameters error.</summary>
+    internal static readonly DiagnosticDescriptor ObservableAsPropertyMethodHasParametersError = new(
         id: "RXUISG0017",
         title: "Invalid generated property declaration",
         messageFormat: "The method {0} cannot be used to generate an observable As property, as it has parameters",
@@ -139,10 +136,8 @@ internal static class DiagnosticDescriptors
         description: "The method annotated with [ObservableAsProperty] cannot currently initialize methods with parameters.",
         helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
-    /// <summary>
-    /// The invalid reactive object error.
-    /// </summary>
-    public static readonly DiagnosticDescriptor InvalidReactiveObjectError = new DiagnosticDescriptor(
+    /// <summary>The invalid reactive object error.</summary>
+    internal static readonly DiagnosticDescriptor InvalidReactiveObjectError = new(
         id: "RXUISG0018",
         title: "Invalid class, does not inherit ReactiveObject",
         messageFormat: "The field {0}.{1} cannot be used to generate an ReactiveUI property, as it is not part of a class that inherits from ReactiveObject",
@@ -152,10 +147,8 @@ internal static class DiagnosticDescriptors
         description: "The fields annotated with [Reactive] or [ObservableAsProperty] must be part of a class that inherits from ReactiveObject.",
         helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
-    /// <summary>
-    /// The invalid reactive object error.
-    /// </summary>
-    public static readonly DiagnosticDescriptor ReadOnlyObservableCollectionTypeRequiredError = new DiagnosticDescriptor(
+    /// <summary>The invalid reactive object error.</summary>
+    internal static readonly DiagnosticDescriptor ReadOnlyObservableCollectionTypeRequiredError = new(
         id: "RXUISG0019",
         title: "Invalid field, does not inherit ReadOnlyObservableCollection",
         messageFormat: "The field {0}.{1} cannot be used to generate an ReadOnlyObservableCollection",

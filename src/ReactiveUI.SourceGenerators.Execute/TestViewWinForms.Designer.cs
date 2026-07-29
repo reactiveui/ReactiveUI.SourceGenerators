@@ -1,4 +1,4 @@
-﻿namespace SGReactiveUI.SourceGenerators.Test
+namespace SGReactiveUI.SourceGenerators.Test
 {
     partial class TestViewWinForms
     {

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -14,7 +14,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ReactiveUI" />
+    <PackageReference Include="ReactiveUI.Reactive" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="ReactiveUI.Reactive" />
   </ItemGroup>
 
 </Project>

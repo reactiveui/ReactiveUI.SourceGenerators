@@ -1,20 +1,22 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
-/// <summary>
-/// Extended unit tests for <see cref="PropertyToReactiveFieldAnalyzer" />.
-/// </summary>
+/// <summary>Extended unit tests for <see cref="PropertyToReactiveFieldAnalyzer" />.</summary>
 public sealed class PropAnalyzerExtTests
 {
-    /// <summary>
-    /// Validates a static property does not trigger the diagnostic.
-    /// </summary>
+    /// <summary>Identifies the diagnostic validated by this test class.</summary>
+    private const string ReactiveFieldDiagnosticId = "RXUISG0016";
+
+    /// <summary>Defines the expected number of diagnostics for the multi-diagnostic test.</summary>
+    private const int ExpectedDiagnosticCount = 3;
+
+    /// <summary>Validates a static property does not trigger the diagnostic.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void StaticNoDiag()
+    public async Task StaticNoDiag()
     {
         const string source = """
             using ReactiveUI;
@@ -27,16 +29,15 @@ public sealed class PropAnalyzerExtTests
             }
             """;
 
-        var diagnostics = GetDiagnostics(source);
+        var diagnostics = await GetDiagnostics(source);
 
-        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
+        await AssertDoesNotContainDiagnostic(diagnostics, ReactiveFieldDiagnosticId);
     }
 
-    /// <summary>
-    /// Validates a property with private setter does not trigger the diagnostic.
-    /// </summary>
+    /// <summary>Validates a property with private setter does not trigger the diagnostic.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void WhenPrivateSetterThenDoesNotReportDiagnostic()
+    public async Task WhenPrivateSetterThenDoesNotReportDiagnostic()
     {
         const string source = """
             using ReactiveUI;
@@ -49,16 +50,15 @@ public sealed class PropAnalyzerExtTests
             }
             """;
 
-        var diagnostics = GetDiagnostics(source);
+        var diagnostics = await GetDiagnostics(source);
 
-        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
+        await AssertDoesNotContainDiagnostic(diagnostics, ReactiveFieldDiagnosticId);
     }
 
-    /// <summary>
-    /// Validates a property with internal setter does not trigger the diagnostic.
-    /// </summary>
+    /// <summary>Validates a property with internal setter does not trigger the diagnostic.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void WhenInternalSetterThenDoesNotReportDiagnostic()
+    public async Task WhenInternalSetterThenDoesNotReportDiagnostic()
     {
         const string source = """
             using ReactiveUI;
@@ -71,16 +71,15 @@ public sealed class PropAnalyzerExtTests
             }
             """;
 
-        var diagnostics = GetDiagnostics(source);
+        var diagnostics = await GetDiagnostics(source);
 
-        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
+        await AssertDoesNotContainDiagnostic(diagnostics, ReactiveFieldDiagnosticId);
     }
 
-    /// <summary>
-    /// Validates a read-only property does not trigger the diagnostic.
-    /// </summary>
+    /// <summary>Validates a read-only property does not trigger the diagnostic.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void WhenReadOnlyPropertyThenDoesNotReportDiagnostic()
+    public async Task WhenReadOnlyPropertyThenDoesNotReportDiagnostic()
     {
         const string source = """
             using ReactiveUI;
@@ -93,16 +92,15 @@ public sealed class PropAnalyzerExtTests
             }
             """;
 
-        var diagnostics = GetDiagnostics(source);
+        var diagnostics = await GetDiagnostics(source);
 
-        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
+        await AssertDoesNotContainDiagnostic(diagnostics, ReactiveFieldDiagnosticId);
     }
 
-    /// <summary>
-    /// Validates a computed property does not trigger the diagnostic.
-    /// </summary>
+    /// <summary>Validates a computed property does not trigger the diagnostic.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void WhenComputedPropertyThenDoesNotReportDiagnostic()
+    public async Task WhenComputedPropertyThenDoesNotReportDiagnostic()
     {
         const string source = """
             using ReactiveUI;
@@ -116,16 +114,15 @@ public sealed class PropAnalyzerExtTests
             }
             """;
 
-        var diagnostics = GetDiagnostics(source);
+        var diagnostics = await GetDiagnostics(source);
 
-        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
+        await AssertDoesNotContainDiagnostic(diagnostics, ReactiveFieldDiagnosticId);
     }
 
-    /// <summary>
-    /// Validates a property with getter body does not trigger the diagnostic.
-    /// </summary>
+    /// <summary>Validates a property with getter body does not trigger the diagnostic.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void WhenPropertyWithGetterBodyThenDoesNotReportDiagnostic()
+    public async Task WhenPropertyWithGetterBodyThenDoesNotReportDiagnostic()
     {
         const string source = """
             using ReactiveUI;
@@ -143,16 +140,15 @@ public sealed class PropAnalyzerExtTests
             }
             """;
 
-        var diagnostics = GetDiagnostics(source);
+        var diagnostics = await GetDiagnostics(source);
 
-        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
+        await AssertDoesNotContainDiagnostic(diagnostics, ReactiveFieldDiagnosticId);
     }
 
-    /// <summary>
-    /// Validates a ReactiveCommand property type is ignored.
-    /// </summary>
+    /// <summary>Validates a ReactiveCommand property type is ignored.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void WhenReactiveCommandPropertyThenDoesNotReportDiagnostic()
+    public async Task WhenReactiveCommandPropertyThenDoesNotReportDiagnostic()
     {
         const string source = """
             using ReactiveUI;
@@ -166,16 +162,15 @@ public sealed class PropAnalyzerExtTests
             }
             """;
 
-        var diagnostics = GetDiagnostics(source);
+        var diagnostics = await GetDiagnostics(source);
 
-        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
+        await AssertDoesNotContainDiagnostic(diagnostics, ReactiveFieldDiagnosticId);
     }
 
-    /// <summary>
-    /// Validates a ViewModelActivator property type is ignored.
-    /// </summary>
+    /// <summary>Validates a ViewModelActivator property type is ignored.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void WhenViewModelActivatorPropertyThenDoesNotReportDiagnostic()
+    public async Task WhenViewModelActivatorPropertyThenDoesNotReportDiagnostic()
     {
         const string source = """
             using ReactiveUI;
@@ -188,16 +183,15 @@ public sealed class PropAnalyzerExtTests
             }
             """;
 
-        var diagnostics = GetDiagnostics(source);
+        var diagnostics = await GetDiagnostics(source);
 
-        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
+        await AssertDoesNotContainDiagnostic(diagnostics, ReactiveFieldDiagnosticId);
     }
 
-    /// <summary>
-    /// Validates a property already annotated with ObservableAsProperty is ignored.
-    /// </summary>
+    /// <summary>Validates a property already annotated with ObservableAsProperty is ignored.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void WhenObservableAsPropertyPresentThenDoesNotReportDiagnostic()
+    public async Task WhenObservableAsPropertyPresentThenDoesNotReportDiagnostic()
     {
         const string source = """
             using ReactiveUI;
@@ -212,16 +206,15 @@ public sealed class PropAnalyzerExtTests
             }
             """;
 
-        var diagnostics = GetDiagnostics(source);
+        var diagnostics = await GetDiagnostics(source);
 
-        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
+        await AssertDoesNotContainDiagnostic(diagnostics, ReactiveFieldDiagnosticId);
     }
 
-    /// <summary>
-    /// Validates multiple public auto-properties trigger multiple diagnostics.
-    /// </summary>
+    /// <summary>Validates multiple public auto-properties trigger multiple diagnostics.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void WhenMultiplePublicAutoPropertiesThenReportsMultipleDiagnostics()
+    public async Task WhenMultiplePublicAutoPropertiesThenReportsMultipleDiagnostics()
     {
         const string source = """
             using ReactiveUI;
@@ -236,16 +229,15 @@ public sealed class PropAnalyzerExtTests
             }
             """;
 
-        var diagnostics = GetDiagnostics(source);
+        var diagnostics = await GetDiagnostics(source);
 
-        AssertDiagnosticCount(diagnostics, "RXUISG0016", 3);
+        await AssertDiagnosticCount(diagnostics, ReactiveFieldDiagnosticId, ExpectedDiagnosticCount);
     }
 
-    /// <summary>
-    /// Validates non-ReactiveObject class does not trigger the diagnostic.
-    /// </summary>
+    /// <summary>Validates non-ReactiveObject class does not trigger the diagnostic.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void WhenNotReactiveObjectThenDoesNotReportDiagnostic()
+    public async Task WhenNotReactiveObjectThenDoesNotReportDiagnostic()
     {
         const string source = """
             namespace TestNs;
@@ -256,16 +248,15 @@ public sealed class PropAnalyzerExtTests
             }
             """;
 
-        var diagnostics = GetDiagnostics(source);
+        var diagnostics = await GetDiagnostics(source);
 
-        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
+        await AssertDoesNotContainDiagnostic(diagnostics, ReactiveFieldDiagnosticId);
     }
 
-    /// <summary>
-    /// Validates IReactiveObject implementation triggers the diagnostic.
-    /// </summary>
+    /// <summary>Validates IReactiveObject implementation triggers the diagnostic.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void WhenIReactiveObjectThenReportsDiagnostic()
+    public async Task WhenIReactiveObjectThenReportsDiagnostic()
     {
         const string source = """
             using ReactiveUI;
@@ -281,16 +272,15 @@ public sealed class PropAnalyzerExtTests
             }
             """;
 
-        var diagnostics = GetDiagnostics(source);
+        var diagnostics = await GetDiagnostics(source);
 
-        AssertContainsDiagnostic(diagnostics, "RXUISG0016");
+        await AssertContainsDiagnostic(diagnostics, ReactiveFieldDiagnosticId);
     }
 
-    /// <summary>
-    /// Validates nested class inheriting ReactiveObject triggers the diagnostic.
-    /// </summary>
+    /// <summary>Validates nested class inheriting ReactiveObject triggers the diagnostic.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void WhenNestedReactiveObjectThenReportsDiagnostic()
+    public async Task WhenNestedReactiveObjectThenReportsDiagnostic()
     {
         const string source = """
             using ReactiveUI;
@@ -306,16 +296,15 @@ public sealed class PropAnalyzerExtTests
             }
             """;
 
-        var diagnostics = GetDiagnostics(source);
+        var diagnostics = await GetDiagnostics(source);
 
-        AssertContainsDiagnostic(diagnostics, "RXUISG0016");
+        await AssertContainsDiagnostic(diagnostics, ReactiveFieldDiagnosticId);
     }
 
-    /// <summary>
-    /// Validates protected property does not trigger the diagnostic.
-    /// </summary>
+    /// <summary>Validates protected property does not trigger the diagnostic.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void WhenProtectedPropertyThenDoesNotReportDiagnostic()
+    public async Task WhenProtectedPropertyThenDoesNotReportDiagnostic()
     {
         const string source = """
             using ReactiveUI;
@@ -328,16 +317,15 @@ public sealed class PropAnalyzerExtTests
             }
             """;
 
-        var diagnostics = GetDiagnostics(source);
+        var diagnostics = await GetDiagnostics(source);
 
-        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
+        await AssertDoesNotContainDiagnostic(diagnostics, ReactiveFieldDiagnosticId);
     }
 
-    /// <summary>
-    /// Validates internal property does not trigger the diagnostic.
-    /// </summary>
+    /// <summary>Validates internal property does not trigger the diagnostic.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void WhenInternalPropertyThenDoesNotReportDiagnostic()
+    public async Task WhenInternalPropertyThenDoesNotReportDiagnostic()
     {
         const string source = """
             using ReactiveUI;
@@ -350,16 +338,15 @@ public sealed class PropAnalyzerExtTests
             }
             """;
 
-        var diagnostics = GetDiagnostics(source);
+        var diagnostics = await GetDiagnostics(source);
 
-        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
+        await AssertDoesNotContainDiagnostic(diagnostics, ReactiveFieldDiagnosticId);
     }
 
-    /// <summary>
-    /// Validates private property does not trigger the diagnostic.
-    /// </summary>
+    /// <summary>Validates private property does not trigger the diagnostic.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void WhenPrivatePropertyThenDoesNotReportDiagnostic()
+    public async Task WhenPrivatePropertyThenDoesNotReportDiagnostic()
     {
         const string source = """
             using ReactiveUI;
@@ -372,16 +359,15 @@ public sealed class PropAnalyzerExtTests
             }
             """;
 
-        var diagnostics = GetDiagnostics(source);
+        var diagnostics = await GetDiagnostics(source);
 
-        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0016");
+        await AssertDoesNotContainDiagnostic(diagnostics, ReactiveFieldDiagnosticId);
     }
 
-    /// <summary>
-    /// Validates property in class directly inheriting ReactiveObject triggers the diagnostic.
-    /// </summary>
+    /// <summary>Validates property in class directly inheriting ReactiveObject triggers the diagnostic.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void DirectInherit()
+    public async Task DirectInherit()
     {
         const string source = """
             using ReactiveUI;
@@ -394,16 +380,15 @@ public sealed class PropAnalyzerExtTests
             }
             """;
 
-        var diagnostics = GetDiagnostics(source);
+        var diagnostics = await GetDiagnostics(source);
 
-        AssertContainsDiagnostic(diagnostics, "RXUISG0016");
+        await AssertContainsDiagnostic(diagnostics, ReactiveFieldDiagnosticId);
     }
 
-    /// <summary>
-    /// Validates init-only property triggers the diagnostic (has init setter).
-    /// </summary>
+    /// <summary>Validates init-only property triggers the diagnostic (has init setter).</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void InitOnlyDiag()
+    public async Task InitOnlyDiag()
     {
         const string source = """
             using ReactiveUI;
@@ -416,17 +401,16 @@ public sealed class PropAnalyzerExtTests
             }
             """;
 
-        var diagnostics = GetDiagnostics(source);
+        var diagnostics = await GetDiagnostics(source);
 
         // Init-only properties have a setter (init), so the analyzer reports them
-        AssertContainsDiagnostic(diagnostics, "RXUISG0016");
+        await AssertContainsDiagnostic(diagnostics, ReactiveFieldDiagnosticId);
     }
 
-    /// <summary>
-    /// Validates required property triggers the diagnostic.
-    /// </summary>
+    /// <summary>Validates required property triggers the diagnostic.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void RequiredDiag()
+    public async Task RequiredDiag()
     {
         const string source = """
             using ReactiveUI;
@@ -439,12 +423,15 @@ public sealed class PropAnalyzerExtTests
             }
             """;
 
-        var diagnostics = GetDiagnostics(source);
+        var diagnostics = await GetDiagnostics(source);
 
-        AssertContainsDiagnostic(diagnostics, "RXUISG0016");
+        await AssertContainsDiagnostic(diagnostics, ReactiveFieldDiagnosticId);
     }
 
-    private static Diagnostic[] GetDiagnostics(string source)
+    /// <summary>Gets diagnostics produced by the analyzer for the supplied source.</summary>
+    /// <param name="source">The source to analyze.</param>
+    /// <returns>A task that resolves to the diagnostics.</returns>
+    private static async Task<Diagnostic[]> GetDiagnostics(string source)
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(source, CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp13));
 
@@ -452,36 +439,68 @@ public sealed class PropAnalyzerExtTests
             assemblyName: "AnalyzerTests",
             syntaxTrees: [syntaxTree],
             references: TestCompilationReferences.CreateDefault(),
-            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            options: new(OutputKind.DynamicallyLinkedLibrary));
 
         var analyzer = new PropertyToReactiveFieldAnalyzer();
 
-        var compilationWithAnalyzers = compilation.WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(analyzer));
-        return compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync().GetAwaiter().GetResult().ToArray();
+        var compilationWithAnalyzers = compilation.WithAnalyzers([analyzer]);
+        return (await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync()).ToArray();
     }
 
-    private static void AssertContainsDiagnostic(IEnumerable<Diagnostic> diagnostics, string diagnosticId)
+    /// <summary>Asserts that the diagnostics contain the specified ID.</summary>
+    /// <param name="diagnostics">The diagnostics to inspect.</param>
+    /// <param name="diagnosticId">The expected diagnostic ID.</param>
+    /// <returns>A task that represents the assertion.</returns>
+    private static async Task AssertContainsDiagnostic(IEnumerable<Diagnostic> diagnostics, string diagnosticId)
     {
-        if (!diagnostics.Any(d => d.Id == diagnosticId))
+        var found = false;
+        foreach (var diagnostic in diagnostics)
         {
-            throw new InvalidOperationException($"Expected diagnostic '{diagnosticId}' was not reported.");
+            if (diagnostic.Id == diagnosticId)
+            {
+                found = true;
+                break;
+            }
         }
+
+        await Assert.That(found).IsTrue();
     }
 
-    private static void AssertDoesNotContainDiagnostic(IEnumerable<Diagnostic> diagnostics, string diagnosticId)
+    /// <summary>Asserts that the diagnostics do not contain the specified ID.</summary>
+    /// <param name="diagnostics">The diagnostics to inspect.</param>
+    /// <param name="diagnosticId">The unexpected diagnostic ID.</param>
+    /// <returns>A task that represents the assertion.</returns>
+    private static async Task AssertDoesNotContainDiagnostic(IEnumerable<Diagnostic> diagnostics, string diagnosticId)
     {
-        if (diagnostics.Any(d => d.Id == diagnosticId))
+        var found = false;
+        foreach (var diagnostic in diagnostics)
         {
-            throw new InvalidOperationException($"Diagnostic '{diagnosticId}' was reported unexpectedly.");
+            if (diagnostic.Id == diagnosticId)
+            {
+                found = true;
+                break;
+            }
         }
+
+        await Assert.That(found).IsFalse();
     }
 
-    private static void AssertDiagnosticCount(IEnumerable<Diagnostic> diagnostics, string diagnosticId, int expectedCount)
+    /// <summary>Asserts that the diagnostics contain the expected number of occurrences of an ID.</summary>
+    /// <param name="diagnostics">The diagnostics to inspect.</param>
+    /// <param name="diagnosticId">The diagnostic ID to count.</param>
+    /// <param name="expectedCount">The expected number of occurrences.</param>
+    /// <returns>A task that represents the assertion.</returns>
+    private static async Task AssertDiagnosticCount(IEnumerable<Diagnostic> diagnostics, string diagnosticId, int expectedCount)
     {
-        var actualCount = diagnostics.Count(d => d.Id == diagnosticId);
-        if (actualCount != expectedCount)
+        var actualCount = 0;
+        foreach (var diagnostic in diagnostics)
         {
-            throw new InvalidOperationException($"Expected {expectedCount} '{diagnosticId}' diagnostics but found {actualCount}.");
+            if (diagnostic.Id == diagnosticId)
+            {
+                actualCount++;
+            }
         }
+
+        await Assert.That(actualCount).IsEqualTo(expectedCount);
     }
 }

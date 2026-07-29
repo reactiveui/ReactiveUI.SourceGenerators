@@ -1,6 +1,5 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System.Diagnostics.CodeAnalysis;
@@ -8,24 +7,18 @@ using Microsoft.CodeAnalysis;
 
 namespace ReactiveUI.SourceGenerators.Extensions;
 
-/// <summary>
-/// Extension methods for the <see cref="SymbolInfo"/> type.
-/// </summary>
+/// <summary>Extension methods for the <see cref="SymbolInfo"/> type.</summary>
 internal static class SymbolInfoExtensions
 {
-    /// <summary>
-    /// Tries to get the resolved attribute type symbol from a given <see cref="SymbolInfo"/> value.
-    /// </summary>
-    /// <param name="symbolInfo">The <see cref="SymbolInfo"/> value to check.</param>
-    /// <param name="typeSymbol">The resulting attribute type symbol, if correctly resolved.</param>
-    /// <returns>Whether <paramref name="symbolInfo"/> is resolved to a symbol.</returns>
-    /// <remarks>
-    /// This can be used to ensure users haven't eg. spelled names incorrecty or missed a using directive. Normally, code would just
-    /// not compile if that was the case, but that doesn't apply for attributes using invalid targets. In that case, Roslyn will ignore
-    /// any errors, meaning the generator has to validate the type symbols are correctly resolved on its own.
-    /// </remarks>
-    public static bool TryGetAttributeTypeSymbol(this SymbolInfo symbolInfo, [NotNullWhen(true)] out INamedTypeSymbol? typeSymbol)
+    /// <summary>Provides extension members for symbol information.</summary>
+    /// <param name="symbolInfo">The symbol information to extend.</param>
+    extension(SymbolInfo symbolInfo)
     {
+        /// <summary>Tries to get the resolved attribute type symbol from this value.</summary>
+        /// <param name="typeSymbol">The resulting attribute type symbol, if correctly resolved.</param>
+        /// <returns>Whether this value is resolved to a symbol.</returns>
+        internal bool TryGetAttributeTypeSymbol([NotNullWhen(true)] out INamedTypeSymbol? typeSymbol)
+        {
         var attributeSymbol = symbolInfo.Symbol;
 
         // If no symbol is selected and there is a single candidate symbol, use that
@@ -45,5 +38,6 @@ internal static class SymbolInfoExtensions
         typeSymbol = resultingSymbol;
 
         return true;
+        }
     }
 }

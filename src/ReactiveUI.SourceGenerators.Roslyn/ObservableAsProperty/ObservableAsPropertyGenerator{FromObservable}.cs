@@ -1,23 +1,23 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
-using System.Linq;
+using System.Collections.Generic;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
+using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
+using ReactiveUI.SourceGenerators.Models;
 
 namespace ReactiveUI.SourceGenerators;
 
-/// <summary>
-/// A source generator for generating reactive properties.
-/// </summary>
+/// <summary>A source generator for generating reactive properties.</summary>
 public sealed partial class ObservableAsPropertyGenerator
 {
+    /// <summary>Registers generation of observable-backed properties declared from methods or properties.</summary>
+    /// <param name="context">The incremental generator initialization context.</param>
     private static void RunObservableAsPropertyFromObservable(in IncrementalGeneratorInitializationContext context)
     {
         // Gather info for all annotated command methods (starting from method declarations with at least one attribute)
@@ -27,42 +27,50 @@ public sealed partial class ObservableAsPropertyGenerator
                 AttributeDefinitions.ObservableAsPropertyAttributeType,
                 static (node, _) => node is MethodDeclarationSyntax or PropertyDeclarationSyntax { Parent: ClassDeclarationSyntax or RecordDeclarationSyntax, AttributeLists.Count: > 0 },
                 static (context, token) => GetObservableInfo(context, token))
-            .Where(x => x != null)
-            .Select((x, _) => x!)
-            .Collect();
+            .Where(static x => x is not null)
+            .Select(static (x, _) => x!)
+            .Collect()
+            .Combine(context.ReactiveUiIntegration());
 
         // Generate the requested properties and methods
         context.RegisterSourceOutput(methodInfo, static (context, input) =>
         {
-            foreach (var diagnostic in input.SelectMany(static x => x.Errors))
+            Dictionary<
+                (string FileHintName, string TargetName, string TargetNamespace, string TargetVisibility, string TargetType),
+                List<ObservableMethodInfo>> groupedPropertyInfo = [];
+
+            foreach (var result in input.Left)
             {
-                // Output the diagnostics
-                context.ReportDiagnostic(diagnostic.ToDiagnostic());
-            }
+                foreach (var diagnostic in result.Errors.AsImmutableArray())
+                {
+                    context.ReportDiagnostic(diagnostic.ToDiagnostic());
+                }
 
-            // Gather all the properties that are valid and group them by the target information.
-            var groupedPropertyInfo = input
-                .Where(static x => x.Value != null)
-                .Select(static x => x.Value!).GroupBy(
-                static info => (info.TargetInfo.FileHintName, info.TargetInfo.TargetName, info.TargetInfo.TargetNamespace, info.TargetInfo.TargetVisibility, info.TargetInfo.TargetType),
-                static info => info)
-                .ToImmutableArray();
-
-            if (groupedPropertyInfo.Length == 0)
-            {
-                return;
-            }
-
-            foreach (var grouping in groupedPropertyInfo)
-            {
-                var items = grouping.ToImmutableArray();
-
-                if (items.Length == 0)
+                if (result.Value is not ObservableMethodInfo propertyInfo)
                 {
                     continue;
                 }
 
-                var source = GenerateObservableSource(grouping.Key.TargetName, grouping.Key.TargetNamespace, grouping.Key.TargetVisibility, grouping.Key.TargetType, [.. grouping]);
+                var targetInfo = propertyInfo.TargetInfo;
+                var key = (targetInfo.FileHintName, targetInfo.TargetName, targetInfo.TargetNamespace, targetInfo.TargetVisibility, targetInfo.TargetType);
+                if (!groupedPropertyInfo.TryGetValue(key, out var properties))
+                {
+                    properties = [];
+                    groupedPropertyInfo.Add(key, properties);
+                }
+
+                properties.Add(propertyInfo);
+            }
+
+            foreach (var grouping in groupedPropertyInfo)
+            {
+                var source = GenerateObservableSource(
+                    grouping.Key.TargetName,
+                    grouping.Key.TargetNamespace,
+                    grouping.Key.TargetVisibility,
+                    grouping.Key.TargetType,
+                    grouping.Value.ToArray(),
+                    input.Right);
                 context.AddSource($"{grouping.Key.FileHintName}.ObservableAsPropertyFromObservable.g.cs", source);
             }
         });

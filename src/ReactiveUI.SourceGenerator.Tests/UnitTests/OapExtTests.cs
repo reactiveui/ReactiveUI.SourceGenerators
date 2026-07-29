@@ -1,18 +1,13 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
-/// <summary>
-/// Extended unit tests for the ObservableAsProperty generator covering edge cases.
-/// </summary>
+/// <summary>Extended unit tests for the ObservableAsProperty generator covering edge cases.</summary>
 public class OapExtTests : TestBase<ObservableAsPropertyGenerator>
 {
-    /// <summary>
-    /// Tests ObservableAsProperty with initial value.
-    /// </summary>
+    /// <summary>Tests ObservableAsProperty with initial value.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromFieldWithInitialValue()
@@ -35,9 +30,7 @@ public class OapExtTests : TestBase<ObservableAsPropertyGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ObservableAsProperty with initial value for numeric type.
-    /// </summary>
+    /// <summary>Tests ObservableAsProperty with initial value for numeric type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromFieldWithNumericInitialValue()
@@ -62,9 +55,7 @@ public class OapExtTests : TestBase<ObservableAsPropertyGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ObservableAsProperty with combined options.
-    /// </summary>
+    /// <summary>Tests ObservableAsProperty with combined options.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromFieldWithCombinedOptions()
@@ -86,9 +77,7 @@ public class OapExtTests : TestBase<ObservableAsPropertyGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ObservableAsProperty with generic types.
-    /// </summary>
+    /// <summary>Tests ObservableAsProperty with generic types.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromFieldWithGenericTypes()
@@ -117,9 +106,7 @@ public class OapExtTests : TestBase<ObservableAsPropertyGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ObservableAsProperty from observable property with generic type.
-    /// </summary>
+    /// <summary>Tests ObservableAsProperty from observable property with generic type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromObservablePropertyWithGenericType()
@@ -147,9 +134,7 @@ public class OapExtTests : TestBase<ObservableAsPropertyGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ObservableAsProperty with nullable types.
-    /// </summary>
+    /// <summary>Tests ObservableAsProperty with nullable types.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromFieldWithNullableTypes()
@@ -177,9 +162,7 @@ public class OapExtTests : TestBase<ObservableAsPropertyGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ObservableAsProperty from observable method with parameters converted.
-    /// </summary>
+    /// <summary>Tests ObservableAsProperty from observable method with parameters converted.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromObservableMethodWithCustomName()
@@ -205,9 +188,7 @@ public class OapExtTests : TestBase<ObservableAsPropertyGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ObservableAsProperty with tuple types.
-    /// </summary>
+    /// <summary>Tests ObservableAsProperty with tuple types.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromFieldWithTupleTypes()
@@ -232,9 +213,7 @@ public class OapExtTests : TestBase<ObservableAsPropertyGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ObservableAsProperty from observable property with tuple.
-    /// </summary>
+    /// <summary>Tests ObservableAsProperty from observable property with tuple.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromObservablePropertyWithTuple()
@@ -258,9 +237,7 @@ public class OapExtTests : TestBase<ObservableAsPropertyGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ObservableAsProperty with array types.
-    /// </summary>
+    /// <summary>Tests ObservableAsProperty with array types.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromFieldWithArrayTypes()
@@ -288,9 +265,7 @@ public class OapExtTests : TestBase<ObservableAsPropertyGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ObservableAsProperty in generic class.
-    /// </summary>
+    /// <summary>Tests ObservableAsProperty in generic class.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromFieldInGenericClass()
@@ -316,9 +291,7 @@ public class OapExtTests : TestBase<ObservableAsPropertyGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ObservableAsProperty with enum types.
-    /// </summary>
+    /// <summary>Tests ObservableAsProperty with enum types.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromFieldWithEnumTypes()
@@ -345,9 +318,7 @@ public class OapExtTests : TestBase<ObservableAsPropertyGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ObservableAsProperty from observable property with enum.
-    /// </summary>
+    /// <summary>Tests ObservableAsProperty from observable property with enum.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromObservablePropertyWithEnum()
@@ -373,9 +344,7 @@ public class OapExtTests : TestBase<ObservableAsPropertyGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests multiple ObservableAsProperty in same class.
-    /// </summary>
+    /// <summary>Tests multiple ObservableAsProperty in same class.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromMultipleObservableAsProperties()
@@ -416,9 +385,7 @@ public class OapExtTests : TestBase<ObservableAsPropertyGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ObservableAsProperty in record class.
-    /// </summary>
+    /// <summary>Tests ObservableAsProperty in record class.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromFieldInRecordClass()
@@ -444,9 +411,7 @@ public class OapExtTests : TestBase<ObservableAsPropertyGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ObservableAsProperty with interface types.
-    /// </summary>
+    /// <summary>Tests ObservableAsProperty with interface types.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromFieldWithInterfaceTypes()
@@ -480,9 +445,7 @@ public class OapExtTests : TestBase<ObservableAsPropertyGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ObservableAsProperty from observable property with interface.
-    /// </summary>
+    /// <summary>Tests ObservableAsProperty from observable property with interface.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromObservablePropertyWithInterface()
@@ -510,9 +473,7 @@ public class OapExtTests : TestBase<ObservableAsPropertyGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ObservableAsProperty with TimeSpan and DateTimeOffset.
-    /// </summary>
+    /// <summary>Tests ObservableAsProperty with TimeSpan and DateTimeOffset.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromFieldWithTimeTypes()
@@ -540,9 +501,7 @@ public class OapExtTests : TestBase<ObservableAsPropertyGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ObservableAsProperty in deeply nested class.
-    /// </summary>
+    /// <summary>Tests ObservableAsProperty in deeply nested class.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromFieldInDeeplyNestedClass()
@@ -589,9 +548,7 @@ public class OapExtTests : TestBase<ObservableAsPropertyGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ObservableAsProperty with delegate types.
-    /// </summary>
+    /// <summary>Tests ObservableAsProperty with delegate types.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromFieldWithDelegateTypes()
@@ -619,9 +576,7 @@ public class OapExtTests : TestBase<ObservableAsPropertyGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ObservableAsProperty with attributes.
-    /// </summary>
+    /// <summary>Tests ObservableAsProperty with attributes.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromFieldWithAttributes()
@@ -654,9 +609,7 @@ public class OapExtTests : TestBase<ObservableAsPropertyGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ObservableAsProperty with complex nested generics from observable.
-    /// </summary>
+    /// <summary>Tests ObservableAsProperty with complex nested generics from observable.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromObservablePropertyWithComplexGenerics()

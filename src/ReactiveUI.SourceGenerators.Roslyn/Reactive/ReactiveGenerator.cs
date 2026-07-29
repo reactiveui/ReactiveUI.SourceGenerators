@@ -1,28 +1,29 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
-using System.Linq;
+using System.Collections.Generic;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
+using ReactiveUI.SourceGenerators.Models;
 
 namespace ReactiveUI.SourceGenerators;
 
-/// <summary>
-/// A source generator for generating reactive properties.
-/// </summary>
+/// <summary>A source generator for generating reactive properties.</summary>
 [Generator(LanguageNames.CSharp)]
 public sealed partial class ReactiveGenerator : IIncrementalGenerator
 {
+    /// <summary>The number of accessors required for a partial property.</summary>
+    private const int RequiredAccessorCount = 2;
+
     /// <inheritdoc/>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        context.RegisterPostInitializationOutput(ctx =>
+        context.RegisterPostInitializationOutput(static ctx =>
         {
             // Add the AccessModifier enum to the compilation
             ctx.AddSource($"{AttributeDefinitions.AccessModifierType}.g.cs", SourceText.From(AttributeDefinitions.GetAccessModifierEnum(), Encoding.UTF8));
@@ -37,102 +38,118 @@ public sealed partial class ReactiveGenerator : IIncrementalGenerator
 #endif
     }
 
-    private static void RunReactiveFromField(IncrementalGeneratorInitializationContext context)
+    /// <summary>Registers generation for fields annotated with <c>ReactiveAttribute</c>.</summary>
+    /// <param name="context">The incremental generator initialization context.</param>
+    private static void RunReactiveFromField(in IncrementalGeneratorInitializationContext context)
     {
         // Gather info for all annotated variable with at least one attribute.
         var propertyInfo =
             context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 AttributeDefinitions.ReactiveAttributeType,
-                static (node, _) => node is VariableDeclaratorSyntax { Parent: VariableDeclarationSyntax { Parent: FieldDeclarationSyntax { Parent: ClassDeclarationSyntax or RecordDeclarationSyntax, AttributeLists.Count: > 0 } } },
+                static (node, _) => node is VariableDeclaratorSyntax
+                {
+                    Parent.Parent: FieldDeclarationSyntax { AttributeLists.Count: > 0 },
+                    Parent.Parent.Parent: ClassDeclarationSyntax or RecordDeclarationSyntax,
+                },
                 static (context, token) => GetVariableInfo(context, token))
-            .Where(x => x != null)
-            .Select((x, _) => x!)
-            .Collect();
+            .Where(static x => x is not null)
+            .Select(static (x, _) => x!)
+            .Collect()
+            .Combine(context.ReactiveUiIntegration());
 
         // Generate the requested properties
         context.RegisterSourceOutput(propertyInfo, static (context, input) =>
         {
-            foreach (var diagnostic in input.SelectMany(static x => x.Errors))
+            Dictionary<
+                (string FileHintName, string TargetName, string TargetNamespace, string TargetVisibility, string TargetType),
+                List<PropertyInfo>> groupedPropertyInfo = [];
+
+            foreach (var result in input.Left)
             {
-                // Output the diagnostics
-                context.ReportDiagnostic(diagnostic.ToDiagnostic());
-            }
+                foreach (var diagnostic in result.Errors.AsImmutableArray())
+                {
+                    context.ReportDiagnostic(diagnostic.ToDiagnostic());
+                }
 
-            // Gather all the properties that are valid and group them by the target information.
-            var groupedPropertyInfo = input
-                .Where(static x => x.Value != null)
-                .Select(static x => x.Value!).GroupBy(
-                static info => (info.TargetInfo.FileHintName, info.TargetInfo.TargetName, info.TargetInfo.TargetNamespace, info.TargetInfo.TargetVisibility, info.TargetInfo.TargetType),
-                static info => info)
-                .ToImmutableArray();
-
-            if (groupedPropertyInfo.Length == 0)
-            {
-                return;
-            }
-
-            foreach (var grouping in groupedPropertyInfo)
-            {
-                var items = grouping.ToImmutableArray();
-
-                if (items.Length == 0)
+                if (result.Value is not PropertyInfo propertyInfo)
                 {
                     continue;
                 }
 
-                var source = GenerateSource(grouping.Key.TargetName, grouping.Key.TargetNamespace, grouping.Key.TargetVisibility, grouping.Key.TargetType, [.. grouping]);
+                var targetInfo = propertyInfo.TargetInfo;
+                var key = (targetInfo.FileHintName, targetInfo.TargetName, targetInfo.TargetNamespace, targetInfo.TargetVisibility, targetInfo.TargetType);
+                if (!groupedPropertyInfo.TryGetValue(key, out var properties))
+                {
+                    properties = [];
+                    groupedPropertyInfo.Add(key, properties);
+                }
+
+                properties.Add(propertyInfo);
+            }
+
+            foreach (var grouping in groupedPropertyInfo)
+            {
+                var source = GenerateSource(grouping.Key.TargetName, grouping.Key.TargetNamespace, grouping.Key.TargetVisibility, grouping.Key.TargetType, grouping.Value.ToArray(), input.Right);
                 context.AddSource($"{grouping.Key.FileHintName}.Properties.g.cs", source);
             }
         });
     }
 
 #if ROSYLN_412 || ROSYLN_500
-    private static void RunReactiveFromProperty(IncrementalGeneratorInitializationContext context)
+    /// <summary>Registers generation for partial properties annotated with <c>ReactiveAttribute</c>.</summary>
+    /// <param name="context">The incremental generator initialization context.</param>
+    private static void RunReactiveFromProperty(in IncrementalGeneratorInitializationContext context)
     {
         // Gather info for all annotated variable with at least one attribute.
         var propertyInfo =
             context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 AttributeDefinitions.ReactiveAttributeType,
-                static (node, _) => node is PropertyDeclarationSyntax { AccessorList.Accessors: { Count: 2 } accessors, AttributeLists.Count: > 0 },
+                static (node, _) => node is PropertyDeclarationSyntax
+                {
+                    AccessorList.Accessors.Count: RequiredAccessorCount,
+                    AttributeLists.Count: > 0,
+                },
                 static (context, token) => GetPropertyInfo(context, token))
-            .Where(x => x != null)
-            .Select((x, _) => x!)
-            .Collect();
+            .Where(static x => x is not null)
+            .Select(static (x, _) => x!)
+            .Collect()
+            .Combine(context.ReactiveUiIntegration());
 
         // Generate the requested properties
         context.RegisterSourceOutput(propertyInfo, static (context, input) =>
         {
-            foreach (var diagnostic in input.SelectMany(static x => x.Errors))
+            Dictionary<
+                (string FileHintName, string TargetName, string TargetNamespace, string TargetVisibility, string TargetType),
+                List<PropertyInfo>> groupedPropertyInfo = [];
+
+            foreach (var result in input.Left)
             {
-                // Output the diagnostics
-                context.ReportDiagnostic(diagnostic.ToDiagnostic());
-            }
+                foreach (var diagnostic in result.Errors.AsImmutableArray())
+                {
+                    context.ReportDiagnostic(diagnostic.ToDiagnostic());
+                }
 
-            // Gather all the properties that are valid and group them by the target information.
-            var groupedPropertyInfo = input
-                .Where(static x => x.Value != null)
-                .Select(static x => x.Value!).GroupBy(
-                static info => (info.TargetInfo.FileHintName, info.TargetInfo.TargetName, info.TargetInfo.TargetNamespace, info.TargetInfo.TargetVisibility, info.TargetInfo.TargetType),
-                static info => info)
-                .ToImmutableArray();
-
-            if (groupedPropertyInfo.Length == 0)
-            {
-                return;
-            }
-
-            foreach (var grouping in groupedPropertyInfo)
-            {
-                var items = grouping.ToImmutableArray();
-
-                if (items.Length == 0)
+                if (result.Value is not PropertyInfo propertyInfo)
                 {
                     continue;
                 }
 
-                var source = GenerateSource(grouping.Key.TargetName, grouping.Key.TargetNamespace, grouping.Key.TargetVisibility, grouping.Key.TargetType, [.. grouping]);
+                var targetInfo = propertyInfo.TargetInfo;
+                var key = (targetInfo.FileHintName, targetInfo.TargetName, targetInfo.TargetNamespace, targetInfo.TargetVisibility, targetInfo.TargetType);
+                if (!groupedPropertyInfo.TryGetValue(key, out var properties))
+                {
+                    properties = [];
+                    groupedPropertyInfo.Add(key, properties);
+                }
+
+                properties.Add(propertyInfo);
+            }
+
+            foreach (var grouping in groupedPropertyInfo)
+            {
+                var source = GenerateSource(grouping.Key.TargetName, grouping.Key.TargetNamespace, grouping.Key.TargetVisibility, grouping.Key.TargetType, grouping.Value.ToArray(), input.Right);
                 context.AddSource($"{grouping.Key.FileHintName}.PartialProperties.g.cs", source);
             }
         });

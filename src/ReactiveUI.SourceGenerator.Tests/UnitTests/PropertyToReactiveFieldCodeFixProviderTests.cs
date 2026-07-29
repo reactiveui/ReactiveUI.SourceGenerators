@@ -1,48 +1,36 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using Microsoft.CodeAnalysis.CodeFixes;
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
-/// <summary>
-/// Unit tests for <see cref="PropertyToReactiveFieldCodeFixProvider" />.
-/// </summary>
+/// <summary>Unit tests for <see cref="PropertyToReactiveFieldCodeFixProvider" />.</summary>
 public sealed class PropertyToReactiveFieldCodeFixProviderTests
 {
-    /// <summary>
-    /// Validates the code fix provider advertises the expected diagnostic ID.
-    /// </summary>
+    /// <summary>Validates the code fix provider advertises the expected diagnostic ID.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void FixableDiagnosticIdsIncludesReactiveFieldRule()
+    public async Task FixableDiagnosticIdsIncludesReactiveFieldRule()
     {
         var provider = new PropertyToReactiveFieldCodeFixProvider();
-        if (!provider.FixableDiagnosticIds.Contains("RXUISG0016"))
-        {
-            throw new InvalidOperationException("Expected RXUISG0016 to be fixable.");
-        }
+        await Assert.That(provider.FixableDiagnosticIds.Contains("RXUISG0016")).IsTrue();
     }
 
-    /// <summary>
-    /// Validates the code fix provider exposes a fix-all implementation.
-    /// </summary>
+    /// <summary>Validates the code fix provider exposes a fix-all implementation.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void GetFixAllProviderReturnsBatchFixer()
+    public async Task GetFixAllProviderReturnsBatchFixer()
     {
         var provider = new PropertyToReactiveFieldCodeFixProvider();
-        if (provider.GetFixAllProvider() is null)
-        {
-            throw new InvalidOperationException("Expected a fix-all provider.");
-        }
+        await Assert.That(provider.GetFixAllProvider()).IsNotNull();
     }
 
-    /// <summary>
-    /// Validates a public auto-property is converted to a private field annotated with <c>[Reactive]</c>.
-    /// </summary>
+    /// <summary>Validates a public auto-property is converted to a private field annotated with <c>[Reactive]</c>.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void WhenApplyingFixThenConvertsPropertyToReactiveField()
+    public async Task WhenApplyingFixThenConvertsPropertyToReactiveField()
     {
         const string source = """
             using ReactiveUI;
@@ -55,14 +43,17 @@ public sealed class PropertyToReactiveFieldCodeFixProviderTests
             }
             """;
 
-        var fixedSource = ApplyFix(source);
+        var fixedSource = await ApplyFix(source);
 
-        AssertContains(fixedSource, "[ReactiveUI.SourceGenerators.Reactive]");
-        AssertContains(fixedSource, "private bool _isVisible");
-        AssertDoesNotContain(fixedSource, "public bool IsVisible");
+        await Assert.That(fixedSource.Contains("[ReactiveUI.SourceGenerators.Reactive]", StringComparison.Ordinal)).IsTrue();
+        await Assert.That(fixedSource.Contains("private bool _isVisible", StringComparison.Ordinal)).IsTrue();
+        await Assert.That(fixedSource.Contains("public bool IsVisible", StringComparison.Ordinal)).IsFalse();
     }
 
-    private static string ApplyFix(string source)
+    /// <summary>Applies the code fix to the supplied source.</summary>
+    /// <param name="source">The source to fix.</param>
+    /// <returns>A task that resolves to the fixed source.</returns>
+    private static async Task<string> ApplyFix(string source)
     {
         var tree = CSharpSyntaxTree.ParseText(source, CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp13));
 
@@ -71,12 +62,10 @@ public sealed class PropertyToReactiveFieldCodeFixProviderTests
             "CodeFixTests",
             syntaxTrees: [tree],
             references: TestCompilationReferences.CreateDefault(),
-            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            options: new(OutputKind.DynamicallyLinkedLibrary));
 
-        var diagnostic = compilation.WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(analyzer))
-            .GetAnalyzerDiagnosticsAsync()
-            .GetAwaiter().GetResult()
-            .Single(d => d.Id == "RXUISG0016");
+        var diagnostics = await compilation.WithAnalyzers([analyzer]).GetAnalyzerDiagnosticsAsync();
+        var diagnostic = diagnostics.Single(static d => d.Id == "RXUISG0016");
 
         using var workspace = new AdhocWorkspace();
         var project = workspace.CurrentSolution
@@ -100,28 +89,12 @@ public sealed class PropertyToReactiveFieldCodeFixProviderTests
             (a, _) => actions.Add(a),
             CancellationToken.None);
 
-        provider.RegisterCodeFixesAsync(context).GetAwaiter().GetResult();
+        await provider.RegisterCodeFixesAsync(context);
 
-        var operation = actions.Single().GetOperationsAsync(CancellationToken.None).GetAwaiter().GetResult().Single();
+        var operation = (await actions[0].GetOperationsAsync(CancellationToken.None))[0];
         operation.Apply(document.Project.Solution.Workspace, CancellationToken.None);
 
         var updatedDoc = document.Project.Solution.Workspace.CurrentSolution.GetDocument(document.Id);
-        return updatedDoc!.GetTextAsync(CancellationToken.None).GetAwaiter().GetResult().ToString();
-    }
-
-    private static void AssertContains(string actual, string expected)
-    {
-        if (!actual.Contains(expected, StringComparison.Ordinal))
-        {
-            throw new InvalidOperationException($"Expected output to contain '{expected}'.");
-        }
-    }
-
-    private static void AssertDoesNotContain(string actual, string unexpected)
-    {
-        if (actual.Contains(unexpected, StringComparison.Ordinal))
-        {
-            throw new InvalidOperationException($"Expected output not to contain '{unexpected}'.");
-        }
+        return (await updatedDoc!.GetTextAsync(CancellationToken.None)).ToString();
     }
 }

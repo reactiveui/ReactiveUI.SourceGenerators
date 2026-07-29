@@ -13,7 +13,7 @@ namespace TestNs
         /// <inheritdoc cref="value"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public string Value
-        { 
+        {
             get => value;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("this.value")]
             set

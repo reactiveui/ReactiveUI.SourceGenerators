@@ -1,18 +1,13 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
-/// <summary>
-/// Extended unit tests for the IViewFor generator covering edge cases.
-/// </summary>
+/// <summary>Extended unit tests for the IViewFor generator covering edge cases.</summary>
 public class ViewForExtTests : TestBase<IViewForGenerator>
 {
-    /// <summary>
-    /// Tests IViewFor with LazySingleton registration type.
-    /// </summary>
+    /// <summary>Tests IViewFor with LazySingleton registration type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task LazySingle()
@@ -40,9 +35,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests IViewFor with Constant registration type.
-    /// </summary>
+    /// <summary>Tests IViewFor with Constant registration type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Constant()
@@ -70,9 +63,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests IViewFor with PerRequest registration type.
-    /// </summary>
+    /// <summary>Tests IViewFor with PerRequest registration type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task PerReq()
@@ -100,9 +91,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests IViewFor with ViewModel registration.
-    /// </summary>
+    /// <summary>Tests IViewFor with ViewModel registration.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromIViewForWithViewModelRegistration()
@@ -132,9 +121,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests IViewFor with nested ViewModel.
-    /// </summary>
+    /// <summary>Tests IViewFor with nested ViewModel.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Nested()
@@ -167,9 +154,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests IViewFor with string-based ViewModel type.
-    /// </summary>
+    /// <summary>Tests IViewFor with string-based ViewModel type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromIViewForWithStringViewModelType()
@@ -197,9 +182,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests IViewFor with different namespaces for View and ViewModel.
-    /// </summary>
+    /// <summary>Tests IViewFor with different namespaces for View and ViewModel.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task DiffNs()
@@ -234,9 +217,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests multiple IViewFor in same namespace.
-    /// </summary>
+    /// <summary>Tests multiple IViewFor in same namespace.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromMultipleIViewForInSameNamespace()
@@ -286,9 +267,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests IViewFor with generic ViewModel.
-    /// </summary>
+    /// <summary>Tests IViewFor with generic ViewModel.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Generic()
@@ -316,9 +295,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests IViewFor with record ViewModel.
-    /// </summary>
+    /// <summary>Tests IViewFor with record ViewModel.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Record()
@@ -347,9 +324,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests IViewFor with deeply nested View class.
-    /// </summary>
+    /// <summary>Tests IViewFor with deeply nested View class.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromIViewForWithNestedViewClass()
@@ -383,9 +358,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests IViewFor with ViewModel having reactive properties.
-    /// </summary>
+    /// <summary>Tests IViewFor with ViewModel having reactive properties.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromIViewForWithReactivePropertiesViewModel()
@@ -420,9 +393,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests IViewFor with ViewModel having ReactiveCommands.
-    /// </summary>
+    /// <summary>Tests IViewFor with ViewModel having ReactiveCommands.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromIViewForWithReactiveCommandsViewModel()
@@ -459,9 +430,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests IViewFor with all registration options.
-    /// </summary>
+    /// <summary>Tests IViewFor with all registration options.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task AllRegOpts()
@@ -491,9 +460,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests IViewFor with interface ViewModel type via string.
-    /// </summary>
+    /// <summary>Tests IViewFor with interface ViewModel type via string.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Interface()
@@ -526,9 +493,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests IViewFor with ViewModel from external namespace reference.
-    /// </summary>
+    /// <summary>Tests IViewFor with ViewModel from external namespace reference.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task ExtNs()
