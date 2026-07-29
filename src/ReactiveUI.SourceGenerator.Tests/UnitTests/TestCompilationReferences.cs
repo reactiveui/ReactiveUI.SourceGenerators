@@ -44,7 +44,39 @@ internal static class TestCompilationReferences
         }
         namespace System.Windows.Forms
         {
-            public class Control { }
+            public enum DockStyle
+            {
+                None,
+                Fill,
+            }
+
+            public class Control : global::System.ComponentModel.Component
+            {
+                public ControlCollection Controls { get; } = new();
+                public DockStyle Dock { get; set; }
+                public void SuspendLayout() { }
+                public void ResumeLayout() { }
+            }
+
+            public sealed class ControlCollection : global::System.Collections.Generic.IEnumerable<Control>
+            {
+                private readonly global::System.Collections.Generic.List<Control> controls = new();
+
+                public int Count => controls.Count;
+                public void Add(Control control) => controls.Add(control);
+                public void Clear() => controls.Clear();
+                public void Remove(Control? control)
+                {
+                    if (control is not null)
+                    {
+                        controls.Remove(control);
+                    }
+                }
+
+                public global::System.Collections.Generic.IEnumerator<Control> GetEnumerator() => controls.GetEnumerator();
+                global::System.Collections.IEnumerator global::System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+            }
+
             public class Form : Control { }
             public class UserControl : Control { }
         }
@@ -58,7 +90,18 @@ internal static class TestCompilationReferences
     /// performed once per process, not on every test invocation.
     /// </summary>
     private static readonly Lazy<ImmutableArray<MetadataReference>> defaultReferences =
-        new(CreateDefaultCore, LazyThreadSafetyMode.ExecutionAndPublication);
+        new(
+            static () => CreateDefaultCore(includeWindowsDesktop: true),
+            LazyThreadSafetyMode.ExecutionAndPublication);
+
+    /// <summary>
+    /// Cache the platform-neutral references used with source stubs for deterministic
+    /// Windows desktop generator tests on every operating system.
+    /// </summary>
+    private static readonly Lazy<ImmutableArray<MetadataReference>> portableDefaultReferences =
+        new(
+            static () => CreateDefaultCore(includeWindowsDesktop: false),
+            LazyThreadSafetyMode.ExecutionAndPublication);
 
     /// <summary>
     /// Returns metadata references for all assemblies required by the in-memory test compilations.
@@ -68,6 +111,13 @@ internal static class TestCompilationReferences
     /// </summary>
     /// <returns>The cached default metadata-reference closure.</returns>
     internal static ImmutableArray<MetadataReference> CreateDefault() => defaultReferences.Value;
+
+    /// <summary>
+    /// Returns the default metadata-reference closure without platform-specific Windows
+    /// desktop assemblies so source stubs can be used consistently on every operating system.
+    /// </summary>
+    /// <returns>The cached platform-neutral metadata-reference closure.</returns>
+    internal static ImmutableArray<MetadataReference> CreatePortableDefault() => portableDefaultReferences.Value;
 
     /// <summary>Creates an isolated transitive metadata-reference closure from the supplied assembly roots.</summary>
     /// <param name="assemblies">The assemblies whose dependency closures should be included.</param>
@@ -86,7 +136,10 @@ internal static class TestCompilationReferences
 
     /// <summary>Builds the default metadata-reference closure.</summary>
     /// <returns>The default metadata-reference closure.</returns>
-    private static ImmutableArray<MetadataReference> CreateDefaultCore()
+    /// <param name="includeWindowsDesktop">
+    /// Whether to add installed Windows desktop shared-framework assemblies on Windows.
+    /// </param>
+    private static ImmutableArray<MetadataReference> CreateDefaultCore(bool includeWindowsDesktop)
     {
         var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var result = ImmutableArray.CreateBuilder<MetadataReference>();
@@ -113,7 +166,7 @@ internal static class TestCompilationReferences
 
         // Add WPF and WinForms assemblies on Windows so test source strings that inherit from
         // Window or use Windows Forms controls compile correctly.
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (includeWindowsDesktop && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             AddWindowsDesktopAssemblies(visited, result);
         }

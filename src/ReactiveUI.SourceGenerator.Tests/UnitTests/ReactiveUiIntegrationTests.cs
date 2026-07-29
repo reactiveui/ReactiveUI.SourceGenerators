@@ -206,14 +206,21 @@ public sealed class ReactiveUiIntegrationTests
         string generatedHintSuffix)
         where TGenerator : IIncrementalGenerator, new()
     {
+        var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Preview);
         var compilation = CSharpCompilation.Create(
             "WinFormsHostConsumer",
-            [CSharpSyntaxTree.ParseText(SourceText.From(source, Encoding.UTF8), CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Preview))],
-            TestCompilationReferences.CreateDefault(),
+            [
+                CSharpSyntaxTree.ParseText(SourceText.From(source, Encoding.UTF8), parseOptions),
+                CSharpSyntaxTree.ParseText(
+                    SourceText.From(TestCompilationReferences.WindowsDesktopStubs, Encoding.UTF8),
+                    parseOptions,
+                    path: "WindowsDesktopStubs.g.cs"),
+            ],
+            TestCompilationReferences.CreatePortableDefault(),
             new(OutputKind.DynamicallyLinkedLibrary));
         GeneratorDriver driver = CSharpGeneratorDriver
             .Create([new TGenerator()])
-            .WithUpdatedParseOptions((CSharpParseOptions)compilation.SyntaxTrees.First().Options);
+            .WithUpdatedParseOptions(parseOptions);
         driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
         foreach (var generatorResult in driver.GetRunResult().Results)
         {
