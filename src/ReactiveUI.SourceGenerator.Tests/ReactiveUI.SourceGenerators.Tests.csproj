@@ -64,7 +64,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ReactiveUI.SourceGenerators.Analyzers.CodeFixes\ReactiveUI.SourceGenerators.Analyzers.CodeFixes.csproj" />
-    <ProjectReference Include="..\ReactiveUI.SourceGenerators.Roslyn4140\ReactiveUI.SourceGenerators.Roslyn4140.csproj" />
+    <ProjectReference Include="..\ReactiveUI.SourceGenerators.Roslyn4140\ReactiveUI.SourceGenerators.Roslyn4140.csproj">
+      <Aliases>global,RoslynSourceGenerator</Aliases>
+    </ProjectReference>
   </ItemGroup>
 
 </Project>

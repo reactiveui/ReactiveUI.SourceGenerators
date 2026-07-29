@@ -24,6 +24,9 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Common" PrivateAssets="all" VersionOverride="4.8.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" PrivateAssets="all" VersionOverride="4.8.0" />
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="ReactiveUI.SourceGenerators.Tests" />
+  </ItemGroup>
   <!-- This ensures the library will be packaged as a source generator when we use `dotnet pack` -->
   <ItemGroup>
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />

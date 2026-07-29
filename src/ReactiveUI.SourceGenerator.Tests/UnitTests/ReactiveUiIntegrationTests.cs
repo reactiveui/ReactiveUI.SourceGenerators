@@ -17,6 +17,9 @@ public sealed class ReactiveUiIntegrationTests
     /// <summary>The number of source callbacks in a generated CombineLatest subscription.</summary>
     private const int CombineLatestCallbackCount = 2;
 
+    /// <summary>The fully qualified System.Reactive unit type name.</summary>
+    private const string SystemReactiveUnitTypeName = "global::System.Reactive.Unit";
+
     /// <summary>
     /// Verifies that ReactiveUI 24 base output uses Primitives even when System.Reactive is
     /// independently available to the consuming compilation.
@@ -46,6 +49,10 @@ public sealed class ReactiveUiIntegrationTests
         var integration = compilation.GetReactiveUiIntegration();
 
         await Assert.That(integration.Api).IsEqualTo(ReactiveUiApi.Primitives);
+        await Assert.That(integration.Namespace).IsEqualTo("global::ReactiveUI");
+        await Assert.That(integration.DeclarationNamespace).IsEqualTo("ReactiveUI");
+        await Assert.That(integration.VoidTypeName).IsEqualTo("global::ReactiveUI.Primitives.RxVoid");
+        await Assert.That(integration.UsingDirectives).IsEqualTo("using ReactiveUI;");
         await Assert.That(generatedSource.Contains("global::ReactiveUI.Primitives.RxVoid", StringComparison.Ordinal)).IsTrue();
         await Assert.That(generatedSource.Contains("global::System.Reactive", StringComparison.Ordinal)).IsFalse();
         await Assert.That(GetErrors(compilation)).IsEmpty();
@@ -83,8 +90,12 @@ public sealed class ReactiveUiIntegrationTests
         var integration = compilation.GetReactiveUiIntegration();
 
         await Assert.That(integration.Api).IsEqualTo(ReactiveUiApi.SystemReactive);
+        await Assert.That(integration.Namespace).IsEqualTo("global::ReactiveUI.Reactive");
+        await Assert.That(integration.DeclarationNamespace).IsEqualTo("ReactiveUI.Reactive");
+        await Assert.That(integration.VoidTypeName).IsEqualTo(SystemReactiveUnitTypeName);
+        await Assert.That(integration.UsingDirectives).IsEqualTo("using ReactiveUI;\nusing ReactiveUI.Reactive;");
         await Assert.That(generatedSource.Contains("global::ReactiveUI.Reactive.ReactiveCommand", StringComparison.Ordinal)).IsTrue();
-        await Assert.That(generatedSource.Contains("global::System.Reactive.Unit", StringComparison.Ordinal)).IsTrue();
+        await Assert.That(generatedSource.Contains(SystemReactiveUnitTypeName, StringComparison.Ordinal)).IsTrue();
         await Assert.That(GetErrors(compilation)).IsEmpty();
     }
 
@@ -123,7 +134,7 @@ public sealed class ReactiveUiIntegrationTests
         await Assert.That(integration.Api).IsEqualTo(ReactiveUiApi.Legacy);
         await Assert.That(integration.IsNewerThan22).IsTrue();
         await Assert.That(generatedSource.Contains("global::ReactiveUI.ReactiveCommand", StringComparison.Ordinal)).IsTrue();
-        await Assert.That(generatedSource.Contains("global::System.Reactive.Unit", StringComparison.Ordinal)).IsTrue();
+        await Assert.That(generatedSource.Contains(SystemReactiveUnitTypeName, StringComparison.Ordinal)).IsTrue();
         await Assert.That(GetErrors(compilation)).IsEmpty();
     }
 
