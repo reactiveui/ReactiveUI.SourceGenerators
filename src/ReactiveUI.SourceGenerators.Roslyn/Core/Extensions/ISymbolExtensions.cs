@@ -141,8 +141,8 @@ internal static class ISymbolExtensions
             Accessibility.Private => "private",
             Accessibility.Internal => "internal",
             Accessibility.Protected => "protected",
-            Accessibility.ProtectedAndInternal => "protected internal",
-            Accessibility.ProtectedOrInternal => "private protected",
+            Accessibility.ProtectedAndInternal => "private protected",
+            Accessibility.ProtectedOrInternal => "protected internal",
             _ => throw new InvalidOperationException("unknown accessibility")
         };
     }

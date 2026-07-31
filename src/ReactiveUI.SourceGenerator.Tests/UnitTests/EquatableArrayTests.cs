@@ -229,6 +229,22 @@ public sealed class EquatableArrayTests
         await Assert.That(a.Equals(null)).IsFalse();
     }
 
+    /// <summary>Default arrays and unequal boxed arrays cover the empty backing-store paths.</summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Test]
+    public async Task DefaultAndUnequalBoxedArraysUseValueSemantics()
+    {
+        var empty = default(EquatableArray<int>);
+        var populated = ImmutableArray.Create(FirstValue).AsEquatableArray();
+        object unequal = ImmutableArray.Create(SecondValue).AsEquatableArray();
+
+        await Assert.That(empty.Length).IsEqualTo(0);
+        await Assert.That(empty.Count).IsEqualTo(0);
+        await Assert.That(empty.GetHashCode()).IsEqualTo(0);
+        await Assert.That(empty.Equals(populated)).IsFalse();
+        await Assert.That(populated.Equals(unequal)).IsFalse();
+    }
+
     /// <summary>AsImmutableArray round-trips back to ImmutableArray.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]

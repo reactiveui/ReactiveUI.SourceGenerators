@@ -41,6 +41,11 @@ internal sealed class ObservableAsPropertyAttribute : global::System.Attribute
     public bool UseProtected { get; init; } = false;
 
     /// <summary>
+    /// Gets the inheritance modifier of the generated property.
+    /// </summary>
+    public InheritanceModifier Inheritance { get; init; }
+
+    /// <summary>
     /// Gets the Initial Value of the OAPH property. 
     /// This should be a string representation of the value. i.e. "42" or "DateTime.Now" or "new List&lt;string&gt;()".
     /// String values are automatically quoted.

@@ -142,6 +142,41 @@ public sealed class AttributeDataExtensionTests
         await Assert.That(value).IsTrue();
     }
 
+    /// <summary>Named-argument conversion covers enum, null, invalid-cast, format, and overflow paths.</summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Test]
+    public async Task NamedArgumentConversionsHandleSupportedAndRejectedValues()
+    {
+        const string source = """
+            using System;
+            namespace T;
+            [AttributeUsage(AttributeTargets.Class)]
+            public sealed class ConversionAttribute : Attribute
+            {
+                public string? NullText { get; set; }
+                public string Text { get; set; } = string.Empty;
+                public string EnumText { get; set; } = string.Empty;
+                public int Large { get; set; }
+                public DayOfWeek Day { get; set; }
+            }
+            [Conversion(NullText = null, Text = "not-number", EnumText = "Friday", Large = 300, Day = DayOfWeek.Friday)]
+            public class C { }
+            """;
+        var attribute = GetAttribute(source, "T.C", "ConversionAttribute");
+
+        await Assert.That(attribute.TryGetNamedArgument("NullText", out string? nullText)).IsFalse();
+        await Assert.That(nullText).IsNull();
+        await Assert.That(attribute.TryGetNamedArgument("Text", out int invalidNumber)).IsFalse();
+        await Assert.That(invalidNumber).IsEqualTo(0);
+        await Assert.That(attribute.GetNamedArgument<Guid>("Text")).IsEqualTo(Guid.Empty);
+        await Assert.That(attribute.GetNamedArgument<byte>("Large")).IsEqualTo((byte)0);
+        await Assert.That(attribute.GetNamedArgument<DayOfWeek>("Text")).IsEqualTo(default(DayOfWeek));
+        await Assert.That(attribute.GetNamedArgument<DayOfWeek>("EnumText")).IsEqualTo(DayOfWeek.Friday);
+        await Assert.That(attribute.GetNamedArgument<DayOfWeek>("Day")).IsEqualTo(DayOfWeek.Friday);
+        await Assert.That(attribute.GetNamedArgument<int>("Day")).IsEqualTo((int)DayOfWeek.Friday);
+        await Assert.That(attribute.GetNamedArgument<string>("Large")).IsEqualTo("300");
+    }
+
     /// <summary>GetNamedArgument returns the value when the argument is present.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
@@ -241,6 +276,29 @@ public sealed class AttributeDataExtensionTests
         List<string?> args = [.. attribute.GetConstructorArguments<string>()];
 
         await Assert.That(args.Count).IsEqualTo(0);
+    }
+
+    /// <summary>GetConstructorArguments recursively flattens params arrays and preserves null entries.</summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Test]
+    public async Task WhenParamsArrayContainsNullThenConstructorArgumentsAreFlattened()
+    {
+        const string source = """
+            using System;
+            namespace T;
+            [AttributeUsage(AttributeTargets.Class)]
+            public sealed class ArrayValuesAttribute : Attribute
+            {
+                public ArrayValuesAttribute(params string?[] values) { }
+            }
+            [ArrayValues("first", null, "last")]
+            public class C { }
+            """;
+        var attribute = GetAttribute(source, "T.C", "ArrayValuesAttribute");
+
+        List<string?> arguments = [.. attribute.GetConstructorArguments<string>()];
+
+        await Assert.That(arguments).IsEquivalentTo(["first", null, "last"]);
     }
 
     /// <summary>GetGenericType returns the type argument name for a generic attribute.</summary>

@@ -366,12 +366,7 @@ $$"""
 
         var isPartialProperty = string.Empty;
         var propertyType = propertyInfo.ObservableType;
-        var isStringProperty = propertyType.EndsWith("##string", System.StringComparison.Ordinal)
-            || propertyType.EndsWith("##string?", System.StringComparison.Ordinal);
-        string? initVal = isStringProperty
-            ? $""" = "{propertyInfo.InitialValue}";"""
-            : $" = {propertyInfo.InitialValue};";
-        var initialValue = string.IsNullOrWhiteSpace(propertyInfo.InitialValue) ? ";" : initVal;
+        var initialValue = GetInitialValueSyntax(propertyType, propertyInfo.InitialValue);
         if (propertyInfo.IsFromPartialProperty)
         {
             isPartialProperty = "partial ";
@@ -398,6 +393,25 @@ $$"""
         {{propertyAttributes}}
         public {{isPartialProperty}}{{propertyType}} {{propertyInfo.PropertyName}} { get => {{getterArrowExpression}}; }
 """;
+    }
+
+    /// <summary>Formats an optional initial value for an observable-backed generated field.</summary>
+    /// <param name="propertyType">The generated property type or partial-property marker.</param>
+    /// <param name="initialValue">The configured initial value.</param>
+    /// <returns>The field initializer suffix.</returns>
+    private static string GetInitialValueSyntax(string propertyType, string? initialValue)
+    {
+        if (initialValue is null || string.IsNullOrWhiteSpace(initialValue))
+        {
+            return ";";
+        }
+
+        var isStringProperty = propertyType is "string" or "string?"
+            || propertyType.EndsWith("##string", System.StringComparison.Ordinal)
+            || propertyType.EndsWith("##string?", System.StringComparison.Ordinal);
+        return isStringProperty
+            ? $" = {Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(initialValue, quote: true)};"
+            : $" = {initialValue};";
     }
 
     /// <summary>Generates the initialization method for observable property helpers.</summary>

@@ -127,7 +127,7 @@ public sealed partial class ObservableAsPropertyGenerator
     private static (bool? IsReadonly, string Accessibility, string Inheritance) GetAttributeOptions(AttributeData attributeData)
     {
         _ = attributeData.TryGetNamedArgument("ReadOnly", out bool? isReadonly);
-        _ = attributeData.TryGetNamedArgument("Inheritance", out int? inheritanceArgument);
+        _ = attributeData.TryGetNamedArgument("Inheritance", out int inheritanceArgument);
         _ = attributeData.TryGetNamedArgument("UseProtected", out bool useProtected);
 
         const int OverrideInheritance = 2;
@@ -250,7 +250,7 @@ $$"""
         /// <inheritdoc cref="{{propertyInfo.FieldName}}"/>
         [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
         {{propertyAttributes}}
-        public {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} {{getter}}
+        public{{propertyInfo.Inheritance}} {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.PropertyName}} {{getter}}
 """;
     }
 

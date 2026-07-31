@@ -3,8 +3,6 @@
 // See the LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Immutable;
-using System.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -60,19 +58,6 @@ public partial class RoutedControlHostGenerator
 
         token.ThrowIfCancellationRequested();
 
-        var compilation = context.SemanticModel.Compilation;
-        var semanticModel = compilation.GetSemanticModel(context.SemanticModel.SyntaxTree);
-        attributeData.GatherForwardedAttributesFromClass(semanticModel, declaredClass, token, out var attributesInfo);
-        var classAttributesBuilder = ImmutableArray.CreateBuilder<string>(attributesInfo.Length);
-        foreach (var attributeInfo in attributesInfo)
-        {
-            classAttributesBuilder.Add(attributeInfo.ToString());
-        }
-
-        var classAttributesInfo = classAttributesBuilder.ToImmutable();
-
-        token.ThrowIfCancellationRequested();
-
         // Get the containing type info
         var targetInfo = TargetInfo.From(classSymbol);
 
@@ -85,8 +70,7 @@ public partial class RoutedControlHostGenerator
             targetInfo.TargetNamespaceWithNamespace,
             targetInfo.TargetVisibility,
             targetInfo.TargetType,
-            baseTypeName,
-            classAttributesInfo);
+            baseTypeName);
     };
 
     /// <summary>Gets the routed control host source renderer.</summary>
@@ -98,8 +82,7 @@ public partial class RoutedControlHostGenerator
         vmcInfo,
         integration) =>
     {
-        // Prepare any forwarded property attributes
-        var forwardedAttributesString = GetForwardedAttributes(vmcInfo.ForwardedAttributes);
+        var generatedAttributesString = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage);
         var exceptionHandler = integration.IsNewerThan22
             ? "RxState.DefaultExceptionHandler!.OnNext"
             : "RxApp.DefaultExceptionHandler!.OnNext";
@@ -122,7 +105,7 @@ using System.Windows.Forms;
 #nullable enable
 namespace {{containingNamespace}}
 {
-    {{forwardedAttributesString}}
+    {{generatedAttributesString}}
     [DefaultProperty("ViewModel")]
     [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
     {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}} : {{vmcInfo.BaseTypeName}}, IReactiveObject
@@ -573,37 +556,5 @@ namespace {{containingNamespace}}
     {
         using var arguments = attributeData.GetConstructorArguments<string>().GetEnumerator();
         return arguments.MoveNext() ? arguments.Current : null;
-    }
-
-    /// <summary>Formats attributes forwarded to a generated host.</summary>
-    /// <param name="forwardedAttributes">The forwarded attributes.</param>
-    /// <returns>The formatted attributes.</returns>
-    private static string GetForwardedAttributes(EquatableArray<string> forwardedAttributes)
-    {
-        var builder = new StringBuilder();
-        foreach (var attribute in AttributeDefinitions.ExcludeFromCodeCoverage)
-        {
-            AppendAttribute(builder, attribute);
-        }
-
-        foreach (var attribute in forwardedAttributes.AsImmutableArray())
-        {
-            AppendAttribute(builder, attribute);
-        }
-
-        return builder.ToString();
-    }
-
-    /// <summary>Appends an attribute to a generated attribute list.</summary>
-    /// <param name="builder">The destination builder.</param>
-    /// <param name="attribute">The attribute source.</param>
-    private static void AppendAttribute(StringBuilder builder, string attribute)
-    {
-        if (builder.Length > 0)
-        {
-            _ = builder.Append("\n        ");
-        }
-
-        _ = builder.Append(attribute);
     }
 }

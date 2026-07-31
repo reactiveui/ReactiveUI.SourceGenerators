@@ -19,7 +19,6 @@ namespace TestNs
             {
                 this.RaiseAndSetIfChanged(ref _test4, value);
                 this.RaisePropertyChanged(nameof(OtherNotifyProperty));
-                this.RaisePropertyChanged(nameof(OtherNotifyProperty));
             }
         }
     }

@@ -2,8 +2,6 @@
 // ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using ReactiveUI.SourceGenerators.Helpers;
-
 namespace ReactiveUI.SourceGenerators.Models;
 
 /// <summary>Contains the metadata required to generate a view-model control host.</summary>
@@ -14,7 +12,6 @@ namespace ReactiveUI.SourceGenerators.Models;
 /// <param name="TargetVisibility">The target type visibility.</param>
 /// <param name="TargetType">The target type keyword.</param>
 /// <param name="ViewModelTypeName">The view-model control host base type name.</param>
-/// <param name="ForwardedAttributes">The attributes forwarded to the generated host.</param>
 internal sealed record ViewModelControlHostInfo(
     string FileHintName,
     string TargetName,
@@ -22,5 +19,4 @@ internal sealed record ViewModelControlHostInfo(
     string TargetNamespaceWithNamespace,
     string TargetVisibility,
     string TargetType,
-    string ViewModelTypeName,
-    EquatableArray<string> ForwardedAttributes);
+    string ViewModelTypeName);

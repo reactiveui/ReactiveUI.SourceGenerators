@@ -16,6 +16,9 @@ public class IViewForGeneratorTests : TestBase<IViewForGenerator>
     /// <summary>The generated source count when no target can produce a view implementation.</summary>
     private const int NoViewImplementationGeneratedSourceCount = 2;
 
+    /// <summary>The stable hint name of the generated registration extensions.</summary>
+    private const string RegistrationExtensionsHintName = "ReactiveUI.ReactiveUISourceGeneratorsExtensions.g.cs";
+
     /// <summary>Tests that the source generator correctly generates reactive properties.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
@@ -110,6 +113,48 @@ public class IViewForGeneratorTests : TestBase<IViewForGenerator>
             StringComparison.Ordinal)).IsTrue();
     }
 
+    /// <summary>Verifies WinUI, Uno, string view models, and every registration mapping.</summary>
+    /// <returns>A task representing the asynchronous assertion work.</returns>
+    [Test]
+    public async Task GeneratesWinUiUnoAndRegistrationVariants()
+    {
+        var generatedSources = RunIViewForGenerator(
+            """
+            using ReactiveUI.SourceGenerators;
+
+            namespace Microsoft.UI.Xaml.Controls { public class Page { } }
+            namespace Windows.UI.Xaml.Controls { public class Page { } }
+            namespace ReactiveUI.SourceGenerators
+            {
+                internal enum SplatRegistrationType { None, LazySingleton, Constant, PerRequest }
+            }
+
+            namespace TestNs
+            {
+                public sealed class ViewModel { }
+
+                [IViewFor<ViewModel>(RegistrationType = SplatRegistrationType.LazySingleton, ViewModelRegistrationType = SplatRegistrationType.Constant)]
+                public partial class WinUiView : Microsoft.UI.Xaml.Controls.Page { }
+
+                [IViewFor("TestNs.ViewModel", RegistrationType = SplatRegistrationType.PerRequest, ViewModelRegistrationType = SplatRegistrationType.PerRequest)]
+                public partial class UnoView : Windows.UI.Xaml.Controls.Page { }
+
+                [IViewFor("")]
+                public partial class MissingViewModelView : Microsoft.UI.Xaml.Controls.Page { }
+            }
+            """);
+        var winUiSource = GetGeneratedSource(generatedSources, "TestNs.WinUiView.IViewFor.g.cs");
+        var unoSource = GetGeneratedSource(generatedSources, "TestNs.UnoView.IViewFor.g.cs");
+        var registrationSource = GetGeneratedSource(generatedSources, RegistrationExtensionsHintName);
+
+        await Assert.That(winUiSource.Contains("using Microsoft.UI.Xaml;", StringComparison.Ordinal)).IsTrue();
+        await Assert.That(unoSource.Contains("using Windows.UI.Xaml;", StringComparison.Ordinal)).IsTrue();
+        await Assert.That(registrationSource.Contains("RegisterLazySingleton", StringComparison.Ordinal)).IsTrue();
+        await Assert.That(registrationSource.Contains("RegisterConstant", StringComparison.Ordinal)).IsTrue();
+        await Assert.That(registrationSource.Contains("Register", StringComparison.Ordinal)).IsTrue();
+        await Assert.That(registrationSource.Contains("MissingViewModelView", StringComparison.Ordinal)).IsFalse();
+    }
+
     /// <summary>Verifies unsupported and non-partial IViewFor targets do not emit view implementations.</summary>
     /// <returns>A task representing the asynchronous assertion work.</returns>
     [Test]
@@ -133,8 +178,8 @@ public class IViewForGeneratorTests : TestBase<IViewForGenerator>
 
         await Assert.That(generatedSources.Count).IsEqualTo(NoViewImplementationGeneratedSourceCount);
         await Assert.That(generatedSources.Any(static source => source.HintName.EndsWith(".IViewFor.g.cs", StringComparison.Ordinal))).IsFalse();
-        await Assert.That(GetGeneratedSource(generatedSources, "ReactiveUI.ReactiveUISourceGeneratorsExtensions.g.cs").Contains("UnsupportedView", StringComparison.Ordinal)).IsFalse();
-        await Assert.That(GetGeneratedSource(generatedSources, "ReactiveUI.ReactiveUISourceGeneratorsExtensions.g.cs").Contains("NonPartialView", StringComparison.Ordinal)).IsFalse();
+        await Assert.That(GetGeneratedSource(generatedSources, RegistrationExtensionsHintName).Contains("UnsupportedView", StringComparison.Ordinal)).IsFalse();
+        await Assert.That(GetGeneratedSource(generatedSources, RegistrationExtensionsHintName).Contains("NonPartialView", StringComparison.Ordinal)).IsFalse();
     }
 
     /// <summary>Runs the IViewFor generator and returns its emitted sources for focused assertions.</summary>

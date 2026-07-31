@@ -558,7 +558,7 @@ $$"""
 
             case IMethodSymbol methodSymbol when methodSymbol.ReturnType.IsSchedulerType(api):
             {
-                outputScheduler = methodSymbol.Name;
+                outputScheduler = $"{methodSymbol.Name}()";
                 return true;
             }
 
@@ -619,7 +619,7 @@ $$"""
         foreach (var memberSymbol in containingType.GetAllMembers())
         {
             // Only look for instance fields of Observable bool type
-            if (!memberSymbol.ContainingType.IsObservableBoolType() || memberSymbol is not IFieldSymbol fieldSymbol)
+            if (memberSymbol is not IFieldSymbol fieldSymbol || !fieldSymbol.Type.IsObservableBoolType())
             {
                 continue;
             }

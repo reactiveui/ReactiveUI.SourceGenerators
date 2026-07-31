@@ -28,20 +28,26 @@ public sealed class ReactiveFieldDoesNotNeedToBeReadOnlyDiagnosticSuppressor : D
             {
                 var syntaxNode = diagnostic.Location.SourceTree?.GetRoot(context.CancellationToken).FindNode(diagnostic.Location.SourceSpan);
 
-                // Check that the target is a method declaration, which is the case we're looking for
-                if (syntaxNode is FieldDeclarationSyntax fieldDeclaration)
+                // RCS1169 can report either the complete declaration or a nested variable span.
+                var fieldDeclaration = syntaxNode as FieldDeclarationSyntax
+                    ?? syntaxNode?.FirstAncestorOrSelf<FieldDeclarationSyntax>();
+                if (fieldDeclaration is not null)
                 {
-                    var semanticModel = context.GetSemanticModel(syntaxNode.SyntaxTree);
-
-                    // Get the method symbol from the first variable declaration
-                    var declaredSymbol = semanticModel.GetDeclaredSymbol(fieldDeclaration, context.CancellationToken);
-
-                    // Check if the method is using [Reactive], in which case we should suppress the warning
-                    if (declaredSymbol is IFieldSymbol fieldSymbol
-                        && semanticModel.Compilation.GetTypeByMetadataName(AttributeDefinitions.ReactiveAttributeType) is INamedTypeSymbol reactiveSymbol
-                        && fieldSymbol.HasAttributeWithType(reactiveSymbol))
+                    var semanticModel = context.GetSemanticModel(fieldDeclaration.SyntaxTree);
+                    var reactiveSymbol = semanticModel.Compilation.GetTypeByMetadataName(AttributeDefinitions.ReactiveAttributeType);
+                    if (reactiveSymbol is null)
                     {
-                        context.ReportSuppression(Suppression.Create(ReactiveFieldsShouldNotBeReadOnly, diagnostic));
+                        continue;
+                    }
+
+                    foreach (var variable in fieldDeclaration.Declaration.Variables)
+                    {
+                        if (semanticModel.GetDeclaredSymbol(variable, context.CancellationToken) is IFieldSymbol fieldSymbol
+                            && fieldSymbol.HasAttributeWithType(reactiveSymbol))
+                        {
+                            context.ReportSuppression(Suppression.Create(ReactiveFieldsShouldNotBeReadOnly, diagnostic));
+                            break;
+                        }
                     }
                 }
             }

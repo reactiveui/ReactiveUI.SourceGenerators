@@ -123,7 +123,7 @@ public sealed class PropertyToReactiveFieldAnalyzer : DiagnosticAnalyzer
     {
         foreach (var attribute in propertySymbol.GetAttributes())
         {
-            if (attribute.AttributeClass?.Name is "ReactiveAttribute" or "ObservableAsProperty")
+            if (attribute.AttributeClass?.Name is "ReactiveAttribute" or "ObservableAsPropertyAttribute" or "ObservableAsProperty")
             {
                 return true;
             }
@@ -141,8 +141,13 @@ public sealed class PropertyToReactiveFieldAnalyzer : DiagnosticAnalyzer
         {
             foreach (var attribute in attributeList.Attributes)
             {
-                if (attribute.Name is IdentifierNameSyntax { Identifier.ValueText: "Reactive" }
-                    or QualifiedNameSyntax { Right.Identifier.ValueText: "Reactive" })
+                var attributeName = attribute.Name switch
+                {
+                    IdentifierNameSyntax identifierName => identifierName.Identifier.ValueText,
+                    QualifiedNameSyntax qualifiedName => qualifiedName.Right.Identifier.ValueText,
+                    _ => null,
+                };
+                if (attributeName is "Reactive" or "ObservableAsProperty")
                 {
                     return true;
                 }

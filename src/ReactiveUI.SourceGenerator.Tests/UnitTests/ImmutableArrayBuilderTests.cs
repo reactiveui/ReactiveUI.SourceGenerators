@@ -198,6 +198,38 @@ public sealed class ImmutableArrayBuilderTests
         await Assert.That(list[SecondIndex]).IsEqualTo(TwoHundred);
     }
 
+    /// <summary>Generic and non-generic enumerators traverse the writer iterator directly.</summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Test]
+    public async Task WhenEnumeratorsUsedDirectlyThenTheyTraverseEveryItem()
+    {
+        var genericItems = new int[TwoItems];
+        var genericIndex = 0;
+        var nonGenericCount = 0;
+        using (var builder = ImmutableArrayBuilder<int>.Rent())
+        {
+            builder.Add(Seven);
+            builder.Add(Eight);
+            var enumerable = builder.AsEnumerable();
+            foreach (var item in enumerable)
+            {
+                genericItems[genericIndex] = item;
+                genericIndex++;
+            }
+
+            foreach (var item in (System.Collections.IEnumerable)enumerable)
+            {
+                if (item is int)
+                {
+                    nonGenericCount++;
+                }
+            }
+        }
+
+        await Assert.That(genericItems).IsEquivalentTo([Seven, Eight]);
+        await Assert.That(nonGenericCount).IsEqualTo(TwoItems);
+    }
+
     /// <summary>Builder can hold more than the initial capacity (pool growth).</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]

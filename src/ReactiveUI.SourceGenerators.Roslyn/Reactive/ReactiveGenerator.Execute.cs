@@ -521,35 +521,12 @@ $$"""
             AddAlsoNotifyValue(builder, notify, propertyName);
         }
 
-        foreach (var argument in attributeData.ConstructorArguments)
-        {
-            AddAlsoNotifyArgument(builder, argument, propertyName);
-        }
-
         if (builder.Count == 0 && attributeData.ApplicationSyntaxReference?.GetSyntax(token) is AttributeSyntax attributeSyntax)
         {
             AddAlsoNotifySyntaxArguments(builder, attributeSyntax, propertyName, semanticModel, token);
         }
 
         return builder.ToImmutable();
-    }
-
-    /// <summary>Adds valid notification values represented by an attribute argument.</summary>
-    /// <param name="builder">The destination builder.</param>
-    /// <param name="argument">The attribute argument.</param>
-    /// <param name="propertyName">The generated property name.</param>
-    private static void AddAlsoNotifyArgument(ImmutableArrayBuilder<string> builder, TypedConstant argument, string propertyName)
-    {
-        if (argument.Kind != TypedConstantKind.Array)
-        {
-            AddAlsoNotifyValue(builder, argument.Value as string, propertyName);
-            return;
-        }
-
-        foreach (var value in argument.Values)
-        {
-            AddAlsoNotifyValue(builder, value.Value as string, propertyName);
-        }
     }
 
     /// <summary>Adds valid notification values represented in attribute syntax.</summary>
