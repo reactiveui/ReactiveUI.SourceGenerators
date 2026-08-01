@@ -143,6 +143,43 @@ public class ReactiveCMDGeneratorTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
+    /// <summary>Tests synchronous ReactiveCommands that run on the background scheduler.</summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Test]
+    public Task RunInBackground()
+    {
+        const string sourceCode = """
+                using System;
+                using System.Reactive.Linq;
+                using ReactiveUI;
+                using ReactiveUI.SourceGenerators;
+
+                namespace TestNs;
+
+                public partial class TestVM : ReactiveObject
+                {
+                    private IObservable<bool> CanRun => Observable.Return(true);
+
+                    [ReactiveCommand(RunInBackground = true)]
+                    private void Save() { }
+
+                    [ReactiveCommand(RunInBackground = true)]
+                    private int Calculate(int value) => value * 2;
+
+                    [ReactiveCommand(
+                        RunInBackground = true,
+                        CanExecute = nameof(CanRun),
+                        OutputScheduler = "global::ReactiveUI.RxSchedulers.MainThreadScheduler")]
+                    private string Format(int value) => value.ToString();
+
+                    [ReactiveCommand]
+                    private void Foreground() { }
+                }
+            """;
+
+        return TestHelper.TestPass(sourceCode);
+    }
+
     /// <summary>Froms the reactive command with nested classes.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]

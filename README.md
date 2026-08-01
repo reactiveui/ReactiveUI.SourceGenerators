@@ -45,6 +45,7 @@ ReactiveUI Source Generators automatically generate ReactiveUI objects to stream
 - `[ObservableAsProperty(PropertyName = "ReadOnlyPropertyName")]`
 - `[ObservableAsProperty(InitialValue = "Default Value")]` Only valid for partial properties using (C# 13 Visual Studio Version 17.12.0)
 - `[ReactiveCommand]`
+- `[ReactiveCommand(RunInBackground = true)]` runs a synchronous command on ReactiveUI's background scheduler
 - `[ReactiveCommand(CanExecute = nameof(IObservableBoolName))]` with CanExecute
 - `[ReactiveCommand(OutputScheduler = "RxSchedulers.MainThreadScheduler")]` using a ReactiveUI Scheduler
 - `[ReactiveCommand(OutputScheduler = nameof(_isheduler))]` using a Scheduler defined in the class
@@ -455,6 +456,20 @@ public partial class MyReactiveClass
 {
     [ReactiveCommand]
     private void Execute(string parameter) { }
+}
+```
+
+### Usage ReactiveCommand on the background scheduler
+
+Use `RunInBackground` for synchronous command methods that should be created with `ReactiveCommand.CreateRunInBackground`. Task- and observable-returning methods continue to use their asynchronous ReactiveCommand factories.
+
+```csharp
+using ReactiveUI.SourceGenerators;
+
+public partial class MyReactiveClass
+{
+    [ReactiveCommand(RunInBackground = true)]
+    private void ExecuteExpensiveWork() { }
 }
 ```
 

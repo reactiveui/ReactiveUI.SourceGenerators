@@ -42,6 +42,16 @@ public sealed class ReactiveUiV23CompatibilityTests
         await Assert.That(generatedSource.Contains("global::ReactiveUI.ReactiveCommand", StringComparison.Ordinal)).IsTrue();
         await Assert.That(generatedSource.Contains("global::System.Reactive.Unit", StringComparison.Ordinal)).IsTrue();
         await Assert.That(generatedSource.Contains("ReactiveUI.Primitives", StringComparison.Ordinal)).IsFalse();
+        await Assert.That(generatedSource.Contains("ReactiveCommand.CreateRunInBackground(Refresh)", StringComparison.Ordinal)).IsTrue();
+        await Assert.That(generatedSource.Contains(
+            "ReactiveCommand.CreateRunInBackground(ConditionalRefresh, CanRefresh)",
+            StringComparison.Ordinal)).IsTrue();
+        await Assert.That(generatedSource.Contains(
+            "ReactiveCommand.CreateRunInBackground(ScheduledRefresh, backgroundScheduler: null, outputScheduler: Scheduler)",
+            StringComparison.Ordinal)).IsTrue();
+        await Assert.That(generatedSource.Contains(
+            "ReactiveCommand.CreateRunInBackground(Recalculate, CanRefresh, backgroundScheduler: null, outputScheduler: Scheduler)",
+            StringComparison.Ordinal)).IsTrue();
         await Assert.That(errors).IsEmpty();
     }
 
@@ -51,6 +61,9 @@ public sealed class ReactiveUiV23CompatibilityTests
     private static CSharpCompilation CreateCompilation(Assembly reactiveUiAssembly)
     {
         const string source = """
+            using System;
+            using System.Reactive.Concurrency;
+            using System.Reactive.Linq;
             using ReactiveUI;
             using ReactiveUI.SourceGenerators;
 
@@ -58,6 +71,10 @@ public sealed class ReactiveUiV23CompatibilityTests
 
             public partial class ViewModel : ReactiveObject
             {
+                private IObservable<bool> CanRefresh => Observable.Return(true);
+
+                private static IScheduler Scheduler => ImmediateScheduler.Instance;
+
                 [Reactive]
                 private string? _name;
 
@@ -65,6 +82,27 @@ public sealed class ReactiveUiV23CompatibilityTests
                 private void Save()
                 {
                 }
+
+                [ReactiveCommand(RunInBackground = true)]
+                private void Refresh()
+                {
+                }
+
+                [ReactiveCommand(RunInBackground = true, CanExecute = nameof(CanRefresh))]
+                private void ConditionalRefresh()
+                {
+                }
+
+                [ReactiveCommand(RunInBackground = true, OutputScheduler = nameof(Scheduler))]
+                private void ScheduledRefresh()
+                {
+                }
+
+                [ReactiveCommand(
+                    RunInBackground = true,
+                    CanExecute = nameof(CanRefresh),
+                    OutputScheduler = nameof(Scheduler))]
+                private int Recalculate() => 42;
             }
             """;
         var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp13);
