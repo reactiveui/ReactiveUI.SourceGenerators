@@ -17,7 +17,7 @@
     <PackageReference Include="TUnit" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" VersionOverride="4.14.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" PrivateAssets="all" VersionOverride="4.14.0" />
-    <PackageReference Include="ReactiveUI" VersionOverride="23.2.28" />
+    <PackageReference Include="ReactiveUI" VersionOverride="24.0.0" />
   </ItemGroup>
 
   <ItemGroup>
