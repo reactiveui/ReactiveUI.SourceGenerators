@@ -1,42 +1,53 @@
-﻿// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
-using ReactiveUI;
 using ReactiveUI.SourceGenerators;
 
 namespace SGReactiveUI.SourceGenerators.Test;
 
+/// <summary>Provides reactive-property generation examples with varied access modifiers.</summary>
 [ExcludeFromCodeCoverage]
-internal partial class InternalTestViewModel : ReactiveObject
+public partial class InternalTestViewModel : ReactiveObject
 {
+    /// <summary>Represents the first sample collection item.</summary>
+    private const int FirstItemValue = 1;
+
+    /// <summary>Represents the second sample collection item.</summary>
+    private const int SecondItemValue = 2;
+
+    /// <summary>Represents the third sample collection item.</summary>
+    private const int ThirdItemValue = 3;
+
+    /// <summary>Stores the collection used by the reactive collection example.</summary>
     [ReactiveCollection]
     private ObservableCollection<int>? _publicObservableCollectionTest;
 
+    /// <summary>Initializes a new instance of the <see cref="InternalTestViewModel"/> class.</summary>
     public InternalTestViewModel()
     {
         // observe property changes
-        Changed
+        _ = Changed
             .Subscribe(x =>
             {
                 // handle property changes
-                if (x.PropertyName == nameof(PublicObservableCollectionTest))
+                if (x.PropertyName != nameof(PublicObservableCollectionTest))
                 {
-                    Console.WriteLine($"PublicObservableCollectionTest changed: {PublicObservableCollectionTest?.Count}");
+                    return;
                 }
+
+                System.Diagnostics.Debug.WriteLine($"PublicObservableCollectionTest changed: {PublicObservableCollectionTest?.Count}");
             });
         PublicObservableCollectionTest = [];
-        PublicObservableCollectionTest.Add(1);
-        PublicObservableCollectionTest.Add(2);
-        PublicObservableCollectionTest.Add(3);
-        PublicObservableCollectionTest = null;
+        PublicObservableCollectionTest.Add(FirstItemValue);
+        PublicObservableCollectionTest.Add(SecondItemValue);
+        PublicObservableCollectionTest.Add(ThirdItemValue);
         PublicObservableCollectionTest = [];
-        PublicObservableCollectionTest.Add(1);
-        PublicObservableCollectionTest.Add(2);
-        PublicObservableCollectionTest.Add(3);
+        PublicObservableCollectionTest.Add(FirstItemValue);
+        PublicObservableCollectionTest.Add(SecondItemValue);
+        PublicObservableCollectionTest.Add(ThirdItemValue);
     }
 
     [Reactive]

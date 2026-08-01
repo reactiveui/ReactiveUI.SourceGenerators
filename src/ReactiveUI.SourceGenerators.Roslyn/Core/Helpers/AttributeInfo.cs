@@ -1,11 +1,9 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -14,9 +12,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace ReactiveUI.SourceGenerators.Helpers;
 
-/// <summary>
-/// A model representing an attribute declaration.
-/// </summary>
+/// <summary>A model representing an attribute declaration.</summary>
 /// <param name="TypeName">The type name of the attribute.</param>
 /// <param name="ConstructorArgumentInfo">The <see cref="TypedConstantInfo"/> values for all constructor arguments for the attribute.</param>
 /// <param name="NamedArgumentInfo">The <see cref="TypedConstantInfo"/> values for all named arguments for the attribute.</param>
@@ -25,12 +21,13 @@ internal sealed record AttributeInfo(
     EquatableArray<TypedConstantInfo> ConstructorArgumentInfo,
     EquatableArray<(string Name, TypedConstantInfo Value)> NamedArgumentInfo)
 {
-    /// <summary>
-    /// Creates a new <see cref="AttributeInfo"/> instance from a given <see cref="AttributeData"/> value.
-    /// </summary>
+    /// <inheritdoc/>
+    public override string ToString() => $"[{GetSyntax()}]";
+
+    /// <summary>Creates a new <see cref="AttributeInfo"/> instance from a given <see cref="AttributeData"/> value.</summary>
     /// <param name="attributeData">The input <see cref="AttributeData"/> value.</param>
     /// <returns>A <see cref="AttributeInfo"/> instance representing <paramref name="attributeData"/>.</returns>
-    public static AttributeInfo Create(AttributeData attributeData)
+    internal static AttributeInfo Create(AttributeData attributeData)
     {
         var typeName = attributeData.AttributeClass!.GetFullyQualifiedName();
 
@@ -55,16 +52,14 @@ internal sealed record AttributeInfo(
             namedArguments.ToImmutable());
     }
 
-    /// <summary>
-    /// Creates a new <see cref="AttributeInfo"/> instance from a given syntax node.
-    /// </summary>
+    /// <summary>Creates a new <see cref="AttributeInfo"/> instance from a given syntax node.</summary>
     /// <param name="typeSymbol">The symbol for the attribute type.</param>
     /// <param name="semanticModel">The <see cref="SemanticModel"/> instance for the current run.</param>
     /// <param name="arguments">The sequence of <see cref="AttributeArgumentSyntax"/> instances to process.</param>
     /// <param name="token">The cancellation token for the current operation.</param>
     /// <param name="info">The resulting <see cref="AttributeInfo"/> instance, if available.</param>
     /// <returns>Whether a resulting <see cref="AttributeInfo"/> instance could be created.</returns>
-    public static bool TryCreate(
+    internal static bool TryCreate(
         INamedTypeSymbol typeSymbol,
         SemanticModel semanticModel,
         IEnumerable<AttributeArgumentSyntax> arguments,
@@ -104,7 +99,7 @@ internal sealed record AttributeInfo(
             }
         }
 
-        info = new AttributeInfo(
+        info = new(
             typeName,
             constructorArguments.ToImmutable(),
             namedArguments.ToImmutable());
@@ -112,25 +107,24 @@ internal sealed record AttributeInfo(
         return true;
     }
 
-    /// <summary>
-    /// Gets an <see cref="AttributeSyntax"/> instance representing the current value.
-    /// </summary>
+    /// <summary>Gets an <see cref="AttributeSyntax"/> instance representing the current value.</summary>
     /// <returns>The <see cref="ExpressionSyntax"/> instance representing the current value.</returns>
-    public AttributeSyntax GetSyntax()
+    internal AttributeSyntax GetSyntax()
     {
-        // Gather the constructor arguments
-        var arguments =
-            ConstructorArgumentInfo
-            .Select(static arg => AttributeArgument(arg.GetSyntax()));
+        using var arguments = ImmutableArrayBuilder<AttributeArgumentSyntax>.Rent();
 
-        // Gather the named arguments
-        var namedArguments =
-            NamedArgumentInfo.Select(static arg =>
-                AttributeArgument(arg.Value.GetSyntax())
-                .WithNameEquals(NameEquals(IdentifierName(arg.Name))));
+        foreach (var constructorArgument in ConstructorArgumentInfo.AsImmutableArray())
+        {
+            arguments.Add(AttributeArgument(constructorArgument.GetSyntax()));
+        }
 
-        return Attribute(IdentifierName(TypeName), AttributeArgumentList(SeparatedList(arguments.Concat(namedArguments))));
+        foreach (var namedArgument in NamedArgumentInfo.AsImmutableArray())
+        {
+            arguments.Add(
+                AttributeArgument(namedArgument.Value.GetSyntax())
+                .WithNameEquals(NameEquals(IdentifierName(namedArgument.Name))));
+        }
+
+        return Attribute(IdentifierName(TypeName), AttributeArgumentList(SeparatedList(arguments.ToImmutable())));
     }
-
-    public override string ToString() => $"[{GetSyntax()}]";
 }

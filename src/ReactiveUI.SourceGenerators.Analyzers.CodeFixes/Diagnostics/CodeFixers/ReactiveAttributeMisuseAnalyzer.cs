@@ -1,11 +1,9 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Immutable;
-using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -14,22 +12,16 @@ using static ReactiveUI.SourceGenerators.CodeFixers.Diagnostics.DiagnosticDescri
 
 namespace ReactiveUI.SourceGenerators.CodeFixers;
 
-/// <summary>
-/// ReactiveAttributeMisuseAnalyzer.
-/// </summary>
+/// <summary>Reports ReactiveUI properties whose partial declarations are incomplete.</summary>
 /// <seealso cref="Microsoft.CodeAnalysis.Diagnostics.DiagnosticAnalyzer" />
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ReactiveAttributeMisuseAnalyzer : DiagnosticAnalyzer
 {
-    /// <summary>
-    /// Gets a set of descriptors for the diagnostics that this analyzer is capable of producing.
-    /// </summary>
+    /// <summary>Gets a set of descriptors for the diagnostics that this analyzer is capable of producing.</summary>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(ReactiveAttributeRequiresPartialRule);
 
-    /// <summary>
-    /// Called once at session start to register actions in the analysis context.
-    /// </summary>
+    /// <summary>Called once at session start to register actions in the analysis context.</summary>
     /// <param name="context">The analysis context.</param>
     /// <exception cref="ArgumentNullException">context.</exception>
     public override void Initialize(AnalysisContext context)
@@ -41,10 +33,12 @@ public sealed class ReactiveAttributeMisuseAnalyzer : DiagnosticAnalyzer
 
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
-        context.RegisterSyntaxNodeAction(AnalyzeProperty, SyntaxKind.PropertyDeclaration);
+        context.RegisterSyntaxNodeAction(static nodeContext => AnalyzeProperty(in nodeContext), SyntaxKind.PropertyDeclaration);
     }
 
-    private static void AnalyzeProperty(SyntaxNodeAnalysisContext context)
+    /// <summary>Analyzes a property declaration for a ReactiveUI attribute.</summary>
+    /// <param name="context">The syntax-node analysis context.</param>
+    private static void AnalyzeProperty(in SyntaxNodeAnalysisContext context)
     {
         if (context.Node is not PropertyDeclarationSyntax property)
         {
@@ -71,6 +65,9 @@ public sealed class ReactiveAttributeMisuseAnalyzer : DiagnosticAnalyzer
         context.ReportDiagnostic(Diagnostic.Create(ReactiveAttributeRequiresPartialRule, property.Identifier.GetLocation()));
     }
 
+    /// <summary>Determines whether an attribute list contains the ReactiveUI reactive attribute.</summary>
+    /// <param name="attributeLists">The attribute lists to inspect.</param>
+    /// <returns><see langword="true"/> when the ReactiveUI reactive attribute is present.</returns>
     private static bool HasReactiveAttribute(SyntaxList<AttributeListSyntax> attributeLists)
     {
         foreach (var list in attributeLists)

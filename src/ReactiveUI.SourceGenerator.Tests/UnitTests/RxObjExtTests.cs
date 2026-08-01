@@ -1,18 +1,13 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
-/// <summary>
-/// Extended unit tests for the ReactiveObject generator covering edge cases.
-/// </summary>
+/// <summary>Extended unit tests for the ReactiveObject generator covering edge cases.</summary>
 public class RxObjExtTests : TestBase<ReactiveObjectGenerator>
 {
-    /// <summary>
-    /// Tests ReactiveObject with multiple reactive properties.
-    /// </summary>
+    /// <summary>Tests ReactiveObject with multiple reactive properties.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveObjectWithMultipleProperties()
@@ -43,9 +38,7 @@ public class RxObjExtTests : TestBase<ReactiveObjectGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveObject with nested class.
-    /// </summary>
+    /// <summary>Tests ReactiveObject with nested class.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveObjectWithNestedClass()
@@ -74,9 +67,7 @@ public class RxObjExtTests : TestBase<ReactiveObjectGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveObject with ObservableAsProperty.
-    /// </summary>
+    /// <summary>Tests ReactiveObject with ObservableAsProperty.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task WithOap()
@@ -101,9 +92,7 @@ public class RxObjExtTests : TestBase<ReactiveObjectGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveObject with generic type parameters.
-    /// </summary>
+    /// <summary>Tests ReactiveObject with generic type parameters.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveObjectWithGenericClass()
@@ -128,9 +117,7 @@ public class RxObjExtTests : TestBase<ReactiveObjectGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveObject with multiple type constraints.
-    /// </summary>
+    /// <summary>Tests ReactiveObject with multiple type constraints.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveObjectWithMultipleTypeConstraints()
@@ -160,9 +147,7 @@ public class RxObjExtTests : TestBase<ReactiveObjectGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveObject with record.
-    /// </summary>
+    /// <summary>Tests ReactiveObject with record.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveObjectRecord()
@@ -187,9 +172,7 @@ public class RxObjExtTests : TestBase<ReactiveObjectGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveObject with access modifiers on reactive properties.
-    /// </summary>
+    /// <summary>Tests ReactiveObject with access modifiers on reactive properties.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveObjectWithAccessModifiers()
@@ -217,9 +200,7 @@ public class RxObjExtTests : TestBase<ReactiveObjectGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveObject with inheritance modifiers.
-    /// </summary>
+    /// <summary>Tests ReactiveObject with inheritance modifiers.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveObjectWithInheritanceModifiers()
@@ -248,9 +229,7 @@ public class RxObjExtTests : TestBase<ReactiveObjectGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveObject with complex types.
-    /// </summary>
+    /// <summary>Tests ReactiveObject with complex types.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task ComplexType()
@@ -282,9 +261,7 @@ public class RxObjExtTests : TestBase<ReactiveObjectGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveObject with nullable value types.
-    /// </summary>
+    /// <summary>Tests ReactiveObject with nullable value types.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Nullable()
@@ -315,9 +292,7 @@ public class RxObjExtTests : TestBase<ReactiveObjectGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveObject with attributes on properties.
-    /// </summary>
+    /// <summary>Tests ReactiveObject with attributes on properties.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveObjectWithAttributes()
@@ -349,9 +324,7 @@ public class RxObjExtTests : TestBase<ReactiveObjectGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveObject with deeply nested classes.
-    /// </summary>
+    /// <summary>Tests ReactiveObject with deeply nested classes.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveObjectWithDeeplyNestedClasses()
@@ -394,9 +367,7 @@ public class RxObjExtTests : TestBase<ReactiveObjectGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveObject with enum types.
-    /// </summary>
+    /// <summary>Tests ReactiveObject with enum types.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Enums()
@@ -429,9 +400,7 @@ public class RxObjExtTests : TestBase<ReactiveObjectGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveObject with interface types.
-    /// </summary>
+    /// <summary>Tests ReactiveObject with interface types.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Interface()
@@ -465,9 +434,7 @@ public class RxObjExtTests : TestBase<ReactiveObjectGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveObject with basic properties.
-    /// </summary>
+    /// <summary>Tests ReactiveObject with basic properties.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Basic()
@@ -492,9 +459,7 @@ public class RxObjExtTests : TestBase<ReactiveObjectGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveObject in multiple namespaces.
-    /// </summary>
+    /// <summary>Tests ReactiveObject in multiple namespaces.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task MultiNs()

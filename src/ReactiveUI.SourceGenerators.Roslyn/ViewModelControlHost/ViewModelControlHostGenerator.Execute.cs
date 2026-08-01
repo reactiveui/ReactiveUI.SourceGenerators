@@ -1,11 +1,8 @@
-﻿// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Immutable;
-using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -16,16 +13,20 @@ using ReactiveUI.SourceGenerators.Models;
 
 namespace ReactiveUI.SourceGenerators.WinForms;
 
-/// <summary>
-/// IViewForGenerator.
-/// </summary>
+/// <summary>Generates a Windows Forms view-model control host.</summary>
 /// <seealso cref="IIncrementalGenerator" />
 public partial class ViewModelControlHostGenerator
 {
+    /// <summary>The fully qualified generator name written to generated-code attributes.</summary>
     private static readonly string GeneratorName = typeof(ViewModelControlHostGenerator).FullName!;
+
+    /// <summary>The generator assembly version written to generated-code attributes.</summary>
     private static readonly string GeneratorVersion = typeof(ViewModelControlHostGenerator).Assembly.GetName().Version.ToString();
 
-    private static ViewModelControlHostInfo? GetClassInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
+    /// <summary>Gets generation metadata for an attributed view-model control host.</summary>
+    private static readonly ViewModelControlHostInfoFactory GetClassInfo = static (
+        in GeneratorAttributeSyntaxContext context,
+        CancellationToken token) =>
     {
         if (!(context.TargetNode is ClassDeclarationSyntax declaredClass && declaredClass.Modifiers.Any(SyntaxKind.PartialKeyword)))
         {
@@ -45,17 +46,11 @@ public partial class ViewModelControlHostGenerator
             return default;
         }
 
-        var constructorArgument = attributeData.GetConstructorArguments<string>().First();
-        if (constructorArgument is not string viewModelTypeName)
+        var viewModelTypeName = GetFirstConstructorArgument(attributeData);
+        if (viewModelTypeName is null)
         {
             return default;
         }
-
-        token.ThrowIfCancellationRequested();
-        var compilation = context.SemanticModel.Compilation;
-        var semanticModel = compilation.GetSemanticModel(context.SemanticModel.SyntaxTree);
-        attributeData.GatherForwardedAttributesFromClass(semanticModel, declaredClass, token, out var attributesInfo);
-        var classAttributesInfo = attributesInfo.Select(x => x.ToString()).ToImmutableArray();
 
         token.ThrowIfCancellationRequested();
 
@@ -69,15 +64,20 @@ public partial class ViewModelControlHostGenerator
             targetInfo.TargetNamespaceWithNamespace,
             targetInfo.TargetVisibility,
             targetInfo.TargetType,
-            viewModelTypeName!,
-            classAttributesInfo);
-    }
+            viewModelTypeName!);
+    };
 
-    private static string GetViewModelControlHost(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, ViewModelControlHostInfo vmcInfo, bool isNewerThan22)
+    /// <summary>Gets the view-model control host source renderer.</summary>
+    private static readonly ViewModelControlHostRenderer GetViewModelControlHost = static (
+        containingTypeName,
+        containingNamespace,
+        containingClassVisibility,
+        containingType,
+        vmcInfo,
+        integration) =>
     {
-        // Prepare any forwarded property attributes
-        var forwardedAttributesString = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage.Concat(vmcInfo.ForwardedAttributes));
-        var exceptionHandler = isNewerThan22
+        var generatedAttributesString = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage);
+        var exceptionHandler = integration.IsNewerThan22
             ? "RxState.DefaultExceptionHandler!.OnNext"
             : "RxApp.DefaultExceptionHandler!.OnNext";
 
@@ -89,22 +89,22 @@ $$"""
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using ReactiveUI;
+{{integration.UsingDirectives}}
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
 using System.Windows.Forms;
 
 #pragma warning disable
 #nullable enable
 namespace {{containingNamespace}}
 {
-    {{forwardedAttributesString}}
+    {{generatedAttributesString}}
     [DefaultProperty("ViewModel")]
     [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
     {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}} : {{vmcInfo.ViewModelTypeName}}, IReactiveObject, IViewFor
     {
-        private readonly CompositeDisposable _disposables = [];
+        private readonly DisposableCollection _disposables = new();
         private Control? _defaultContent;
         private IObservable<string>? _viewContractObservable;
         private object? _viewModel;
@@ -118,10 +118,7 @@ namespace {{containingNamespace}}
         {
             InitializeComponent();
             _cacheViews = DefaultCacheViewsEnabled;
-            foreach (var d in SetupBindings())
-            {
-                _disposables.Add(d);
-            }
+            SetupBindings();
         }
 
         /// <inheritdoc/>
@@ -197,19 +194,24 @@ namespace {{containingNamespace}}
         /// <param name = "disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && components is not null)
+            if (disposing)
             {
-                components.Dispose();
                 _disposables.Dispose();
+                components?.Dispose();
             }
 
             base.Dispose(disposing);
         }
 
-        private IEnumerable<IDisposable> SetupBindings()
+        private void SetupBindings()
         {
-            var viewChanges = this.WhenAnyValue(x => x!.Content).WhereNotNull().OfType<Control>().Subscribe(x =>
+            AddSubscription(this.WhenAnyValue(x => x!.Content), new ValueObserver<object?>(x =>
             {
+                if (x is not Control control)
+                {
+                    return;
+                }
+
                 // change the view in the ui
                 SuspendLayout();
                 // clear out existing visible control view
@@ -219,59 +221,386 @@ namespace {{containingNamespace}}
                     Controls.Remove(c);
                 }
 
-                x!.Dock = DockStyle.Fill;
-                Controls.Add(x);
+                control.Dock = DockStyle.Fill;
+                Controls.Add(control);
                 ResumeLayout();
-            });
-            yield return viewChanges!;
-            yield return this.WhenAnyValue(x => x.DefaultContent).Subscribe(x =>
+            }, {{exceptionHandler}}));
+            AddSubscription(this.WhenAnyValue(x => x.DefaultContent), new ValueObserver<Control?>(x =>
             {
                 if (x is not null)
                 {
                     Content = DefaultContent;
                 }
-            });
-            ViewContractObservable = Observable.Return(string.Empty);
-            var vmAndContract = this.WhenAnyValue(x => x.ViewModel).CombineLatest(this.WhenAnyObservable(x => x.ViewContractObservable!), (vm, contract) => new { ViewModel = vm, Contract = contract });
-            yield return vmAndContract.Subscribe(x =>
-            {
-                // set content to default when viewmodel is null
-                if (ViewModel is null)
-                {
-                    if (DefaultContent is not null)
-                    {
-                        Content = DefaultContent;
-                    }
+            }, {{exceptionHandler}}));
+            ViewContractObservable = new ReturnObservable<string>(string.Empty);
+            var viewModelSubscription = new CombineLatestSubscription<object?, string>(
+                UpdateContent,
+                {{exceptionHandler}});
+            _disposables.Add(viewModelSubscription);
+            viewModelSubscription.Connect(
+                this.WhenAnyValue(x => x.ViewModel),
+                this.WhenAnyObservable(x => x.ViewContractObservable!));
+        }
 
+        private void AddSubscription<T>(IObservable<T> observable, IObserver<T> observer)
+        {
+            var slot = new SubscriptionSlot();
+            _disposables.Add(slot);
+            slot.Set(observable.Subscribe(observer));
+        }
+
+        private void UpdateContent(object? viewModel, string contract)
+        {
+            // set content to default when viewmodel is null
+            if (viewModel is null)
+            {
+                if (DefaultContent is not null)
+                {
+                    Content = DefaultContent;
+                }
+
+                return;
+            }
+
+            if (CacheViews)
+            {
+                // when caching views, check the current viewmodel and type
+                var currentView = _content as IViewFor;
+                if (currentView?.ViewModel is not null && currentView.ViewModel.GetType() == viewModel.GetType())
+                {
+                    currentView.ViewModel = viewModel;
+                    // return early here after setting the viewmodel
+                    // allowing the view to update its bindings
+                    return;
+                }
+            }
+
+            var viewLocator = ViewLocator ?? ReactiveUI.ViewLocator.Current;
+            var view = viewLocator.ResolveView(viewModel, contract);
+            if (view is not null)
+            {
+                view.ViewModel = viewModel;
+                Content = view;
+            }
+        }
+
+        private sealed class ReturnObservable<T>(T value) : IObservable<T>
+        {
+            public IDisposable Subscribe(IObserver<T> observer)
+            {
+                observer.OnNext(value);
+                observer.OnCompleted();
+                return EmptyDisposable.Instance;
+            }
+        }
+
+        private sealed class ValueObserver<T>(Action<T> onNext, Action<Exception> onError, Action? onCompleted = null) : IObserver<T>
+        {
+            public void OnCompleted() => onCompleted?.Invoke();
+
+            public void OnError(Exception error) => onError(error);
+
+            public void OnNext(T value) => onNext(value);
+        }
+
+        private sealed class CombineLatestSubscription<TLeft, TRight> : IDisposable
+        {
+            private readonly object _gate = new();
+            private readonly Action<TLeft, TRight> _onNext;
+            private readonly Action<Exception> _onError;
+            private readonly SubscriptionSlot _leftSubscription = new();
+            private readonly SubscriptionSlot _rightSubscription = new();
+            private TLeft _left = default!;
+            private TRight _right = default!;
+            private bool _hasLeft;
+            private bool _hasRight;
+            private bool _leftCompleted;
+            private bool _rightCompleted;
+            private bool _isStopped;
+
+            public CombineLatestSubscription(
+                Action<TLeft, TRight> onNext,
+                Action<Exception> onError)
+            {
+                _onNext = onNext;
+                _onError = onError;
+            }
+
+            public void Connect(IObservable<TLeft> left, IObservable<TRight> right)
+            {
+                _leftSubscription.Set(left.Subscribe(new ValueObserver<TLeft>(SetLeft, Fail, CompleteLeft)));
+                if (IsStopped())
+                {
                     return;
                 }
 
-                if (CacheViews)
+                _rightSubscription.Set(right.Subscribe(new ValueObserver<TRight>(SetRight, Fail, CompleteRight)));
+            }
+
+            public void Dispose()
+            {
+                lock (_gate)
                 {
-                    // when caching views, check the current viewmodel and type
-                    var c = _content as IViewFor;
-                    if (c?.ViewModel is not null && c.ViewModel.GetType() == x.ViewModel!.GetType())
+                    _isStopped = true;
+                }
+
+                _leftSubscription.Dispose();
+                _rightSubscription.Dispose();
+            }
+
+            private void SetLeft(TLeft value)
+            {
+                lock (_gate)
+                {
+                    if (_isStopped)
                     {
-                        c.ViewModel = x.ViewModel;
-                        // return early here after setting the viewmodel
-                        // allowing the view to update it's bindings
                         return;
+                    }
+
+                    _left = value;
+                    _hasLeft = true;
+                    if (!_hasRight)
+                    {
+                        return;
+                    }
+
+                    _onNext(value, _right);
+                }
+            }
+
+            private void SetRight(TRight value)
+            {
+                lock (_gate)
+                {
+                    if (_isStopped)
+                    {
+                        return;
+                    }
+
+                    _right = value;
+                    _hasRight = true;
+                    if (!_hasLeft)
+                    {
+                        return;
+                    }
+
+                    _onNext(_left, value);
+                }
+            }
+
+            private void CompleteLeft()
+            {
+                var shouldStop = false;
+                lock (_gate)
+                {
+                    if (_isStopped)
+                    {
+                        return;
+                    }
+
+                    _leftCompleted = true;
+                    shouldStop = !_hasLeft || _rightCompleted;
+                    _isStopped = shouldStop;
+                }
+
+                if (shouldStop)
+                {
+                    _leftSubscription.Dispose();
+                    _rightSubscription.Dispose();
+                }
+            }
+
+            private void CompleteRight()
+            {
+                var shouldStop = false;
+                lock (_gate)
+                {
+                    if (_isStopped)
+                    {
+                        return;
+                    }
+
+                    _rightCompleted = true;
+                    shouldStop = !_hasRight || _leftCompleted;
+                    _isStopped = shouldStop;
+                }
+
+                if (shouldStop)
+                {
+                    _leftSubscription.Dispose();
+                    _rightSubscription.Dispose();
+                }
+            }
+
+            private void Fail(Exception error)
+            {
+                lock (_gate)
+                {
+                    if (_isStopped)
+                    {
+                        return;
+                    }
+
+                    _isStopped = true;
+                }
+
+                try
+                {
+                    _onError(error);
+                }
+                finally
+                {
+                    _leftSubscription.Dispose();
+                    _rightSubscription.Dispose();
+                }
+            }
+
+            private bool IsStopped()
+            {
+                lock (_gate)
+                {
+                    return _isStopped;
+                }
+            }
+        }
+
+        private sealed class DisposableCollection : IDisposable
+        {
+            private readonly object _gate = new();
+            private readonly List<IDisposable> _items = new();
+            private bool _isDisposed;
+
+            public void Add(IDisposable item)
+            {
+                var disposeItem = false;
+                lock (_gate)
+                {
+                    disposeItem = _isDisposed;
+                    if (!disposeItem)
+                    {
+                        _items.Add(item);
                     }
                 }
 
-                var viewLocator = ViewLocator ?? ReactiveUI.ViewLocator.Current;
-                var view = viewLocator.ResolveView(x.ViewModel, x.Contract);
-                if (view is not null)
+                if (disposeItem)
                 {
-                    view.ViewModel = x.ViewModel;
-                    Content = view;
+                    item.Dispose();
                 }
-            }, {{exceptionHandler}});
+            }
+
+            public void Dispose()
+            {
+                IDisposable[] items;
+                lock (_gate)
+                {
+                    if (_isDisposed)
+                    {
+                        return;
+                    }
+
+                    _isDisposed = true;
+                    items = _items.ToArray();
+                    _items.Clear();
+                }
+
+                foreach (var item in items)
+                {
+                    item.Dispose();
+                }
+            }
+        }
+
+        private sealed class SubscriptionSlot : IDisposable
+        {
+            private readonly object _gate = new();
+            private IDisposable? _subscription;
+            private bool _isDisposed;
+
+            public void Set(IDisposable subscription)
+            {
+                IDisposable? previous;
+                var disposeSubscription = false;
+                lock (_gate)
+                {
+                    disposeSubscription = _isDisposed;
+                    previous = _subscription;
+                    if (!disposeSubscription)
+                    {
+                        _subscription = subscription;
+                    }
+                }
+
+                previous?.Dispose();
+                if (disposeSubscription)
+                {
+                    subscription.Dispose();
+                }
+            }
+
+            public void Dispose()
+            {
+                IDisposable? subscription;
+                lock (_gate)
+                {
+                    if (_isDisposed)
+                    {
+                        return;
+                    }
+
+                    _isDisposed = true;
+                    subscription = _subscription;
+                    _subscription = null;
+                }
+
+                subscription?.Dispose();
+            }
+        }
+
+        private sealed class EmptyDisposable : IDisposable
+        {
+            public static EmptyDisposable Instance { get; } = new();
+
+            public void Dispose()
+            {
+            }
         }
     }
 }
 #nullable restore
 #pragma warning restore
 """;
+    };
+
+    /// <summary>Gets view-model control host metadata from a generator attribute context.</summary>
+    /// <param name="context">The generator attribute context.</param>
+    /// <param name="token">The cancellation token.</param>
+    /// <returns>The view-model control host metadata, or <see langword="null"/> when the target is invalid.</returns>
+    private delegate ViewModelControlHostInfo? ViewModelControlHostInfoFactory(
+        in GeneratorAttributeSyntaxContext context,
+        CancellationToken token);
+
+    /// <summary>Renders view-model control host source from gathered metadata.</summary>
+    /// <param name="containingTypeName">The containing type name.</param>
+    /// <param name="containingNamespace">The containing namespace.</param>
+    /// <param name="containingClassVisibility">The containing type visibility.</param>
+    /// <param name="containingType">The containing type keyword.</param>
+    /// <param name="vmcInfo">The view-model control host metadata.</param>
+    /// <param name="integration">The detected ReactiveUI integration.</param>
+    /// <returns>The generated view-model control host source.</returns>
+    private delegate string ViewModelControlHostRenderer(
+        string containingTypeName,
+        string containingNamespace,
+        string containingClassVisibility,
+        string containingType,
+        ViewModelControlHostInfo vmcInfo,
+        ReactiveUiIntegration integration);
+
+    /// <summary>Gets the first string constructor argument from an attribute.</summary>
+    /// <param name="attributeData">The attribute data.</param>
+    /// <returns>The first string argument, or <see langword="null"/> when none exists.</returns>
+    private static string? GetFirstConstructorArgument(AttributeData attributeData)
+    {
+        using var arguments = attributeData.GetConstructorArguments<string>().GetEnumerator();
+        return arguments.MoveNext() ? arguments.Current : null;
     }
 }

@@ -1,18 +1,13 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
-/// <summary>
-/// Unit tests for the ReactiveCommand generator.
-/// </summary>
+/// <summary>Unit tests for the ReactiveCommand generator.</summary>
 public class ReactiveCMDGeneratorTests : TestBase<ReactiveCommandGenerator>
 {
-    /// <summary>
-    /// Tests that the source generator correctly generates ReactiveCommands.
-    /// </summary>
+    /// <summary>Tests that the source generator correctly generates ReactiveCommands.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Basic()
@@ -38,9 +33,7 @@ public class ReactiveCMDGeneratorTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests that the source generator correctly generates ReactiveCommands.
-    /// </summary>
+    /// <summary>Tests that the source generator correctly generates ReactiveCommands.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task WithParam()
@@ -67,9 +60,7 @@ public class ReactiveCMDGeneratorTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests that the source generator correctly generates ReactiveCommands.
-    /// </summary>
+    /// <summary>Tests that the source generator correctly generates ReactiveCommands.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveAsyncCommand()
@@ -98,9 +89,7 @@ public class ReactiveCMDGeneratorTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests that the source generator correctly generates ReactiveCommands.
-    /// </summary>
+    /// <summary>Tests that the source generator correctly generates ReactiveCommands.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task AsyncWithParam()
@@ -130,9 +119,7 @@ public class ReactiveCMDGeneratorTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Froms the reactive command with output scheduler.
-    /// </summary>
+    /// <summary>Froms the reactive command with output scheduler.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Scheduler()
@@ -156,9 +143,7 @@ public class ReactiveCMDGeneratorTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Froms the reactive command with nested classes.
-    /// </summary>
+    /// <summary>Froms the reactive command with nested classes.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Nested()
@@ -215,9 +200,7 @@ public class ReactiveCMDGeneratorTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Froms the reactive command with access modifier.
-    /// </summary>
+    /// <summary>Froms the reactive command with access modifier.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Access()
@@ -236,9 +219,7 @@ public class ReactiveCMDGeneratorTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Froms the type of the reactive command with nullable type and nullable return.
-    /// </summary>
+    /// <summary>Froms the type of the reactive command with nullable type and nullable return.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task NullableTypeReturn()

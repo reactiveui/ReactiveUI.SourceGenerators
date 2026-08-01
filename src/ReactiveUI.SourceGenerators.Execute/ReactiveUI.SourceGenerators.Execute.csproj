@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -15,7 +15,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ReactiveUI" />
+    <PackageReference Include="DynamicData" />
+    <PackageReference Include="ReactiveUI.Reactive" />
     <PackageReference Include="Splat" />
   </ItemGroup>
 
@@ -24,4 +25,9 @@
     <ProjectReference Include="..\ReactiveUI.SourceGenerators.Execute.Nested3\ReactiveUI.SourceGenerators.Execute.Nested3.csproj" />
     <ProjectReference Include="..\ReactiveUI.SourceGenerators.Roslyn5000\ReactiveUI.SourceGenerators.Roslyn5000.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="ReactiveUI.Reactive" />
+  </ItemGroup>
+
 </Project>

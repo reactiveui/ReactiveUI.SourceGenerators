@@ -1,18 +1,13 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
-/// <summary>
-/// Unit tests for the ObservableAsProperty generator.
-/// </summary>
+/// <summary>Unit tests for the ObservableAsProperty generator.</summary>
 public class OAPFromObservableGeneratorTests : TestBase<ObservableAsPropertyGenerator>
 {
-    /// <summary>
-    /// Tests that the source generator correctly generates observable properties.
-    /// </summary>
+    /// <summary>Tests that the source generator correctly generates observable properties.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromObservableProp()
@@ -37,9 +32,7 @@ public class OAPFromObservableGeneratorTests : TestBase<ObservableAsPropertyGene
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests that the source generator correctly generates observable properties.
-    /// </summary>
+    /// <summary>Tests that the source generator correctly generates observable properties.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Nested()
@@ -82,9 +75,7 @@ public class OAPFromObservableGeneratorTests : TestBase<ObservableAsPropertyGene
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests that the source generator correctly generates observable properties.
-    /// </summary>
+    /// <summary>Tests that the source generator correctly generates observable properties.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromObservableMethods()
@@ -109,9 +100,7 @@ public class OAPFromObservableGeneratorTests : TestBase<ObservableAsPropertyGene
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests that the source generator correctly generates observable properties.
-    /// </summary>
+    /// <summary>Tests that the source generator correctly generates observable properties.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromObservableMethodsWithName()
@@ -136,9 +125,7 @@ public class OAPFromObservableGeneratorTests : TestBase<ObservableAsPropertyGene
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests that the source generator correctly generates observable properties.
-    /// </summary>
+    /// <summary>Tests that the source generator correctly generates observable properties.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task WithName()
@@ -163,9 +150,7 @@ public class OAPFromObservableGeneratorTests : TestBase<ObservableAsPropertyGene
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests that the source generator correctly generates observable properties.
-    /// </summary>
+    /// <summary>Tests that the source generator correctly generates observable properties.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task WithAttr()
@@ -194,9 +179,7 @@ public class OAPFromObservableGeneratorTests : TestBase<ObservableAsPropertyGene
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests that the source generator correctly generates observable properties.
-    /// </summary>
+    /// <summary>Tests that the source generator correctly generates observable properties.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task AttrRef()
@@ -225,9 +208,7 @@ public class OAPFromObservableGeneratorTests : TestBase<ObservableAsPropertyGene
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests that the source generator correctly generates observable properties.
-    /// </summary>
+    /// <summary>Tests that the source generator correctly generates observable properties.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task AttrNullRef()
@@ -256,9 +237,7 @@ public class OAPFromObservableGeneratorTests : TestBase<ObservableAsPropertyGene
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests that the source generator correctly generates observable properties.
-    /// </summary>
+    /// <summary>Tests that the source generator correctly generates observable properties.</summary>
     /// <returns>
     /// A task to monitor the async.
     /// </returns>
@@ -297,9 +276,7 @@ public class OAPFromObservableGeneratorTests : TestBase<ObservableAsPropertyGene
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests that the source generator correctly generates observable properties.
-    /// </summary>
+    /// <summary>Tests that the source generator correctly generates observable properties.</summary>
     /// <returns>
     /// A task to monitor the async.
     /// </returns>

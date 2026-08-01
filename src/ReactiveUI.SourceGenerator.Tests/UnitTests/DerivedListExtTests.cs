@@ -1,18 +1,13 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
-/// <summary>
-/// Extended unit tests for the BindableDerivedList generator covering edge cases.
-/// </summary>
+/// <summary>Extended unit tests for the BindableDerivedList generator covering edge cases.</summary>
 public class DerivedListExtTests : TestBase<BindableDerivedListGenerator>
 {
-    /// <summary>
-    /// Tests BindableDerivedList with multiple lists.
-    /// </summary>
+    /// <summary>Tests BindableDerivedList with multiple lists.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task MultipleLists()
@@ -39,9 +34,7 @@ public class DerivedListExtTests : TestBase<BindableDerivedListGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests BindableDerivedList with complex generic type.
-    /// </summary>
+    /// <summary>Tests BindableDerivedList with complex generic type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task ComplexGeneric()
@@ -68,9 +61,7 @@ public class DerivedListExtTests : TestBase<BindableDerivedListGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests BindableDerivedList in nested class.
-    /// </summary>
+    /// <summary>Tests BindableDerivedList in nested class.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task NestedClass()
@@ -103,9 +94,7 @@ public class DerivedListExtTests : TestBase<BindableDerivedListGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests BindableDerivedList with generic class.
-    /// </summary>
+    /// <summary>Tests BindableDerivedList with generic class.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task GenericClass()
@@ -126,9 +115,7 @@ public class DerivedListExtTests : TestBase<BindableDerivedListGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests BindableDerivedList with record type.
-    /// </summary>
+    /// <summary>Tests BindableDerivedList with record type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task RecordClass()
@@ -152,9 +139,7 @@ public class DerivedListExtTests : TestBase<BindableDerivedListGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests BindableDerivedList with nullable reference type elements.
-    /// </summary>
+    /// <summary>Tests BindableDerivedList with nullable reference type elements.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task NullableElements()
@@ -175,9 +160,7 @@ public class DerivedListExtTests : TestBase<BindableDerivedListGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests BindableDerivedList with interface element type.
-    /// </summary>
+    /// <summary>Tests BindableDerivedList with interface element type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task InterfaceType()
@@ -208,9 +191,7 @@ public class DerivedListExtTests : TestBase<BindableDerivedListGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests BindableDerivedList with tuple type elements.
-    /// </summary>
+    /// <summary>Tests BindableDerivedList with tuple type elements.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task TupleType()
@@ -231,9 +212,7 @@ public class DerivedListExtTests : TestBase<BindableDerivedListGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests BindableDerivedList in different namespaces.
-    /// </summary>
+    /// <summary>Tests BindableDerivedList in different namespaces.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task DiffNamespaces()
@@ -264,9 +243,7 @@ public class DerivedListExtTests : TestBase<BindableDerivedListGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests BindableDerivedList with enum element type.
-    /// </summary>
+    /// <summary>Tests BindableDerivedList with enum element type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task EnumType()
@@ -289,9 +266,7 @@ public class DerivedListExtTests : TestBase<BindableDerivedListGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests BindableDerivedList with struct element type.
-    /// </summary>
+    /// <summary>Tests BindableDerivedList with struct element type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task StructType()
@@ -318,9 +293,7 @@ public class DerivedListExtTests : TestBase<BindableDerivedListGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests BindableDerivedList with Guid element type.
-    /// </summary>
+    /// <summary>Tests BindableDerivedList with Guid element type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task GuidType()
@@ -342,9 +315,7 @@ public class DerivedListExtTests : TestBase<BindableDerivedListGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests BindableDerivedList with DateTime element type.
-    /// </summary>
+    /// <summary>Tests BindableDerivedList with DateTime element type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task DateTimeType()
@@ -369,9 +340,7 @@ public class DerivedListExtTests : TestBase<BindableDerivedListGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests BindableDerivedList combined with reactive properties.
-    /// </summary>
+    /// <summary>Tests BindableDerivedList combined with reactive properties.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task WithReactive()
@@ -403,9 +372,7 @@ public class DerivedListExtTests : TestBase<BindableDerivedListGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests BindableDerivedList always generates public properties even for internal classes.
-    /// </summary>
+    /// <summary>Tests BindableDerivedList always generates public properties even for internal classes.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task InternalClassGeneratesPublicProperty()
@@ -427,9 +394,7 @@ public class DerivedListExtTests : TestBase<BindableDerivedListGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests BindableDerivedList with all supported property access modifiers.
-    /// </summary>
+    /// <summary>Tests BindableDerivedList with all supported property access modifiers.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task AccessModifiers()

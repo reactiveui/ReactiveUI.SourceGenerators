@@ -1,18 +1,75 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
-/// <summary>
-/// Unit tests for the Reactive generator.
-/// </summary>
+/// <summary>Unit tests for the Reactive generator.</summary>
 public class ReactiveGeneratorTests : TestBase<ReactiveGenerator>
 {
-    /// <summary>
-    /// Tests that the source generator correctly generates reactive properties.
-    /// </summary>
+    /// <summary>Source containing nested reactive classes used by the nested-class generation test.</summary>
+    private const string NestedClassSource = """
+            using System;
+            using System.Runtime.Serialization;
+            using System.Text.Json.Serialization;
+            using ReactiveUI;
+            using ReactiveUI.SourceGenerators;
+            using System.Reactive.Linq;
+
+            namespace TestNs1
+            {
+                /// <summary>
+                /// TestViewModel3.
+                /// </summary>
+                public partial class TestViewModel3 : ReactiveObject
+                {
+                    [Reactive]
+                    private float _testVM3Property;
+
+                    [Reactive]
+                    private float _testVM3Property2;
+
+                    /// <summary>
+                    /// TestInnerClass.
+                    /// </summary>
+                    public partial class TestInnerClass1 : ReactiveObject
+                    {
+                        [Reactive]
+                        private int _testInner1;
+
+                        [Reactive]
+                        private int _testInner11;
+                    }
+
+                    /// <summary>
+                    /// TestInnerClass.
+                    /// </summary>
+                    public partial class TestInnerClass2 : ReactiveObject
+                    {
+                        [Reactive]
+                        private int _testInner2;
+
+                        [Reactive]
+                        private int _testInner22;
+
+                        /// <summary>
+                        /// TestInnerClass4.
+                        /// </summary>
+                        /// <seealso cref="ReactiveUI.ReactiveObject" />
+                        public partial class TestInnerClass3 : ReactiveObject
+                        {
+                            [Reactive]
+                            private int _testInner3;
+
+                            [Reactive]
+                            private int _testInner33;
+                        }
+                    }
+                }
+            }
+            """;
+
+    /// <summary>Tests that the source generator correctly generates reactive properties.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Basic()
@@ -37,9 +94,7 @@ public class ReactiveGeneratorTests : TestBase<ReactiveGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests that the source generator correctly generates reactive properties.
-    /// </summary>
+    /// <summary>Tests that the source generator correctly generates reactive properties.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task CalledValue()
@@ -64,9 +119,7 @@ public class ReactiveGeneratorTests : TestBase<ReactiveGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests that the source generator correctly generates reactive properties.
-    /// </summary>
+    /// <summary>Tests that the source generator correctly generates reactive properties.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task WithAccess()
@@ -91,9 +144,7 @@ public class ReactiveGeneratorTests : TestBase<ReactiveGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Froms the reactive properies with attributes.
-    /// </summary>
+    /// <summary>Froms the reactive properies with attributes.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task WithAttributes()
@@ -122,9 +173,7 @@ public class ReactiveGeneratorTests : TestBase<ReactiveGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Froms the reactive properties with attributes and access and inheritance.
-    /// </summary>
+    /// <summary>Froms the reactive properties with attributes and access and inheritance.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task WithAttrAccessInherit()
@@ -153,9 +202,7 @@ public class ReactiveGeneratorTests : TestBase<ReactiveGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Froms the reactive properties with attributes and access and inheritance.
-    /// </summary>
+    /// <summary>Froms the reactive properties with attributes and access and inheritance.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task WithIdenticalClass()
@@ -196,82 +243,12 @@ public class ReactiveGeneratorTests : TestBase<ReactiveGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Froms the reactive properties with nested class.
-    /// </summary>
+    /// <summary>Froms the reactive properties with nested class.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
-    public Task WithNestedClass()
-    {
-        // Arrange: Setup the source code that matches the generator input expectations.
-        const string sourceCode = """
-                using System;
-                using System.Runtime.Serialization;
-                using System.Text.Json.Serialization;
-                using ReactiveUI;
-                using ReactiveUI.SourceGenerators;
-                using System.Reactive.Linq;
+    public Task WithNestedClass() => TestHelper.TestPass(NestedClassSource);
 
-                namespace TestNs1
-                {
-                    /// <summary>
-                    /// TestViewModel3.
-                    /// </summary>
-                    public partial class TestViewModel3 : ReactiveObject
-                    {
-                        [Reactive]
-                        private float _testVM3Property;
-
-                        [Reactive]
-                        private float _testVM3Property2;
-
-                        /// <summary>
-                        /// TestInnerClass.
-                        /// </summary>
-                        public partial class TestInnerClass1 : ReactiveObject
-                        {
-                            [Reactive]
-                            private int _testInner1;
-
-                            [Reactive]
-                            private int _testInner11;
-                        }
-
-                        /// <summary>
-                        /// TestInnerClass.
-                        /// </summary>
-                        public partial class TestInnerClass2 : ReactiveObject
-                        {
-                            [Reactive]
-                            private int _testInner2;
-
-                            [Reactive]
-                            private int _testInner22;
-
-                            /// <summary>
-                            /// TestInnerClass4.
-                            /// </summary>
-                            /// <seealso cref="ReactiveUI.ReactiveObject" />
-                            public partial class TestInnerClass3 : ReactiveObject
-                            {
-                                [Reactive]
-                                private int _testInner3;
-
-                                [Reactive]
-                                private int _testInner33;
-                            }
-                        }
-                    }
-                }
-                """;
-
-        // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
-        return TestHelper.TestPass(sourceCode);
-    }
-
-    /// <summary>
-    /// Tests that the source generator correctly generates reactive properties.
-    /// </summary>
+    /// <summary>Tests that the source generator correctly generates reactive properties.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task WithInit()
@@ -296,9 +273,7 @@ public class ReactiveGeneratorTests : TestBase<ReactiveGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests that the source generator correctly generates reactive properties.
-    /// </summary>
+    /// <summary>Tests that the source generator correctly generates reactive properties.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task Partial()
@@ -323,9 +298,7 @@ public class ReactiveGeneratorTests : TestBase<ReactiveGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests reactive property generation from a partial class with AlsoNotify support.
-    /// </summary>
+    /// <summary>Tests reactive property generation from a partial class with AlsoNotify support.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task PartialAlsoNotify()

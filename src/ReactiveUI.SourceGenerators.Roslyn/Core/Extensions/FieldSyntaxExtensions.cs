@@ -1,162 +1,126 @@
-﻿// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System.Globalization;
-using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ReactiveUI.SourceGenerators.Helpers;
 
 namespace ReactiveUI.SourceGenerators.Extensions;
 
+/// <summary>Extension methods for ReactiveUI field, property, and method symbols.</summary>
 internal static class FieldSyntaxExtensions
 {
-    /// <summary>
-    /// Get the generated property name for an input field.
-    /// </summary>
-    /// <param name="fieldSymbol">The input <see cref="IFieldSymbol"/> instance to process.</param>
-    /// <returns>The generated property name for <paramref name="fieldSymbol"/>.</returns>
-    internal static string GetGeneratedPropertyName(this IFieldSymbol fieldSymbol)
+    /// <summary>The number of characters in a member-style backing-field prefix.</summary>
+    private const int FieldPrefixLength = 2;
+
+    /// <summary>The metadata name of ReactiveUI's observable object base type.</summary>
+    private const string ReactiveObjectTypeName = "ReactiveUI.ReactiveObject";
+
+    /// <summary>The metadata name of ReactiveUI's observable object interface.</summary>
+    private const string ReactiveObjectInterfaceTypeName = "ReactiveUI.IReactiveObject";
+
+    /// <summary>Provides operations for annotated field symbols.</summary>
+    /// <param name="fieldSymbol">The field symbol receiving the extension operation.</param>
+    extension(IFieldSymbol fieldSymbol)
     {
-        var propertyName = fieldSymbol.Name;
-
-        if (propertyName.StartsWith("m_"))
+        /// <summary>Gets the generated property name for an input field.</summary>
+        /// <returns>The generated property name.</returns>
+        internal string GetGeneratedPropertyName()
         {
-            propertyName = propertyName.Substring(2);
-        }
-        else if (propertyName.StartsWith("_"))
-        {
-            propertyName = propertyName.TrimStart('_');
+            var propertyName = fieldSymbol.Name;
+
+            if (propertyName.StartsWith("m_", System.StringComparison.Ordinal))
+            {
+                propertyName = propertyName[FieldPrefixLength..];
+            }
+            else if (propertyName.StartsWith("_", System.StringComparison.Ordinal))
+            {
+                propertyName = propertyName.TrimStart('_');
+            }
+
+            return $"{char.ToUpper(propertyName[0], CultureInfo.InvariantCulture)}{propertyName[1..]}";
         }
 
-        return $"{char.ToUpper(propertyName[0], CultureInfo.InvariantCulture)}{propertyName.Substring(1)}";
+        /// <summary>Gets nullability information for a generated property.</summary>
+        /// <param name="semanticModel">The semantic model for the current run.</param>
+        /// <param name="isReferenceTypeOrUnconstraindTypeParameter">Whether the property type supports nullability.</param>
+        /// <param name="includeMemberNotNullOnSetAccessor">Whether MemberNotNullAttribute should be used on the setter.</param>
+        internal void GetNullabilityInfo(
+            SemanticModel semanticModel,
+            out bool isReferenceTypeOrUnconstraindTypeParameter,
+            out bool includeMemberNotNullOnSetAccessor) =>
+            GetNullabilityInfo(fieldSymbol.Type, semanticModel, out isReferenceTypeOrUnconstraindTypeParameter, out includeMemberNotNullOnSetAccessor);
+
+        /// <summary>Validates the containing type for a given field being annotated.</summary>
+        /// <returns>Whether the containing type is valid.</returns>
+        internal bool IsTargetTypeValid() => IsTargetTypeValid(fieldSymbol.ContainingType);
     }
 
-    internal static string GetGeneratedFieldName(this IPropertySymbol propertySymbol)
+    /// <summary>Provides operations for annotated method symbols.</summary>
+    /// <param name="methodSymbol">The method symbol receiving the extension operation.</param>
+    extension(IMethodSymbol methodSymbol)
     {
-        var propertyName = propertySymbol.Name;
-
-        return $"_{char.ToLower(propertyName[0], CultureInfo.InvariantCulture)}{propertyName.Substring(1)}";
+        /// <summary>Validates the containing type for a given method being annotated.</summary>
+        /// <returns>Whether the containing type is valid.</returns>
+        internal bool IsTargetTypeValid() => IsTargetTypeValid(methodSymbol.ContainingType);
     }
 
-    /// <summary>
-    /// Gets the nullability info on the generated property.
-    /// </summary>
-    /// <param name="fieldSymbol">The input <see cref="IFieldSymbol"/> instance to process.</param>
-    /// <param name="semanticModel">The <see cref="SemanticModel"/> instance for the current run.</param>
+    /// <summary>Provides operations for annotated property symbols.</summary>
+    /// <param name="propertySymbol">The property symbol receiving the extension operation.</param>
+    extension(IPropertySymbol propertySymbol)
+    {
+        /// <summary>Gets the generated backing-field name for an input property.</summary>
+        /// <returns>The generated backing-field name.</returns>
+        internal string GetGeneratedFieldName()
+        {
+            var propertyName = propertySymbol.Name;
+
+            return $"_{char.ToLower(propertyName[0], CultureInfo.InvariantCulture)}{propertyName[1..]}";
+        }
+
+        /// <summary>Gets nullability information for a generated property.</summary>
+        /// <param name="semanticModel">The semantic model for the current run.</param>
+        /// <param name="isReferenceTypeOrUnconstraindTypeParameter">Whether the property type supports nullability.</param>
+        /// <param name="includeMemberNotNullOnSetAccessor">Whether MemberNotNullAttribute should be used on the setter.</param>
+        internal void GetNullabilityInfo(
+            SemanticModel semanticModel,
+            out bool isReferenceTypeOrUnconstraindTypeParameter,
+            out bool includeMemberNotNullOnSetAccessor) =>
+            GetNullabilityInfo(propertySymbol.Type, semanticModel, out isReferenceTypeOrUnconstraindTypeParameter, out includeMemberNotNullOnSetAccessor);
+
+        /// <summary>Validates the containing type for a given property being annotated.</summary>
+        /// <returns>Whether the containing type is valid.</returns>
+        internal bool IsTargetTypeValid() => IsTargetTypeValid(propertySymbol.ContainingType);
+    }
+
+    /// <summary>Determines whether a containing type supports ReactiveUI-generated members.</summary>
+    /// <param name="containingType">The type that owns the annotated member.</param>
+    /// <returns>Whether the containing type is a supported ReactiveUI observable type.</returns>
+    private static bool IsTargetTypeValid(INamedTypeSymbol containingType)
+    {
+        var isObservableObject = containingType.InheritsFromFullyQualifiedMetadataName(ReactiveObjectTypeName);
+        var isIObservableObject = containingType.ImplementsFullyQualifiedMetadataName(ReactiveObjectInterfaceTypeName);
+        var hasObservableObjectAttribute = containingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ReactiveObjectAttributeType);
+
+        return isIObservableObject || isObservableObject || hasObservableObjectAttribute;
+    }
+
+    /// <summary>Gets nullability information for a property generated from a type.</summary>
+    /// <param name="typeSymbol">The member type to evaluate.</param>
+    /// <param name="semanticModel">The semantic model for the current run.</param>
     /// <param name="isReferenceTypeOrUnconstraindTypeParameter">Whether the property type supports nullability.</param>
     /// <param name="includeMemberNotNullOnSetAccessor">Whether MemberNotNullAttribute should be used on the setter.</param>
-    internal static void GetNullabilityInfo(
-        this IFieldSymbol fieldSymbol,
+    private static void GetNullabilityInfo(
+        ITypeSymbol typeSymbol,
         SemanticModel semanticModel,
         out bool isReferenceTypeOrUnconstraindTypeParameter,
         out bool includeMemberNotNullOnSetAccessor)
     {
-        // We're using IsValueType here and not IsReferenceType to also cover unconstrained type parameter cases.
-        // This will cover both reference types as well T when the constraints are not struct or unmanaged.
-        // If this is true, it means the field storage can potentially be in a null state (even if not annotated).
-        isReferenceTypeOrUnconstraindTypeParameter = !fieldSymbol.Type.IsValueType;
-
-        // This is used to avoid nullability warnings when setting the property from a constructor, in case the field
-        // was marked as not nullable. Nullability annotations are assumed to always be enabled to make the logic simpler.
-        // Consider this example:
-        //
-        // partial class MyViewModel : ReactiveObject
-        // {
-        //    public MyViewModel()
-        //    {
-        //        Name = "Bob";
-        //    }
-        //
-        //    [Reactive]
-        //    private string _name;
-        // }
-        //
-        // The [MemberNotNull] attribute is needed on the setter for the generated Name property so that when Name
-        // is set, the compiler can determine that the name backing field is also being set (to a non null value).
-        // Of course, this can only be the case if the field type is also of a type that could be in a null state.
+        isReferenceTypeOrUnconstraindTypeParameter = !typeSymbol.IsValueType;
         includeMemberNotNullOnSetAccessor =
-            isReferenceTypeOrUnconstraindTypeParameter &&
-            fieldSymbol.Type.NullableAnnotation != NullableAnnotation.Annotated &&
-            semanticModel.Compilation.HasAccessibleTypeWithMetadataName("System.Diagnostics.CodeAnalysis.MemberNotNullAttribute");
-    }
-
-    internal static void GetNullabilityInfo(
-        this IPropertySymbol propertySymbol,
-        SemanticModel semanticModel,
-        out bool isReferenceTypeOrUnconstraindTypeParameter,
-        out bool includeMemberNotNullOnSetAccessor)
-    {
-        // We're using IsValueType here and not IsReferenceType to also cover unconstrained type parameter cases.
-        // This will cover both reference types as well T when the constraints are not struct or unmanaged.
-        // If this is true, it means the field storage can potentially be in a null state (even if not annotated).
-        isReferenceTypeOrUnconstraindTypeParameter = !propertySymbol.Type.IsValueType;
-
-        // This is used to avoid nullability warnings when setting the property from a constructor, in case the field
-        // was marked as not nullable. Nullability annotations are assumed to always be enabled to make the logic simpler.
-        // Consider this example:
-        //
-        // partial class MyViewModel : ReactiveObject
-        // {
-        //    public MyViewModel()
-        //    {
-        //        Name = "Bob";
-        //    }
-        //
-        //    [Reactive]
-        //    private string _name;
-        // }
-        //
-        // The [MemberNotNull] attribute is needed on the setter for the generated Name property so that when Name
-        // is set, the compiler can determine that the name backing field is also being set (to a non null value).
-        // Of course, this can only be the case if the field type is also of a type that could be in a null state.
-        includeMemberNotNullOnSetAccessor =
-            isReferenceTypeOrUnconstraindTypeParameter &&
-            propertySymbol.Type.NullableAnnotation != NullableAnnotation.Annotated &&
-            semanticModel.Compilation.HasAccessibleTypeWithMetadataName("System.Diagnostics.CodeAnalysis.MemberNotNullAttribute");
-    }
-
-    /// <summary>
-    /// Validates the containing type for a given field being annotated.
-    /// </summary>
-    /// <param name="fieldSymbol">The input <see cref="IFieldSymbol"/> instance to process.</param>
-    /// <returns>Whether or not the containing type for <paramref name="fieldSymbol"/> is valid.</returns>
-    internal static bool IsTargetTypeValid(this IFieldSymbol fieldSymbol)
-    {
-        var isObservableObject = fieldSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.ReactiveObject");
-        var isIObservableObject = fieldSymbol.ContainingType.ImplementsFullyQualifiedMetadataName("ReactiveUI.IReactiveObject");
-        var hasObservableObjectAttribute = fieldSymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ReactiveObjectAttributeType);
-
-        return isIObservableObject || isObservableObject || hasObservableObjectAttribute;
-    }
-
-    /// <summary>
-    /// Validates the containing type for a given field being annotated.
-    /// </summary>
-    /// <param name="propertySymbol">The input <see cref="IFieldSymbol"/> instance to process.</param>
-    /// <returns>Whether or not the containing type for <paramref name="propertySymbol"/> is valid.</returns>
-    internal static bool IsTargetTypeValid(this IPropertySymbol propertySymbol)
-    {
-        var isObservableObject = propertySymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.ReactiveObject");
-        var isIObservableObject = propertySymbol.ContainingType.ImplementsFullyQualifiedMetadataName("ReactiveUI.IReactiveObject");
-        var hasObservableObjectAttribute = propertySymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ReactiveObjectAttributeType);
-
-        return isIObservableObject || isObservableObject || hasObservableObjectAttribute;
-    }
-
-    /// <summary>
-    /// Validates the containing type for a given field being annotated.
-    /// </summary>
-    /// <param name="methodSymbol">The input <see cref="IFieldSymbol"/> instance to process.</param>
-    /// <returns>Whether or not the containing type for <paramref name="methodSymbol"/> is valid.</returns>
-    internal static bool IsTargetTypeValid(this IMethodSymbol methodSymbol)
-    {
-        var isObservableObject = methodSymbol.ContainingType.InheritsFromFullyQualifiedMetadataName("ReactiveUI.ReactiveObject");
-        var isIObservableObject = methodSymbol.ContainingType.ImplementsFullyQualifiedMetadataName("ReactiveUI.IReactiveObject");
-        var hasObservableObjectAttribute = methodSymbol.ContainingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ReactiveObjectAttributeType);
-
-        return isIObservableObject || isObservableObject || hasObservableObjectAttribute;
+            isReferenceTypeOrUnconstraindTypeParameter
+            && typeSymbol.NullableAnnotation != NullableAnnotation.Annotated
+            && semanticModel.Compilation.HasAccessibleTypeWithMetadataName("System.Diagnostics.CodeAnalysis.MemberNotNullAttribute");
     }
 }

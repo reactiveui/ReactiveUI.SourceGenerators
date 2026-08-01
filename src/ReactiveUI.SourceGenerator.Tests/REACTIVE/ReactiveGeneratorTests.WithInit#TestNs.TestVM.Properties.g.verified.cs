@@ -13,7 +13,7 @@ namespace TestNs
         /// <inheritdoc cref="_mustBeSet"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public required string MustBeSet
-        { 
+        {
             get => _mustBeSet;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_mustBeSet")]
             init

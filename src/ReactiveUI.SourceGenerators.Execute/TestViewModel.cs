@@ -1,237 +1,175 @@
-﻿// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
 using System.Reactive.Concurrency;
-using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
-using DynamicData;
-using ReactiveUI;
 using ReactiveUI.SourceGenerators;
 
 namespace SGReactiveUI.SourceGenerators.Test;
 
-/// <summary>
-/// TestClass.
-/// </summary>
-/// <seealso cref="ReactiveUI.ReactiveObject" />
-/// <seealso cref="ReactiveUI.IActivatableViewModel" />
+/// <summary>Provides a comprehensive source-generator execution sample.</summary>
+/// <seealso cref="ReactiveUI.Reactive.ReactiveObject" />
+/// <seealso cref="ReactiveUI.Reactive.IActivatableViewModel" />
 /// <seealso cref="System.IDisposable" />
-/// <seealso cref="ReactiveObject" />
-/// <seealso cref="IActivatableViewModel" />
 /// <seealso cref="IDisposable" />
 [DataContract]
 public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDisposable
 {
+    /// <summary>Represents the initial nullable read-only value.</summary>
+    private const double NegativeInitialReadOnlyValue = -1.0D;
+
+    /// <summary>Represents the initial non-null read-only value.</summary>
+    private const double NegativeNonNullReadOnlyValue = -5.0D;
+
+    /// <summary>Represents the updated read-only value.</summary>
+    private const double NegativeUpdatedReadOnlyValue = -2.0D;
+
+    /// <summary>Represents the first observed double value.</summary>
+    private const double FirstObservedDoubleValue = 10.0D;
+
+    /// <summary>Represents the second observed double value.</summary>
+    private const double SecondObservedDoubleValue = 11.0D;
+
+    /// <summary>Represents the initial observable-as-property value.</summary>
+    private const int ObservableAsPropertyInitialValue = 11_223_344;
+
+    /// <summary>Represents the argument passed to the sample command.</summary>
+    private const int CommandArgumentValue = 100;
+
+    /// <summary>Represents the expected sample command result.</summary>
+    private const int CommandResultValue = 200;
+
+    /// <summary>Represents the value published after the observable updates.</summary>
+    private const int ObservableUpdatedValue = 11;
+
+    /// <summary>Represents the default observable value.</summary>
+    private const int DefaultObservableValue = 9;
+
+    /// <summary>Represents the offset applied by the observable command.</summary>
+    private const double ObservableCommandOffset = 10.0D;
+
+    /// <summary>Represents the cancellation delay in milliseconds.</summary>
+    private const int CancellationDelayMilliseconds = 2_000;
+
+    /// <summary>Provides the observable used to control the private command.</summary>
     private readonly IObservable<bool> _observable = Observable.Return(true);
+
+    /// <summary>Publishes nullable values for the observable-as-property example.</summary>
     private readonly Subject<double?> _testSubject = new();
+
+    /// <summary>Publishes non-null values for the observable-as-property example.</summary>
     private readonly Subject<double> _testNonNullSubject = new();
+
+    /// <summary>Publishes values for the partial observable-as-property example.</summary>
     private readonly Subject<int> _fromPartialTestSubject = new();
+
+    /// <summary>Provides the scheduler used by generated reactive commands.</summary>
     private readonly IScheduler _scheduler = RxSchedulers.MainThreadScheduler;
 
+    /// <summary>Stores the first observable-as-property value.</summary>
     [property: JsonInclude]
     [DataMember]
     [ObservableAsProperty]
-    private double? _test2Property = 1.1d;
+    private double? _test2Property = 1.1D;
 
+    /// <summary>Stores the second observable-as-property value.</summary>
     [ObservableAsProperty(ReadOnly = false)]
-    private double? _test11Property = 11.1d;
+    private double? _test11Property = 11.1D;
 
+    /// <summary>Stores the third observable-as-property value.</summary>
     [ObservableAsProperty(ReadOnly = false)]
-    private double _test13Property = 11.1d;
+    private double _test13Property = 11.1D;
 
+    /// <summary>Stores the protected observable-as-property value.</summary>
     [ObservableAsProperty(UseProtected = true)]
     private double _observableAsPropertyTest3Property;
 
+    /// <summary>Stores the value used by the reactive test property.</summary>
     [property: Test(AParameter = "Test Input")]
     [Reactive]
-    private double? _test12Property = 12.1d;
+    private double? _test12Property = 12.1D;
 
+    /// <summary>Stores the protected reactive test property value.</summary>
     [Reactive(SetModifier = AccessModifier.Protected)]
     [property: JsonInclude]
     [DataMember]
     private int _test1Property;
+
+    /// <summary>Tracks whether the instance has disposed its resources.</summary>
     private bool _disposedValue;
 
+    /// <summary>Stores the mutable string test value.</summary>
     [Reactive]
     private string _myStringProperty = "test";
 
+    /// <summary>Stores the nullable reactive name.</summary>
     [property: JsonInclude]
     [DataMember]
     [Reactive(Inheritance = InheritanceModifier.Virtual, SetModifier = AccessModifier.Protected)]
     private string? _name;
 
+    /// <summary>Stores the required reactive value.</summary>
     [Reactive(nameof(MyDoubleProperty), nameof(MyStringProperty), SetModifier = AccessModifier.Init, UseRequired = true)]
     private string _mustBeSet;
 
+    /// <summary>Stores the people included in the derived list example.</summary>
     [Reactive]
     private IEnumerable<Person> _people = [new Person()];
+
+    /// <summary>Stores the nullable double reactive value.</summary>
     [Reactive]
     private double? _myDoubleProperty;
+
+    /// <summary>Stores the non-null double reactive value.</summary>
     [Reactive]
     private double _myDoubleNonNullProperty;
 
+    /// <summary>Stores the PLC instance used by the reactive property example.</summary>
     [Reactive]
     private PLCInstance _plcInstanceCore = new();
 
+    /// <summary>Stores the derived observable collection of visible people.</summary>
     [BindableDerivedList]
     private ReadOnlyObservableCollection<Person>? _visiblePeople;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="TestViewModel"/> class.
-    /// </summary>
+    /// <summary>Initializes a new instance of the <see cref="TestViewModel"/> class.</summary>
     [SetsRequiredMembers]
     public TestViewModel()
     {
-        var itv = new InternalTestViewModel { PublicRequiredPartialPropertyTest = true };
+        _ = new InternalTestViewModel { PublicRequiredPartialPropertyTest = true };
         MustBeSet = "Test";
-        this.WhenActivated(disposables =>
-        {
-            Console.Out.WriteLine("Activated");
-            _test11PropertyHelper = this.WhenAnyValue(x => x.Test12Property).ToProperty(this, x => x.Test11Property, out _).DisposeWith(disposables);
-            GetDataCommand.Do(_ => Console.Out.WriteLine("GetDataCommand Executed")).Subscribe().DisposeWith(disposables);
-            GetDataCommand.Execute().Subscribe().DisposeWith(disposables);
-        });
-
-        Console.Out.WriteLine("MyReadOnlyProperty before init");
-
-        // only settable prior to init, after init it will be ignored.
-        _myReadOnlyProperty = -1.0;
-        Console.Out.WriteLine(MyReadOnlyProperty);
-        Console.Out.WriteLine(_myReadOnlyProperty);
-
-        Console.Out.WriteLine("MyReadOnlyNonNullProperty before init");
-
-        // only settable prior to init, after init it will be ignored.
-        _myReadOnlyNonNullProperty = -5.0;
-        Console.Out.WriteLine(MyReadOnlyNonNullProperty);
-        Console.Out.WriteLine(_myReadOnlyNonNullProperty);
-
-        _observableAsPropertyTest2Property = 11223344;
-        Console.Out.WriteLine(ObservableAsPropertyTest2Property);
-        Console.Out.WriteLine(_observableAsPropertyTest2Property);
-
+        _test11PropertyHelper = CreateTest11PropertyHelper();
+        _test2PropertyHelper = CreateTest2PropertyHelper();
+        _observableAsPropertyTest3PropertyHelper = CreateObservableAsPropertyTest3PropertyHelper();
+        _observableAsPropertyFromPropertyHelper = CreateObservableAsPropertyFromPropertyHelper();
+        _pLCActiveHelper = CreatePlcActiveHelper();
+        _pLCPortHelper = CreatePlcPortHelper();
+        _instanceOfPLCHelper = CreatePlcInstanceHelper();
         _referenceTypeObservableProperty = default!;
         ReferenceTypeObservable = Observable.Return(new object());
         NullableReferenceTypeObservable = Observable.Return(new object());
-
-        InitializeOAPH();
-
-        Console.Out.WriteLine(Test1Command);
-        Console.Out.WriteLine(Test2Command);
-        Console.Out.WriteLine(Test3Command);
-        Console.Out.WriteLine(Test4Command);
-        Console.Out.WriteLine(Test5StringToIntCommand);
-        Console.Out.WriteLine(Test6ArgOnlyCommand);
-        Console.Out.WriteLine(Test7ObservableCommand);
-        Console.Out.WriteLine(Test8ObservableCommand);
-        Console.Out.WriteLine(Test9Command);
-        Console.Out.WriteLine(Test10Command);
-        Test1Command?.Execute().Subscribe();
-        Test2Command?.Execute().Subscribe(r => Console.Out.WriteLine(r));
-        Test3Command?.Execute().Subscribe();
-        Test4Command?.Execute().Subscribe(r => Console.Out.WriteLine(r));
-        Test5StringToIntCommand?.Execute("100").Subscribe(Console.Out.WriteLine);
-        Test6ArgOnlyCommand?.Execute("Hello World").Subscribe();
-        Test7ObservableCommand?.Execute().Subscribe();
-
-        Console.Out.WriteLine($"Test2Property default Value: {Test2Property}");
-        _test2PropertyHelper = Test8ObservableCommand!.ToProperty(this, x => x.Test2Property);
-        _observableAsPropertyTest3PropertyHelper = this.WhenAnyValue(x => x.Test13Property)!.ToProperty(this, x => x.ObservableAsPropertyTest3Property);
-
-        Test8ObservableCommand?.Execute(100).Subscribe(d => Console.Out.WriteLine(d));
-        Console.Out.WriteLine($"Test2Property Value: {Test2Property}");
-        Console.Out.WriteLine($"Test2Property underlying Value: {_test2Property}");
-        Console.Out.WriteLine(ObservableAsPropertyTest2Property);
-
-        Console.Out.WriteLine("MyReadOnlyProperty After Init");
-
-        // setting this value should not update the _myReadOnlyPropertyHelper as the _testSubject has not been updated yet but the _myReadOnlyPropertyHelper should be updated with null upon init.
-        _myReadOnlyProperty = -2.0;
-
-        // null value expected as the _testSubject has not been updated yet, ignoring the private variable.
-        Console.Out.WriteLine(MyReadOnlyProperty);
-        Console.Out.WriteLine(_myReadOnlyProperty);
-        _testSubject.OnNext(10.0);
-
-        // expected value 10 as the _testSubject has been updated.
-        Console.Out.WriteLine(MyReadOnlyProperty);
-        Console.Out.WriteLine(_myReadOnlyProperty);
-        _testSubject.OnNext(null);
-
-        // expected value null as the _testSubject has been updated.
-        Console.Out.WriteLine(MyReadOnlyProperty);
-        Console.Out.WriteLine(_myReadOnlyProperty);
-
-        Console.Out.WriteLine("MyReadOnlyNonNullProperty After Init");
-
-        // setting this value should not update the _myReadOnlyNonNullProperty as the _testNonNullSubject has not been updated yet but the _myReadOnlyNonNullPropertyHelper should be updated with null upon init.
-        _myReadOnlyNonNullProperty = -2.0;
-
-        // 0 value expected as the _testNonNullSubject has not been updated yet, ignoring the private variable.
-        Console.Out.WriteLine(MyReadOnlyNonNullProperty);
-        Console.Out.WriteLine(_myReadOnlyNonNullProperty);
-        _testNonNullSubject.OnNext(11.0);
-
-        // expected value 11 as the _testNonNullSubject has been updated.
-        Console.Out.WriteLine(MyReadOnlyNonNullProperty);
-        Console.Out.WriteLine(_myReadOnlyNonNullProperty);
-        _testNonNullSubject.OnNext(default);
-
-        Console.Out.WriteLine(_test13Property);
-        Console.Out.WriteLine(Test13Property);
-        Console.Out.WriteLine(_test13PropertyHelper);
-
-        // expected value 0 as the _testNonNullSubject has been updated.
-        Console.Out.WriteLine(MyReadOnlyNonNullProperty);
-        Console.Out.WriteLine(_myReadOnlyNonNullProperty);
-
-        Test9Command?.ThrownExceptions.Subscribe(Console.Out.WriteLine);
-        var cancel = Test9Command?.Execute().Subscribe();
-        Task.Delay(1000).Wait();
-        cancel?.Dispose();
-
-        Test10Command?.Execute(200).Subscribe(r => Console.Out.WriteLine(r));
-        TestPrivateCanExecuteCommand?.Execute().Subscribe();
-
-        Console.Out.WriteLine($"Observable unset, value should be 10, value is : {ObservableAsPropertyFromProperty}");
-        _observableAsPropertyFromPropertyHelper = _fromPartialTestSubject.ToProperty(this, x => x.ObservableAsPropertyFromProperty);
-        _fromPartialTestSubject.OnNext(11);
-        Console.Out.WriteLine($"Observable updated, value should be 11, value is : {ObservableAsPropertyFromProperty}");
-
-        this.WhenAnyValue(vm => vm.People)
-        .Subscribe(people => people
-            .AsObservableChangeSet()
-            .AutoRefresh(x => x.Deleted)
-            .Filter(x => !x.Deleted)
-            .Bind(out _visiblePeople)
-            .Subscribe());
-
-        _pLCActiveHelper = this.WhenAnyValue(x => x.PartialRequiredPropertyTest).ToProperty(this, nameof(PLCActive));
-        _pLCPortHelper = this.WhenAnyValue(x => x.Test1Property).ToProperty(this, nameof(PLCPort));
-        _instanceOfPLCHelper = this.WhenAnyValue(x => x.PlcInstanceCore).ToProperty(this, nameof(InstanceOfPLC));
-
-        Console.ReadLine();
+        RegisterActivation();
+        InitializeObservableProperties();
+        ExerciseInitialCommands();
+        ExerciseReadOnlyProperties();
+        ExerciseRemainingCommands();
+        RegisterPeopleSubscription();
     }
 
-    /// <summary>
-    /// Gets the instance.
-    /// </summary>
+    /// <summary>Gets the instance.</summary>
     /// <value>
     /// The instance.
     /// </value>
     public static TestViewModel Instance { get; } = new();
 
-    /// <summary>
-    /// Gets the test class oaph vm.
-    /// </summary>
+    /// <summary>Gets the test class oaph vm.</summary>
     /// <value>
     /// The test class oaph vm.
     /// </value>
@@ -257,74 +195,58 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     [Reactive(UseRequired = true)]
     public required partial string? PartialRequiredPropertyTest { get; set; }
 
-    /// <summary>
-    /// Gets the internal test property. Should not prompt to replace with INPC Reactive Property.
-    /// </summary>
+    /// <summary>Gets the internal test property. Should not prompt to replace with INPC Reactive Property.</summary>
     /// <value>
     /// The test property.
     /// </value>
     [JsonInclude]
     public string? TestInternalSetProperty { get; internal set; } = "Test";
 
-    /// <summary>
-    /// Gets the test private set property. Should not prompt to replace with INPC Reactive Property.
-    /// </summary>
+    /// <summary>Gets the test private set property. Should not prompt to replace with INPC Reactive Property.</summary>
     /// <value>
     /// The test private set property.
     /// </value>
     [JsonInclude]
     public string? TestPrivateSetProperty { get; private set; } = "Test";
 
-    /// <summary>
-    /// Gets or sets the test automatic property.
-    /// </summary>
+    /// <summary>Gets or sets the test automatic property.</summary>
     /// <value>
     /// The test automatic property.
     /// </value>
     [JsonInclude]
     public string? TestAutoProperty { get; set; } = "Test, should prompt to replace with INPC Reactive Property";
 
-    /// <summary>
-    /// Gets the test read only property.
-    /// </summary>
+    /// <summary>Gets the test read only property.</summary>
     /// <value>
     /// The test read only property.
     /// </value>
     public string? TestReadOnlyProperty { get; } = "Test, should not prompt to replace with INPC Reactive Property";
 
-    /// <summary>
-    /// Gets or sets the reactive command test property. Should not prompt to replace with INPC Reactive Property.
-    /// </summary>
+    /// <summary>Gets or sets the reactive command test property. Should not prompt to replace with INPC Reactive Property.</summary>
     /// <value>
     /// The reactive command test property.
     /// </value>
     public ReactiveCommand<Unit, Unit>? ReactiveCommandTestProperty { get; set; }
 
-    /// <summary>
-    /// Gets or sets the reactive property test property. Should not prompt to replace with INPC Reactive Property.
-    /// </summary>
+    /// <summary>Gets or sets the reactive property test property. Should not prompt to replace with INPC Reactive Property.</summary>
     /// <value>
     /// The reactive property test property.
     /// </value>
     public ReactiveProperty<int>? ReactivePropertyTestProperty { get; set; }
 
-    /// <summary>
-    /// Gets the can execute test1.
-    /// </summary>
+    /// <summary>Gets the can execute test1.</summary>
     /// <value>
     /// The can execute test1.
     /// </value>
-    public IObservable<bool> CanExecuteTest1 => ObservableAsPropertyTest2.Select(x => x > 0);
+    public IObservable<bool> CanExecuteTest1 => ObservableAsPropertyTest2.Select(static x => x > 0);
 
-    /// <summary>
-    /// Gets the observable as property test2.
-    /// </summary>
+    /// <summary>Gets the observable as property test2.</summary>
     /// <value>
     /// The observable as property test2.
     /// </value>
     [ObservableAsProperty]
     [property: Test(AParameter = "Test Input")]
-    public IObservable<int> ObservableAsPropertyTest2 => Observable.Return(9);
+    public IObservable<int> ObservableAsPropertyTest2 => Observable.Return(DefaultObservableValue);
 
     /// <summary>
     /// Gets the current active PLC identifier or name.
@@ -344,9 +266,7 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     [ObservableAsProperty(InitialValue = $"new {nameof(PLCInstance)}()")]
     public partial PLCInstance InstanceOfPLC { get; }
 
-    /// <summary>
-    /// Gets the Activator which will be used by the View when Activation/Deactivation occurs.
-    /// </summary>
+    /// <summary>Gets the Activator which will be used by the View when Activation/Deactivation occurs.</summary>
     public ViewModelActivator Activator { get; } = new();
 
     /// <summary>
@@ -364,31 +284,27 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     [Reactive]
     internal partial int InternalPartialPropertyTest { get; set; }
 
+    /// <summary>Gets the observable used for the non-null reference type example.</summary>
     [ObservableAsProperty]
     private IObservable<object> ReferenceTypeObservable { get; }
 
+    /// <summary>Gets the observable used for the nullable reference type example.</summary>
     [ObservableAsProperty]
     private IObservable<object?> NullableReferenceTypeObservable { get; }
 
-    /// <summary>
-    /// Gets observables as property test.
-    /// </summary>
+    /// <summary>Gets observables as property test.</summary>
     /// <returns>
     /// Observable of double.
     /// </returns>
     [ObservableAsProperty(PropertyName = "MyReadOnlyProperty")]
     public IObservable<double?> ObservableAsPropertyTest() => _testSubject;
 
-    /// <summary>
-    /// Observables as property test non null.
-    /// </summary>
+    /// <summary>Observables as property test non null.</summary>
     /// <returns>Observable of double.</returns>
     [ObservableAsProperty(PropertyName = "MyReadOnlyNonNullProperty")]
     public IObservable<double> ObservableAsPropertyTestNonNull() => _testNonNullSubject;
 
-    /// <summary>
-    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-    /// </summary>
+    /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
     public void Dispose()
     {
         // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
@@ -396,98 +312,102 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
         GC.SuppressFinalize(this);
     }
 
-    /// <summary>
-    /// Releases unmanaged and - optionally - managed resources.
-    /// </summary>
+    /// <summary>Releases unmanaged and - optionally - managed resources.</summary>
     /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
     protected virtual void Dispose(bool disposing)
     {
-        if (!_disposedValue)
+        if (_disposedValue)
         {
-            if (disposing)
-            {
-                _testSubject.Dispose();
-                _testNonNullSubject.Dispose();
-                _fromPartialTestSubject.Dispose();
-            }
-
-            _disposedValue = true;
+            return;
         }
+
+        if (disposing)
+        {
+            _testSubject.Dispose();
+            _testNonNullSubject.Dispose();
+            _fromPartialTestSubject.Dispose();
+        }
+
+        _disposedValue = true;
     }
 
-    /// <summary>
-    /// Test1s this instance.
-    /// </summary>
+    /// <summary>Associates a sample result with this view-model instance.</summary>
+    /// <typeparam name="T">The type of the sample result.</typeparam>
+    /// <param name="value">The result to return.</param>
+    /// <returns>The supplied result.</returns>
+    private T UseInstance<T>(T value)
+    {
+        GC.KeepAlive(this);
+        return value;
+    }
+
+    /// <summary>Writes a sample command message while retaining the owning view model.</summary>
+    /// <param name="message">The message to write.</param>
+    private void WriteSampleMessage(string message)
+    {
+        GC.KeepAlive(this);
+        Console.Out.WriteLine(message);
+    }
+
+    /// <summary>Test1s this instance.</summary>
     [ReactiveCommand(CanExecute = nameof(CanExecuteTest1))]
     [property: JsonInclude]
     [property: Test(AParameter = "Test Input")]
-    private void Test1() => Console.Out.WriteLine("Test1 Command Executed");
+    private void Test1() => WriteSampleMessage("Test1 Command Executed");
 
-    /// <summary>
-    /// Test3s the asynchronous.
-    /// </summary>
+    /// <summary>Test3s the asynchronous.</summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     [ReactiveCommand]
-    private async Task Test3Async() => await Task.Delay(0);
+    private Task Test3Async() => UseInstance(Task.Delay(0));
 
-    /// <summary>
-    /// Test4s the asynchronous.
-    /// </summary>
+    /// <summary>Test4s the asynchronous.</summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     [ReactiveCommand]
-    private async Task<Point> Test4Async() => await Task.FromResult(new Point(100, 100));
+    private Task<Point> Test4Async() => UseInstance(Task.FromResult(new Point(CommandArgumentValue, CommandArgumentValue)));
 
-    /// <summary>
-    /// Test5s the string to int.
-    /// </summary>
+    /// <summary>Test5s the string to int.</summary>
     /// <param name="str">The string.</param>
     /// <returns>int.</returns>
     [ReactiveCommand]
-    private int Test5StringToInt(string str) => int.Parse(str);
+    private int Test5StringToInt(string str) => UseInstance(int.Parse(str));
 
-    /// <summary>
-    /// Test6s the argument only.
-    /// </summary>
+    /// <summary>Test6s the argument only.</summary>
     /// <param name="str">The string.</param>
     [ReactiveCommand]
-    private void Test6ArgOnly(string str) => Console.Out.WriteLine($">>> {str}");
+    private void Test6ArgOnly(string str) => WriteSampleMessage($">>> {str}");
 
-    /// <summary>
-    /// Test7s the observable.
-    /// </summary>
+    /// <summary>Test7s the observable.</summary>
     /// <returns>An Observable of Unit.</returns>
     [ReactiveCommand]
-    private IObservable<Unit> Test7Observable() => Observable.Return(Unit.Default);
+    private IObservable<Unit> Test7Observable() => UseInstance(Observable.Return(Unit.Default));
 
-    /// <summary>
-    /// Test8s the observable.
-    /// </summary>
+    /// <summary>Test8s the observable.</summary>
     /// <param name="i">The i.</param>
     /// <returns>An Observable of int.</returns>
     [ReactiveCommand(AccessModifier = PropertyAccessModifier.Internal)]
-    private IObservable<double?> Test8Observable(int i) => Observable.Return<double?>(i + 10.0);
+    private IObservable<double?> Test8Observable(int i) => UseInstance(Observable.Return<double?>(i + ObservableCommandOffset));
 
+    /// <summary>Executes the cancellable reactive command sample.</summary>
+    /// <param name="ct">The cancellation token for the command.</param>
+    /// <returns>A task that completes when the command finishes.</returns>
     [ReactiveCommand]
-    private async Task Test9Async(CancellationToken ct) => await Task.Delay(2000, ct);
+    private Task Test9Async(CancellationToken ct) => UseInstance(Task.Delay(CancellationDelayMilliseconds, ct));
 
+    /// <summary>Executes the parameterized cancellable reactive command sample.</summary>
+    /// <param name="size">The size of the generated point.</param>
+    /// <param name="ct">The cancellation token for the command.</param>
+    /// <returns>A task that produces the generated point.</returns>
     [ReactiveCommand]
-    private async Task<Point> Test10Async(int size, CancellationToken ct) => await Task.FromResult(new Point(size, size));
+    private Task<Point> Test10Async(int size, CancellationToken ct) => UseInstance(Task.FromResult(new Point(size, size)));
 
+    /// <summary>Executes the command with a private observable can-execute source.</summary>
     [ReactiveCommand(CanExecute = nameof(_observable), OutputScheduler = nameof(_scheduler))]
-    private void TestPrivateCanExecute() => Console.Out.WriteLine("TestPrivateCanExecute");
+    private void TestPrivateCanExecute() => WriteSampleMessage("TestPrivateCanExecute");
 
+    /// <summary>Retrieves the empty data sequence used by the reactive command sample.</summary>
+    /// <param name="ct">The cancellation token for the command.</param>
+    /// <returns>A task that produces an empty data sequence.</returns>
     [ReactiveCommand]
     private Task<System.Collections.IEnumerable> GetData(CancellationToken ct) =>
-        Task.FromResult<System.Collections.IEnumerable>(Array.Empty<System.Collections.IEnumerable>());
-
-    [ReactiveCommand]
-    private Execute.Nested2.Class1? SetProperty(Execute.Nested1.Class1? class1)
-    {
-        if (class1 == null)
-        {
-            return null;
-        }
-
-        return new() { Property1 = class1.Property1 };
-    }
+        UseInstance(Task.FromResult<System.Collections.IEnumerable>(Array.Empty<System.Collections.IEnumerable>()));
 }

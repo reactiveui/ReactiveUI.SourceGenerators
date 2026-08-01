@@ -1,6 +1,5 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -8,16 +7,10 @@ using ReactiveUI.SourceGenerators.Extensions;
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
-/// <summary>
-/// Unit tests for <see cref="AttributeDataExtensions"/> covering
-/// <c>TryGetNamedArgument</c>, <c>GetNamedArgument</c>, <c>GetConstructorArguments</c>,
-/// and <c>GetGenericType</c>.
-/// </summary>
+/// <summary>Unit tests for <see cref="AttributeDataExtensions"/> covering <c>TryGetNamedArgument</c>, <c>GetNamedArgument</c>, <c>GetConstructorArguments</c>, and <c>GetGenericType</c>.</summary>
 public sealed class AttributeDataExtensionTests
 {
-    /// <summary>
-    /// TryGetNamedArgument returns true and the correct value when the argument exists.
-    /// </summary>
+    /// <summary>TryGetNamedArgument returns true and the correct value when the argument exists.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenNamedArgumentPresentThenTryGetReturnsTrue()
@@ -26,24 +19,22 @@ public sealed class AttributeDataExtensionTests
             using System;
             namespace T;
             [AttributeUsage(AttributeTargets.Class)]
-            public class MyAttr : Attribute
+            public class AttributeOne : Attribute
             {
-                public int Count { get; set; }
+                public int NamedValueOne { get; set; }
             }
-            [MyAttr(Count = 42)]
+            [AttributeOne(NamedValueOne = 1)]
             public class C { }
             """;
-        var attribute = GetAttribute(source, "T.C", "MyAttr");
+        var attribute = GetAttribute(source, "T.C", "AttributeOne");
 
-        var found = attribute.TryGetNamedArgument("Count", out int? value);
+        var found = attribute.TryGetNamedArgument("NamedValueOne", out int? value);
 
         await Assert.That(found).IsTrue();
-        await Assert.That(value).IsEqualTo(42);
+        await Assert.That(value).IsEqualTo(1);
     }
 
-    /// <summary>
-    /// TryGetNamedArgument returns false when the argument is not present.
-    /// </summary>
+    /// <summary>TryGetNamedArgument returns false when the argument is not present.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenNamedArgumentAbsentThenTryGetReturnsFalse()
@@ -52,24 +43,22 @@ public sealed class AttributeDataExtensionTests
             using System;
             namespace T;
             [AttributeUsage(AttributeTargets.Class)]
-            public class MyAttr : Attribute
+            public class AttributeTwo : Attribute
             {
-                public int Count { get; set; }
+                public int NamedValueTwo { get; set; }
             }
-            [MyAttr]
+            [AttributeTwo]
             public class C { }
             """;
-        var attribute = GetAttribute(source, "T.C", "MyAttr");
+        var attribute = GetAttribute(source, "T.C", "AttributeTwo");
 
-        var found = attribute.TryGetNamedArgument("Count", out int? value);
+        var found = attribute.TryGetNamedArgument("NamedValueTwo", out int? value);
 
         await Assert.That(found).IsFalse();
         await Assert.That(value).IsNull();
     }
 
-    /// <summary>
-    /// TryGetNamedArgument returns false and default when the argument name does not match.
-    /// </summary>
+    /// <summary>TryGetNamedArgument returns false and default when the argument name does not match.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenWrongArgumentNameThenTryGetReturnsFalse()
@@ -78,14 +67,14 @@ public sealed class AttributeDataExtensionTests
             using System;
             namespace T;
             [AttributeUsage(AttributeTargets.Class)]
-            public class MyAttr : Attribute
+            public class AttributeThree : Attribute
             {
-                public int Count { get; set; }
+                public int NamedValueThree { get; set; }
             }
-            [MyAttr(Count = 5)]
+            [AttributeThree(NamedValueThree = 5)]
             public class C { }
             """;
-        var attribute = GetAttribute(source, "T.C", "MyAttr");
+        var attribute = GetAttribute(source, "T.C", "AttributeThree");
 
         var found = attribute.TryGetNamedArgument("Other", out int? value);
 
@@ -93,9 +82,7 @@ public sealed class AttributeDataExtensionTests
         await Assert.That(value).IsNull();
     }
 
-    /// <summary>
-    /// TryGetNamedArgument returns false when called on a null AttributeData.
-    /// </summary>
+    /// <summary>TryGetNamedArgument returns false when called on a null AttributeData.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenAttributeDataIsNullThenTryGetReturnsFalse()
@@ -107,9 +94,7 @@ public sealed class AttributeDataExtensionTests
         await Assert.That(value).IsNull();
     }
 
-    /// <summary>
-    /// TryGetNamedArgument retrieves a string named argument.
-    /// </summary>
+    /// <summary>TryGetNamedArgument retrieves a string named argument.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenStringNamedArgumentPresentThenTryGetReturnsValue()
@@ -118,14 +103,14 @@ public sealed class AttributeDataExtensionTests
             using System;
             namespace T;
             [AttributeUsage(AttributeTargets.Class)]
-            public class MyAttr : Attribute
+            public class AttributeFour : Attribute
             {
                 public string? Name { get; set; }
             }
-            [MyAttr(Name = "hello")]
+            [AttributeFour(Name = "hello")]
             public class C { }
             """;
-        var attribute = GetAttribute(source, "T.C", "MyAttr");
+        var attribute = GetAttribute(source, "T.C", "AttributeFour");
 
         var found = attribute.TryGetNamedArgument("Name", out string? value);
 
@@ -133,9 +118,7 @@ public sealed class AttributeDataExtensionTests
         await Assert.That(value).IsEqualTo("hello");
     }
 
-    /// <summary>
-    /// TryGetNamedArgument retrieves a bool named argument.
-    /// </summary>
+    /// <summary>TryGetNamedArgument retrieves a bool named argument.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenBoolNamedArgumentPresentThenTryGetReturnsValue()
@@ -144,14 +127,14 @@ public sealed class AttributeDataExtensionTests
             using System;
             namespace T;
             [AttributeUsage(AttributeTargets.Class)]
-            public class MyAttr : Attribute
+            public class AttributeFive : Attribute
             {
                 public bool IsEnabled { get; set; }
             }
-            [MyAttr(IsEnabled = true)]
+            [AttributeFive(IsEnabled = true)]
             public class C { }
             """;
-        var attribute = GetAttribute(source, "T.C", "MyAttr");
+        var attribute = GetAttribute(source, "T.C", "AttributeFive");
 
         var found = attribute.TryGetNamedArgument("IsEnabled", out bool? value);
 
@@ -159,9 +142,42 @@ public sealed class AttributeDataExtensionTests
         await Assert.That(value).IsTrue();
     }
 
-    /// <summary>
-    /// GetNamedArgument returns the value when the argument is present.
-    /// </summary>
+    /// <summary>Named-argument conversion covers enum, null, invalid-cast, format, and overflow paths.</summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Test]
+    public async Task NamedArgumentConversionsHandleSupportedAndRejectedValues()
+    {
+        const string source = """
+            using System;
+            namespace T;
+            [AttributeUsage(AttributeTargets.Class)]
+            public sealed class ConversionAttribute : Attribute
+            {
+                public string? NullText { get; set; }
+                public string Text { get; set; } = string.Empty;
+                public string EnumText { get; set; } = string.Empty;
+                public int Large { get; set; }
+                public DayOfWeek Day { get; set; }
+            }
+            [Conversion(NullText = null, Text = "not-number", EnumText = "Friday", Large = 300, Day = DayOfWeek.Friday)]
+            public class C { }
+            """;
+        var attribute = GetAttribute(source, "T.C", "ConversionAttribute");
+
+        await Assert.That(attribute.TryGetNamedArgument("NullText", out string? nullText)).IsFalse();
+        await Assert.That(nullText).IsNull();
+        await Assert.That(attribute.TryGetNamedArgument("Text", out int invalidNumber)).IsFalse();
+        await Assert.That(invalidNumber).IsEqualTo(0);
+        await Assert.That(attribute.GetNamedArgument<Guid>("Text")).IsEqualTo(Guid.Empty);
+        await Assert.That(attribute.GetNamedArgument<byte>("Large")).IsEqualTo((byte)0);
+        await Assert.That(attribute.GetNamedArgument<DayOfWeek>("Text")).IsEqualTo(default(DayOfWeek));
+        await Assert.That(attribute.GetNamedArgument<DayOfWeek>("EnumText")).IsEqualTo(DayOfWeek.Friday);
+        await Assert.That(attribute.GetNamedArgument<DayOfWeek>("Day")).IsEqualTo(DayOfWeek.Friday);
+        await Assert.That(attribute.GetNamedArgument<int>("Day")).IsEqualTo((int)DayOfWeek.Friday);
+        await Assert.That(attribute.GetNamedArgument<string>("Large")).IsEqualTo("300");
+    }
+
+    /// <summary>GetNamedArgument returns the value when the argument is present.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenNamedArgumentPresentThenGetNamedArgumentReturnsValue()
@@ -170,23 +186,21 @@ public sealed class AttributeDataExtensionTests
             using System;
             namespace T;
             [AttributeUsage(AttributeTargets.Class)]
-            public class MyAttr : Attribute
+            public class AttributeSix : Attribute
             {
-                public int Count { get; set; }
+                public int NamedValueSix { get; set; }
             }
-            [MyAttr(Count = 7)]
+            [AttributeSix(NamedValueSix = 1)]
             public class C { }
             """;
-        var attribute = GetAttribute(source, "T.C", "MyAttr");
+        var attribute = GetAttribute(source, "T.C", "AttributeSix");
 
-        var value = attribute.GetNamedArgument<int>("Count");
+        var value = attribute.GetNamedArgument<int>("NamedValueSix");
 
-        await Assert.That(value).IsEqualTo(7);
+        await Assert.That(value).IsEqualTo(1);
     }
 
-    /// <summary>
-    /// GetNamedArgument returns default when the argument is absent.
-    /// </summary>
+    /// <summary>GetNamedArgument returns default when the argument is absent.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenNamedArgumentAbsentThenGetNamedArgumentReturnsDefault()
@@ -195,23 +209,21 @@ public sealed class AttributeDataExtensionTests
             using System;
             namespace T;
             [AttributeUsage(AttributeTargets.Class)]
-            public class MyAttr : Attribute
+            public class AttributeSeven : Attribute
             {
-                public int Count { get; set; }
+                public int NamedValueSeven { get; set; }
             }
-            [MyAttr]
+            [AttributeSeven]
             public class C { }
             """;
-        var attribute = GetAttribute(source, "T.C", "MyAttr");
+        var attribute = GetAttribute(source, "T.C", "AttributeSeven");
 
         var value = attribute.GetNamedArgument<int>("Count");
 
         await Assert.That(value).IsEqualTo(0);
     }
 
-    /// <summary>
-    /// GetNamedArgument returns default when called on a null AttributeData.
-    /// </summary>
+    /// <summary>GetNamedArgument returns default when called on a null AttributeData.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenAttributeDataIsNullThenGetNamedArgumentReturnsDefault()
@@ -222,9 +234,7 @@ public sealed class AttributeDataExtensionTests
         await Assert.That(value).IsEqualTo(0);
     }
 
-    /// <summary>
-    /// GetConstructorArguments yields all string constructor arguments.
-    /// </summary>
+    /// <summary>GetConstructorArguments yields all string constructor arguments.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenStringConstructorArgsPresentThenGetConstructorArgumentsYieldsAll()
@@ -233,25 +243,22 @@ public sealed class AttributeDataExtensionTests
             using System;
             namespace T;
             [AttributeUsage(AttributeTargets.Class)]
-            public class MyAttr : Attribute
+            public class AttributeEight : Attribute
             {
-                public MyAttr(string a, string b) { }
+                public AttributeEight(string a, string b) { }
             }
-            [MyAttr("hello", "world")]
+            [AttributeEight("hello", "world")]
             public class C { }
             """;
-        var attribute = GetAttribute(source, "T.C", "MyAttr");
+        var attribute = GetAttribute(source, "T.C", "AttributeEight");
 
-        var args = attribute.GetConstructorArguments<string>().ToList();
+        List<string?> args = [.. attribute.GetConstructorArguments<string>()];
 
-        await Assert.That(args.Count).IsEqualTo(2);
         await Assert.That(args[0]).IsEqualTo("hello");
         await Assert.That(args[1]).IsEqualTo("world");
     }
 
-    /// <summary>
-    /// GetConstructorArguments yields nothing when there are no constructor arguments of the requested type.
-    /// </summary>
+    /// <summary>GetConstructorArguments yields nothing when there are no constructor arguments of the requested type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenNoMatchingConstructorArgsThenGetConstructorArgumentsIsEmpty()
@@ -260,20 +267,41 @@ public sealed class AttributeDataExtensionTests
             using System;
             namespace T;
             [AttributeUsage(AttributeTargets.Class)]
-            public class MyAttr : Attribute { }
-            [MyAttr]
+            public class AttributeNine : Attribute { }
+            [AttributeNine]
             public class C { }
             """;
-        var attribute = GetAttribute(source, "T.C", "MyAttr");
+        var attribute = GetAttribute(source, "T.C", "AttributeNine");
 
-        var args = attribute.GetConstructorArguments<string>().ToList();
+        List<string?> args = [.. attribute.GetConstructorArguments<string>()];
 
         await Assert.That(args.Count).IsEqualTo(0);
     }
 
-    /// <summary>
-    /// GetGenericType returns the type argument name for a generic attribute.
-    /// </summary>
+    /// <summary>GetConstructorArguments recursively flattens params arrays and preserves null entries.</summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Test]
+    public async Task WhenParamsArrayContainsNullThenConstructorArgumentsAreFlattened()
+    {
+        const string source = """
+            using System;
+            namespace T;
+            [AttributeUsage(AttributeTargets.Class)]
+            public sealed class ArrayValuesAttribute : Attribute
+            {
+                public ArrayValuesAttribute(params string?[] values) { }
+            }
+            [ArrayValues("first", null, "last")]
+            public class C { }
+            """;
+        var attribute = GetAttribute(source, "T.C", "ArrayValuesAttribute");
+
+        List<string?> arguments = [.. attribute.GetConstructorArguments<string>()];
+
+        await Assert.That(arguments).IsEquivalentTo(["first", null, "last"]);
+    }
+
+    /// <summary>GetGenericType returns the type argument name for a generic attribute.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenGenericAttributeThenGetGenericTypeReturnsTypeName()
@@ -282,20 +310,18 @@ public sealed class AttributeDataExtensionTests
             using System;
             namespace T;
             [AttributeUsage(AttributeTargets.Class)]
-            public class MyAttr<T> : Attribute { }
-            [MyAttr<int>]
+            public class AttributeTen<T> : Attribute { }
+            [AttributeTen<int>]
             public class C { }
             """;
-        var attribute = GetAttribute(source, "T.C", "MyAttr");
+        var attribute = GetAttribute(source, "T.C", "AttributeTen");
 
         var type = attribute.GetGenericType();
 
         await Assert.That(type).IsEqualTo("int");
     }
 
-    /// <summary>
-    /// GetGenericType returns null for a non-generic attribute.
-    /// </summary>
+    /// <summary>GetGenericType returns null for a non-generic attribute.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenNonGenericAttributeThenGetGenericTypeReturnsNull()
@@ -304,20 +330,18 @@ public sealed class AttributeDataExtensionTests
             using System;
             namespace T;
             [AttributeUsage(AttributeTargets.Class)]
-            public class MyAttr : Attribute { }
-            [MyAttr]
+            public class AttributeEleven : Attribute { }
+            [AttributeEleven]
             public class C { }
             """;
-        var attribute = GetAttribute(source, "T.C", "MyAttr");
+        var attribute = GetAttribute(source, "T.C", "AttributeEleven");
 
         var type = attribute.GetGenericType();
 
         await Assert.That(type).IsNull();
     }
 
-    /// <summary>
-    /// GetGenericType returns the type keyword for a generic argument using a built-in type.
-    /// </summary>
+    /// <summary>GetGenericType returns the type keyword for a generic argument using a built-in type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenGenericAttributeWithClassTypeThenGetGenericTypeReturnsClassName()
@@ -337,9 +361,7 @@ public sealed class AttributeDataExtensionTests
         await Assert.That(type).IsEqualTo("string");
     }
 
-    /// <summary>
-    /// GatherForwardedAttributesFromClass collects non-trigger attributes from the class declaration.
-    /// </summary>
+    /// <summary>GatherForwardedAttributesFromClass collects non-trigger attributes from the class declaration.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenClassHasAttributesThenForwardedAttributesCollected()
@@ -356,36 +378,83 @@ public sealed class AttributeDataExtensionTests
             """;
 
         var compilation = CreateCompilation(source);
-        var classDecl = compilation.SyntaxTrees
-            .SelectMany(t => t.GetRoot().DescendantNodes())
-            .OfType<ClassDeclarationSyntax>()
-            .First(c => c.Identifier.Text == "C");
-
-        var semanticModel = compilation.GetSemanticModel(classDecl.SyntaxTree);
+        var classDeclaration = await GetClassDeclaration(compilation);
+        var semanticModel = compilation.GetSemanticModel(classDeclaration.SyntaxTree);
         var typeSymbol = (INamedTypeSymbol)compilation.GetTypeByMetadataName("T.C")!;
-        var triggerAttr = typeSymbol.GetAttributes()
-            .First(a => a.AttributeClass?.Name == "TriggerAttr");
+        AttributeData? triggerAttr = null;
+        foreach (var candidate in typeSymbol.GetAttributes())
+        {
+            if (candidate.AttributeClass?.Name == "TriggerAttr")
+            {
+                triggerAttr = candidate;
+                break;
+            }
+        }
 
-        triggerAttr.GatherForwardedAttributesFromClass(
+        (triggerAttr ?? throw new InvalidOperationException("The trigger attribute was not found.")).GatherForwardedAttributesFromClass(
             semanticModel,
-            classDecl,
+            classDeclaration,
             default,
             out var forwarded);
 
         await Assert.That(forwarded.Length).IsGreaterThan(0);
-        await Assert.That(forwarded.Any(a => a.TypeName.Contains("TriggerAttr"))).IsFalse();
+        var containsTriggerAttribute = false;
+        foreach (var forwardedAttribute in forwarded)
+        {
+            if (forwardedAttribute.TypeName.Contains("TriggerAttr", StringComparison.Ordinal))
+            {
+                containsTriggerAttribute = true;
+                break;
+            }
+        }
+
+        await Assert.That(containsTriggerAttribute).IsFalse();
     }
 
+    /// <summary>Finds the class declaration used by the forwarded-attribute test.</summary>
+    /// <param name="compilation">The compilation containing the class declaration.</param>
+    /// <returns>A task that resolves to the class declaration.</returns>
+    private static async Task<ClassDeclarationSyntax> GetClassDeclaration(CSharpCompilation compilation)
+    {
+        foreach (var syntaxTree in compilation.SyntaxTrees)
+        {
+            foreach (var node in (await syntaxTree.GetRootAsync()).DescendantNodes())
+            {
+                if (node is ClassDeclarationSyntax { Identifier.Text: "C" } declaration)
+                {
+                    return declaration;
+                }
+            }
+        }
+
+        throw new InvalidOperationException("The test class declaration was not found.");
+    }
+
+    /// <summary>Retrieves a named attribute from an in-memory test type.</summary>
+    /// <param name="source">The source text containing the target type.</param>
+    /// <param name="typeName">The metadata name of the target type.</param>
+    /// <param name="attributeSimpleName">The simple name of the attribute to retrieve.</param>
+    /// <returns>The requested attribute data.</returns>
     private static AttributeData GetAttribute(string source, string typeName, string attributeSimpleName)
     {
         var compilation = CreateCompilation(source);
         var typeSymbol = compilation.GetTypeByMetadataName(typeName)
             ?? throw new InvalidOperationException($"Type '{typeName}' not found in compilation.");
 
-        return typeSymbol.GetAttributes()
-            .First(a => a.AttributeClass?.Name == attributeSimpleName);
+        foreach (var attribute in typeSymbol.GetAttributes())
+        {
+            if (attribute.AttributeClass?.Name == attributeSimpleName)
+            {
+                return attribute;
+            }
+        }
+
+        throw new InvalidOperationException($"Attribute '{attributeSimpleName}' was not found.");
     }
 
+    /// <summary>Creates an in-memory compilation for an attribute extension test source.</summary>
+    /// <param name="source">The source text to compile.</param>
+    /// <returns>The created compilation.</returns>
     private static CSharpCompilation CreateCompilation(string source)
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(
@@ -396,6 +465,6 @@ public sealed class AttributeDataExtensionTests
             assemblyName: "AttrDataExtTests",
             syntaxTrees: [syntaxTree],
             references: TestCompilationReferences.CreateDefault(),
-            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            options: new(OutputKind.DynamicallyLinkedLibrary));
     }
 }

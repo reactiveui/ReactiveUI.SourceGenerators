@@ -1,26 +1,25 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System;
 using Microsoft.CodeAnalysis;
 using ReactiveUI.SourceGenerators.Helpers;
+using ReactiveUI.SourceGenerators.Models;
 
 namespace ReactiveUI.SourceGenerators.Extensions;
 
-/// <summary>
-/// Extension methods for the <see cref="ITypeSymbol"/> type.
-/// </summary>
+/// <summary>Extension methods for the <see cref="ITypeSymbol"/> type.</summary>
 internal static class ITypeSymbolExtensions
 {
-    /// <summary>
-    /// Checks whether or not a given <see cref="ITypeSymbol"/> has or inherits from a specified type.
-    /// </summary>
-    /// <param name="typeSymbol">The target <see cref="ITypeSymbol"/> instance to check.</param>
+    /// <summary>Provides metadata-name and hierarchy operations for a type symbol.</summary>
+    /// <param name="typeSymbol">The type symbol receiving the extension operation.</param>
+    extension(ITypeSymbol typeSymbol)
+    {
+    /// <summary>Checks whether or not a given <see cref="ITypeSymbol"/> has or inherits from a specified type.</summary>
     /// <param name="name">The full name of the type to check for inheritance.</param>
-    /// <returns>Whether or not <paramref name="typeSymbol"/> is or inherits from <paramref name="name"/>.</returns>
-    public static bool HasOrInheritsFromFullyQualifiedMetadataName(this ITypeSymbol typeSymbol, string name)
+    /// <returns>Whether the type symbol is or inherits from <paramref name="name"/>.</returns>
+    internal bool HasOrInheritsFromFullyQualifiedMetadataName(string name)
     {
         for (var currentType = typeSymbol; currentType is not null; currentType = currentType.BaseType)
         {
@@ -33,13 +32,10 @@ internal static class ITypeSymbolExtensions
         return false;
     }
 
-    /// <summary>
-    /// Checks whether or not a given <see cref="ITypeSymbol"/> inherits from a specified type.
-    /// </summary>
-    /// <param name="typeSymbol">The target <see cref="ITypeSymbol"/> instance to check.</param>
+    /// <summary>Checks whether or not a given <see cref="ITypeSymbol"/> inherits from a specified type.</summary>
     /// <param name="name">The full name of the type to check for inheritance.</param>
-    /// <returns>Whether or not <paramref name="typeSymbol"/> inherits from <paramref name="name"/>.</returns>
-    public static bool InheritsFromFullyQualifiedMetadataName(this ITypeSymbol typeSymbol, string name)
+    /// <returns>Whether the type symbol inherits from <paramref name="name"/>.</returns>
+    internal bool InheritsFromFullyQualifiedMetadataName(string name)
     {
         var baseType = typeSymbol.BaseType;
 
@@ -56,13 +52,10 @@ internal static class ITypeSymbolExtensions
         return false;
     }
 
-    /// <summary>
-    /// Checks whether or not a given <see cref="ITypeSymbol"/> implements a specified interface.
-    /// </summary>
-    /// <param name="typeSymbol">The target <see cref="ITypeSymbol"/> instance to check.</param>
+    /// <summary>Checks whether or not a given <see cref="ITypeSymbol"/> implements a specified interface.</summary>
     /// <param name="name">The full name of the interface to check for inheritance.</param>
-    /// <returns>Whether or not <paramref name="typeSymbol"/> implements <paramref name="name"/>.</returns>
-    public static bool ImplementsFullyQualifiedMetadataName(this ITypeSymbol typeSymbol, string name)
+    /// <returns>Whether the type symbol implements <paramref name="name"/>.</returns>
+    internal bool ImplementsFullyQualifiedMetadataName(string name)
     {
         foreach (var implementedInterface in typeSymbol.AllInterfaces)
         {
@@ -75,13 +68,10 @@ internal static class ITypeSymbolExtensions
         return false;
     }
 
-    /// <summary>
-    /// Checks whether or not a given <see cref="ITypeSymbol"/> has or inherits from a specified type.
-    /// </summary>
-    /// <param name="typeSymbol">The target <see cref="ITypeSymbol"/> instance to check.</param>
+    /// <summary>Checks whether or not a given <see cref="ITypeSymbol"/> has or inherits from a specified type.</summary>
     /// <param name="name">The full name of the type to check for inheritance.</param>
-    /// <returns>Whether or not <paramref name="typeSymbol"/> is or inherits from <paramref name="name"/>.</returns>
-    public static bool HasOrInheritsFromFullyQualifiedMetadataNameStartingWith(this ITypeSymbol typeSymbol, string name)
+    /// <returns>Whether the type symbol is or inherits from <paramref name="name"/>.</returns>
+    internal bool HasOrInheritsFromFullyQualifiedMetadataNameStartingWith(string name)
     {
         for (var currentType = typeSymbol; currentType is not null; currentType = currentType.BaseType)
         {
@@ -94,13 +84,10 @@ internal static class ITypeSymbolExtensions
         return false;
     }
 
-    /// <summary>
-    /// Checks whether or not a given <see cref="ITypeSymbol"/> inherits from a specified type.
-    /// </summary>
-    /// <param name="typeSymbol">The target <see cref="ITypeSymbol"/> instance to check.</param>
+    /// <summary>Checks whether or not a given <see cref="ITypeSymbol"/> inherits from a specified type.</summary>
     /// <param name="name">The full name of the type to check for inheritance.</param>
-    /// <returns>Whether or not <paramref name="typeSymbol"/> inherits from <paramref name="name"/>.</returns>
-    public static bool InheritsFromFullyQualifiedMetadataNameStartingWith(this ITypeSymbol typeSymbol, string name)
+    /// <returns>Whether the type symbol inherits from <paramref name="name"/>.</returns>
+    internal bool InheritsFromFullyQualifiedMetadataNameStartingWith(string name)
     {
         var baseType = typeSymbol.BaseType;
 
@@ -117,13 +104,10 @@ internal static class ITypeSymbolExtensions
         return false;
     }
 
-    /// <summary>
-    /// Checks whether or not a given <see cref="ITypeSymbol"/> has or inherits a specified attribute.
-    /// </summary>
-    /// <param name="typeSymbol">The target <see cref="ITypeSymbol"/> instance to check.</param>
+    /// <summary>Checks whether or not a given <see cref="ITypeSymbol"/> has or inherits a specified attribute.</summary>
     /// <param name="name">The name of the attribute to look for.</param>
-    /// <returns>Whether or not <paramref name="typeSymbol"/> has an attribute with the specified type name.</returns>
-    public static bool HasOrInheritsAttributeWithFullyQualifiedMetadataName(this ITypeSymbol typeSymbol, string name)
+    /// <returns>Whether the type symbol has an attribute with the specified type name.</returns>
+    internal bool HasOrInheritsAttributeWithFullyQualifiedMetadataName(string name)
     {
         for (var currentType = typeSymbol; currentType is not null; currentType = currentType.BaseType)
         {
@@ -136,45 +120,50 @@ internal static class ITypeSymbolExtensions
         return false;
     }
 
-    /// <summary>
-    /// Checks whether or not a given type symbol has a specified fully qualified metadata name.
-    /// </summary>
-    /// <param name="symbol">The input <see cref="ITypeSymbol"/> instance to check.</param>
+    /// <summary>Checks whether or not a given type symbol has a specified fully qualified metadata name.</summary>
     /// <param name="name">The full name to check.</param>
-    /// <returns>Whether <paramref name="symbol"/> has a full name equals to <paramref name="name"/>.</returns>
-    public static bool HasFullyQualifiedMetadataName(this ITypeSymbol symbol, string name)
+    /// <returns>Whether the type symbol has a full name equal to <paramref name="name"/>.</returns>
+    internal bool HasFullyQualifiedMetadataName(string name)
     {
         using var builder = ImmutableArrayBuilder<char>.Rent();
 
-        symbol.AppendFullyQualifiedMetadataName(builder);
+        AppendFullyQualifiedMetadataName(typeSymbol, builder);
 
         return builder.WrittenSpan.StartsWith(name.AsSpan());
     }
 
-    public static bool ContainsFullyQualifiedMetadataName(this ITypeSymbol symbol, string name)
+    /// <summary>Checks whether a type symbol's metadata name contains a given value.</summary>
+    /// <param name="name">The value to find in the full metadata name.</param>
+    /// <returns>Whether the metadata name contains <paramref name="name"/>.</returns>
+    internal bool ContainsFullyQualifiedMetadataName(string name)
     {
         using var builder = ImmutableArrayBuilder<char>.Rent();
 
-        symbol.AppendFullyQualifiedMetadataName(builder);
+        AppendFullyQualifiedMetadataName(typeSymbol, builder);
 
         return builder.WrittenSpan.ToString().Contains(name);
     }
 
-    /// <summary>
-    /// Gets the fully qualified metadata name for a given <see cref="ITypeSymbol"/> instance.
-    /// </summary>
-    /// <param name="symbol">The input <see cref="ITypeSymbol"/> instance.</param>
-    /// <returns>The fully qualified metadata name for <paramref name="symbol"/>.</returns>
-    public static string GetFullyQualifiedMetadataName(this ITypeSymbol symbol)
+    /// <summary>Gets the fully qualified metadata name for a given <see cref="ITypeSymbol"/> instance.</summary>
+    /// <returns>The fully qualified metadata name for the type symbol.</returns>
+    internal string GetFullyQualifiedMetadataName()
     {
         using var builder = ImmutableArrayBuilder<char>.Rent();
 
-        symbol.AppendFullyQualifiedMetadataName(builder);
+        AppendFullyQualifiedMetadataName(typeSymbol, builder);
 
         return builder.ToString();
     }
 
-    public static bool IsTaskReturnType(this ITypeSymbol? typeSymbol)
+    }
+
+    /// <summary>Provides null-tolerant type-classification operations.</summary>
+    /// <param name="typeSymbol">The type symbol receiving the extension operation.</param>
+    extension(ITypeSymbol? typeSymbol)
+    {
+    /// <summary>Determines whether a type symbol represents a task return type.</summary>
+    /// <returns>Whether the type symbol or a base type represents a task.</returns>
+    internal bool IsTaskReturnType()
     {
         var nameFormat = SymbolDisplayFormat.FullyQualifiedFormat;
         do
@@ -187,12 +176,14 @@ internal static class ITypeSymbolExtensions
 
             typeSymbol = typeSymbol?.BaseType;
         }
-        while (typeSymbol != null);
+        while (typeSymbol is not null);
 
         return false;
     }
 
-    public static bool IsObservableReturnType(this ITypeSymbol? typeSymbol)
+    /// <summary>Determines whether a type symbol represents an observable return type.</summary>
+    /// <returns>Whether the type symbol or a base type represents an observable.</returns>
+    internal bool IsObservableReturnType()
     {
         var nameFormat = SymbolDisplayFormat.FullyQualifiedFormat;
         do
@@ -205,29 +196,37 @@ internal static class ITypeSymbolExtensions
 
             typeSymbol = typeSymbol?.BaseType;
         }
-        while (typeSymbol != null);
+        while (typeSymbol is not null);
 
         return false;
     }
 
-    public static bool IsISchedulerType(this ITypeSymbol? typeSymbol)
+    /// <summary>Determines whether a type symbol represents the configured scheduler API.</summary>
+    /// <param name="api">The ReactiveUI API family to inspect.</param>
+    /// <returns>Whether the type symbol or a base type represents that scheduler API.</returns>
+    internal bool IsSchedulerType(ReactiveUiApi api)
     {
+        var expectedTypeName = api == ReactiveUiApi.Primitives
+            ? "global::ReactiveUI.Primitives.Concurrency.ISequencer"
+            : "global::System.Reactive.Concurrency.IScheduler";
         var nameFormat = SymbolDisplayFormat.FullyQualifiedFormat;
         do
         {
             var typeName = typeSymbol?.ToDisplayString(nameFormat);
-            if (typeName == "global::System.Reactive.Concurrency.IScheduler")
+            if (typeName == expectedTypeName)
             {
                 return true;
             }
 
             typeSymbol = typeSymbol?.BaseType;
         }
-        while (typeSymbol != null);
+        while (typeSymbol is not null);
         return false;
     }
 
-    public static bool IsObservableBoolType(this ITypeSymbol? typeSymbol)
+    /// <summary>Determines whether a type symbol represents an observable Boolean value.</summary>
+    /// <returns>Whether the type symbol or a base type represents an observable Boolean.</returns>
+    internal bool IsObservableBoolType()
     {
         var nameFormat = SymbolDisplayFormat.FullyQualifiedFormat;
         do
@@ -240,70 +239,68 @@ internal static class ITypeSymbolExtensions
 
             typeSymbol = typeSymbol?.BaseType;
         }
-        while (typeSymbol != null);
+        while (typeSymbol is not null);
 
         return false;
     }
 
-    /// <summary>
-    /// Determines whether [is nullable type].
-    /// </summary>
-    /// <param name="typeSymbol">The type symbol.</param>
+    /// <summary>Determines whether [is nullable type].</summary>
     /// <returns>
     ///   <c>true</c> if [is nullable type] [the specified type symbol]; otherwise, <c>false</c>.
     /// </returns>
-    public static bool IsNullableType(this ITypeSymbol? typeSymbol) => typeSymbol?.NullableAnnotation == NullableAnnotation.Annotated;
+    internal bool IsNullableType() => typeSymbol?.NullableAnnotation == NullableAnnotation.Annotated;
 
-    public static ITypeSymbol GetTaskReturnType(this ITypeSymbol typeSymbol, Compilation compilation) => typeSymbol switch
+    /// <summary>Gets the type produced by a task-like generic return type.</summary>
+    /// <param name="compilation">The current compilation.</param>
+    /// <returns>The task result type, or <see cref="SpecialType.System_Void"/> when no result exists.</returns>
+    internal ITypeSymbol GetTaskReturnType(Compilation compilation) => typeSymbol switch
     {
         INamedTypeSymbol { TypeArguments.Length: 1 } namedTypeSymbol => namedTypeSymbol.TypeArguments[0],
         _ => compilation.GetSpecialType(SpecialType.System_Void)
     };
 
-    /// <summary>
-    /// Appends the fully qualified metadata name for a given symbol to a target builder.
-    /// </summary>
+    }
+
+    /// <summary>Appends the fully qualified metadata name for a given symbol to a target builder.</summary>
     /// <param name="symbol">The input <see cref="ITypeSymbol"/> instance.</param>
     /// <param name="builder">The target <see cref="ImmutableArrayBuilder{T}"/> instance.</param>
-    private static void AppendFullyQualifiedMetadataName(this ITypeSymbol symbol, ImmutableArrayBuilder<char> builder)
+    private static void AppendFullyQualifiedMetadataName(ITypeSymbol symbol, ImmutableArrayBuilder<char> builder)
     {
-        static void BuildFrom(ISymbol? symbol, ImmutableArrayBuilder<char> builder)
+        static void BuildFrom(ISymbol? current, ImmutableArrayBuilder<char> target)
         {
-            switch (symbol)
+            if (current is INamespaceSymbol namespaceSymbol)
             {
-                // Namespaces that are nested also append a leading '.'
-                case INamespaceSymbol { ContainingNamespace.IsGlobalNamespace: false }:
-                    BuildFrom(symbol.ContainingNamespace, builder);
-                    builder.Add('.');
-                    builder.AddRange(symbol.MetadataName.AsSpan());
-                    break;
+                if (!namespaceSymbol.IsGlobalNamespace)
+                {
+                    if (!namespaceSymbol.ContainingNamespace.IsGlobalNamespace)
+                    {
+                        BuildFrom(namespaceSymbol.ContainingNamespace, target);
+                        target.Add('.');
+                    }
 
-                // Other namespaces (ie. the one right before global) skip the leading '.'
-                case INamespaceSymbol { IsGlobalNamespace: false }:
-                    builder.AddRange(symbol.MetadataName.AsSpan());
-                    break;
+                    target.AddRange(namespaceSymbol.MetadataName.AsSpan());
+                }
 
-                // Types with no namespace just have their metadata name directly written
-                case ITypeSymbol { ContainingSymbol: INamespaceSymbol { IsGlobalNamespace: true } }:
-                    builder.AddRange(symbol.MetadataName.AsSpan());
-                    break;
-
-                // Types with a containing non-global namespace also append a leading '.'
-                case ITypeSymbol { ContainingSymbol: INamespaceSymbol namespaceSymbol }:
-                    BuildFrom(namespaceSymbol, builder);
-                    builder.Add('.');
-                    builder.AddRange(symbol.MetadataName.AsSpan());
-                    break;
-
-                // Nested types append a leading '+'
-                case ITypeSymbol { ContainingSymbol: ITypeSymbol typeSymbol }:
-                    BuildFrom(typeSymbol, builder);
-                    builder.Add('+');
-                    builder.AddRange(symbol.MetadataName.AsSpan());
-                    break;
-                default:
-                    break;
+                return;
             }
+
+            if (current is not ITypeSymbol currentType)
+            {
+                return;
+            }
+
+            if (currentType.ContainingSymbol is ITypeSymbol containingType)
+            {
+                BuildFrom(containingType, target);
+                target.Add('+');
+            }
+            else if (currentType.ContainingSymbol is INamespaceSymbol containingNamespace && !containingNamespace.IsGlobalNamespace)
+            {
+                BuildFrom(containingNamespace, target);
+                target.Add('.');
+            }
+
+            target.AddRange(currentType.MetadataName.AsSpan());
         }
 
         BuildFrom(symbol, builder);

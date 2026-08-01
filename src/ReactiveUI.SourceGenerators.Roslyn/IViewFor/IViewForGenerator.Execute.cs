@@ -1,10 +1,9 @@
-﻿// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis;
@@ -16,15 +15,26 @@ using ReactiveUI.SourceGenerators.Models;
 
 namespace ReactiveUI.SourceGenerators;
 
-/// <summary>
-/// IViewForGenerator.
-/// </summary>
+/// <summary>Contains implementation details for the <see cref="IViewForGenerator"/> source generator.</summary>
 /// <seealso cref="IIncrementalGenerator" />
 public partial class IViewForGenerator
 {
-    internal static readonly string GeneratorName = typeof(IViewForGenerator).FullName!;
+    /// <summary>Gets the assembly version used in generated-code metadata.</summary>
     internal static readonly string GeneratorVersion = typeof(IViewForGenerator).Assembly.GetName().Version.ToString();
 
+    /// <summary>Gets the fully qualified name used in generated-code metadata.</summary>
+    internal static readonly string GeneratorName = typeof(IViewForGenerator).FullName!;
+
+    /// <summary>The attribute value that selects constant registration.</summary>
+    private const int RegisterConstantValue = 2;
+
+    /// <summary>The attribute value that selects transient registration.</summary>
+    private const int RegisterValue = 3;
+
+    /// <summary>Creates the generation model for an annotated class declaration.</summary>
+    /// <param name="context">The Roslyn context for the annotated declaration.</param>
+    /// <param name="token">The cancellation token.</param>
+    /// <returns>The generation model, or <see langword="null"/> when the target is unsupported.</returns>
     private static IViewForInfo? GetClassInfo(in GenericGeneratorAttributeSyntaxContext context, CancellationToken token)
     {
         if (!(context.TargetNode is ClassDeclarationSyntax declaredClass && declaredClass.Modifiers.Any(SyntaxKind.PartialKeyword)))
@@ -48,7 +58,9 @@ public partial class IViewForGenerator
 
         token.ThrowIfCancellationRequested();
 
-        var constructorArgument = attributeData.GetConstructorArguments<string>().FirstOrDefault();
+        using var constructorArguments = attributeData.GetConstructorArguments<string>().GetEnumerator();
+        var constructorArgument = constructorArguments.MoveNext() ? constructorArguments.Current : null;
+
         var genericArgument = attributeData.GetGenericType();
         token.ThrowIfCancellationRequested();
         var viewModelTypeName = string.IsNullOrWhiteSpace(constructorArgument) ? genericArgument : constructorArgument;
@@ -59,31 +71,7 @@ public partial class IViewForGenerator
 
         token.ThrowIfCancellationRequested();
 
-        var viewForBaseType = IViewForBaseType.None;
-        if (classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("System.Windows.Forms"))
-        {
-            viewForBaseType = IViewForBaseType.WinForms;
-        }
-        else if (classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("System.Windows") || classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("System.Windows.Controls"))
-        {
-            viewForBaseType = IViewForBaseType.Wpf;
-        }
-        else if (classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("Microsoft.UI.Xaml") || classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("Microsoft.UI.Xaml.Controls"))
-        {
-            viewForBaseType = IViewForBaseType.WinUI;
-        }
-        else if (classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("Microsoft.Maui"))
-        {
-            viewForBaseType = IViewForBaseType.Maui;
-        }
-        else if (classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("Avalonia"))
-        {
-            viewForBaseType = IViewForBaseType.Avalonia;
-        }
-        else if (classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("Windows.UI.Xaml") || classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("Windows.UI.Xaml.Controls"))
-        {
-            viewForBaseType = IViewForBaseType.Uno;
-        }
+        var viewForBaseType = GetBaseType(classSymbol);
 
         // Get the containing type info
         var targetInfo = TargetInfo.From(classSymbol);
@@ -91,26 +79,14 @@ public partial class IViewForGenerator
         token.ThrowIfCancellationRequested();
 
         // Get RegistrationType enum value from the attribute
-        attributeData.TryGetNamedArgument("RegistrationType", out int splatRegistrationType);
-        var registrationType = splatRegistrationType switch
-        {
-            1 => "RegisterLazySingleton",
-            2 => "RegisterConstant",
-            3 => "Register",
-            _ => string.Empty,
-        };
+        _ = attributeData.TryGetNamedArgument("RegistrationType", out int splatRegistrationType);
+        var registrationType = GetRegistrationType(splatRegistrationType);
 
         token.ThrowIfCancellationRequested();
 
         // Get ViewModelRegistrationType enum value from the attribute
-        attributeData.TryGetNamedArgument("ViewModelRegistrationType", out int splatViewModelRegistrationType);
-        var viewModelRegistrationType = splatViewModelRegistrationType switch
-        {
-            1 => "RegisterLazySingleton",
-            2 => "RegisterConstant",
-            3 => "Register",
-            _ => string.Empty,
-        };
+        _ = attributeData.TryGetNamedArgument("ViewModelRegistrationType", out int splatViewModelRegistrationType);
+        var viewModelRegistrationType = GetRegistrationType(splatViewModelRegistrationType);
 
         return new(
             targetInfo,
@@ -120,92 +96,165 @@ public partial class IViewForGenerator
             viewModelRegistrationType);
     }
 
-    private static string GenerateSource(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, IViewForInfo iviewForInfo, Models.TargetInfo? parentInfo = null)
+    /// <summary>Identifies the supported UI framework represented by a class symbol.</summary>
+    /// <param name="classSymbol">The class symbol to inspect.</param>
+    /// <returns>The matching supported base type, or <see cref="IViewForBaseType.None"/>.</returns>
+    private static IViewForBaseType GetBaseType(INamedTypeSymbol classSymbol)
     {
-        // Prepare any forwarded property attributes
-        var forwardedAttributesString = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage);
+        if (classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("System.Windows.Forms"))
+        {
+            return IViewForBaseType.WinForms;
+        }
 
-        // Build parent class wrapping (for nested types)
+        if (classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("System.Windows")
+            || classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("System.Windows.Controls"))
+        {
+            return IViewForBaseType.Wpf;
+        }
+
+        if (classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("Microsoft.UI.Xaml")
+            || classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("Microsoft.UI.Xaml.Controls"))
+        {
+            return IViewForBaseType.WinUI;
+        }
+
+        if (classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("Microsoft.Maui"))
+        {
+            return IViewForBaseType.Maui;
+        }
+
+        if (classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("Avalonia"))
+        {
+            return IViewForBaseType.Avalonia;
+        }
+
+        return classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("Windows.UI.Xaml")
+            || classSymbol.InheritsFromFullyQualifiedMetadataNameStartingWith("Windows.UI.Xaml.Controls")
+            ? IViewForBaseType.Uno
+            : IViewForBaseType.None;
+    }
+
+    /// <summary>Maps an attribute registration value to its Splat registration method name.</summary>
+    /// <param name="registrationType">The integer value supplied by the attribute.</param>
+    /// <returns>The Splat registration method name, or an empty string for no registration.</returns>
+    private static string GetRegistrationType(int registrationType) => registrationType switch
+    {
+        1 => "RegisterLazySingleton",
+        RegisterConstantValue => "RegisterConstant",
+        RegisterValue => "Register",
+        _ => string.Empty,
+    };
+
+    /// <summary>Generates the partial type source for a supported <c>IViewFor</c> target.</summary>
+    /// <param name="viewForInfo">The generation model.</param>
+    /// <param name="parentInfo">The enclosing type model, when the target is nested.</param>
+    /// <returns>The generated source, or an empty string for unsupported types.</returns>
+    private static string GenerateSource(
+        IViewForInfo viewForInfo,
+        TargetInfo? parentInfo = null)
+    {
+        var forwardedAttributesString = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage);
         var (parentDeclarations, parentClosing) = parentInfo is null
             ? (string.Empty, string.Empty)
             : Models.TargetInfo.GenerateParentClassDeclarations([parentInfo]);
-
-        switch (iviewForInfo.BaseType)
+        return viewForInfo.BaseType switch
         {
-            case IViewForBaseType.None:
-                break;
-            case IViewForBaseType.Wpf:
-            case IViewForBaseType.WinUI:
-            case IViewForBaseType.Uno:
-                var usings = iviewForInfo.BaseType switch
-                {
-                    IViewForBaseType.Wpf => """
-                        using ReactiveUI;
-                        using System.Windows;
-                        """,
-                    IViewForBaseType.WinUI => """
-                        using ReactiveUI;
-                        using Microsoft.UI.Xaml;
-                        """,
-                    IViewForBaseType.Uno => """
-                        using ReactiveUI;
-                        using Windows.UI.Xaml;
-                        """,
-                    _ => string.Empty,
-                };
-                return
-$$"""
+            IViewForBaseType.Wpf or IViewForBaseType.WinUI or IViewForBaseType.Uno => GenerateDependencyPropertyViewSource(viewForInfo, parentDeclarations, parentClosing, forwardedAttributesString),
+            IViewForBaseType.WinForms => GenerateWinFormsViewSource(viewForInfo, parentDeclarations, parentClosing, forwardedAttributesString),
+            IViewForBaseType.Avalonia => GenerateAvaloniaViewSource(viewForInfo, parentDeclarations, parentClosing, forwardedAttributesString),
+            IViewForBaseType.Maui => GenerateMauiViewSource(viewForInfo, parentDeclarations, parentClosing, forwardedAttributesString),
+            _ => string.Empty,
+        };
+    }
+
+    /// <summary>Generates source for WPF, WinUI, and Uno views.</summary>
+    /// <param name="info">The IViewFor generation model.</param>
+    /// <param name="parents">The enclosing type declarations.</param>
+    /// <param name="closingParents">The enclosing type closures.</param>
+    /// <param name="attributes">The forwarded attributes.</param>
+    /// <returns>The generated source.</returns>
+    private static string GenerateDependencyPropertyViewSource(IViewForInfo info, string parents, string closingParents, string attributes)
+    {
+        var usings = info.BaseType switch
+        {
+            IViewForBaseType.Wpf => "using ReactiveUI;\nusing System.Windows;",
+            IViewForBaseType.WinUI => "using ReactiveUI;\nusing Microsoft.UI.Xaml;",
+            IViewForBaseType.Uno => "using ReactiveUI;\nusing Windows.UI.Xaml;",
+            _ => string.Empty,
+        };
+        var viewModelPropertyDeclaration = GetDependencyPropertyDeclaration(info);
+
+        return $$"""
 // <auto-generated/>
 {{usings}}
 
 #pragma warning disable
 #nullable enable
 
-namespace {{containingNamespace}}
+namespace {{info.TargetInfo.TargetNamespace}}
 {
-{{parentDeclarations}}    /// <summary>
-    /// Partial class for the {{containingTypeName}} which contains ReactiveUI IViewFor initialization.
+{{parents}}    /// <summary>
+    /// Partial class for the {{info.TargetInfo.TargetName}} which contains ReactiveUI IViewFor initialization.
     /// </summary>
-    {{forwardedAttributesString}}
-    {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}} : IViewFor<{{iviewForInfo.ViewModelTypeName}}>
+    {{attributes}}
+    {{info.TargetInfo.TargetVisibility}} partial {{info.TargetInfo.TargetType}} {{info.TargetInfo.TargetName}} : IViewFor<{{info.ViewModelTypeName}}>
     {
         /// <summary>
         /// The view model dependency property.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
-        public static readonly DependencyProperty ViewModelProperty = DependencyProperty.Register(nameof(ViewModel), typeof({{iviewForInfo.ViewModelTypeName}}), typeof({{containingTypeName}}), new PropertyMetadata(null));
+{{viewModelPropertyDeclaration}}
 
         /// <summary>
         /// Gets the binding root view model.
         /// </summary>
-        public {{iviewForInfo.ViewModelTypeName}} BindingRoot => ViewModel;
+        public {{info.ViewModelTypeName}} BindingRoot => ViewModel;
 
         /// <inheritdoc/>
-        public {{iviewForInfo.ViewModelTypeName}} ViewModel { get => ({{iviewForInfo.ViewModelTypeName}})GetValue(ViewModelProperty); set => SetValue(ViewModelProperty, value); }
+        public {{info.ViewModelTypeName}} ViewModel { get => ({{info.ViewModelTypeName}})GetValue(ViewModelProperty); set => SetValue(ViewModelProperty, value); }
 
         /// <inheritdoc/>
-        object? IViewFor.ViewModel { get => ViewModel; set => ViewModel = ({{iviewForInfo.ViewModelTypeName}})value; }
+        object? IViewFor.ViewModel { get => ViewModel; set => ViewModel = ({{info.ViewModelTypeName}})value; }
     }
-{{parentClosing}}}
+{{closingParents}}}
 #nullable restore
 #pragma warning restore
 """;
-            case IViewForBaseType.WinForms:
-                return
-$$"""
+    }
+
+    /// <summary>Creates the dependency-property declaration while preserving its generated one-line format.</summary>
+    /// <param name="info">The IViewFor generation model.</param>
+    /// <returns>The generated dependency-property declaration.</returns>
+    private static string GetDependencyPropertyDeclaration(IViewForInfo info)
+    {
+        var builder = new StringBuilder("        public static readonly DependencyProperty ViewModelProperty = ");
+        _ = builder.Append("DependencyProperty.Register(nameof(ViewModel), typeof(");
+        _ = builder.Append(info.ViewModelTypeName).Append("), typeof(");
+        _ = builder.Append(info.TargetInfo.TargetName).Append("), new PropertyMetadata(null));");
+        return builder.ToString();
+    }
+
+    /// <summary>Generates source for Windows Forms views.</summary>
+    /// <param name="info">The IViewFor generation model.</param>
+    /// <param name="parents">The enclosing type declarations.</param>
+    /// <param name="closingParents">The enclosing type closures.</param>
+    /// <param name="attributes">The forwarded attributes.</param>
+    /// <returns>The generated source.</returns>
+    private static string GenerateWinFormsViewSource(IViewForInfo info, string parents, string closingParents, string attributes) =>
+        $$"""
 // <auto-generated/>
 using ReactiveUI;
 using System.ComponentModel;
 #nullable restore
 #pragma warning disable
 
-namespace {{containingNamespace}}
+namespace {{info.TargetInfo.TargetNamespace}}
 {
-{{parentDeclarations}}    /// <summary>
-    /// Partial class for the {{containingTypeName}} which contains ReactiveUI IViewFor initialization.
+{{parents}}    /// <summary>
+    /// Partial class for the {{info.TargetInfo.TargetName}} which contains ReactiveUI IViewFor initialization.
     /// </summary>
-    {{forwardedAttributesString}}
-    {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}} : IViewFor<{{iviewForInfo.ViewModelTypeName}}>
+    {{attributes}}
+    {{info.TargetInfo.TargetVisibility}} partial {{info.TargetInfo.TargetType}} {{info.TargetInfo.TargetName}} : IViewFor<{{info.ViewModelTypeName}}>
     {
         /// <inheritdoc/>
         [Category("ReactiveUI")]
@@ -213,18 +262,24 @@ namespace {{containingNamespace}}
         [Bindable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
-        public {{iviewForInfo.ViewModelTypeName}}? ViewModel {get; set; }
+        public {{info.ViewModelTypeName}}? ViewModel {get; set; }
 
         /// <inheritdoc/>
-        object? IViewFor.ViewModel {get => ViewModel; set => ViewModel = ({{iviewForInfo.ViewModelTypeName}}? )value; }
+        object? IViewFor.ViewModel {get => ViewModel; set => ViewModel = ({{info.ViewModelTypeName}}? )value; }
     }
-{{parentClosing}}}
+{{closingParents}}}
 #nullable restore
 #pragma warning restore
 """;
-            case IViewForBaseType.Avalonia:
-                return
-$$"""
+
+    /// <summary>Generates source for Avalonia views.</summary>
+    /// <param name="info">The IViewFor generation model.</param>
+    /// <param name="parents">The enclosing type declarations.</param>
+    /// <param name="closingParents">The enclosing type closures.</param>
+    /// <param name="attributes">The forwarded attributes.</param>
+    /// <returns>The generated source.</returns>
+    private static string GenerateAvaloniaViewSource(IViewForInfo info, string parents, string closingParents, string attributes) =>
+        $$"""
 // <auto-generated/>
 using System;
 using ReactiveUI;
@@ -233,30 +288,30 @@ using Avalonia.Controls;
 #nullable restore
 #pragma warning disable
 
-namespace {{containingNamespace}}
+namespace {{info.TargetInfo.TargetNamespace}}
 {
-{{parentDeclarations}}    /// <summary>
-    /// Partial class for the {{containingTypeName}} which contains ReactiveUI IViewFor initialization.
+{{parents}}    /// <summary>
+    /// Partial class for the {{info.TargetInfo.TargetName}} which contains ReactiveUI IViewFor initialization.
     /// </summary>
-    {{forwardedAttributesString}}
-    {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}} : IViewFor<{{iviewForInfo.ViewModelTypeName}}>
+    {{attributes}}
+    {{info.TargetInfo.TargetVisibility}} partial {{info.TargetInfo.TargetType}} {{info.TargetInfo.TargetName}} : IViewFor<{{info.ViewModelTypeName}}>
     {
         /// <summary>
         /// The view model dependency property.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("AvaloniaProperty", "AVP1002", Justification = "Generic avalonia property is expected here.")]
-        public static readonly StyledProperty<{{iviewForInfo.ViewModelTypeName}}?> ViewModelProperty = AvaloniaProperty.Register<{{containingTypeName}}, {{iviewForInfo.ViewModelTypeName}}>(nameof(ViewModel));
+        public static readonly StyledProperty<{{info.ViewModelTypeName}}?> ViewModelProperty = AvaloniaProperty.Register<{{info.TargetInfo.TargetName}}, {{info.ViewModelTypeName}}>(nameof(ViewModel));
 
         /// <summary>
         /// Gets the binding root view model.
         /// </summary>
-        public {{iviewForInfo.ViewModelTypeName}}? BindingRoot => ViewModel;
+        public {{info.ViewModelTypeName}}? BindingRoot => ViewModel;
 
         /// <inheritdoc/>
-        public {{iviewForInfo.ViewModelTypeName}}? ViewModel { get => ({{iviewForInfo.ViewModelTypeName}}?)GetValue(ViewModelProperty); set => SetValue(ViewModelProperty, value); }
+        public {{info.ViewModelTypeName}}? ViewModel { get => ({{info.ViewModelTypeName}}?)GetValue(ViewModelProperty); set => SetValue(ViewModelProperty, value); }
 
         /// <inheritdoc/>
-        object? IViewFor.ViewModel { get => ViewModel; set => ViewModel = ({{iviewForInfo.ViewModelTypeName}}?)value; }
+        object? IViewFor.ViewModel { get => ViewModel; set => ViewModel = ({{info.ViewModelTypeName}}?)value; }
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
@@ -264,7 +319,7 @@ namespace {{containingNamespace}}
 
             if (change.Property == DataContextProperty)
             {
-                if (ReferenceEquals(change.OldValue, ViewModel) && change.NewValue is null or {{iviewForInfo.ViewModelTypeName}})
+                if (ReferenceEquals(change.OldValue, ViewModel) && change.NewValue is null or {{info.ViewModelTypeName}})
                 {
                     SetCurrentValue(ViewModelProperty, change.NewValue);
                 }
@@ -278,13 +333,21 @@ namespace {{containingNamespace}}
             }
         }
     }
-{{parentClosing}}}
+{{closingParents}}}
 #nullable restore
 #pragma warning restore
 """;
-            case IViewForBaseType.Maui:
-                return
-$$"""
+
+    /// <summary>Generates source for MAUI views.</summary>
+    /// <param name="info">The IViewFor generation model.</param>
+    /// <param name="parents">The enclosing type declarations.</param>
+    /// <param name="closingParents">The enclosing type closures.</param>
+    /// <param name="attributes">The forwarded attributes.</param>
+    /// <returns>The generated source.</returns>
+    private static string GenerateMauiViewSource(IViewForInfo info, string parents, string closingParents, string attributes)
+    {
+        var viewModelPropertyDeclaration = GetMauiViewModelPropertyDeclaration(info);
+        return $$"""
 // <auto-generated/>
 using System;
 using ReactiveUI;
@@ -292,119 +355,62 @@ using Microsoft.Maui.Controls;
 #nullable restore
 #pragma warning disable
 
-namespace {{containingNamespace}}
+namespace {{info.TargetInfo.TargetNamespace}}
 {
-{{parentDeclarations}}    {{forwardedAttributesString}}
-    {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}} : IViewFor<{{iviewForInfo.ViewModelTypeName}}>
+{{parents}}    {{attributes}}
+    {{info.TargetInfo.TargetVisibility}} partial {{info.TargetInfo.TargetType}} {{info.TargetInfo.TargetName}} : IViewFor<{{info.ViewModelTypeName}}>
     {
-        public static readonly BindableProperty ViewModelProperty = BindableProperty.Create(nameof(ViewModel), typeof({{iviewForInfo.ViewModelTypeName}}), typeof(IViewFor<{{iviewForInfo.ViewModelTypeName}}>), default({{iviewForInfo.ViewModelTypeName}}), BindingMode.OneWay, propertyChanged: OnViewModelChanged);
+{{viewModelPropertyDeclaration}}
 
         /// <summary>
         /// Gets the binding root view model.
         /// </summary>
-        public {{iviewForInfo.ViewModelTypeName}}? BindingRoot => ViewModel;
+        public {{info.ViewModelTypeName}}? BindingRoot => ViewModel;
 
         /// <inheritdoc/>
-        public {{iviewForInfo.ViewModelTypeName}}? ViewModel { get => ({{iviewForInfo.ViewModelTypeName}}?)GetValue(ViewModelProperty); set => SetValue(ViewModelProperty, value); }
+        public {{info.ViewModelTypeName}}? ViewModel { get => ({{info.ViewModelTypeName}}?)GetValue(ViewModelProperty); set => SetValue(ViewModelProperty, value); }
 
         /// <inheritdoc/>
-        object? IViewFor.ViewModel { get => ViewModel; set => ViewModel = ({{iviewForInfo.ViewModelTypeName}}?)value; }
+        object? IViewFor.ViewModel { get => ViewModel; set => ViewModel = ({{info.ViewModelTypeName}}?)value; }
 
         /// <inheritdoc/>
         protected override void OnBindingContextChanged()
         {
             base.OnBindingContextChanged();
-            ViewModel = BindingContext as {{iviewForInfo.ViewModelTypeName}};
+            ViewModel = BindingContext as {{info.ViewModelTypeName}};
         }
 
         private static void OnViewModelChanged(BindableObject bindableObject, object oldValue, object newValue) => bindableObject.BindingContext = newValue;
     }
-{{parentClosing}}}
+{{closingParents}}}
 #nullable restore
 #pragma warning restore
 """;
-        }
-
-        return string.Empty;
     }
 
-    private static string GenerateRegistrationExtensions(in ImmutableArray<IViewForInfo> iviewForInfo)
+    /// <summary>Creates the MAUI bindable-property declaration while preserving its generated one-line format.</summary>
+    /// <param name="info">The IViewFor generation model.</param>
+    /// <returns>The generated bindable-property declaration.</returns>
+    private static string GetMauiViewModelPropertyDeclaration(IViewForInfo info)
     {
-        // Collapse to unique registrations and skip entries with no registration
-        var registrations = iviewForInfo
-            .Where(static x => !string.IsNullOrWhiteSpace(x.SplatRegistrationType))
-            .GroupBy(static x => (x.TargetInfo.TargetNamespaceWithNamespace, x.ViewModelTypeName, x.SplatRegistrationType))
-            .Select(static g => g.First())
-            .ToImmutableArray();
+        var builder = new StringBuilder("        public static readonly BindableProperty ViewModelProperty = ");
+        _ = builder.Append("BindableProperty.Create(nameof(ViewModel), typeof(");
+        _ = builder.Append(info.ViewModelTypeName).Append("), typeof(IViewFor<");
+        _ = builder.Append(info.ViewModelTypeName).Append(">), default(");
+        _ = builder.Append(info.ViewModelTypeName);
+        _ = builder.Append("), BindingMode.OneWay, propertyChanged: OnViewModelChanged);");
+        return builder.ToString();
+    }
 
-        var viewModelRegistrations = iviewForInfo
-            .Where(static x => !string.IsNullOrWhiteSpace(x.SplatViewModelRegistrationType))
-            .GroupBy(static x => (x.TargetInfo.TargetNamespaceWithNamespace, x.ViewModelTypeName, x.SplatViewModelRegistrationType))
-            .Select(static g => g.First())
-            .ToImmutableArray();
-
+    /// <summary>Generates the Splat registration extension source for discovered views.</summary>
+    /// <param name="viewForInfo">The discovered view-generation models.</param>
+    /// <returns>The generated extension source.</returns>
+    private static string GenerateRegistrationExtensions(in ImmutableArray<IViewForInfo> viewForInfo)
+    {
         var sb = new StringBuilder();
-        sb.AppendLine("if (resolver is null) throw new global::System.ArgumentNullException(nameof(resolver));");
-        foreach (var item in registrations)
-        {
-            var vmType = item.ViewModelTypeName;
-            if (string.IsNullOrWhiteSpace(vmType))
-            {
-                // Something's wrong, skip it
-                continue;
-            }
-
-            if (!vmType.StartsWith("global::", System.StringComparison.Ordinal))
-            {
-                vmType = "global::" + vmType;
-            }
-
-            var serviceType = "global::ReactiveUI.IViewFor<" + vmType + ">";
-            var viewType = item.TargetInfo.TargetNamespaceWithNamespace; // already fully-qualified
-
-            // resolver.Register*/<IViewFor<VM>, View>();
-            switch (item.SplatRegistrationType)
-            {
-                case "RegisterLazySingleton":
-                    sb.AppendLine($"            resolver.{item.SplatRegistrationType}<{serviceType}>(() => new {viewType}());");
-                    break;
-                case "Register":
-                    sb.AppendLine($"            resolver.{item.SplatRegistrationType}<{serviceType}, {viewType}>();");
-                    break;
-                case "RegisterConstant":
-                    sb.AppendLine($"            resolver.{item.SplatRegistrationType}<{serviceType}>(new {viewType}());");
-                    break;
-            }
-        }
-
-        foreach (var item in viewModelRegistrations)
-        {
-            var vmType = item.ViewModelTypeName;
-            if (string.IsNullOrWhiteSpace(vmType))
-            {
-                // Something's wrong, skip it
-                continue;
-            }
-
-            if (!vmType.StartsWith("global::", System.StringComparison.Ordinal))
-            {
-                vmType = "global::" + vmType;
-            }
-
-            // resolver.Register*/<VM, VM>();
-            switch (item.SplatViewModelRegistrationType)
-            {
-                case "RegisterLazySingleton":
-                    sb.AppendLine($"            resolver.{item.SplatViewModelRegistrationType}<{vmType}>(() => new {vmType}());");
-                    break;
-                case "Register":
-                    sb.AppendLine($"            resolver.{item.SplatViewModelRegistrationType}<{vmType}, {vmType}>();");
-                    break;
-                case "RegisterConstant":
-                    sb.AppendLine($"            resolver.{item.SplatViewModelRegistrationType}<{vmType}>(new {vmType}());");
-                    break;
-            }
-        }
+        _ = sb.AppendLine("if (resolver is null) throw new global::System.ArgumentNullException(nameof(resolver));");
+        AppendViewRegistrations(sb, viewForInfo);
+        AppendViewModelRegistrations(sb, viewForInfo);
 
         var registrationsBody = sb.ToString().TrimEnd();
         return
@@ -433,5 +439,109 @@ namespace ReactiveUI.SourceGenerators
 #nullable restore
 #pragma warning restore
 """;
+    }
+
+    /// <summary>Appends unique view registrations to a generated method body.</summary>
+    /// <param name="builder">The generated method-body builder.</param>
+    /// <param name="viewForInfo">The discovered view-generation models.</param>
+    private static void AppendViewRegistrations(StringBuilder builder, ImmutableArray<IViewForInfo> viewForInfo)
+    {
+        var registrations = new HashSet<(string ViewType, string ViewModelType, string RegistrationType)>();
+        foreach (var item in viewForInfo)
+        {
+            var registrationType = item.SplatRegistrationType;
+            var viewModelType = GetGlobalTypeName(item.ViewModelTypeName);
+            if (string.IsNullOrWhiteSpace(registrationType) || viewModelType is null)
+            {
+                continue;
+            }
+
+            var viewType = item.TargetInfo.TargetNamespaceWithNamespace;
+            if (registrations.Add((viewType, viewModelType, registrationType)))
+            {
+                AppendViewRegistration(builder, registrationType, viewType, viewModelType);
+            }
+        }
+    }
+
+    /// <summary>Appends unique view model registrations to a generated method body.</summary>
+    /// <param name="builder">The generated method-body builder.</param>
+    /// <param name="viewForInfo">The discovered view-generation models.</param>
+    private static void AppendViewModelRegistrations(StringBuilder builder, ImmutableArray<IViewForInfo> viewForInfo)
+    {
+        var registrations = new HashSet<(string ViewModelType, string RegistrationType)>();
+        foreach (var item in viewForInfo)
+        {
+            var registrationType = item.SplatViewModelRegistrationType;
+            var viewModelType = GetGlobalTypeName(item.ViewModelTypeName);
+            if (string.IsNullOrWhiteSpace(registrationType) || viewModelType is null)
+            {
+                continue;
+            }
+
+            if (registrations.Add((viewModelType, registrationType)))
+            {
+                AppendViewModelRegistration(builder, registrationType, viewModelType);
+            }
+        }
+    }
+
+    /// <summary>Normalizes a type name for use in generated source.</summary>
+    /// <param name="typeName">The type name supplied by the attribute.</param>
+    /// <returns>A global-qualified type name, or <see langword="null"/> when no type was supplied.</returns>
+    private static string? GetGlobalTypeName(string typeName)
+    {
+        if (string.IsNullOrWhiteSpace(typeName))
+        {
+            return null;
+        }
+
+        return typeName.StartsWith("global::", System.StringComparison.Ordinal)
+            ? typeName
+            : $"global::{typeName}";
+    }
+
+    /// <summary>Appends one view registration statement.</summary>
+    /// <param name="builder">The generated method-body builder.</param>
+    /// <param name="registrationType">The Splat registration method.</param>
+    /// <param name="viewType">The generated view type.</param>
+    /// <param name="viewModelType">The generated view model type.</param>
+    private static void AppendViewRegistration(StringBuilder builder, string registrationType, string viewType, string viewModelType)
+    {
+        var serviceType = $"global::ReactiveUI.IViewFor<{viewModelType}>";
+        var registration = registrationType switch
+        {
+            "RegisterLazySingleton" => $"resolver.{registrationType}<{serviceType}>(() => new {viewType}());",
+            "Register" => $"resolver.{registrationType}<{serviceType}, {viewType}>();",
+            "RegisterConstant" => $"resolver.{registrationType}<{serviceType}>(new {viewType}());",
+            _ => null,
+        };
+        if (registration is null)
+        {
+            return;
+        }
+
+        _ = builder.Append("            ").AppendLine(registration);
+    }
+
+    /// <summary>Appends one view model registration statement.</summary>
+    /// <param name="builder">The generated method-body builder.</param>
+    /// <param name="registrationType">The Splat registration method.</param>
+    /// <param name="viewModelType">The generated view model type.</param>
+    private static void AppendViewModelRegistration(StringBuilder builder, string registrationType, string viewModelType)
+    {
+        var registration = registrationType switch
+        {
+            "RegisterLazySingleton" => $"resolver.{registrationType}<{viewModelType}>(() => new {viewModelType}());",
+            "Register" => $"resolver.{registrationType}<{viewModelType}, {viewModelType}>();",
+            "RegisterConstant" => $"resolver.{registrationType}<{viewModelType}>(new {viewModelType}());",
+            _ => null,
+        };
+        if (registration is null)
+        {
+            return;
+        }
+
+        _ = builder.Append("            ").AppendLine(registration);
     }
 }

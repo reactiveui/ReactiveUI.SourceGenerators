@@ -1,18 +1,13 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
-/// <summary>
-/// Extended unit tests for the ReactiveCommand generator covering edge cases.
-/// </summary>
+/// <summary>Extended unit tests for the ReactiveCommand generator covering edge cases.</summary>
 public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
 {
-    /// <summary>
-    /// Tests ReactiveCommand with CanExecute observable property.
-    /// </summary>
+    /// <summary>Tests ReactiveCommand with CanExecute observable property.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveCommandWithCanExecute()
@@ -38,9 +33,7 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCommand with CanExecute observable method.
-    /// </summary>
+    /// <summary>Tests ReactiveCommand with CanExecute observable method.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveCommandWithCanExecuteMethod()
@@ -65,9 +58,7 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCommand with CancellationToken parameter.
-    /// </summary>
+    /// <summary>Tests ReactiveCommand with CancellationToken parameter.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveCommandWithCancellationToken()
@@ -94,9 +85,7 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCommands distributed across partial declarations.
-    /// </summary>
+    /// <summary>Tests ReactiveCommands distributed across partial declarations.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveCommandsAcrossPartialDeclarations()
@@ -129,9 +118,7 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCommand with CancellationToken and parameter.
-    /// </summary>
+    /// <summary>Tests ReactiveCommand with CancellationToken and parameter.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveCommandWithCancellationTokenAndParameter()
@@ -159,9 +146,7 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCommand returning ValueTask.
-    /// </summary>
+    /// <summary>Tests ReactiveCommand returning ValueTask.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveCommandWithValueTask()
@@ -193,9 +178,7 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCommand with protected access modifier.
-    /// </summary>
+    /// <summary>Tests ReactiveCommand with protected access modifier.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveCommandWithProtectedAccess()
@@ -217,9 +200,7 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCommand with private access modifier.
-    /// </summary>
+    /// <summary>Tests ReactiveCommand with private access modifier.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveCommandWithPrivateAccess()
@@ -241,9 +222,7 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCommand with complex generic return type.
-    /// </summary>
+    /// <summary>Tests ReactiveCommand with complex generic return type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveCommandWithComplexGenericReturnType()
@@ -277,9 +256,7 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCommand with tuple return type.
-    /// </summary>
+    /// <summary>Tests ReactiveCommand with tuple return type.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveCommandWithTupleReturnType()
@@ -312,9 +289,7 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCommand with multiple parameters.
-    /// </summary>
+    /// <summary>Tests ReactiveCommand with multiple parameters.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveCommandWithMultipleParameters()
@@ -340,9 +315,7 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCommand with nullable parameter.
-    /// </summary>
+    /// <summary>Tests ReactiveCommand with nullable parameter.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveCommandWithNullableParameter()
@@ -374,9 +347,7 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCommand in generic class.
-    /// </summary>
+    /// <summary>Tests ReactiveCommand in generic class.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveCommandInGenericClass()
@@ -409,9 +380,7 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCommand with enum parameter.
-    /// </summary>
+    /// <summary>Tests ReactiveCommand with enum parameter.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveCommandWithEnumParameter()
@@ -441,9 +410,7 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCommand with array parameter.
-    /// </summary>
+    /// <summary>Tests ReactiveCommand with array parameter.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveCommandWithArrayParameter()
@@ -475,9 +442,7 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCommand with IObservable return.
-    /// </summary>
+    /// <summary>Tests ReactiveCommand with IObservable return.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveCommandWithObservableReturn()
@@ -503,9 +468,7 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCommand with both CanExecute and OutputScheduler.
-    /// </summary>
+    /// <summary>Tests ReactiveCommand with both CanExecute and OutputScheduler.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveCommandWithCanExecuteAndScheduler()
@@ -535,9 +498,7 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests multiple ReactiveCommands in same class.
-    /// </summary>
+    /// <summary>Tests multiple ReactiveCommands in same class.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromMultipleReactiveCommands()
@@ -576,9 +537,7 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCommand in record class.
-    /// </summary>
+    /// <summary>Tests ReactiveCommand in record class.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveCommandInRecordClass()
@@ -608,9 +567,7 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCommand with delegate parameter.
-    /// </summary>
+    /// <summary>Tests ReactiveCommand with delegate parameter.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveCommandWithDelegateParameter()
@@ -641,9 +598,7 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCommand with Task of nullable return.
-    /// </summary>
+    /// <summary>Tests ReactiveCommand with Task of nullable return.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveCommandWithTaskOfNullableReturn()
@@ -677,9 +632,7 @@ public class RxCmdExtTests : TestBase<ReactiveCommandGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>
-    /// Tests ReactiveCommand with deeply nested class.
-    /// </summary>
+    /// <summary>Tests ReactiveCommand with deeply nested class.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public Task FromReactiveCommandInDeeplyNestedClass()

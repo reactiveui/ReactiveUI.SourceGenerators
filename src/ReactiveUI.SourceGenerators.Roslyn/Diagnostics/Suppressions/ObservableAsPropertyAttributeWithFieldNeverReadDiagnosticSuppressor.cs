@@ -1,6 +1,5 @@
-﻿// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System.Collections.Immutable;
@@ -12,17 +11,15 @@ using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using static ReactiveUI.SourceGenerators.Diagnostics.SuppressionDescriptors;
 
-namespace ReactiveUI.SourceGenerators.Diagnostics.Suppressions
+namespace ReactiveUI.SourceGenerators.Diagnostics.Suppressions;
+
+/// <summary>ObservableAsProperty Attribute With Field Never Read Diagnostic Suppressor.</summary>
+/// <seealso cref="DiagnosticSuppressor" />
+[DiagnosticAnalyzer(LanguageNames.CSharp)]
+public sealed class ObservableAsPropertyAttributeWithFieldNeverReadDiagnosticSuppressor : DiagnosticSuppressor
 {
-    /// <summary>
-    /// ObservableAsProperty Attribute With Field Never Read Diagnostic Suppressor.
-    /// </summary>
-    /// <seealso cref="DiagnosticSuppressor" />
-    [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public sealed class ObservableAsPropertyAttributeWithFieldNeverReadDiagnosticSuppressor : DiagnosticSuppressor
-    {
         /// <inheritdoc/>
-        public override ImmutableArray<SuppressionDescriptor> SupportedSuppressions => ImmutableArray.Create(FieldIsUsedToGenerateAObservableAsPropertyHelper);
+        public override ImmutableArray<SuppressionDescriptor> SupportedSuppressions => ImmutableArray<SuppressionDescriptor>.Empty.Add(FieldIsUsedToGenerateAObservableAsPropertyHelper);
 
         /// <inheritdoc/>
         public override void ReportSuppressions(SuppressionAnalysisContext context)
@@ -32,7 +29,11 @@ namespace ReactiveUI.SourceGenerators.Diagnostics.Suppressions
                 var syntaxNode = diagnostic.Location.SourceTree?.GetRoot(context.CancellationToken).FindNode(diagnostic.Location.SourceSpan);
 
                 // Check that the target is effectively [field:] or [property:] over a method declaration, which is the case we're looking for
-                if (syntaxNode is AttributeTargetSpecifierSyntax { Parent.Parent: MethodDeclarationSyntax methodDeclaration, Identifier: SyntaxToken(SyntaxKind.FieldKeyword or SyntaxKind.PropertyKeyword) })
+                if (syntaxNode is AttributeTargetSpecifierSyntax
+                    {
+                        Parent.Parent: MethodDeclarationSyntax methodDeclaration,
+                        Identifier: SyntaxToken(SyntaxKind.FieldKeyword or SyntaxKind.PropertyKeyword),
+                    })
                 {
                     var semanticModel = context.GetSemanticModel(syntaxNode.SyntaxTree);
 
@@ -40,14 +41,13 @@ namespace ReactiveUI.SourceGenerators.Diagnostics.Suppressions
                     ISymbol? declaredSymbol = semanticModel.GetDeclaredSymbol(methodDeclaration, context.CancellationToken);
 
                     // Check if the method is using [ObservableAsProperty], in which case we should suppress the warning
-                    if (declaredSymbol is IMethodSymbol methodSymbol &&
-                        semanticModel.Compilation.GetTypeByMetadataName(AttributeDefinitions.ObservableAsPropertyAttributeType) is INamedTypeSymbol reactiveCommandSymbol &&
-                        methodSymbol.HasAttributeWithType(reactiveCommandSymbol))
+                    if (declaredSymbol is IMethodSymbol methodSymbol
+                        && semanticModel.Compilation.GetTypeByMetadataName(AttributeDefinitions.ObservableAsPropertyAttributeType) is INamedTypeSymbol reactiveCommandSymbol
+                        && methodSymbol.HasAttributeWithType(reactiveCommandSymbol))
                     {
                         context.ReportSuppression(Suppression.Create(FieldIsUsedToGenerateAObservableAsPropertyHelper, diagnostic));
                     }
                 }
             }
         }
-    }
 }

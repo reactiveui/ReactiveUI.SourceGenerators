@@ -1,6 +1,5 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System.Reflection;
@@ -8,6 +7,7 @@ using System.Runtime.InteropServices;
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
+/// <summary>Creates metadata-reference sets for in-memory test compilations.</summary>
 internal static class TestCompilationReferences
 {
     /// <summary>
@@ -44,41 +44,119 @@ internal static class TestCompilationReferences
         }
         namespace System.Windows.Forms
         {
-            public class Control { }
+            public enum DockStyle
+            {
+                None,
+                Fill,
+            }
+
+            public class Control : global::System.ComponentModel.Component
+            {
+                public ControlCollection Controls { get; } = new();
+                public DockStyle Dock { get; set; }
+                public void SuspendLayout() { }
+                public void ResumeLayout() { }
+            }
+
+            public sealed class ControlCollection : global::System.Collections.Generic.IEnumerable<Control>
+            {
+                private readonly global::System.Collections.Generic.List<Control> controls = new();
+
+                public int Count => controls.Count;
+                public void Add(Control control) => controls.Add(control);
+                public void Clear() => controls.Clear();
+                public void Remove(Control? control)
+                {
+                    if (control is not null)
+                    {
+                        controls.Remove(control);
+                    }
+                }
+
+                public global::System.Collections.Generic.IEnumerator<Control> GetEnumerator() => controls.GetEnumerator();
+                global::System.Collections.IEnumerator global::System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+            }
+
             public class Form : Control { }
             public class UserControl : Control { }
         }
         """;
 
-    // Cache the default references so that the expensive assembly-scanning/file-I/O is only
-    // performed once per process, not on every test invocation.
+    /// <summary>The shared-framework directory name for Windows desktop assemblies.</summary>
+    private const string WindowsDesktopAppDirectoryName = "Microsoft.WindowsDesktop.App";
+
+    /// <summary>
+    /// Cache the default references so that the expensive assembly-scanning/file-I/O is only
+    /// performed once per process, not on every test invocation.
+    /// </summary>
     private static readonly Lazy<ImmutableArray<MetadataReference>> defaultReferences =
-        new(CreateDefaultCore, LazyThreadSafetyMode.ExecutionAndPublication);
+        new(
+            static () => CreateDefaultCore(includeWindowsDesktop: true),
+            LazyThreadSafetyMode.ExecutionAndPublication);
+
+    /// <summary>
+    /// Cache the platform-neutral references used with source stubs for deterministic
+    /// Windows desktop generator tests on every operating system.
+    /// </summary>
+    private static readonly Lazy<ImmutableArray<MetadataReference>> portableDefaultReferences =
+        new(
+            static () => CreateDefaultCore(includeWindowsDesktop: false),
+            LazyThreadSafetyMode.ExecutionAndPublication);
 
     /// <summary>
     /// Returns metadata references for all assemblies required by the in-memory test compilations.
-    /// Uses only runtime assemblies already loaded into the current process — no NuGet downloads,
-    /// no Basic.Reference.Assemblies mixing — to avoid CS1704/CS0433/CS0518 duplicate-type errors.
-    /// The result is cached after the first call to avoid repeated assembly scanning and file I/O.
+    /// Uses an explicit transitive closure rooted at the assemblies required by the test sources.
+    /// It deliberately does not sweep all loaded assemblies, so compatibility tests can model a
+    /// ReactiveUI 24 base application without accidentally importing System.Reactive.
     /// </summary>
+    /// <returns>The cached default metadata-reference closure.</returns>
     internal static ImmutableArray<MetadataReference> CreateDefault() => defaultReferences.Value;
 
-    private static ImmutableArray<MetadataReference> CreateDefaultCore()
+    /// <summary>
+    /// Returns the default metadata-reference closure without platform-specific Windows
+    /// desktop assemblies so source stubs can be used consistently on every operating system.
+    /// </summary>
+    /// <returns>The cached platform-neutral metadata-reference closure.</returns>
+    internal static ImmutableArray<MetadataReference> CreatePortableDefault() => portableDefaultReferences.Value;
+
+    /// <summary>Creates an isolated transitive metadata-reference closure from the supplied assembly roots.</summary>
+    /// <param name="assemblies">The assemblies whose dependency closures should be included.</param>
+    /// <returns>The isolated metadata references.</returns>
+    internal static ImmutableArray<MetadataReference> CreateForAssemblies(params Assembly[] assemblies)
+    {
+        var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var result = ImmutableArray.CreateBuilder<MetadataReference>();
+        foreach (var assembly in assemblies)
+        {
+            AddTransitive(assembly, visited, result);
+        }
+
+        return result.ToImmutable();
+    }
+
+    /// <summary>Builds the default metadata-reference closure.</summary>
+    /// <returns>The default metadata-reference closure.</returns>
+    /// <param name="includeWindowsDesktop">
+    /// Whether to add installed Windows desktop shared-framework assemblies on Windows.
+    /// </param>
+    private static ImmutableArray<MetadataReference> CreateDefaultCore(bool includeWindowsDesktop)
     {
         var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var result = ImmutableArray.CreateBuilder<MetadataReference>();
 
-        // Seed with the key assemblies whose transitive closure covers BCL + ReactiveUI + Splat +
-        // System.Reactive and everything else the test source strings depend on.
+        // Seed with the key assemblies whose transitive closure covers the dependencies used by
+        // the existing generator snapshots. Profile-specific tests supply their own references.
         var seeds = new[]
         {
-            typeof(object).Assembly,                                                                          // System.Private.CoreLib
-            typeof(Enumerable).Assembly,                                                                      // System.Linq
-            typeof(System.ComponentModel.INotifyPropertyChanged).Assembly,                                    // System.ObjectModel
-            typeof(ReactiveUI.ReactiveObject).Assembly,                                                       // ReactiveUI
-            typeof(ReactiveUI.SourceGenerators.ReactiveGenerator).Assembly,                                   // ReactiveUI.SourceGenerators
-            typeof(ReactiveUI.SourceGenerators.CodeFixers.PropertyToReactiveFieldAnalyzer).Assembly,          // analyzer assembly
-            typeof(Splat.Locator).Assembly,                                                                   // Splat
+            typeof(object).Assembly, // System.Private.CoreLib
+            typeof(Enumerable).Assembly, // System.Linq
+            typeof(System.ComponentModel.INotifyPropertyChanged).Assembly, // System.ObjectModel
+            typeof(ReactiveObject).Assembly, // ReactiveUI
+            typeof(System.Reactive.Unit).Assembly, // System.Reactive test inputs
+            typeof(DynamicData.SourceList<>).Assembly, // Bindable derived list test inputs
+            typeof(ReactiveGenerator).Assembly, // ReactiveUI.SourceGenerators
+            typeof(PropertyToReactiveFieldAnalyzer).Assembly, // analyzer assembly
+            typeof(Splat.Locator).Assembly, // Splat
         };
 
         foreach (var seed in seeds)
@@ -86,19 +164,9 @@ internal static class TestCompilationReferences
             AddTransitive(seed, visited, result);
         }
 
-        // Also sweep all assemblies already loaded — catches System.Reactive, DynamicData, etc.
-        foreach (var loaded in AppDomain.CurrentDomain.GetAssemblies())
-        {
-            if (!loaded.IsDynamic && !string.IsNullOrWhiteSpace(loaded.Location)
-                && visited.Add(loaded.Location))
-            {
-                result.Add(MetadataReference.CreateFromFile(loaded.Location));
-            }
-        }
-
         // Add WPF and WinForms assemblies on Windows so test source strings that inherit from
         // Window or use Windows Forms controls compile correctly.
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (includeWindowsDesktop && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             AddWindowsDesktopAssemblies(visited, result);
         }
@@ -111,6 +179,8 @@ internal static class TestCompilationReferences
     /// reference set, resolving them from the Microsoft.WindowsDesktop.App shared framework
     /// directory that corresponds to the current runtime version.
     /// </summary>
+    /// <param name="visited">The set of metadata-reference paths already added.</param>
+    /// <param name="result">The metadata-reference collection to populate.</param>
     private static void AddWindowsDesktopAssemblies(
         HashSet<string> visited,
         ImmutableArray<MetadataReference>.Builder result)
@@ -128,6 +198,7 @@ internal static class TestCompilationReferences
             "PresentationCore.dll",
             "WindowsBase.dll",
             "System.Xaml.dll",
+            "System.Private.Windows.Core.dll",
         };
 
         // WinForms assemblies required for tests that use Windows Forms controls.
@@ -137,7 +208,22 @@ internal static class TestCompilationReferences
             "System.Windows.Forms.Primitives.dll",
         };
 
-        foreach (var name in wpfAssemblies.Concat(winFormsAssemblies))
+        AddWindowsDesktopAssemblies(versionDir, wpfAssemblies, visited, result);
+        AddWindowsDesktopAssemblies(versionDir, winFormsAssemblies, visited, result);
+    }
+
+    /// <summary>Adds Windows desktop assembly references from a shared-framework directory.</summary>
+    /// <param name="versionDir">The Windows desktop shared-framework version directory.</param>
+    /// <param name="assemblyNames">The assembly file names to add.</param>
+    /// <param name="visited">The set of metadata-reference paths already added.</param>
+    /// <param name="result">The metadata-reference collection to populate.</param>
+    private static void AddWindowsDesktopAssemblies(
+        string versionDir,
+        IEnumerable<string> assemblyNames,
+        HashSet<string> visited,
+        ImmutableArray<MetadataReference>.Builder result)
+    {
+        foreach (var name in assemblyNames)
         {
             var path = Path.Combine(versionDir, name);
             if (File.Exists(path) && visited.Add(path))
@@ -152,42 +238,22 @@ internal static class TestCompilationReferences
     /// Uses multiple discovery strategies: runtime-relative path, DOTNET_ROOT env var,
     /// and well-known installation paths.
     /// </summary>
+    /// <returns>The directory that contains the best matching Windows desktop reference assemblies, if found.</returns>
     private static string? FindWindowsDesktopAppVersionDir()
     {
         var runtimeVersion = Environment.Version;
         var majorMinor = $"{runtimeVersion.Major}.{runtimeVersion.Minor}";
 
-        // Collect unique candidate parent directories to try, in priority order.
-        var candidateRoots = new List<string?>();
-
-        // Strategy 1a: RuntimeEnvironment.GetRuntimeDirectory() — the most reliable way to
-        // locate the actual .NET shared framework even when running under a VS test host
-        // or PowerShell where typeof(object).Assembly.Location may point elsewhere.
-        // Returns e.g. C:\Program Files\dotnet\shared\Microsoft.NETCore.App\9.0.14\
-        var runtimeDir = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory();
-        candidateRoots.Add(Path.GetDirectoryName(runtimeDir?.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)));
-
-        // Strategy 1b: Walk up from typeof(object).Assembly.Location (works under dotnet CLI).
-        var coreLibDir = Path.GetDirectoryName(typeof(object).Assembly.Location);
-        candidateRoots.Add(coreLibDir);
-
-        // Try each root two levels up to reach shared\Microsoft.WindowsDesktop.App
-        foreach (var root in candidateRoots.Where(r => !string.IsNullOrEmpty(r)))
+        var runtimeDirectory = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory();
+        var candidateRoots = new[]
         {
-            var candidate = Path.GetFullPath(Path.Combine(root!, "..", "Microsoft.WindowsDesktop.App"));
-            var dir = PickBestVersionDir(candidate, majorMinor);
-            if (dir is not null)
-            {
-                return dir;
-            }
-
-            // One extra level for layouts where root is already the version directory.
-            candidate = Path.GetFullPath(Path.Combine(root!, "..", "..", "Microsoft.WindowsDesktop.App"));
-            dir = PickBestVersionDir(candidate, majorMinor);
-            if (dir is not null)
-            {
-                return dir;
-            }
+            Path.GetDirectoryName(runtimeDirectory?.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)),
+            Path.GetDirectoryName(typeof(object).Assembly.Location),
+        };
+        var runtimeRelativeDirectory = FindWindowsDesktopAppVersionDir(candidateRoots, majorMinor);
+        if (runtimeRelativeDirectory is not null)
+        {
+            return runtimeRelativeDirectory;
         }
 
         // Strategy 2: DOTNET_ROOT environment variable.
@@ -195,7 +261,7 @@ internal static class TestCompilationReferences
                       ?? Environment.GetEnvironmentVariable("DOTNET_ROOT(x64)");
         if (!string.IsNullOrEmpty(dotnetRoot))
         {
-            var candidate = Path.Combine(dotnetRoot, "shared", "Microsoft.WindowsDesktop.App");
+            var candidate = Path.Combine(dotnetRoot, "shared", WindowsDesktopAppDirectoryName);
             var dir = PickBestVersionDir(candidate, majorMinor);
             if (dir is not null)
             {
@@ -215,7 +281,7 @@ internal static class TestCompilationReferences
                 continue;
             }
 
-            var candidate = Path.Combine(programFiles, "dotnet", "shared", "Microsoft.WindowsDesktop.App");
+            var candidate = Path.Combine(programFiles, "dotnet", "shared", WindowsDesktopAppDirectoryName);
             var dir = PickBestVersionDir(candidate, majorMinor);
             if (dir is not null)
             {
@@ -226,10 +292,41 @@ internal static class TestCompilationReferences
         return null;
     }
 
-    /// <summary>
-    /// Returns the best version directory under <paramref name="sharedRoot"/> that matches
-    /// <paramref name="majorMinor"/> (e.g., "9.0"), falling back to the newest available.
-    /// </summary>
+    /// <summary>Searches candidate runtime roots for the best Windows desktop version directory.</summary>
+    /// <param name="candidateRoots">The runtime-relative candidate roots to inspect.</param>
+    /// <param name="majorMinor">The runtime major and minor version to prefer.</param>
+    /// <returns>The best matching Windows desktop directory, if found.</returns>
+    private static string? FindWindowsDesktopAppVersionDir(IEnumerable<string?> candidateRoots, string majorMinor)
+    {
+        foreach (var root in candidateRoots)
+        {
+            if (string.IsNullOrEmpty(root))
+            {
+                continue;
+            }
+
+            var candidate = Path.GetFullPath(Path.Combine(root, "..", WindowsDesktopAppDirectoryName));
+            var directory = PickBestVersionDir(candidate, majorMinor);
+            if (directory is not null)
+            {
+                return directory;
+            }
+
+            candidate = Path.GetFullPath(Path.Combine(root, "..", "..", WindowsDesktopAppDirectoryName));
+            directory = PickBestVersionDir(candidate, majorMinor);
+            if (directory is not null)
+            {
+                return directory;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>Returns the best version directory under <paramref name="sharedRoot"/> that matches <paramref name="majorMinor"/> (e.g., "9.0"), falling back to the newest available.</summary>
+    /// <param name="sharedRoot">The Windows desktop shared-framework directory.</param>
+    /// <param name="majorMinor">The runtime major and minor version to prefer.</param>
+    /// <returns>The best matching version directory, if it contains WPF assemblies.</returns>
     private static string? PickBestVersionDir(string sharedRoot, string majorMinor)
     {
         if (!Directory.Exists(sharedRoot))
@@ -243,20 +340,29 @@ internal static class TestCompilationReferences
             return null;
         }
 
-        // Prefer exact major.minor match, ordered descending (newest patch first).
-        var best = dirs
-            .Where(d => Path.GetFileName(d).StartsWith(majorMinor + ".", StringComparison.Ordinal)
-                     || Path.GetFileName(d).Equals(majorMinor, StringComparison.Ordinal))
-            .OrderByDescending(d => d, StringComparer.OrdinalIgnoreCase)
-            .FirstOrDefault()
-            ?? dirs.OrderByDescending(d => d, StringComparer.OrdinalIgnoreCase).FirstOrDefault();
+        Array.Sort(dirs, StringComparer.OrdinalIgnoreCase);
+        Array.Reverse(dirs);
+        var best = dirs[0];
+        foreach (var directory in dirs)
+        {
+            var version = Path.GetFileName(directory);
+            if (version.StartsWith($"{majorMinor}.", StringComparison.Ordinal) || version.Equals(majorMinor, StringComparison.Ordinal))
+            {
+                best = directory;
+                break;
+            }
+        }
 
         // Validate it actually contains PresentationFramework.dll
-        return best is not null && File.Exists(Path.Combine(best, "PresentationFramework.dll"))
+        return File.Exists(Path.Combine(best, "PresentationFramework.dll"))
             ? best
             : null;
     }
 
+    /// <summary>Adds an assembly and its loadable transitive references to the collection.</summary>
+    /// <param name="assembly">The assembly whose references should be added.</param>
+    /// <param name="visited">The set of assembly paths that have already been added.</param>
+    /// <param name="result">The metadata-reference collection to populate.</param>
     private static void AddTransitive(
         Assembly assembly,
         HashSet<string> visited,
@@ -281,7 +387,15 @@ internal static class TestCompilationReferences
                 var referenced = System.Reflection.Assembly.Load(referencedName);
                 AddTransitive(referenced, visited, result);
             }
-            catch
+            catch (FileNotFoundException)
+            {
+                // Best-effort — system assemblies not found in some environments are skipped.
+            }
+            catch (FileLoadException)
+            {
+                // Best-effort — system assemblies not found in some environments are skipped.
+            }
+            catch (BadImageFormatException)
             {
                 // Best-effort — system assemblies not found in some environments are skipped.
             }

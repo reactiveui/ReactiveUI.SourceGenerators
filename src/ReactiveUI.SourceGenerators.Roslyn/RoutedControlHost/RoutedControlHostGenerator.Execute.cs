@@ -1,11 +1,8 @@
-﻿// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Immutable;
-using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -16,16 +13,20 @@ using ReactiveUI.SourceGenerators.Models;
 
 namespace ReactiveUI.SourceGenerators.WinForms;
 
-/// <summary>
-/// IViewForGenerator.
-/// </summary>
+/// <summary>Generates a Windows Forms routed control host.</summary>
 /// <seealso cref="IIncrementalGenerator" />
 public partial class RoutedControlHostGenerator
 {
+    /// <summary>The fully qualified generator name written to generated-code attributes.</summary>
     private static readonly string GeneratorName = typeof(RoutedControlHostGenerator).FullName!;
+
+    /// <summary>The generator assembly version written to generated-code attributes.</summary>
     private static readonly string GeneratorVersion = typeof(RoutedControlHostGenerator).Assembly.GetName().Version.ToString();
 
-    private static RoutedControlHostInfo? GetClassInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
+    /// <summary>Gets generation metadata for an attributed routed control host.</summary>
+    private static readonly RoutedControlHostInfoFactory GetClassInfo = static (
+        in GeneratorAttributeSyntaxContext context,
+        CancellationToken token) =>
     {
         if (!(context.TargetNode is ClassDeclarationSyntax declaredClass && declaredClass.Modifiers.Any(SyntaxKind.PartialKeyword)))
         {
@@ -42,8 +43,8 @@ public partial class RoutedControlHostGenerator
 
         token.ThrowIfCancellationRequested();
 
-        var constructorArgument = attributeData.GetConstructorArguments<string>().First();
-        if (constructorArgument is not string baseTypeName)
+        var baseTypeName = GetFirstConstructorArgument(attributeData);
+        if (baseTypeName is null)
         {
             return default;
         }
@@ -54,13 +55,6 @@ public partial class RoutedControlHostGenerator
         {
             return default;
         }
-
-        token.ThrowIfCancellationRequested();
-
-        var compilation = context.SemanticModel.Compilation;
-        var semanticModel = compilation.GetSemanticModel(context.SemanticModel.SyntaxTree);
-        attributeData.GatherForwardedAttributesFromClass(semanticModel, declaredClass, token, out var attributesInfo);
-        var classAttributesInfo = attributesInfo.Select(x => x.ToString()).ToImmutableArray();
 
         token.ThrowIfCancellationRequested();
 
@@ -76,15 +70,20 @@ public partial class RoutedControlHostGenerator
             targetInfo.TargetNamespaceWithNamespace,
             targetInfo.TargetVisibility,
             targetInfo.TargetType,
-            baseTypeName,
-            classAttributesInfo);
-    }
+            baseTypeName);
+    };
 
-    private static string GetRoutedControlHost(string containingTypeName, string containingNamespace, string containingClassVisibility, string containingType, RoutedControlHostInfo vmcInfo, bool isNewerThan22)
+    /// <summary>Gets the routed control host source renderer.</summary>
+    private static readonly RoutedControlHostRenderer GetRoutedControlHost = static (
+        containingTypeName,
+        containingNamespace,
+        containingClassVisibility,
+        containingType,
+        vmcInfo,
+        integration) =>
     {
-        // Prepare any forwarded property attributes
-        var forwardedAttributesString = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage.Concat(vmcInfo.ForwardedAttributes));
-        var exceptionHandler = isNewerThan22
+        var generatedAttributesString = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage);
+        var exceptionHandler = integration.IsNewerThan22
             ? "RxState.DefaultExceptionHandler!.OnNext"
             : "RxApp.DefaultExceptionHandler!.OnNext";
 
@@ -96,24 +95,25 @@ $$"""
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using ReactiveUI;
+{{integration.UsingDirectives}}
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
 using System.Windows.Forms;
 
 #pragma warning disable
 #nullable enable
 namespace {{containingNamespace}}
 {
-    {{forwardedAttributesString}}
+    {{generatedAttributesString}}
     [DefaultProperty("ViewModel")]
     [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
     {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}} : {{vmcInfo.BaseTypeName}}, IReactiveObject
     {
-        private readonly CompositeDisposable _disposables = [];
+        private readonly DisposableCollection _disposables = new();
         private RoutingState? _router;
         private Control? _defaultContent;
+        private Control? _routedView;
         private IObservable<string>? _viewContractObservable;
 
         /// <summary>
@@ -122,50 +122,22 @@ namespace {{containingNamespace}}
         public {{containingTypeName}}()
         {
             InitializeComponent();
-            _disposables.Add(this.WhenAny(x => x.DefaultContent, x => x.Value).Subscribe(x =>
+            _disposables.Add(this.WhenAny(x => x.DefaultContent, x => x.Value).Subscribe(new ValueObserver<Control?>(x =>
             {
                 if (x is not null && Controls.Count == 0)
                 {
                     Controls.Add(InitView(x));
                     components?.Add(DefaultContent);
                 }
-            }));
-            ViewContractObservable = Observable.Return(default(string)!);
-            var vmAndContract = this.WhenAnyObservable(x => x.Router!.CurrentViewModel!).CombineLatest(this.WhenAnyObservable(x => x.ViewContractObservable!), (vm, contract) => new { ViewModel = vm, Contract = contract });
-            Control? viewLastAdded = null;
-            _disposables.Add(vmAndContract.Subscribe(x =>
-            {
-                // clear all hosted controls (view or default content)
-                SuspendLayout();
-                Controls.Clear();
-                viewLastAdded?.Dispose();
-                if (x.ViewModel is null)
-                {
-                    if (DefaultContent is not null)
-                    {
-                        InitView(DefaultContent);
-                        Controls.Add(DefaultContent);
-                    }
-
-                    ResumeLayout();
-                    return;
-                }
-
-                var viewLocator = ViewLocator ?? ReactiveUI.ViewLocator.Current;
-                var view = viewLocator.ResolveView(x.ViewModel, x.Contract);
-                if (view is not null)
-                {
-                    view.ViewModel = x.ViewModel;
-                    viewLastAdded = InitView((Control)view);
-                }
-
-                if (viewLastAdded is not null)
-                {
-                    Controls.Add(viewLastAdded);
-                }
-
-                ResumeLayout();
-            }, {{exceptionHandler}}));
+            }, {{exceptionHandler}})));
+            ViewContractObservable = new ReturnObservable<string>(default!);
+            var routeSubscription = new CombineLatestSubscription<IRoutableViewModel?, string>(
+                UpdateRoutedContent,
+                {{exceptionHandler}});
+            _disposables.Add(routeSubscription);
+            routeSubscription.Connect(
+                this.WhenAnyObservable(x => x.Router!.CurrentViewModel!),
+                this.WhenAnyObservable(x => x.ViewContractObservable!));
         }
 
         /// <inheritdoc/>
@@ -215,13 +187,49 @@ namespace {{containingNamespace}}
         /// <param name = "disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && components is not null)
+            if (disposing)
             {
-                components.Dispose();
                 _disposables.Dispose();
+                _routedView?.Dispose();
+                _routedView = null;
+                components?.Dispose();
             }
 
             base.Dispose(disposing);
+        }
+
+        private void UpdateRoutedContent(IRoutableViewModel? viewModel, string contract)
+        {
+            SuspendLayout();
+            try
+            {
+                Controls.Clear();
+                _routedView?.Dispose();
+                _routedView = null;
+
+                if (viewModel is null)
+                {
+                    if (DefaultContent is not null)
+                    {
+                        Controls.Add(InitView(DefaultContent));
+                    }
+
+                    return;
+                }
+
+                var viewLocator = ViewLocator ?? ReactiveUI.ViewLocator.Current;
+                var view = viewLocator.ResolveView(viewModel, contract);
+                if (view is not null)
+                {
+                    view.ViewModel = viewModel;
+                    _routedView = InitView((Control)view);
+                    Controls.Add(_routedView);
+                }
+            }
+            finally
+            {
+                ResumeLayout();
+            }
         }
 
         private static Control InitView(Control view)
@@ -229,10 +237,324 @@ namespace {{containingNamespace}}
             view.Dock = DockStyle.Fill;
             return view;
         }
+
+        private sealed class ReturnObservable<T>(T value) : IObservable<T>
+        {
+            public IDisposable Subscribe(IObserver<T> observer)
+            {
+                observer.OnNext(value);
+                observer.OnCompleted();
+                return EmptyDisposable.Instance;
+            }
+        }
+
+        private sealed class ValueObserver<T>(Action<T> onNext, Action<Exception> onError, Action? onCompleted = null) : IObserver<T>
+        {
+            public void OnCompleted() => onCompleted?.Invoke();
+
+            public void OnError(Exception error) => onError(error);
+
+            public void OnNext(T value) => onNext(value);
+        }
+
+        private sealed class CombineLatestSubscription<TLeft, TRight> : IDisposable
+        {
+            private readonly object _gate = new();
+            private readonly Action<TLeft, TRight> _onNext;
+            private readonly Action<Exception> _onError;
+            private readonly SubscriptionSlot _leftSubscription = new();
+            private readonly SubscriptionSlot _rightSubscription = new();
+            private TLeft _left = default!;
+            private TRight _right = default!;
+            private bool _hasLeft;
+            private bool _hasRight;
+            private bool _leftCompleted;
+            private bool _rightCompleted;
+            private bool _isStopped;
+
+            public CombineLatestSubscription(
+                Action<TLeft, TRight> onNext,
+                Action<Exception> onError)
+            {
+                _onNext = onNext;
+                _onError = onError;
+            }
+
+            public void Connect(IObservable<TLeft> left, IObservable<TRight> right)
+            {
+                _leftSubscription.Set(left.Subscribe(new ValueObserver<TLeft>(SetLeft, Fail, CompleteLeft)));
+                if (IsStopped())
+                {
+                    return;
+                }
+
+                _rightSubscription.Set(right.Subscribe(new ValueObserver<TRight>(SetRight, Fail, CompleteRight)));
+            }
+
+            public void Dispose()
+            {
+                lock (_gate)
+                {
+                    _isStopped = true;
+                }
+
+                _leftSubscription.Dispose();
+                _rightSubscription.Dispose();
+            }
+
+            private void SetLeft(TLeft value)
+            {
+                lock (_gate)
+                {
+                    if (_isStopped)
+                    {
+                        return;
+                    }
+
+                    _left = value;
+                    _hasLeft = true;
+                    if (!_hasRight)
+                    {
+                        return;
+                    }
+
+                    _onNext(value, _right);
+                }
+            }
+
+            private void SetRight(TRight value)
+            {
+                lock (_gate)
+                {
+                    if (_isStopped)
+                    {
+                        return;
+                    }
+
+                    _right = value;
+                    _hasRight = true;
+                    if (!_hasLeft)
+                    {
+                        return;
+                    }
+
+                    _onNext(_left, value);
+                }
+            }
+
+            private void CompleteLeft()
+            {
+                var shouldStop = false;
+                lock (_gate)
+                {
+                    if (_isStopped)
+                    {
+                        return;
+                    }
+
+                    _leftCompleted = true;
+                    shouldStop = !_hasLeft || _rightCompleted;
+                    _isStopped = shouldStop;
+                }
+
+                if (shouldStop)
+                {
+                    _leftSubscription.Dispose();
+                    _rightSubscription.Dispose();
+                }
+            }
+
+            private void CompleteRight()
+            {
+                var shouldStop = false;
+                lock (_gate)
+                {
+                    if (_isStopped)
+                    {
+                        return;
+                    }
+
+                    _rightCompleted = true;
+                    shouldStop = !_hasRight || _leftCompleted;
+                    _isStopped = shouldStop;
+                }
+
+                if (shouldStop)
+                {
+                    _leftSubscription.Dispose();
+                    _rightSubscription.Dispose();
+                }
+            }
+
+            private void Fail(Exception error)
+            {
+                lock (_gate)
+                {
+                    if (_isStopped)
+                    {
+                        return;
+                    }
+
+                    _isStopped = true;
+                }
+
+                try
+                {
+                    _onError(error);
+                }
+                finally
+                {
+                    _leftSubscription.Dispose();
+                    _rightSubscription.Dispose();
+                }
+            }
+
+            private bool IsStopped()
+            {
+                lock (_gate)
+                {
+                    return _isStopped;
+                }
+            }
+        }
+
+        private sealed class DisposableCollection : IDisposable
+        {
+            private readonly object _gate = new();
+            private readonly List<IDisposable> _items = new();
+            private bool _isDisposed;
+
+            public void Add(IDisposable item)
+            {
+                var disposeItem = false;
+                lock (_gate)
+                {
+                    disposeItem = _isDisposed;
+                    if (!disposeItem)
+                    {
+                        _items.Add(item);
+                    }
+                }
+
+                if (disposeItem)
+                {
+                    item.Dispose();
+                }
+            }
+
+            public void Dispose()
+            {
+                IDisposable[] items;
+                lock (_gate)
+                {
+                    if (_isDisposed)
+                    {
+                        return;
+                    }
+
+                    _isDisposed = true;
+                    items = _items.ToArray();
+                    _items.Clear();
+                }
+
+                foreach (var item in items)
+                {
+                    item.Dispose();
+                }
+            }
+        }
+
+        private sealed class SubscriptionSlot : IDisposable
+        {
+            private readonly object _gate = new();
+            private IDisposable? _subscription;
+            private bool _isDisposed;
+
+            public void Set(IDisposable subscription)
+            {
+                IDisposable? previous;
+                var disposeSubscription = false;
+                lock (_gate)
+                {
+                    disposeSubscription = _isDisposed;
+                    previous = _subscription;
+                    if (!disposeSubscription)
+                    {
+                        _subscription = subscription;
+                    }
+                }
+
+                previous?.Dispose();
+                if (disposeSubscription)
+                {
+                    subscription.Dispose();
+                }
+            }
+
+            public void Dispose()
+            {
+                IDisposable? subscription;
+                lock (_gate)
+                {
+                    if (_isDisposed)
+                    {
+                        return;
+                    }
+
+                    _isDisposed = true;
+                    subscription = _subscription;
+                    _subscription = null;
+                }
+
+                subscription?.Dispose();
+            }
+        }
+
+        private sealed class EmptyDisposable : IDisposable
+        {
+            public static EmptyDisposable Instance { get; } = new();
+
+            public void Dispose()
+            {
+            }
+        }
     }
 }
 #nullable restore
 #pragma warning restore                
 """;
+    };
+
+    /// <summary>Gets routed control host metadata from a generator attribute context.</summary>
+    /// <param name="context">The generator attribute context.</param>
+    /// <param name="token">The cancellation token.</param>
+    /// <returns>The routed control host metadata, or <see langword="null"/> when the target is invalid.</returns>
+    private delegate RoutedControlHostInfo? RoutedControlHostInfoFactory(
+        in GeneratorAttributeSyntaxContext context,
+        CancellationToken token);
+
+    /// <summary>Renders routed control host source from gathered metadata.</summary>
+    /// <param name="containingTypeName">The containing type name.</param>
+    /// <param name="containingNamespace">The containing namespace.</param>
+    /// <param name="containingClassVisibility">The containing type visibility.</param>
+    /// <param name="containingType">The containing type keyword.</param>
+    /// <param name="vmcInfo">The routed control host metadata.</param>
+    /// <param name="integration">The detected ReactiveUI integration.</param>
+    /// <returns>The generated routed control host source.</returns>
+    private delegate string RoutedControlHostRenderer(
+        string containingTypeName,
+        string containingNamespace,
+        string containingClassVisibility,
+        string containingType,
+        RoutedControlHostInfo vmcInfo,
+        ReactiveUiIntegration integration);
+
+    /// <summary>Gets the first string constructor argument from an attribute.</summary>
+    /// <param name="attributeData">The attribute data.</param>
+    /// <returns>The first string argument, or <see langword="null"/> when none exists.</returns>
+    private static string? GetFirstConstructorArgument(AttributeData attributeData)
+    {
+        using var arguments = attributeData.GetConstructorArguments<string>().GetEnumerator();
+        return arguments.MoveNext() ? arguments.Current : null;
     }
 }

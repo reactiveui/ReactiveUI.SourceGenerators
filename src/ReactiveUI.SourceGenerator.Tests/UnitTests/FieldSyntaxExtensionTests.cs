@@ -1,6 +1,5 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using ReactiveUI.SourceGenerators.Extensions;
@@ -15,10 +14,7 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// </summary>
 public sealed class FieldSyntaxExtensionTests
 {
-    /// <summary>
-    /// A field named with leading underscore prefix has the underscore stripped
-    /// and the first letter upper-cased.
-    /// </summary>
+    /// <summary>A field named with leading underscore prefix has the underscore stripped and the first letter upper-cased.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenFieldHasLeadingUnderscoreThenPropertyNameCapitalises()
@@ -37,10 +33,7 @@ public sealed class FieldSyntaxExtensionTests
         await Assert.That(name).IsEqualTo("MyField");
     }
 
-    /// <summary>
-    /// A field named with "m_" prefix has the prefix stripped and the first remaining
-    /// letter upper-cased.
-    /// </summary>
+    /// <summary>A field named with "m_" prefix has the prefix stripped and the first remaining letter upper-cased.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenFieldHasMUnderscorePrefixThenPropertyNameCapitalises()
@@ -59,9 +52,7 @@ public sealed class FieldSyntaxExtensionTests
         await Assert.That(name).IsEqualTo("Value");
     }
 
-    /// <summary>
-    /// A field named with lowerCamel (no prefix) has its first letter upper-cased.
-    /// </summary>
+    /// <summary>A field named with lowerCamel (no prefix) has its first letter upper-cased.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenFieldHasLowerCamelThenPropertyNameCapitalises()
@@ -80,9 +71,7 @@ public sealed class FieldSyntaxExtensionTests
         await Assert.That(name).IsEqualTo("Count");
     }
 
-    /// <summary>
-    /// Multiple leading underscores are all stripped before capitalisation.
-    /// </summary>
+    /// <summary>Multiple leading underscores are all stripped before capitalisation.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenFieldHasMultipleLeadingUnderscoresThenAllStripped()
@@ -101,9 +90,7 @@ public sealed class FieldSyntaxExtensionTests
         await Assert.That(name).IsEqualTo("Item");
     }
 
-    /// <summary>
-    /// A single-character field name (after stripping) still capitalises correctly.
-    /// </summary>
+    /// <summary>A single-character field name (after stripping) still capitalises correctly.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenFieldIsOneCharacterThenCapitalisedCorrectly()
@@ -122,9 +109,7 @@ public sealed class FieldSyntaxExtensionTests
         await Assert.That(name).IsEqualTo("X");
     }
 
-    /// <summary>
-    /// A property named "MyProperty" produces a backing field named "_myProperty".
-    /// </summary>
+    /// <summary>A property named "MyProperty" produces a backing field named "_myProperty".</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenPropertyNamedMyPropertyThenFieldIsUnderscoreLower()
@@ -143,9 +128,7 @@ public sealed class FieldSyntaxExtensionTests
         await Assert.That(name).IsEqualTo("_myProperty");
     }
 
-    /// <summary>
-    /// A single-character property name produces a correct field name.
-    /// </summary>
+    /// <summary>A single-character property name produces a correct field name.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenPropertyIsSingleCharacterThenFieldNameIsCorrect()
@@ -164,9 +147,7 @@ public sealed class FieldSyntaxExtensionTests
         await Assert.That(name).IsEqualTo("_x");
     }
 
-    /// <summary>
-    /// A property already starting with a lowercase letter still prefixes underscore.
-    /// </summary>
+    /// <summary>A property already starting with a lowercase letter still prefixes underscore.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenPropertyStartsWithLowercaseThenFieldNameHasUnderscore()
@@ -185,22 +166,45 @@ public sealed class FieldSyntaxExtensionTests
         await Assert.That(name).IsEqualTo("_value");
     }
 
+    /// <summary>Finds the single field symbol with the requested name.</summary>
+    /// <param name="source">The source text containing the field.</param>
+    /// <param name="fieldName">The field name to find.</param>
+    /// <returns>The matching field symbol.</returns>
     private static IFieldSymbol GetFieldSymbol(string source, string fieldName)
     {
         var compilation = CreateCompilation(source);
-        return compilation.GetSymbolsWithName(fieldName, SymbolFilter.Member)
-            .OfType<IFieldSymbol>()
-            .Single();
+        foreach (var symbol in compilation.GetSymbolsWithName(fieldName, SymbolFilter.Member))
+        {
+            if (symbol is IFieldSymbol fieldSymbol)
+            {
+                return fieldSymbol;
+            }
+        }
+
+        throw new InvalidOperationException($"Field '{fieldName}' was not found.");
     }
 
+    /// <summary>Finds the single property symbol with the requested name.</summary>
+    /// <param name="source">The source text containing the property.</param>
+    /// <param name="propertyName">The property name to find.</param>
+    /// <returns>The matching property symbol.</returns>
     private static IPropertySymbol GetPropertySymbol(string source, string propertyName)
     {
         var compilation = CreateCompilation(source);
-        return compilation.GetSymbolsWithName(propertyName, SymbolFilter.Member)
-            .OfType<IPropertySymbol>()
-            .Single();
+        foreach (var symbol in compilation.GetSymbolsWithName(propertyName, SymbolFilter.Member))
+        {
+            if (symbol is IPropertySymbol propertySymbol)
+            {
+                return propertySymbol;
+            }
+        }
+
+        throw new InvalidOperationException($"Property '{propertyName}' was not found.");
     }
 
+    /// <summary>Creates an in-memory compilation for a field or property test source.</summary>
+    /// <param name="source">The source text to compile.</param>
+    /// <returns>The created compilation.</returns>
     private static CSharpCompilation CreateCompilation(string source)
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(
@@ -211,6 +215,6 @@ public sealed class FieldSyntaxExtensionTests
             assemblyName: "FieldSyntaxTests",
             syntaxTrees: [syntaxTree],
             references: TestCompilationReferences.CreateDefault(),
-            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            options: new(OutputKind.DynamicallyLinkedLibrary));
     }
 }

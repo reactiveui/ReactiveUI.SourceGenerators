@@ -1,18 +1,16 @@
-// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
-/// <summary>
-/// Unit tests for <see cref="ReactiveAttributeMisuseAnalyzer" />.
-/// </summary>
+/// <summary>Unit tests for <see cref="ReactiveAttributeMisuseAnalyzer" />.</summary>
 public sealed class ReactiveAttributeMisuseAnalyzerTests
 {
-    /// <summary>
-    /// Validates the analyzer rejects a null analysis context.
-    /// </summary>
+    /// <summary>Identifies the diagnostic validated by this test class.</summary>
+    private const string ReactivePartialDiagnosticId = "RXUISG0020";
+
+    /// <summary>Validates the analyzer rejects a null analysis context.</summary>
     [Test]
     public void InitializeWithNullContextThrows()
     {
@@ -28,11 +26,10 @@ public sealed class ReactiveAttributeMisuseAnalyzerTests
         }
     }
 
-    /// <summary>
-    /// Verifies a non-partial property annotated with <c>[Reactive]</c> produces a warning.
-    /// </summary>
+    /// <summary>Verifies a non-partial property annotated with <c>[Reactive]</c> produces a warning.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void WhenReactiveOnNonPartialPropertyThenWarn()
+    public async Task WhenReactiveOnNonPartialPropertyThenWarn()
     {
         const string source = """
             using ReactiveUI;
@@ -47,16 +44,15 @@ public sealed class ReactiveAttributeMisuseAnalyzerTests
             }
             """;
 
-        var diagnostics = GetDiagnostics(source);
+        var diagnostics = await GetDiagnostics(source);
 
-        AssertContainsDiagnostic(diagnostics, "RXUISG0020");
+        await AssertContainsDiagnostic(diagnostics, ReactivePartialDiagnosticId);
     }
 
-    /// <summary>
-    /// Verifies a non-partial containing type annotated with a <c>[Reactive]</c> property produces a warning.
-    /// </summary>
+    /// <summary>Verifies a non-partial containing type annotated with a <c>[Reactive]</c> property produces a warning.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void WhenReactiveOnNonPartialContainingTypeThenWarn()
+    public async Task WhenReactiveOnNonPartialContainingTypeThenWarn()
     {
         const string source = """
             using ReactiveUI;
@@ -71,16 +67,15 @@ public sealed class ReactiveAttributeMisuseAnalyzerTests
             }
             """;
 
-        var diagnostics = GetDiagnostics(source);
+        var diagnostics = await GetDiagnostics(source);
 
-        AssertContainsDiagnostic(diagnostics, "RXUISG0020");
+        await AssertContainsDiagnostic(diagnostics, ReactivePartialDiagnosticId);
     }
 
-    /// <summary>
-    /// Verifies no warning is produced when both property and containing type are partial.
-    /// </summary>
+    /// <summary>Verifies no warning is produced when both property and containing type are partial.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void WhenReactiveOnPartialPropertyAndTypeThenNoWarn()
+    public async Task WhenReactiveOnPartialPropertyAndTypeThenNoWarn()
     {
         const string source = """
             using ReactiveUI;
@@ -95,16 +90,15 @@ public sealed class ReactiveAttributeMisuseAnalyzerTests
             }
             """;
 
-        var diagnostics = GetDiagnostics(source);
+        var diagnostics = await GetDiagnostics(source);
 
-        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0020");
+        await AssertDoesNotContainDiagnostic(diagnostics, ReactivePartialDiagnosticId);
     }
 
-    /// <summary>
-    /// Verifies the analyzer recognizes the explicit ReactiveAttribute name.
-    /// </summary>
+    /// <summary>Verifies the analyzer recognizes the explicit ReactiveAttribute name.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void WhenReactiveAttributeSuffixUsedThenWarns()
+    public async Task WhenReactiveAttributeSuffixUsedThenWarns()
     {
         const string source = """
             using ReactiveUI;
@@ -119,16 +113,15 @@ public sealed class ReactiveAttributeMisuseAnalyzerTests
             }
             """;
 
-        var diagnostics = GetDiagnostics(source);
+        var diagnostics = await GetDiagnostics(source);
 
-        AssertContainsDiagnostic(diagnostics, "RXUISG0020");
+        await AssertContainsDiagnostic(diagnostics, ReactivePartialDiagnosticId);
     }
 
-    /// <summary>
-    /// Verifies unrelated attributes do not trigger the diagnostic.
-    /// </summary>
+    /// <summary>Verifies unrelated attributes do not trigger the diagnostic.</summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
-    public void WhenOnlyNonReactiveAttributesExistThenDoesNotWarn()
+    public async Task WhenOnlyNonReactiveAttributesExistThenDoesNotWarn()
     {
         const string source = """
             using System;
@@ -143,12 +136,15 @@ public sealed class ReactiveAttributeMisuseAnalyzerTests
             }
             """;
 
-        var diagnostics = GetDiagnostics(source);
+        var diagnostics = await GetDiagnostics(source);
 
-        AssertDoesNotContainDiagnostic(diagnostics, "RXUISG0020");
+        await AssertDoesNotContainDiagnostic(diagnostics, ReactivePartialDiagnosticId);
     }
 
-    private static Diagnostic[] GetDiagnostics(string source)
+    /// <summary>Gets diagnostics produced by the analyzer for the supplied source.</summary>
+    /// <param name="source">The source to analyze.</param>
+    /// <returns>A task that resolves to the diagnostics.</returns>
+    private static async Task<Diagnostic[]> GetDiagnostics(string source)
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(source, CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp13));
 
@@ -159,27 +155,49 @@ public sealed class ReactiveAttributeMisuseAnalyzerTests
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
             ],
-            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            options: new(OutputKind.DynamicallyLinkedLibrary));
 
         var analyzer = new ReactiveAttributeMisuseAnalyzer();
 
-        var compilationWithAnalyzers = compilation.WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(analyzer));
-        return compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync().GetAwaiter().GetResult().ToArray();
+        var compilationWithAnalyzers = compilation.WithAnalyzers([analyzer]);
+        return (await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync()).ToArray();
     }
 
-    private static void AssertContainsDiagnostic(IEnumerable<Diagnostic> diagnostics, string diagnosticId)
+    /// <summary>Asserts that the diagnostics contain the specified ID.</summary>
+    /// <param name="diagnostics">The diagnostics to inspect.</param>
+    /// <param name="diagnosticId">The expected diagnostic ID.</param>
+    /// <returns>A task that represents the assertion.</returns>
+    private static async Task AssertContainsDiagnostic(IEnumerable<Diagnostic> diagnostics, string diagnosticId)
     {
-        if (!diagnostics.Any(d => d.Id == diagnosticId))
+        var found = false;
+        foreach (var diagnostic in diagnostics)
         {
-            throw new InvalidOperationException($"Expected diagnostic '{diagnosticId}' was not reported.");
+            if (diagnostic.Id == diagnosticId)
+            {
+                found = true;
+                break;
+            }
         }
+
+        await Assert.That(found).IsTrue();
     }
 
-    private static void AssertDoesNotContainDiagnostic(IEnumerable<Diagnostic> diagnostics, string diagnosticId)
+    /// <summary>Asserts that the diagnostics do not contain the specified ID.</summary>
+    /// <param name="diagnostics">The diagnostics to inspect.</param>
+    /// <param name="diagnosticId">The unexpected diagnostic ID.</param>
+    /// <returns>A task that represents the assertion.</returns>
+    private static async Task AssertDoesNotContainDiagnostic(IEnumerable<Diagnostic> diagnostics, string diagnosticId)
     {
-        if (diagnostics.Any(d => d.Id == diagnosticId))
+        var found = false;
+        foreach (var diagnostic in diagnostics)
         {
-            throw new InvalidOperationException($"Diagnostic '{diagnosticId}' was reported unexpectedly.");
+            if (diagnostic.Id == diagnosticId)
+            {
+                found = true;
+                break;
+            }
         }
+
+        await Assert.That(found).IsFalse();
     }
 }

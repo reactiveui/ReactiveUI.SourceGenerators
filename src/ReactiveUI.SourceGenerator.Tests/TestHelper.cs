@@ -1,10 +1,9 @@
-﻿// Copyright (c) 2026 ReactiveUI and contributors. All rights reserved.
-// Licensed to the ReactiveUI and contributors under one or more agreements.
-// The ReactiveUI and contributors licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 using ReactiveUI.SourceGenerators.WinForms;
 
 namespace ReactiveUI.SourceGenerator.Tests;
@@ -18,192 +17,93 @@ namespace ReactiveUI.SourceGenerator.Tests;
 public sealed partial class TestHelper<T> : IDisposable
         where T : IIncrementalGenerator, new()
 {
-    // Cache support references per generator type T.  The support assembly compiles attribute
-    // definitions that are NOT injected by T via RegisterPostInitializationOutput — an expensive
-    // Roslyn compilation + Emit step that produces an identical result for every test in the same
-    // generator class.  Compute it once and reuse it for all subsequent tests.
+    /// <summary>The Reactive attribute definition property name.</summary>
+    private const string ReactiveAttributeName = "ReactiveAttribute";
+
+    /// <summary>The generated hint name for the Reactive attribute.</summary>
+    private const string ReactiveAttributeHintName = "ReactiveAttribute.g.cs";
+
+    /// <summary>The fully qualified type name containing attribute definitions.</summary>
+    private const string AttributeDefinitionsTypeName = "ReactiveUI.SourceGenerators.Helpers.AttributeDefinitions";
+
+    /// <summary>
+    /// Cache support references per generator type T.  The support assembly compiles attribute
+    /// definitions that are NOT injected by T via RegisterPostInitializationOutput — an expensive
+    /// Roslyn compilation + Emit step that produces an identical result for every test in the same
+    /// generator class.  Compute it once and reuse it for all subsequent tests.
+    /// </summary>
     private static readonly Lazy<ImmutableArray<MetadataReference>> supportReferences =
         new(CreateSupportReferences, LazyThreadSafetyMode.ExecutionAndPublication);
-    /// <summary>
-    /// Gets the verified file path for generator type <typeparamref name="T"/>.
-    /// </summary>
+
+    /// <summary>The concrete generator type name used for snapshots and support assemblies.</summary>
+    private static readonly string generatorTypeName = new T().GetType().Name;
+
+    /// <summary>Gets the verified file path for generator type <typeparamref name="T"/>.</summary>
     /// <returns>
     /// A string.
     /// </returns>
-    public string VerifiedFilePath()
-    {
-        var name = typeof(T).Name;
-        return name switch
-        {
-            nameof(ReactiveGenerator) => "REACTIVE",
-            nameof(ReactiveCommandGenerator) => "REACTIVECMD",
-            nameof(ObservableAsPropertyGenerator) => "OAPH",
-            nameof(IViewForGenerator) => "IVIEWFOR",
-            nameof(RoutedControlHostGenerator) => "ROUTEDHOST",
-            nameof(ViewModelControlHostGenerator) => "CONTROLHOST",
-            nameof(BindableDerivedListGenerator) => "DERIVEDLIST",
-            nameof(ReactiveCollectionGenerator) => "REACTIVECOLL",
-            nameof(ReactiveObjectGenerator) => "REACTIVEOBJ",
-            _ => name,
-        };
-    }
+    public string VerifiedFilePath() => GetVerifiedFilePath();
 
-    /// <summary>
-    /// Asynchronously initializes the source generator helper.
-    /// </summary>
+    /// <summary>Asynchronously initializes the source generator helper.</summary>
     /// <returns>A task representing the completed initialization operation.</returns>
     public Task InitializeAsync() => Task.CompletedTask;
 
-    /// <summary>
-    /// Tests a generator expecting it to fail by throwing an <see cref="InvalidOperationException"/>.
-    /// </summary>
+    /// <summary>Tests a generator expecting it to fail by throwing an <see cref="InvalidOperationException"/>.</summary>
     /// <param name="source">The source code to test.</param>
     /// <returns>A task representing the asynchronous assertion operation.</returns>
-    public Task TestFail(
-        string source)
-    {
-#pragma warning disable IDE0053 // Use expression body for lambda expression
-#pragma warning disable RCS1021 // Convert lambda expression body to expression body
-        Assert.Throws<InvalidOperationException>(() => { RunGeneratorAndCheck(source); });
-#pragma warning restore RCS1021 // Convert lambda expression body to expression body
-#pragma warning restore IDE0053 // Use expression body for lambda expression
+    public async Task TestFail(string source) =>
+        await Assert.That(() => RunGeneratorAndCheck(source)).Throws<InvalidOperationException>();
 
-        return Task.CompletedTask;
-    }
+    /// <summary>Tests a generator expecting it to pass successfully.</summary>
+    /// <param name="source">The source code to test.</param>
+    /// <returns>A task representing the asynchronous verification operation.</returns>
+    public Task TestPass(string source) =>
+        TestPass(source, withPreDiagnosics: false);
 
-    /// <summary>
-    /// Tests a generator expecting it to pass successfully.
-    /// </summary>
+    /// <summary>Tests a generator expecting it to pass successfully.</summary>
     /// <param name="source">The source code to test.</param>
     /// <param name="withPreDiagnosics">if set to <c>true</c> [with pre diagnosics].</param>
     /// <returns>A task representing the asynchronous verification operation.</returns>
-    /// <exception cref="InvalidOperationException">Must have valid compiler instance.</exception>
-    /// <exception cref="ArgumentNullException">callerType.</exception>
-    public Task TestPass(
-        string source,
-        bool withPreDiagnosics = false)
-        => RunGeneratorAndCheck(source, withPreDiagnosics);
+    public Task TestPass(string source, bool withPreDiagnosics) =>
+        RunGeneratorAndCheck(source, withPreDiagnosics);
 
     /// <inheritdoc/>
     public void Dispose()
     {
     }
 
-    /// <summary>
-    /// Runs the specified source generator and validates the generated code.
-    /// </summary>
+    /// <summary>Runs the specified source generator and validates the generated code.</summary>
+    /// <param name="code">The code to be parsed and processed by the generator.</param>
+    /// <returns>The generator driver used to run the generator.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the compilation fails.</exception>
+    public SettingsTask RunGeneratorAndCheck(string code) =>
+        RunGeneratorAndCheck(code, withPreDiagnosics: false, rerunCompilation: true);
+
+    /// <summary>Runs the specified source generator and validates the generated code.</summary>
+    /// <param name="code">The code to be parsed and processed by the generator.</param>
+    /// <param name="withPreDiagnosics">if set to <c>true</c> [with pre diagnosics].</param>
+    /// <returns>The generator driver used to run the generator.</returns>
+    public SettingsTask RunGeneratorAndCheck(string code, bool withPreDiagnosics) =>
+        RunGeneratorAndCheck(code, withPreDiagnosics, rerunCompilation: true);
+
+    /// <summary>Runs the specified source generator and validates the generated code.</summary>
     /// <param name="code">The code to be parsed and processed by the generator.</param>
     /// <param name="withPreDiagnosics">if set to <c>true</c> [with pre diagnosics].</param>
     /// <param name="rerunCompilation">Indicates whether to rerun the compilation after running the generator.</param>
-    /// <returns>
-    /// The generator driver used to run the generator.
-    /// </returns>
+    /// <returns>The generator driver used to run the generator.</returns>
     /// <exception cref="InvalidOperationException">Thrown if the compilation fails.</exception>
     public SettingsTask RunGeneratorAndCheck(
         string code,
-        bool withPreDiagnosics = false,
-        bool rerunCompilation = true)
+        bool withPreDiagnosics,
+        bool rerunCompilation)
     {
-        // Collect required assembly references: runtime assemblies plus a support assembly
-        // that provides attribute/enum definitions for generators OTHER than the active generator T.
-        // Generator T injects its own definitions via RegisterPostInitializationOutput, so those
-        // are excluded from the support assembly to avoid CS0433 duplicate-type errors.
-        var assemblies = new HashSet<MetadataReference>(
-            TestCompilationReferences.CreateDefault().Concat(supportReferences.Value));
-
         var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp13);
-        var syntaxTrees = new List<SyntaxTree>
-        {
-            // Mirror the test project's GlobalUsings.g.cs so test sources can use unqualified
-            // attribute names (e.g. [BindableDerivedList]) without an explicit 'using' directive.
-            CSharpSyntaxTree.ParseText(
-                "global using ReactiveUI.SourceGenerators;",
-                parseOptions,
-                path: "GlobalUsings.g.cs"),
-            CSharpSyntaxTree.ParseText(code, parseOptions),
-        };
-
-        // When the active generator is NOT ReactiveGenerator, the shared enum types
-        // (AccessModifier, PropertyAccessModifier, InheritanceModifier, SplatRegistrationType)
-        // are not injected by any generator but may be referenced by test source code or by the
-        // generator's own output.  Add them directly as source trees so they are visible in both
-        // the input and output compilations at the correct (non-internal) accessibility level.
-        if (typeof(T) != typeof(ReactiveGenerator))
-        {
-            syntaxTrees.Add(CSharpSyntaxTree.ParseText(
-                GetAttributeDefinitionsMethodResult("GetAccessModifierEnum"),
-                parseOptions,
-                path: "AccessModifierEnum.g.cs"));
-        }
-
-        // When the active generator is IViewForGenerator, the [Reactive] and [ReactiveCommand]
-        // attributes are not injected (those belong to ReactiveGenerator and ReactiveCommandGenerator).
-        // They are also excluded from the support DLL (above), so add them directly as inline source
-        // trees — this makes them visible in the test source compilation without CS0122.
-        if (typeof(T) == typeof(IViewForGenerator))
-        {
-            syntaxTrees.Add(CSharpSyntaxTree.ParseText(
-                GetAttributeDefinitionsPropertyResult("ReactiveAttribute"),
-                parseOptions,
-                path: "ReactiveAttribute.g.cs"));
-            syntaxTrees.Add(CSharpSyntaxTree.ParseText(
-                GetAttributeDefinitionsPropertyResult("ReactiveCommandAttribute"),
-                parseOptions,
-                path: "ReactiveCommandAttribute.g.cs"));
-        }
-
-        // When the active generator is ReactiveObjectGenerator, [Reactive] and [ObservableAsProperty]
-        // attributes are not injected by this generator (they belong to ReactiveGenerator and
-        // ObservableAsPropertyGenerator). They are excluded from the support DLL to avoid CS0433,
-        // so add them directly as inline source trees for accessibility.
-        if (typeof(T) == typeof(ReactiveObjectGenerator))
-        {
-            syntaxTrees.Add(CSharpSyntaxTree.ParseText(
-                GetAttributeDefinitionsPropertyResult("ReactiveAttribute"),
-                parseOptions,
-                path: "ReactiveAttribute.g.cs"));
-            syntaxTrees.Add(CSharpSyntaxTree.ParseText(
-                GetAttributeDefinitionsPropertyResult("ObservableAsPropertyAttribute"),
-                parseOptions,
-                path: "ObservableAsPropertyAttribute.g.cs"));
-        }
-
-        // BindableDerivedListGenerator and ReactiveCollectionGenerator inject their own attribute
-        // via RegisterPostInitializationOutput. Tests that also use [Reactive] (WithReactive tests)
-        // need ReactiveAttribute as an inline source tree because it is excluded from the support DLL.
-        if (typeof(T) == typeof(BindableDerivedListGenerator) || typeof(T) == typeof(ReactiveCollectionGenerator))
-        {
-            syntaxTrees.Add(CSharpSyntaxTree.ParseText(
-                GetAttributeDefinitionsPropertyResult("ReactiveAttribute"),
-                parseOptions,
-                path: "ReactiveAttribute.g.cs"));
-        }
-
-        // On non-Windows platforms the Microsoft.WindowsDesktop.App shared framework is unavailable,
-        // so test sources that inherit from System.Windows.Window (WPF) or use Windows Forms types
-        // cannot resolve those types from assembly references. Inject lightweight source stubs so
-        // the in-memory compilation succeeds cross-platform.
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            syntaxTrees.Add(CSharpSyntaxTree.ParseText(
-                TestCompilationReferences.WindowsDesktopStubs,
-                parseOptions,
-                path: "WindowsDesktopStubs.g.cs"));
-        }
-
-        // Create a compilation with the provided source code.
-        var compilation = CSharpCompilation.Create(
-            "TestProject",
-            syntaxTrees,
-            assemblies,
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, deterministic: true));
+        var compilation = CreateTestCompilation(code, parseOptions);
 
         if (withPreDiagnosics)
         {
             // Validate diagnostics before running the generator.
-            var prediagnostics = compilation.GetDiagnostics()
-                .Where(d => d.Severity > DiagnosticSeverity.Warning)
-                .ToList();
+            var prediagnostics = GetDiagnosticsAboveSeverity(compilation.GetDiagnostics(), DiagnosticSeverity.Warning);
 
             if (prediagnostics.Count > 0)
             {
@@ -219,172 +119,372 @@ public sealed partial class TestHelper<T> : IDisposable
         var generator = new T();
         var driver = CSharpGeneratorDriver.Create(generator).WithUpdatedParseOptions(parseOptions);
 
-        if (rerunCompilation)
-        {
-            // Run the generator and capture diagnostics.
-            var rerunDriver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
-
-            // If any warnings or errors are found, log them to the test output before throwing an exception.
-            var offendingDiagnostics = diagnostics
-                .Where(d => d.Severity >= DiagnosticSeverity.Warning)
-                .ToList();
-
-            if (offendingDiagnostics.Count > 0)
-            {
-                foreach (var diagnostic in offendingDiagnostics)
-                {
-                    WriteTestOutput($"Diagnostic: {diagnostic.Id} - {diagnostic.GetMessage()}");
-                }
-
-                throw new InvalidOperationException("Compilation failed due to the above diagnostics.");
-            }
-
-            var outputDiagnosticsToReport = outputCompilation.GetDiagnostics()
-                .Where(d => d.Severity >= DiagnosticSeverity.Error)
-                .Where(d => !IsKnownExpectedOutputDiagnostic(d))
-                .ToList();
-
-            if (outputDiagnosticsToReport.Count > 0)
-            {
-                var diagnosticMessage = string.Join(Environment.NewLine, outputDiagnosticsToReport.Select(static d => $"{d.Id} - {d.GetMessage()}"));
-
-                foreach (var diagnostic in outputDiagnosticsToReport)
-                {
-                    WriteTestOutput($"Output diagnostic: {diagnostic.Id} - {diagnostic.GetMessage()}");
-                }
-
-                throw new InvalidOperationException($"Output compilation failed due to the above diagnostics.{Environment.NewLine}{diagnosticMessage}");
-            }
-
-            // Validate generated code contains expected features
-            ValidateGeneratedCode(code, rerunDriver);
-
-            return VerifyGenerator(rerunDriver);
-        }
-
-        // If rerun is not needed, simply run the generator.
-        return VerifyGenerator(driver.RunGenerators(compilation));
+        return rerunCompilation
+            ? RunGeneratorAndVerify(code, driver, compilation)
+            : VerifyGenerator(driver.RunGenerators(compilation));
     }
 
-    /// <summary>
-    /// Returns all attribute/enum source strings that are NOT already injected by generator T
-    /// via RegisterPostInitializationOutput. Including sources that the active generator also
-    /// emits would create CS0433 (duplicate type) in the output compilation.
-    /// </summary>
-    private static IEnumerable<string> GetGeneratedSupportSources()
+    /// <summary>Gets the verified file path for generator type <typeparamref name="T"/>.</summary>
+    /// <returns>The snapshot directory name.</returns>
+    private static string GetVerifiedFilePath()
     {
-        // Always include the shared enum block (AccessModifier, PropertyAccessModifier,
-        // InheritanceModifier, SplatRegistrationType).  These are internal types so they
-        // live inside the support-assembly DLL and never cause CS0433 conflicts, even when
-        // ReactiveGenerator also injects them into the test compilation as source.
-        // Omitting this block breaks ReactiveCommandAttribute (needs PropertyAccessModifier)
-        // and IViewForAttribute (needs SplatRegistrationType).
-        yield return GetAttributeDefinitionsMethodResult("GetAccessModifierEnum");
+        var name = generatorTypeName;
+        return name switch
+        {
+            nameof(ReactiveGenerator) => "REACTIVE",
+            nameof(ReactiveCommandGenerator) => "REACTIVECMD",
+            nameof(ObservableAsPropertyGenerator) => "OAPH",
+            nameof(IViewForGenerator) => "IVIEWFOR",
+            nameof(RoutedControlHostGenerator) => "ROUTEDHOST",
+            nameof(ViewModelControlHostGenerator) => "CONTROLHOST",
+            nameof(BindableDerivedListGenerator) => "DERIVEDLIST",
+            nameof(ReactiveCollectionGenerator) => "REACTIVECOLL",
+            nameof(ReactiveObjectGenerator) => "REACTIVEOBJ",
+            _ => name,
+        };
+    }
 
+    /// <summary>Creates an in-memory compilation containing the supplied test code.</summary>
+    /// <param name="code">The test code to compile.</param>
+    /// <param name="parseOptions">The language version settings.</param>
+    /// <returns>The prepared Roslyn compilation.</returns>
+    private static CSharpCompilation CreateTestCompilation(string code, CSharpParseOptions parseOptions)
+    {
+        var syntaxTrees = new List<SyntaxTree>
+        {
+            CSharpSyntaxTree.ParseText("global using ReactiveUI.SourceGenerators;", parseOptions, path: "GlobalUsings.g.cs"),
+            CSharpSyntaxTree.ParseText(code, parseOptions),
+        };
+
+        AddGeneratorSpecificSyntaxTrees(syntaxTrees, parseOptions);
+        AddWindowsDesktopStubsWhenNeeded(syntaxTrees, parseOptions);
+        return CSharpCompilation.Create("TestProject", syntaxTrees, CreateAssemblyReferences(), new(OutputKind.DynamicallyLinkedLibrary, deterministic: true));
+    }
+
+    /// <summary>Adds source trees required by the active generator.</summary>
+    /// <param name="syntaxTrees">The source-tree collection to extend.</param>
+    /// <param name="parseOptions">The language version settings.</param>
+    private static void AddGeneratorSpecificSyntaxTrees(List<SyntaxTree> syntaxTrees, CSharpParseOptions parseOptions)
+    {
+        if (typeof(T) != typeof(ReactiveGenerator))
+        {
+            AddSyntaxTree(syntaxTrees, GetAttributeDefinitionsMethodResult("GetAccessModifierEnum"), parseOptions, "AccessModifierEnum.g.cs");
+        }
+
+        if (typeof(T) == typeof(IViewForGenerator))
+        {
+            AddSyntaxTree(syntaxTrees, GetAttributeDefinitionsPropertyResult(ReactiveAttributeName), parseOptions, ReactiveAttributeHintName);
+            AddSyntaxTree(syntaxTrees, GetAttributeDefinitionsPropertyResult("ReactiveCommandAttribute"), parseOptions, "ReactiveCommandAttribute.g.cs");
+        }
+
+        if (typeof(T) == typeof(ReactiveObjectGenerator))
+        {
+            AddSyntaxTree(syntaxTrees, GetAttributeDefinitionsPropertyResult(ReactiveAttributeName), parseOptions, ReactiveAttributeHintName);
+            AddSyntaxTree(syntaxTrees, GetAttributeDefinitionsPropertyResult("ObservableAsPropertyAttribute"), parseOptions, "ObservableAsPropertyAttribute.g.cs");
+        }
+
+        if (typeof(T) != typeof(BindableDerivedListGenerator) && typeof(T) != typeof(ReactiveCollectionGenerator))
+        {
+            return;
+        }
+
+        AddSyntaxTree(syntaxTrees, GetAttributeDefinitionsPropertyResult(ReactiveAttributeName), parseOptions, ReactiveAttributeHintName);
+    }
+
+    /// <summary>Adds Windows desktop stubs when the operating system does not provide them.</summary>
+    /// <param name="syntaxTrees">The source-tree collection to extend.</param>
+    /// <param name="parseOptions">The language version settings.</param>
+    private static void AddWindowsDesktopStubsWhenNeeded(List<SyntaxTree> syntaxTrees, CSharpParseOptions parseOptions)
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return;
+        }
+
+        AddSyntaxTree(syntaxTrees, TestCompilationReferences.WindowsDesktopStubs, parseOptions, "WindowsDesktopStubs.g.cs");
+    }
+
+    /// <summary>Adds a parsed source tree to a syntax-tree collection.</summary>
+    /// <param name="syntaxTrees">The source-tree collection to extend.</param>
+    /// <param name="source">The source code to parse.</param>
+    /// <param name="parseOptions">The language version settings.</param>
+    /// <param name="path">The generated source path.</param>
+    private static void AddSyntaxTree(List<SyntaxTree> syntaxTrees, string source, CSharpParseOptions parseOptions, string path) =>
+        syntaxTrees.Add(CSharpSyntaxTree.ParseText(source, parseOptions, path: path));
+
+    /// <summary>Runs a generator and validates all resulting diagnostics and source.</summary>
+    /// <param name="code">The original source code.</param>
+    /// <param name="driver">The configured generator driver.</param>
+    /// <param name="compilation">The input compilation.</param>
+    /// <returns>The snapshot verification settings.</returns>
+    private static SettingsTask RunGeneratorAndVerify(string code, GeneratorDriver driver, Compilation compilation)
+    {
+        var rerunDriver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
+        ThrowIfDiagnosticsExist(GetDiagnosticsAtLeastSeverity(diagnostics, DiagnosticSeverity.Warning), "Diagnostic", "Compilation failed due to the above diagnostics.");
+        ThrowIfDiagnosticsExist(GetUnexpectedOutputDiagnostics(outputCompilation.GetDiagnostics()), "Output diagnostic", "Output compilation failed due to the above diagnostics.");
+        ValidateGeneratedCode(code, rerunDriver);
+        return VerifyGenerator(rerunDriver);
+    }
+
+    /// <summary>Writes diagnostics and throws when a collection is non-empty.</summary>
+    /// <param name="diagnostics">The diagnostics to evaluate.</param>
+    /// <param name="prefix">The output prefix.</param>
+    /// <param name="failureMessage">The exception message prefix.</param>
+    private static void ThrowIfDiagnosticsExist(List<Diagnostic> diagnostics, string prefix, string failureMessage)
+    {
+        if (diagnostics.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var diagnostic in diagnostics)
+        {
+            WriteTestOutput($"{prefix}: {diagnostic.Id} - {diagnostic.GetMessage()}");
+        }
+
+        throw new InvalidOperationException($"{failureMessage}{Environment.NewLine}{CreateDiagnosticMessage(diagnostics)}");
+    }
+
+    /// <summary>Returns attribute and enum source strings not injected by generator <typeparamref name="T"/>.</summary>
+    /// <returns>The source strings required by the support assembly.</returns>
+    private static List<string> GetGeneratedSupportSources()
+    {
+        var supportSources = new List<string> { GetAttributeDefinitionsMethodResult("GetAccessModifierEnum") };
+
+        AddRequiredAttributeDefinitions(supportSources);
+        return supportSources;
+    }
+
+    /// <summary>Adds attribute definitions required before the common definitions.</summary>
+    /// <param name="supportSources">The support-source collection to extend.</param>
+    private static void AddRequiredAttributeDefinitions(List<string> supportSources)
+    {
         // Yield each attribute definition only if generator T does NOT inject it.
         // Note: for IViewForGenerator, ReactiveAttribute and ReactiveCommandAttribute are
         // added as inline SyntaxTrees below (not in the support DLL) so they are accessible
         // in the test source compilation without CS0122 internal-visibility errors.
         if (typeof(T) != typeof(ReactiveCommandGenerator) && typeof(T) != typeof(IViewForGenerator))
         {
-            yield return GetAttributeDefinitionsPropertyResult("ReactiveCommandAttribute");
+            supportSources.Add(GetAttributeDefinitionsPropertyResult("ReactiveCommandAttribute"));
         }
 
-        if (typeof(T) != typeof(ReactiveGenerator) && typeof(T) != typeof(IViewForGenerator) && typeof(T) != typeof(ReactiveObjectGenerator)
-            && typeof(T) != typeof(BindableDerivedListGenerator) && typeof(T) != typeof(ReactiveCollectionGenerator))
-        {
-            yield return GetAttributeDefinitionsPropertyResult("ReactiveAttribute");
-        }
+        AddReactiveAttributeDefinitionIfNeeded(supportSources);
 
         if (typeof(T) != typeof(IViewForGenerator))
         {
-            yield return GetAttributeDefinitionsPropertyResult("IViewForAttribute");
+            supportSources.Add(GetAttributeDefinitionsPropertyResult("IViewForAttribute"));
         }
 
         if (typeof(T) != typeof(ObservableAsPropertyGenerator) && typeof(T) != typeof(ReactiveObjectGenerator))
         {
-            yield return GetAttributeDefinitionsPropertyResult("ObservableAsPropertyAttribute");
+            supportSources.Add(GetAttributeDefinitionsPropertyResult("ObservableAsPropertyAttribute"));
         }
 
+        AddRemainingAttributeDefinitions(supportSources);
+    }
+
+    /// <summary>Adds the Reactive attribute definition when the active generator does not provide it.</summary>
+    /// <param name="supportSources">The support-source collection to extend.</param>
+    private static void AddReactiveAttributeDefinitionIfNeeded(List<string> supportSources)
+    {
+        if (typeof(T) == typeof(ReactiveGenerator) || typeof(T) == typeof(IViewForGenerator) || typeof(T) == typeof(ReactiveObjectGenerator)
+            || typeof(T) == typeof(BindableDerivedListGenerator) || typeof(T) == typeof(ReactiveCollectionGenerator))
+        {
+            return;
+        }
+
+        supportSources.Add(GetAttributeDefinitionsPropertyResult(ReactiveAttributeName));
+    }
+
+    /// <summary>Adds the remaining conditional attribute definitions.</summary>
+    /// <param name="supportSources">The support-source collection to extend.</param>
+    private static void AddRemainingAttributeDefinitions(List<string> supportSources)
+    {
         if (typeof(T) != typeof(BindableDerivedListGenerator))
         {
-            yield return GetAttributeDefinitionsPropertyResult("BindableDerivedListAttribute");
+            supportSources.Add(GetAttributeDefinitionsPropertyResult("BindableDerivedListAttribute"));
         }
 
         if (typeof(T) != typeof(ReactiveCollectionGenerator))
         {
-            yield return GetAttributeDefinitionsPropertyResult("ReactiveCollectionAttribute");
+            supportSources.Add(GetAttributeDefinitionsPropertyResult("ReactiveCollectionAttribute"));
         }
 
         if (typeof(T) != typeof(ReactiveObjectGenerator))
         {
-            yield return GetAttributeDefinitionsPropertyResult("ReactiveObjectAttribute");
+            supportSources.Add(GetAttributeDefinitionsPropertyResult("ReactiveObjectAttribute"));
         }
 
         if (typeof(T) != typeof(RoutedControlHostGenerator))
         {
-            yield return GetAttributeDefinitionsMethodResult("GetRoutedControlHostAttribute");
+            supportSources.Add(GetAttributeDefinitionsMethodResult("GetRoutedControlHostAttribute"));
         }
 
-        if (typeof(T) != typeof(ViewModelControlHostGenerator))
+        if (typeof(T) == typeof(ViewModelControlHostGenerator))
         {
-            yield return GetAttributeDefinitionsPropertyResult("ViewModelControlHostAttribute");
+            return;
         }
+
+        supportSources.Add(GetAttributeDefinitionsPropertyResult("ViewModelControlHostAttribute"));
     }
 
+    /// <summary>Creates metadata references for the support source assembly.</summary>
+    /// <returns>The references that provide support attributes and enums.</returns>
     private static ImmutableArray<MetadataReference> CreateSupportReferences()
     {
-        var supportSources = GetGeneratedSupportSources().ToArray();
-        if (supportSources.Length == 0)
+        var supportSources = GetGeneratedSupportSources();
+
+        if (supportSources.Count == 0)
         {
             return [];
         }
 
         var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp13);
         var supportCompilation = CSharpCompilation.Create(
-            $"{typeof(T).Name}.Support",
-            supportSources.Select((source, index) => CSharpSyntaxTree.ParseText(source, parseOptions, path: $"Support{index}.g.cs")),
+            $"{generatorTypeName}.Support",
+            CreateSupportSyntaxTrees(supportSources, parseOptions),
             TestCompilationReferences.CreateDefault(),
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, deterministic: true));
+            new(OutputKind.DynamicallyLinkedLibrary, deterministic: true));
 
         using var stream = new MemoryStream();
         var emitResult = supportCompilation.Emit(stream);
 
         if (!emitResult.Success)
         {
-            var diagnostics = string.Join(Environment.NewLine, emitResult.Diagnostics.Select(static d => d.ToString()));
-            throw new InvalidOperationException($"Support assembly compilation failed for {typeof(T).Name}.{Environment.NewLine}{diagnostics}");
+            var diagnostics = CreateDiagnosticMessage(emitResult.Diagnostics);
+            throw new InvalidOperationException($"Support assembly compilation failed for {generatorTypeName}.{Environment.NewLine}{diagnostics}");
         }
 
         return [MetadataReference.CreateFromImage(stream.ToArray())];
     }
 
+    /// <summary>Creates the metadata references used by an in-memory test compilation.</summary>
+    /// <returns>The default and generator support metadata references.</returns>
+    private static HashSet<MetadataReference> CreateAssemblyReferences()
+    {
+        var references = new HashSet<MetadataReference>(TestCompilationReferences.CreateDefault());
+        references.UnionWith(supportReferences.Value);
+        return references;
+    }
+
+    /// <summary>Creates syntax trees for the supplied support source strings.</summary>
+    /// <param name="supportSources">The support source strings.</param>
+    /// <param name="parseOptions">The language version settings.</param>
+    /// <returns>The parsed support syntax trees.</returns>
+    private static List<SyntaxTree> CreateSupportSyntaxTrees(List<string> supportSources, CSharpParseOptions parseOptions)
+    {
+        var syntaxTrees = new List<SyntaxTree>(supportSources.Count);
+        for (var index = 0; index < supportSources.Count; index++)
+        {
+            syntaxTrees.Add(CSharpSyntaxTree.ParseText(supportSources[index], parseOptions, path: $"Support{index}.g.cs"));
+        }
+
+        return syntaxTrees;
+    }
+
+    /// <summary>Gets a public attribute-definition method result.</summary>
+    /// <param name="methodName">The public static method name.</param>
+    /// <returns>The generated source returned by the method.</returns>
     private static string GetAttributeDefinitionsMethodResult(string methodName)
     {
-        var attributeDefinitionsType = typeof(ReactiveGenerator).Assembly.GetType("ReactiveUI.SourceGenerators.Helpers.AttributeDefinitions", throwOnError: false, ignoreCase: false)
+        var attributeDefinitionsType = typeof(ReactiveGenerator).Assembly.GetType(AttributeDefinitionsTypeName, throwOnError: false, ignoreCase: false)
             ?? throw new InvalidOperationException("Could not locate AttributeDefinitions type.");
 
-        var method = attributeDefinitionsType.GetMethod(methodName, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+        var method = attributeDefinitionsType.GetMethod(methodName)
             ?? throw new InvalidOperationException($"Could not locate AttributeDefinitions.{methodName}.");
 
-        return (string?)method.Invoke(null, null)
+        var result = method.Invoke(null, null);
+        return (string?)result
             ?? throw new InvalidOperationException($"AttributeDefinitions.{methodName} returned null.");
     }
 
+    /// <summary>Gets a public attribute-definition property result.</summary>
+    /// <param name="propertyName">The public static property name.</param>
+    /// <returns>The generated source returned by the property.</returns>
     private static string GetAttributeDefinitionsPropertyResult(string propertyName)
     {
-        var attributeDefinitionsType = typeof(ReactiveGenerator).Assembly.GetType("ReactiveUI.SourceGenerators.Helpers.AttributeDefinitions", throwOnError: false, ignoreCase: false)
+        var attributeDefinitionsType = typeof(ReactiveGenerator).Assembly.GetType(AttributeDefinitionsTypeName, throwOnError: false, ignoreCase: false)
             ?? throw new InvalidOperationException("Could not locate AttributeDefinitions type.");
 
-        var property = attributeDefinitionsType.GetProperty(propertyName, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+        var property = attributeDefinitionsType.GetProperty(propertyName)
             ?? throw new InvalidOperationException($"Could not locate AttributeDefinitions.{propertyName}.");
 
         return (string?)property.GetValue(null)
             ?? throw new InvalidOperationException($"AttributeDefinitions.{propertyName} returned null.");
     }
 
+    /// <summary>Determines whether a diagnostic is an accepted generated-output diagnostic.</summary>
+    /// <param name="d">The diagnostic to inspect.</param>
+    /// <returns><see langword="true"/> when the diagnostic is expected.</returns>
     private static bool IsKnownExpectedOutputDiagnostic(Diagnostic d) =>
         d.Id is "CS0579" or "CS8864" or "CS0115" or "CS8867" or "CS8866";
+
+    /// <summary>Filters diagnostics more severe than a specified level.</summary>
+    /// <param name="diagnostics">The diagnostics to inspect.</param>
+    /// <param name="severity">The exclusive severity threshold.</param>
+    /// <returns>Diagnostics exceeding the threshold.</returns>
+    private static List<Diagnostic> GetDiagnosticsAboveSeverity(IEnumerable<Diagnostic> diagnostics, DiagnosticSeverity severity)
+    {
+        var result = new List<Diagnostic>();
+        foreach (var diagnostic in diagnostics)
+        {
+            if (diagnostic.Severity > severity)
+            {
+                result.Add(diagnostic);
+            }
+        }
+
+        return result;
+    }
+
+    /// <summary>Filters diagnostics at or above a specified severity level.</summary>
+    /// <param name="diagnostics">The diagnostics to inspect.</param>
+    /// <param name="severity">The inclusive severity threshold.</param>
+    /// <returns>Diagnostics meeting the threshold.</returns>
+    private static List<Diagnostic> GetDiagnosticsAtLeastSeverity(IEnumerable<Diagnostic> diagnostics, DiagnosticSeverity severity)
+    {
+        var result = new List<Diagnostic>();
+        foreach (var diagnostic in diagnostics)
+        {
+            if (diagnostic.Severity >= severity)
+            {
+                result.Add(diagnostic);
+            }
+        }
+
+        return result;
+    }
+
+    /// <summary>Filters error diagnostics that are not expected generator output diagnostics.</summary>
+    /// <param name="diagnostics">The diagnostics to inspect.</param>
+    /// <returns>Unexpected error diagnostics.</returns>
+    private static List<Diagnostic> GetUnexpectedOutputDiagnostics(IEnumerable<Diagnostic> diagnostics)
+    {
+        var result = new List<Diagnostic>();
+        foreach (var diagnostic in diagnostics)
+        {
+            if (diagnostic.Severity >= DiagnosticSeverity.Error && !IsKnownExpectedOutputDiagnostic(diagnostic))
+            {
+                result.Add(diagnostic);
+            }
+        }
+
+        return result;
+    }
+
+    /// <summary>Formats diagnostics for test-output reporting.</summary>
+    /// <param name="diagnostics">The diagnostics to format.</param>
+    /// <returns>A newline-delimited diagnostic message.</returns>
+    private static string CreateDiagnosticMessage(IEnumerable<Diagnostic> diagnostics)
+    {
+        var messages = new List<string>();
+        foreach (var diagnostic in diagnostics)
+        {
+            messages.Add($"{diagnostic.Id} - {diagnostic.GetMessage()}");
+        }
+
+        return string.Join(Environment.NewLine, messages);
+    }
 
     [GeneratedRegex(@"\[Reactive\((?:.*?nameof\((\w+)\))+", RegexOptions.Singleline)]
     private static partial Regex ReactiveRegex();
@@ -392,88 +492,143 @@ public sealed partial class TestHelper<T> : IDisposable
     [GeneratedRegex(@"nameof\((\w+)\)")]
     private static partial Regex NameOfRegex();
 
-    /// <summary>
-    /// Validates that generated code contains expected features based on the source code attributes.
-    /// </summary>
+    /// <summary>Validates that generated code contains expected features based on the source code attributes.</summary>
     /// <param name="sourceCode">The original source code.</param>
     /// <param name="driver">The generator driver with generated output.</param>
     private static void ValidateGeneratedCode(string sourceCode, GeneratorDriver driver)
     {
         var runResult = driver.GetRunResult();
-        var generatedTrees = runResult.Results.SelectMany(r => r.GeneratedSources).ToList();
-        var allGeneratedCode = string.Join("\n", generatedTrees.Select(t => t.SourceText.ToString()));
+        var generatedTrees = GetGeneratedSources(runResult);
+        var allGeneratedCode = GetGeneratedCode(generatedTrees);
 
-        if (typeof(T) == typeof(ReactiveCommandGenerator))
+        ValidateReactiveCommandOutput(generatedTrees);
+        ValidateAlsoNotifyOutput(sourceCode, allGeneratedCode);
+    }
+
+    /// <summary>Gets every generated source from a generator run result.</summary>
+    /// <param name="runResult">The result to inspect.</param>
+    /// <returns>The generated sources from all generators.</returns>
+    private static List<GeneratedSourceResult> GetGeneratedSources(GeneratorDriverRunResult runResult)
+    {
+        var generatedSources = new List<GeneratedSourceResult>();
+        foreach (var result in runResult.Results)
         {
-            var hasReactiveCommandOutput = generatedTrees.Any(static s => s.HintName.EndsWith(".ReactiveCommands.g.cs", StringComparison.Ordinal));
+            generatedSources.AddRange(result.GeneratedSources);
+        }
 
-            if (!hasReactiveCommandOutput)
+        return generatedSources;
+    }
+
+    /// <summary>Combines generated source text for validation.</summary>
+    /// <param name="generatedSources">The sources to combine.</param>
+    /// <returns>The combined generated source code.</returns>
+    private static string GetGeneratedCode(List<GeneratedSourceResult> generatedSources)
+    {
+        var generatedCode = new StringBuilder();
+        foreach (var generatedSource in generatedSources)
+        {
+            _ = generatedCode.AppendLine(generatedSource.SourceText.ToString());
+        }
+
+        return generatedCode.ToString();
+    }
+
+    /// <summary>Ensures the command generator emits its command source.</summary>
+    /// <param name="generatedSources">The generated sources to inspect.</param>
+    private static void ValidateReactiveCommandOutput(List<GeneratedSourceResult> generatedSources)
+    {
+        if (typeof(T) != typeof(ReactiveCommandGenerator))
+        {
+            return;
+        }
+
+        foreach (var generatedSource in generatedSources)
+        {
+            if (generatedSource.HintName.EndsWith(".ReactiveCommands.g.cs", StringComparison.Ordinal))
             {
-                WriteTestOutput("=== VALIDATION FAILURE ===");
-                WriteTestOutput("ReactiveCommand generator produced no command source output.");
-                WriteTestOutput("=== GENERATED HINTS ===");
-
-                foreach (var generatedTree in generatedTrees)
-                {
-                    WriteTestOutput(generatedTree.HintName);
-                }
-
-                WriteTestOutput("=== END ===");
-
-                throw new InvalidOperationException("ReactiveCommand generator produced no command source output.");
+                return;
             }
         }
 
-        // Check for AlsoNotify feature in Reactive attributes
-        // Pattern matches: [Reactive(nameof(PropertyName))] or [Reactive(nameof(Prop1), nameof(Prop2))]
-        var alsoNotifyPattern = ReactiveRegex();
-        var nameofPattern = NameOfRegex();
-        var matches = alsoNotifyPattern.Matches(sourceCode);
-
-        if (matches.Count > 0)
+        WriteTestOutput("=== VALIDATION FAILURE ===");
+        WriteTestOutput("ReactiveCommand generator produced no command source output.");
+        WriteTestOutput("=== GENERATED HINTS ===");
+        foreach (var generatedSource in generatedSources)
         {
-            foreach (Match match in matches)
+            WriteTestOutput(generatedSource.HintName);
+        }
+
+        WriteTestOutput("=== END ===");
+        throw new InvalidOperationException("ReactiveCommand generator produced no command source output.");
+    }
+
+    /// <summary>Ensures reactive attributes produce their requested additional notifications.</summary>
+    /// <param name="sourceCode">The original source code.</param>
+    /// <param name="allGeneratedCode">The combined generated code.</param>
+    private static void ValidateAlsoNotifyOutput(string sourceCode, string allGeneratedCode)
+    {
+        foreach (object? matchValue in ReactiveRegex().Matches(sourceCode))
+        {
+            if (matchValue is not Match match)
             {
-                // Extract all nameof() references within this attribute
-                var nameofMatches = nameofPattern.Matches(match.Value);
+                continue;
+            }
 
-                foreach (Match nameofMatch in nameofMatches)
+            foreach (object? nameofMatchValue in NameOfRegex().Matches(match.Value))
+            {
+                if (nameofMatchValue is not Match nameofMatch)
                 {
-                    var propertyToNotify = nameofMatch.Groups[1].Value;
-
-                    // Verify that the generated code contains calls to raise property changed for the additional property
-                    // Check for various forms of property change notification
-                    var hasNotification =
-                        allGeneratedCode.Contains($"this.RaisePropertyChanged(nameof({propertyToNotify}))") ||
-                        allGeneratedCode.Contains($"this.RaisePropertyChanged(\"{propertyToNotify}\")") ||
-                        allGeneratedCode.Contains($"RaisePropertyChanged(nameof({propertyToNotify}))") ||
-                        allGeneratedCode.Contains($"RaisePropertyChanged(\"{propertyToNotify}\")");
-
-                    if (!hasNotification)
-                    {
-                        var errorMessage = $"Generated code does not include AlsoNotify for property '{propertyToNotify}'. " +
-                                         $"Expected to find property change notification for '{propertyToNotify}' in the generated code.\n" +
-                                         $"Source attribute: {match.Value}";
-
-                        WriteTestOutput("=== VALIDATION FAILURE ===");
-                        WriteTestOutput(errorMessage);
-                        WriteTestOutput("=== SOURCE CODE SNIPPET ===");
-                        WriteTestOutput(match.Value);
-                        WriteTestOutput("=== GENERATED CODE ===");
-                        WriteTestOutput(allGeneratedCode);
-                        WriteTestOutput("=== END ===");
-
-                        throw new InvalidOperationException(errorMessage);
-                    }
+                    continue;
                 }
+
+                ValidatePropertyNotification(nameofMatch.Groups[1].Value, match.Value, allGeneratedCode);
             }
         }
     }
 
+    /// <summary>Ensures generated code raises a requested property notification.</summary>
+    /// <param name="propertyToNotify">The requested property name.</param>
+    /// <param name="sourceAttribute">The source attribute that requested it.</param>
+    /// <param name="allGeneratedCode">The combined generated code.</param>
+    private static void ValidatePropertyNotification(string propertyToNotify, string sourceAttribute, string allGeneratedCode)
+    {
+        if (ContainsPropertyNotification(allGeneratedCode, propertyToNotify))
+        {
+            return;
+        }
+
+        var errorMessage = $"Generated code does not include AlsoNotify for property '{propertyToNotify}'. "
+            + $"Expected to find property change notification for '{propertyToNotify}' in the generated code.{Environment.NewLine}"
+            + $"Source attribute: {sourceAttribute}";
+        WriteTestOutput("=== VALIDATION FAILURE ===");
+        WriteTestOutput(errorMessage);
+        WriteTestOutput("=== SOURCE CODE SNIPPET ===");
+        WriteTestOutput(sourceAttribute);
+        WriteTestOutput("=== GENERATED CODE ===");
+        WriteTestOutput(allGeneratedCode);
+        WriteTestOutput("=== END ===");
+        throw new InvalidOperationException(errorMessage);
+    }
+
+    /// <summary>Determines whether generated code contains a requested notification.</summary>
+    /// <param name="generatedCode">The generated code.</param>
+    /// <param name="propertyName">The property name.</param>
+    /// <returns><see langword="true"/> when the notification appears.</returns>
+    private static bool ContainsPropertyNotification(string generatedCode, string propertyName) =>
+        generatedCode.Contains($"this.RaisePropertyChanged(nameof({propertyName}))", StringComparison.Ordinal)
+        || generatedCode.Contains($"this.RaisePropertyChanged(\"{propertyName}\")", StringComparison.Ordinal)
+        || generatedCode.Contains($"RaisePropertyChanged(nameof({propertyName}))", StringComparison.Ordinal)
+        || generatedCode.Contains($"RaisePropertyChanged(\"{propertyName}\")", StringComparison.Ordinal);
+
+    /// <summary>Writes a validation message to the current test output.</summary>
+    /// <param name="message">The message to write.</param>
     private static void WriteTestOutput(string message) => TestContext.Current?.OutputWriter.WriteLine(message);
 
-    private SettingsTask VerifyGenerator(GeneratorDriver driver)
-        => Verify(driver)
-            .UseDirectory(VerifiedFilePath())
+    /// <summary>Creates snapshot verification settings for a generator driver.</summary>
+    /// <param name="driver">The generator driver to verify.</param>
+    /// <returns>The snapshot verification settings.</returns>
+    private static SettingsTask VerifyGenerator(GeneratorDriver driver) =>
+        Verify(driver)
+            .UseDirectory(GetVerifiedFilePath())
             .ScrubLinesContaining("[global::System.CodeDom.Compiler.GeneratedCode(\"");
     }
