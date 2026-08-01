@@ -26,6 +26,60 @@ public sealed class ReactiveUiIntegrationTests
     /// <summary>The minimum real ReactiveUI package major version covered by this project.</summary>
     private const int MinimumCurrentReactiveUiMajorVersion = 24;
 
+    /// <summary>Consumer source covering background command factory selection.</summary>
+    private const string RunInBackgroundCommandSource = """
+        using System;
+        using System.Reactive.Linq;
+        using System.Threading.Tasks;
+        using ReactiveUI;
+        using ReactiveUI.SourceGenerators;
+
+        namespace Compatibility;
+
+        public partial class ViewModel : ReactiveObject
+        {
+            private IObservable<bool> CanRun => Observable.Return(true);
+
+            [ReactiveCommand(RunInBackground = true)]
+            private void Save() { }
+
+            [ReactiveCommand(RunInBackground = true)]
+            private int Calculate() => 42;
+
+            [ReactiveCommand(RunInBackground = true)]
+            private void Update(int value) { }
+
+            [ReactiveCommand(RunInBackground = true, CanExecute = nameof(CanRun))]
+            private void Conditional() { }
+
+            [ReactiveCommand(
+                RunInBackground = true,
+                OutputScheduler = "global::ReactiveUI.RxSchedulers.MainThreadScheduler")]
+            private void Scheduled() { }
+
+            [ReactiveCommand(
+                RunInBackground = true,
+                CanExecute = nameof(CanRun),
+                OutputScheduler = "global::ReactiveUI.RxSchedulers.MainThreadScheduler")]
+            private string Format(int value) => value.ToString();
+
+            [ReactiveCommand]
+            private void Foreground() { }
+
+            [ReactiveCommand(
+                RunInBackground = true,
+                CanExecute = nameof(CanRun),
+                OutputScheduler = "global::ReactiveUI.RxSchedulers.MainThreadScheduler")]
+            private Task AlreadyAsync() => Task.CompletedTask;
+
+            [ReactiveCommand(
+                RunInBackground = true,
+                CanExecute = nameof(CanRun),
+                OutputScheduler = "global::ReactiveUI.RxSchedulers.MainThreadScheduler")]
+            private IObservable<int> AlreadyObservable() => Observable.Return(1);
+        }
+        """;
+
     /// <summary>Consumer source covering the supported and rejected command option branches.</summary>
     private const string CommandOptionsSource = """
         using System;
@@ -298,6 +352,7 @@ public sealed class ReactiveUiIntegrationTests
                 private void Save()
                 {
                 }
+
             }
             """,
             references);
@@ -341,6 +396,30 @@ public sealed class ReactiveUiIntegrationTests
             TestCompilationReferences.CreateDefault());
 
         await Assert.That(generatedSource.Contains("ReactiveCommand.Create(Run, CanRun)", StringComparison.Ordinal)).IsTrue();
+        await Assert.That(GetErrors(compilation)).IsEmpty();
+    }
+
+    /// <summary>Verifies background command generation for every synchronous delegate shape.</summary>
+    /// <returns>A task representing the asynchronous assertion work.</returns>
+    [Test]
+    public async Task ReactiveCommandRunInBackgroundUsesBackgroundFactoryForSynchronousMethods()
+    {
+        var (compilation, generatedSource) = RunCommandGenerator(RunInBackgroundCommandSource, TestCompilationReferences.CreateDefault());
+        const string scheduler = "global::ReactiveUI.RxSchedulers.MainThreadScheduler";
+        const string scheduledCommandFactory = $"ReactiveCommand.CreateRunInBackground(Scheduled, backgroundScheduler: null, outputScheduler: {scheduler})";
+        const string formattedCommandFactory = $"ReactiveCommand.CreateRunInBackground<int, string>(Format, CanRun, backgroundScheduler: null, outputScheduler: {scheduler})";
+        const string asyncCommandFactory = $"ReactiveCommand.CreateFromTask(AlreadyAsync, CanRun, outputScheduler: {scheduler})";
+        const string observableCommandFactory = $"ReactiveCommand.CreateFromObservable(AlreadyObservable, CanRun, outputScheduler: {scheduler})";
+
+        await Assert.That(generatedSource.Contains("ReactiveCommand.CreateRunInBackground(Save)", StringComparison.Ordinal)).IsTrue();
+        await Assert.That(generatedSource.Contains("ReactiveCommand.CreateRunInBackground(Calculate)", StringComparison.Ordinal)).IsTrue();
+        await Assert.That(generatedSource.Contains("ReactiveCommand.CreateRunInBackground<int>(Update)", StringComparison.Ordinal)).IsTrue();
+        await Assert.That(generatedSource.Contains("ReactiveCommand.CreateRunInBackground(Conditional, CanRun)", StringComparison.Ordinal)).IsTrue();
+        await Assert.That(generatedSource.Contains(scheduledCommandFactory, StringComparison.Ordinal)).IsTrue();
+        await Assert.That(generatedSource.Contains(formattedCommandFactory, StringComparison.Ordinal)).IsTrue();
+        await Assert.That(generatedSource.Contains("ReactiveCommand.Create(Foreground)", StringComparison.Ordinal)).IsTrue();
+        await Assert.That(generatedSource.Contains(asyncCommandFactory, StringComparison.Ordinal)).IsTrue();
+        await Assert.That(generatedSource.Contains(observableCommandFactory, StringComparison.Ordinal)).IsTrue();
         await Assert.That(GetErrors(compilation)).IsEmpty();
     }
 
@@ -458,11 +537,20 @@ public sealed class ReactiveUiIntegrationTests
                 private void Save()
                 {
                 }
+
+                [ReactiveCommand(
+                    RunInBackground = true,
+                    OutputScheduler = "global::ReactiveUI.Reactive.RxSchedulers.MainThreadScheduler")]
+                private void Refresh()
+                {
+                }
             }
             """,
             references);
 
         var integration = compilation.GetReactiveUiIntegration();
+        const string backgroundFactory =
+            "global::ReactiveUI.Reactive.ReactiveCommand.CreateRunInBackground(Refresh, backgroundScheduler: null, outputScheduler: global::ReactiveUI.Reactive.RxSchedulers.MainThreadScheduler)";
 
         await Assert.That(integration.Api).IsEqualTo(ReactiveUiApi.SystemReactive);
         await Assert.That(integration.Namespace).IsEqualTo("global::ReactiveUI.Reactive");
@@ -470,6 +558,7 @@ public sealed class ReactiveUiIntegrationTests
         await Assert.That(integration.VoidTypeName).IsEqualTo(SystemReactiveUnitTypeName);
         await Assert.That(integration.UsingDirectives).IsEqualTo("using ReactiveUI;\nusing ReactiveUI.Reactive;");
         await Assert.That(generatedSource.Contains("global::ReactiveUI.Reactive.ReactiveCommand", StringComparison.Ordinal)).IsTrue();
+        await Assert.That(generatedSource.Contains(backgroundFactory, StringComparison.Ordinal)).IsTrue();
         await Assert.That(generatedSource.Contains(SystemReactiveUnitTypeName, StringComparison.Ordinal)).IsTrue();
         await Assert.That(GetErrors(compilation)).IsEmpty();
     }

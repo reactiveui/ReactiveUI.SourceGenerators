@@ -33,6 +33,14 @@ internal sealed class ReactiveCommandAttribute : global::System.Attribute
     public string? OutputScheduler { get; init; }
 
     /// <summary>
+    /// Gets a value indicating whether a synchronous method runs on ReactiveUI's background scheduler.
+    /// </summary>
+    /// <value>
+    /// <see langword="true"/> to create the command with <c>ReactiveCommand.CreateRunInBackground</c>.
+    /// </value>
+    public bool RunInBackground { get; init; }
+
+    /// <summary>
     /// Gets the AccessModifier of the ReactiveCommand property.
     /// </summary>
     /// <value>

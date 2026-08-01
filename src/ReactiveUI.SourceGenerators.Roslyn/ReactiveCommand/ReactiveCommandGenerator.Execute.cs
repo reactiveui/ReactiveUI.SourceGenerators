@@ -38,11 +38,17 @@ public partial class ReactiveCommandGenerator
     /// <summary>The factory method used for task-backed commands.</summary>
     private const string CreateT = ".CreateFromTask";
 
+    /// <summary>The factory method used for synchronous commands that execute on a background scheduler.</summary>
+    private const string CreateB = ".CreateRunInBackground";
+
     /// <summary>The attribute property used to specify the can-execute member.</summary>
     private const string CanExecute = "CanExecute";
 
     /// <summary>The attribute property used to specify the output scheduler.</summary>
     private const string OutputScheduler = "OutputScheduler";
+
+    /// <summary>The attribute property used to request background execution.</summary>
+    private const string RunInBackground = "RunInBackground";
 
     /// <summary>The access-modifier value for internal generated commands.</summary>
     private const int InternalAccessibility = 2;
@@ -92,6 +98,8 @@ public partial class ReactiveCommandGenerator
         token.ThrowIfCancellationRequested();
         TryGetOutputScheduler(methodSymbol, attributeData, context.SemanticModel.Compilation.GetReactiveUiIntegration(), out var outputScheduler);
         token.ThrowIfCancellationRequested();
+        var runInBackground = attributeData.GetNamedArgument<bool>(RunInBackground);
+        token.ThrowIfCancellationRequested();
         var accessModifier = GetAccessModifier(attributeData);
         token.ThrowIfCancellationRequested();
         using var builder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
@@ -121,6 +129,7 @@ public partial class ReactiveCommandGenerator
             canExecuteObservableName,
             canExecuteTypeInfo,
             outputScheduler,
+            runInBackground,
             forwardedPropertyAttributes,
             accessModifier,
             GetXmlDocumentation(methodSymbol, token));
@@ -344,10 +353,23 @@ $$"""
 
         var commandType = GetCommandFactoryMethod(commandInfo);
         var canExecuteArgument = GetCanExecuteArgument(commandInfo);
-        var schedulerArgument = string.IsNullOrEmpty(commandInfo.OutputScheduler)
-            ? string.Empty
-            : $", outputScheduler: {commandInfo.OutputScheduler}";
+        var schedulerArgument = GetOutputSchedulerArgument(commandInfo);
         return $"{fieldName} ??= {commandTypeName}{commandType}{genericTypeArguments}({commandInfo.MethodName}{canExecuteArgument}{schedulerArgument});";
+    }
+
+    /// <summary>Gets the optional output-scheduler arguments for a command factory call.</summary>
+    /// <param name="commandInfo">The command metadata.</param>
+    /// <returns>The formatted scheduler arguments, or an empty string.</returns>
+    private static string GetOutputSchedulerArgument(CommandInfo commandInfo)
+    {
+        if (string.IsNullOrEmpty(commandInfo.OutputScheduler))
+        {
+            return string.Empty;
+        }
+
+        return commandInfo.RunInBackground && !commandInfo.IsTask && !commandInfo.IsObservable
+            ? $", backgroundScheduler: null, outputScheduler: {commandInfo.OutputScheduler}"
+            : $", outputScheduler: {commandInfo.OutputScheduler}";
     }
 
     /// <summary>Gets the ReactiveCommand factory method for the command shape.</summary>
@@ -360,7 +382,12 @@ $$"""
             return CreateO;
         }
 
-        return commandInfo.IsTask ? CreateT : Create;
+        if (commandInfo.IsTask)
+        {
+            return CreateT;
+        }
+
+        return commandInfo.RunInBackground ? CreateB : Create;
     }
 
     /// <summary>Gets the optional can-execute argument for a command factory call.</summary>
