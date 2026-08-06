@@ -3,7 +3,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
     <CodeAnalysisVersion>4.14.0</CodeAnalysisVersion>
-    <RoslynCommonAnalyzersVersion>3.40.1</RoslynCommonAnalyzersVersion>
+    <RoslynCommonAnalyzersVersion>3.40.2</RoslynCommonAnalyzersVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.301" />
