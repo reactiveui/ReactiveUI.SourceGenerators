@@ -32,7 +32,7 @@
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
     <PackageVersion Include="System.Formats.Asn1" Version="10.0.10" />
     <PackageVersion Include="PublicApiGenerator" Version="11.5.4" />
-    <PackageVersion Include="Splat" Version="20.2.0" />
+    <PackageVersion Include="Splat" Version="21.0.0" />
     <PackageVersion Include="ReactiveUI" Version="24.0.0" />
     <PackageVersion Include="ReactiveUI.Reactive" Version="24.0.0" />
     <PackageVersion Include="ReactiveUI.Maui" Version="24.0.0" />
