@@ -24,7 +24,7 @@
     <PackageVersion Include="Avalonia" Version="12.1.1" />
     <PackageVersion Include="Avalonia.Themes.Fluent" Version="12.1.1" />
     <PackageVersion Include="Avalonia.Fonts.Inter" Version="12.1.1" />
-    <PackageVersion Include="ReactiveUI.Avalonia" Version="12.1.0" />
+    <PackageVersion Include="ReactiveUI.Avalonia" Version="12.1.1" />
     <PackageVersion Include="Avalonia.Diagnostics" Version="11.3.20" />
     <PackageVersion Include="Avalonia.Desktop" Version="12.1.1" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.11" />
@@ -33,9 +33,9 @@
     <PackageVersion Include="System.Formats.Asn1" Version="10.0.11" />
     <PackageVersion Include="PublicApiGenerator" Version="11.5.4" />
     <PackageVersion Include="Splat" Version="21.0.0" />
-    <PackageVersion Include="ReactiveUI" Version="24.0.0" />
-    <PackageVersion Include="ReactiveUI.Reactive" Version="24.0.0" />
-    <PackageVersion Include="ReactiveUI.Maui" Version="24.0.0" />
+    <PackageVersion Include="ReactiveUI" Version="24.1.0" />
+    <PackageVersion Include="ReactiveUI.Reactive" Version="24.1.0" />
+    <PackageVersion Include="ReactiveUI.Maui" Version="24.1.0" />
     <PackageVersion Include="System.Reactive" Version="7.0.0" />
     <PackageVersion Include="TUnit" Version="1.61.38" />
     <PackageVersion Include="Verify.TUnit" Version="31.20.0" />
