@@ -150,6 +150,7 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
         _observableAsPropertyTest3PropertyHelper = CreateObservableAsPropertyTest3PropertyHelper();
         _observableAsPropertyFromPropertyHelper = CreateObservableAsPropertyFromPropertyHelper();
         _pLCActiveHelper = CreatePlcActiveHelper();
+        _pLCStatusHelper = CreatePlcStatusHelper();
         _pLCPortHelper = CreatePlcPortHelper();
         _instanceOfPLCHelper = CreatePlcInstanceHelper();
         _referenceTypeObservableProperty = default!;
@@ -253,6 +254,12 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     /// </summary>
     [ObservableAsProperty(InitialValue = "Not Connected")]
     public partial string? PLCActive { get; }
+
+    /// <summary>
+    /// Gets the current PLC status message, initialized with an empty string.
+    /// </summary>
+    [ObservableAsProperty(InitialValue = "")]
+    public partial string PLCStatus { get; }
 
     /// <summary>
     /// Gets the TCP port number used to communicate with the PLC.

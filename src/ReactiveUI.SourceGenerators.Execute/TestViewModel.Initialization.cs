@@ -44,6 +44,11 @@ public partial class TestViewModel
     private ObservableAsPropertyHelper<string?> CreatePlcActiveHelper() =>
         this.WhenAnyValue(x => x.PartialRequiredPropertyTest).ToProperty(this, nameof(PLCActive));
 
+    /// <summary>Creates the helper that projects the PLC status message.</summary>
+    /// <returns>The initialized observable property helper.</returns>
+    private ObservableAsPropertyHelper<string> CreatePlcStatusHelper() =>
+        this.WhenAnyValue(x => x.PLCActive).Select(static x => x ?? string.Empty).ToProperty(this, nameof(PLCStatus));
+
     /// <summary>Creates the helper that projects the PLC port.</summary>
     /// <returns>The initialized observable property helper.</returns>
     private ObservableAsPropertyHelper<int> CreatePlcPortHelper() =>

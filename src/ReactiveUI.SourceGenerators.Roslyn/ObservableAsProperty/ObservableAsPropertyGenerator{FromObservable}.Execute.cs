@@ -401,16 +401,27 @@ $$"""
     /// <returns>The field initializer suffix.</returns>
     private static string GetInitialValueSyntax(string propertyType, string? initialValue)
     {
-        if (initialValue is null || string.IsNullOrWhiteSpace(initialValue))
+        var isNullableStringProperty = propertyType is "string?"
+            || propertyType.EndsWith("##string?", System.StringComparison.Ordinal);
+        var isStringProperty = isNullableStringProperty
+            || propertyType is "string"
+            || propertyType.EndsWith("##string", System.StringComparison.Ordinal);
+
+        if (isStringProperty)
         {
-            return ";";
+            // A non nullable string field is initialised to an empty string when no initial value is
+            // supplied, so the generated field never holds null. Empty and whitespace values are valid
+            // string literals and are emitted as written.
+            if (initialValue is not null)
+            {
+                return $" = {Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(initialValue, quote: true)};";
+            }
+
+            return isNullableStringProperty ? ";" : " = string.Empty;";
         }
 
-        var isStringProperty = propertyType is "string" or "string?"
-            || propertyType.EndsWith("##string", System.StringComparison.Ordinal)
-            || propertyType.EndsWith("##string?", System.StringComparison.Ordinal);
-        return isStringProperty
-            ? $" = {Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(initialValue, quote: true)};"
+        return string.IsNullOrWhiteSpace(initialValue)
+            ? ";"
             : $" = {initialValue};";
     }
 

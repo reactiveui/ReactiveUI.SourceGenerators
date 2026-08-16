@@ -11,7 +11,7 @@ namespace TestNs
     public partial class TestVM
     {
         /// <inheritdoc cref="InternalStateProperty"/>
-        private string _internalStateProperty;
+        private string _internalStateProperty = string.Empty;
 
         /// <inheritdoc cref="_internalStatePropertyHelper"/>
         private ReactiveUI.ObservableAsPropertyHelper<string>? _internalStatePropertyHelper;

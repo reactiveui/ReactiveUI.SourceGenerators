@@ -13,7 +13,7 @@ namespace TestNs
     public partial class Level2
     {
         /// <inheritdoc cref="Level2ObservableProperty"/>
-        private string _level2ObservableProperty;
+        private string _level2ObservableProperty = string.Empty;
 
         /// <inheritdoc cref="_level2ObservablePropertyHelper"/>
         private ReactiveUI.ObservableAsPropertyHelper<string>? _level2ObservablePropertyHelper;

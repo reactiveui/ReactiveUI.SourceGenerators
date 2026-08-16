@@ -314,4 +314,79 @@ public class OAPFromObservableGeneratorTests : TestBase<ObservableAsPropertyGene
         // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
         return TestHelper.TestPass(sourceCode);
     }
+
+    /// <summary>Tests that an empty string initial value initialises the generated backing field.</summary>
+    /// <returns>
+    /// A task to monitor the async.
+    /// </returns>
+    [Test]
+    public Task FromPartialPropertyWithEmptyStringInitialValue()
+    {
+        // Arrange: Setup the source code that matches the generator input expectations.
+        const string sourceCode = """
+                using System;
+                using ReactiveUI;
+                using ReactiveUI.SourceGenerators;
+                using System.Reactive.Linq;
+                using System.Reactive.Subjects;
+
+                namespace TestNs;
+
+                public partial class TestVM : ReactiveObject
+                {
+                    private readonly Subject<string> _testSubject = new();
+
+                    public TestVM()
+                    {
+                        _pLCActiveHelper = _testSubject.ToProperty(this, nameof(PLCActive));
+                    }
+
+                    [ObservableAsProperty(InitialValue = "")]
+                    public partial string PLCActive { get; }
+                }
+            """;
+
+        // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
+        return TestHelper.TestPass(sourceCode);
+    }
+
+    /// <summary>Tests that a non nullable string without an initial value defaults to an empty string.</summary>
+    /// <returns>
+    /// A task to monitor the async.
+    /// </returns>
+    [Test]
+    public Task FromPartialPropertyWithoutInitialValue()
+    {
+        // Arrange: Setup the source code that matches the generator input expectations.
+        const string sourceCode = """
+                using System;
+                using ReactiveUI;
+                using ReactiveUI.SourceGenerators;
+                using System.Reactive.Linq;
+                using System.Reactive.Subjects;
+
+                namespace TestNs;
+
+                public partial class TestVM : ReactiveObject
+                {
+                    private readonly Subject<string> _testSubject = new();
+                    private readonly Subject<string?> _testNullableSubject = new();
+
+                    public TestVM()
+                    {
+                        _pLCActiveHelper = _testSubject.ToProperty(this, nameof(PLCActive));
+                        _pLCNameHelper = _testNullableSubject.ToProperty(this, nameof(PLCName));
+                    }
+
+                    [ObservableAsProperty]
+                    public partial string PLCActive { get; }
+
+                    [ObservableAsProperty]
+                    public partial string? PLCName { get; }
+                }
+            """;
+
+        // Act: Initialize the helper and run the generator. Assert: Verify the generated code.
+        return TestHelper.TestPass(sourceCode);
+    }
 }
