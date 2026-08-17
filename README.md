@@ -435,6 +435,9 @@ public partial class MyReactiveClass : ReactiveObject
 }
 ```
 
+String values are automatically quoted, so `InitialValue = ""` produces an empty string initial value.
+Non nullable `string` properties are initialized with `string.Empty` when no `InitialValue` is provided.
+
 ## Usage ReactiveCommand `[ReactiveCommand]`
 
 ### Usage ReactiveCommand without parameter

@@ -20,7 +20,7 @@ namespace TestNs
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public bool HasItemsProperty { get => _hasItemsProperty = _hasItemsPropertyHelper?.Value ?? _hasItemsProperty; }
 /// <inheritdoc cref="DisplayNameProperty"/>
-        private string _displayNameProperty;
+        private string _displayNameProperty = string.Empty;
 
         /// <inheritdoc cref="_displayNamePropertyHelper"/>
         private ReactiveUI.ObservableAsPropertyHelper<string>? _displayNamePropertyHelper;
