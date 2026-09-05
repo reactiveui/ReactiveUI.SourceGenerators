@@ -21,12 +21,12 @@
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(CodeAnalysisVersion)" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="$(CodeAnalysisVersion)" />
     <PackageVersion Include="PolySharp" Version="1.16.0" />
-    <PackageVersion Include="Avalonia" Version="12.1.1" />
-    <PackageVersion Include="Avalonia.Themes.Fluent" Version="12.1.1" />
-    <PackageVersion Include="Avalonia.Fonts.Inter" Version="12.1.1" />
+    <PackageVersion Include="Avalonia" Version="12.1.2" />
+    <PackageVersion Include="Avalonia.Themes.Fluent" Version="12.1.2" />
+    <PackageVersion Include="Avalonia.Fonts.Inter" Version="12.1.2" />
     <PackageVersion Include="ReactiveUI.Avalonia" Version="12.1.1" />
     <PackageVersion Include="Avalonia.Diagnostics" Version="11.3.20" />
-    <PackageVersion Include="Avalonia.Desktop" Version="12.1.1" />
+    <PackageVersion Include="Avalonia.Desktop" Version="12.1.2" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.11" />
     <PackageVersion Include="DynamicData" Version="9.4.33" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
