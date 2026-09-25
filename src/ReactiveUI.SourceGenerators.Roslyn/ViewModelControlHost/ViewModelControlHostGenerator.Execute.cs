@@ -108,15 +108,15 @@ public partial class ViewModelControlHostGenerator
         _ = writer.Line("[DefaultProperty(\"ViewModel\")]")
             .Line(GeneratedCodeAttribute)
             .Append(info.TargetVisibility).Append(" partial ").Append(info.TargetType).Append(' ').Append(info.TargetName)
-            .Append(" : ").Append(info.ViewModelTypeName).Line(", IReactiveObject, IViewFor")
+            .Append(" : ").Append(info.ViewModelTypeName).Append(", IReactiveObject, ").Append(integration.ViewNamespace).Line(".IViewFor")
             .OpenBlock();
 
         WriteConstructor(writer, info.TargetName);
-        WriteProperties(writer.BlankLine());
+        WriteProperties(writer.BlankLine(), integration);
         WriteBindableProperties(writer.BlankLine());
         WriteDispose(writer.BlankLine());
         WriteSetupBindings(writer.BlankLine(), exceptionHandler);
-        WriteUpdateContent(writer.BlankLine());
+        WriteUpdateContent(writer.BlankLine(), integration);
         WriteObservableHelpers(writer.BlankLine());
         WriteCombineLatestSubscription(writer.BlankLine());
         WriteDisposableCollection(writer.BlankLine());
@@ -178,7 +178,8 @@ public partial class ViewModelControlHostGenerator
 
     /// <summary>Writes the host's events and its content and view-location properties.</summary>
     /// <param name="writer">The writer, at the level of the host's members.</param>
-    private static void WriteProperties(SourceWriter writer) =>
+    /// <param name="integration">The detected ReactiveUI integration, which names the view locator's interface.</param>
+    private static void WriteProperties(SourceWriter writer, ReactiveUiIntegration integration) =>
         _ = writer.Lines("""
             /// <inheritdoc/>
             public event PropertyChangingEventHandler? PropertyChanging;
@@ -216,8 +217,8 @@ public partial class ViewModelControlHostGenerator
             /// Gets or sets the view locator.
             /// </summary>
             [Browsable(false)]
-            public IViewLocator? ViewLocator { get; set; }
-            """);
+            """)
+            .Append("public ").Append(integration.ViewNamespace).Line(".IViewLocator? ViewLocator { get; set; }");
 
     /// <summary>Writes the host's bindable view-model properties and its <c>IReactiveObject</c> implementation.</summary>
     /// <param name="writer">The writer, at the level of the host's members.</param>
@@ -326,7 +327,8 @@ public partial class ViewModelControlHostGenerator
 
     /// <summary>Writes the methods that register a subscription and resolve the view for a new view model.</summary>
     /// <param name="writer">The writer, at the level of the host's members.</param>
-    private static void WriteUpdateContent(SourceWriter writer) =>
+    /// <param name="integration">The detected ReactiveUI integration, which names <c>IViewFor</c> and the current view locator.</param>
+    private static void WriteUpdateContent(SourceWriter writer, ReactiveUiIntegration integration) =>
         _ = writer.Lines("""
             private void AddSubscription<T>(IObservable<T> observable, IObserver<T> observer)
             {
@@ -351,7 +353,11 @@ public partial class ViewModelControlHostGenerator
                 if (CacheViews)
                 {
                     // when caching views, check the current viewmodel and type
-                    var currentView = _content as IViewFor;
+            """)
+            .Indent().Indent()
+            .Append("var currentView = _content as ").Append(integration.ViewNamespace).Append(".IViewFor").EndStatement()
+            .Outdent().Outdent()
+            .Lines("""
                     if (currentView?.ViewModel is not null && currentView.ViewModel.GetType() == viewModel.GetType())
                     {
                         currentView.ViewModel = viewModel;
@@ -360,8 +366,12 @@ public partial class ViewModelControlHostGenerator
                         return;
                     }
                 }
-
-                var viewLocator = ViewLocator ?? ReactiveUI.ViewLocator.Current;
+            """)
+            .BlankLine()
+            .Indent()
+            .Append("var viewLocator = ViewLocator ?? ").Append(integration.CurrentViewLocator).EndStatement()
+            .Outdent()
+            .Lines("""
                 var view = viewLocator.ResolveView(viewModel, contract);
                 if (view is not null)
                 {

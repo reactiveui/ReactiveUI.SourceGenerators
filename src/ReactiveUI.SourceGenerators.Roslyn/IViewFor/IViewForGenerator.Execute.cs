@@ -21,7 +21,7 @@ public partial class IViewForGenerator
     /// <summary>Gets the fully qualified name used in generated-code metadata.</summary>
     internal static readonly string GeneratorName = typeof(IViewForGenerator).FullName!;
 
-    /// <summary>The namespace every view file imports <c>IViewFor</c> from.</summary>
+    /// <summary>The ReactiveUI namespace every view file imports; <c>IViewFor</c> itself is named in full.</summary>
     private const string ReactiveUINamespace = "ReactiveUI";
 
     /// <summary>The modifier that opens each generated public member.</summary>
@@ -115,8 +115,9 @@ public partial class IViewForGenerator
 
     /// <summary>Generates the partial type source for a supported <c>IViewFor</c> target.</summary>
     /// <param name="info">The generation model.</param>
+    /// <param name="viewNamespace">The qualified namespace declaring <c>IViewFor</c>.</param>
     /// <returns>The generated source, or <see langword="null"/> for unsupported types.</returns>
-    private static string? GenerateSource(IViewForInfo info)
+    private static string? GenerateSource(IViewForInfo info, string viewNamespace)
     {
         var writer = info.BaseType switch
         {
@@ -142,22 +143,22 @@ public partial class IViewForGenerator
 
         var target = info.TargetInfo;
         var depth = writer.OpenNamespace(target.TargetNamespace) + writer.OpenContainingTypes(target.ParentInfo);
-        WriteTypeDeclaration(writer, info, info.BaseType != IViewForBaseType.Maui);
+        WriteTypeDeclaration(writer, info, viewNamespace, info.BaseType != IViewForBaseType.Maui);
         if (info.BaseType == IViewForBaseType.WinForms)
         {
-            WriteWinFormsMembers(writer, info.ViewModelTypeName);
+            WriteWinFormsMembers(writer, info.ViewModelTypeName, viewNamespace);
         }
         else if (info.BaseType == IViewForBaseType.Avalonia)
         {
-            WriteAvaloniaMembers(writer, info);
+            WriteAvaloniaMembers(writer, info, viewNamespace);
         }
         else if (info.BaseType == IViewForBaseType.Maui)
         {
-            WriteMauiMembers(writer, info.ViewModelTypeName);
+            WriteMauiMembers(writer, info.ViewModelTypeName, viewNamespace);
         }
         else
         {
-            WriteDependencyPropertyMembers(writer, info);
+            WriteDependencyPropertyMembers(writer, info, viewNamespace);
         }
 
         return writer.CloseBlock()
@@ -184,8 +185,9 @@ public partial class IViewForGenerator
     /// <summary>Opens the view's partial declaration implementing <c>IViewFor</c>.</summary>
     /// <param name="writer">The writer, at the level of the view's declaration.</param>
     /// <param name="info">The generation model.</param>
+    /// <param name="viewNamespace">The qualified namespace declaring <c>IViewFor</c>.</param>
     /// <param name="includeSummary">Whether the declaration carries a summary doc comment.</param>
-    private static void WriteTypeDeclaration(SourceWriter writer, IViewForInfo info, bool includeSummary)
+    private static void WriteTypeDeclaration(SourceWriter writer, IViewForInfo info, string viewNamespace, bool includeSummary)
     {
         var target = info.TargetInfo;
         if (includeSummary)
@@ -200,13 +202,14 @@ public partial class IViewForGenerator
             _ = writer.Line(attribute);
         }
 
-        _ = writer.BeginPartialType(target).Append(" : IViewFor<").Append(info.ViewModelTypeName).Line(">").OpenBlock();
+        _ = writer.BeginPartialType(target).Append(" : ").Append(viewNamespace).Append(".IViewFor<").Append(info.ViewModelTypeName).Line(">").OpenBlock();
     }
 
     /// <summary>Writes the members of a WPF, WinUI or Uno view, backed by a dependency property.</summary>
     /// <param name="writer">The writer, at the level of the view's members.</param>
     /// <param name="info">The generation model.</param>
-    private static void WriteDependencyPropertyMembers(SourceWriter writer, IViewForInfo info)
+    /// <param name="viewNamespace">The qualified namespace declaring <c>IViewFor</c>.</param>
+    private static void WriteDependencyPropertyMembers(SourceWriter writer, IViewForInfo info, string viewNamespace)
     {
         var viewModelType = info.ViewModelTypeName;
         _ = writer.Lines("""
@@ -218,13 +221,14 @@ public partial class IViewForGenerator
             .Append("public static readonly DependencyProperty ViewModelProperty = DependencyProperty.Register(nameof(ViewModel), typeof(")
             .Append(viewModelType).Append("), typeof(").Append(info.TargetInfo.TargetName).Line("), new PropertyMetadata(null));")
             .BlankLine();
-        WriteViewModelMembers(writer, viewModelType, string.Empty);
+        WriteViewModelMembers(writer, viewModelType, string.Empty, viewNamespace);
     }
 
     /// <summary>Writes the members of a Windows Forms view, backed by an auto-property.</summary>
     /// <param name="writer">The writer, at the level of the view's members.</param>
     /// <param name="viewModelType">The view model's type name.</param>
-    private static void WriteWinFormsMembers(SourceWriter writer, string viewModelType) =>
+    /// <param name="viewNamespace">The qualified namespace declaring <c>IViewFor</c>.</param>
+    private static void WriteWinFormsMembers(SourceWriter writer, string viewModelType, string viewNamespace) =>
         _ = writer.Lines("""
                 /// <inheritdoc/>
                 [Category("ReactiveUI")]
@@ -236,12 +240,13 @@ public partial class IViewForGenerator
             .Append(PublicModifier).Append(viewModelType).Line("? ViewModel {get; set; }")
             .BlankLine()
             .InheritDoc()
-            .Append("object? IViewFor.ViewModel {get => ViewModel; set => ViewModel = (").Append(viewModelType).Line("? )value; }");
+            .Append("object? ").Append(viewNamespace).Append(".IViewFor.ViewModel {get => ViewModel; set => ViewModel = (").Append(viewModelType).Line("? )value; }");
 
     /// <summary>Writes the members of an Avalonia view, backed by a styled property kept in step with the data context.</summary>
     /// <param name="writer">The writer, at the level of the view's members.</param>
     /// <param name="info">The generation model.</param>
-    private static void WriteAvaloniaMembers(SourceWriter writer, IViewForInfo info)
+    /// <param name="viewNamespace">The qualified namespace declaring <c>IViewFor</c>.</param>
+    private static void WriteAvaloniaMembers(SourceWriter writer, IViewForInfo info, string viewNamespace)
     {
         var viewModelType = info.ViewModelTypeName;
         _ = writer.Lines("""
@@ -254,7 +259,7 @@ public partial class IViewForGenerator
             .Append("?> ViewModelProperty = AvaloniaProperty.Register<").Append(info.TargetInfo.TargetName).Append(", ").Append(viewModelType)
             .Line(">(nameof(ViewModel));")
             .BlankLine();
-        WriteViewModelMembers(writer, viewModelType, "?");
+        WriteViewModelMembers(writer, viewModelType, "?", viewNamespace);
         _ = writer.BlankLine()
             .Lines("""
                 protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -286,13 +291,14 @@ public partial class IViewForGenerator
     /// <summary>Writes the members of a MAUI view, backed by a bindable property kept in step with the binding context.</summary>
     /// <param name="writer">The writer, at the level of the view's members.</param>
     /// <param name="viewModelType">The view model's type name.</param>
-    private static void WriteMauiMembers(SourceWriter writer, string viewModelType)
+    /// <param name="viewNamespace">The qualified namespace declaring <c>IViewFor</c>.</param>
+    private static void WriteMauiMembers(SourceWriter writer, string viewModelType, string viewNamespace)
     {
         _ = writer.Append("public static readonly BindableProperty ViewModelProperty = BindableProperty.Create(nameof(ViewModel), typeof(")
-            .Append(viewModelType).Append("), typeof(IViewFor<").Append(viewModelType).Append(">), default(").Append(viewModelType)
+            .Append(viewModelType).Append("), typeof(").Append(viewNamespace).Append(".IViewFor<").Append(viewModelType).Append(">), default(").Append(viewModelType)
             .Line("), BindingMode.OneWay, propertyChanged: OnViewModelChanged);")
             .BlankLine();
-        WriteViewModelMembers(writer, viewModelType, "?");
+        WriteViewModelMembers(writer, viewModelType, "?", viewNamespace);
         _ = writer.BlankLine()
             .InheritDoc()
             .Line("protected override void OnBindingContextChanged()")
@@ -308,7 +314,8 @@ public partial class IViewForGenerator
     /// <param name="writer">The writer, at the level of the view's members.</param>
     /// <param name="viewModelType">The view model's type name.</param>
     /// <param name="nullableSuffix">The annotation after the view model type: <c>?</c>, or empty.</param>
-    private static void WriteViewModelMembers(SourceWriter writer, string viewModelType, string nullableSuffix) =>
+    /// <param name="viewNamespace">The qualified namespace declaring <c>IViewFor</c>.</param>
+    private static void WriteViewModelMembers(SourceWriter writer, string viewModelType, string nullableSuffix, string viewNamespace) =>
         _ = writer.Lines("""
                 /// <summary>
                 /// Gets the binding root view model.
@@ -321,5 +328,5 @@ public partial class IViewForGenerator
             .Line(")GetValue(ViewModelProperty); set => SetValue(ViewModelProperty, value); }")
             .BlankLine()
             .InheritDoc()
-            .Append("object? IViewFor.ViewModel { get => ViewModel; set => ViewModel = (").Append(viewModelType).Append(nullableSuffix).Line(")value; }");
+            .Append("object? ").Append(viewNamespace).Append(".IViewFor.ViewModel { get => ViewModel; set => ViewModel = (").Append(viewModelType).Append(nullableSuffix).Line(")value; }");
 }

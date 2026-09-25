@@ -236,7 +236,11 @@ now provides two features this package used to generate. They have been removed 
 | `RegisterViewsForViewModelsSourceGenerated()`, the `RegistrationType` and `ViewModelRegistrationType` options of `[IViewFor]`, and `SplatRegistrationType` | ReactiveUI.Binding's view locator, which registers views at compile time |
 | RXUISG0014, RXUISG0017 and the RXUISPR0002 suppression | Nothing: they only applied to `[ObservableAsProperty]` |
 
-`[IViewFor]` still generates the `ViewModel` property and the `IViewFor<T>` implementation for each UI platform.
+`[IViewFor]` still generates the `ViewModel` property and the `IViewFor<T>` implementation for each UI platform. It
+implements the `IViewFor<T>` of the ReactiveUI the project references: ReactiveUI's own on releases not built on
+ReactiveUI.Binding, otherwise `ReactiveUI.Binding.IViewFor<T>`, or `ReactiveUI.Binding.Reactive.IViewFor<T>` with
+ReactiveUI.Reactive. The interface is named in full, so no `using` for ReactiveUI.Binding is needed. The Windows Forms
+`[RoutedControlHost]` and `[ViewModelControlHost]` resolve views through the matching view locator.
 
 The ReactiveUI.Binding replacements need a ReactiveUI release built on ReactiveUI.Binding. ReactiveUI 24.3 and earlier
 are not: there, ReactiveUI's own `ObservableAsPropertyHelper<T>` and `IViewFor<T>` are the ones in use, so

@@ -40,13 +40,14 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
             .GroupByTarget(static info => info.TargetInfo)
             .WithTrackingName(TrackingNames.ViewForTypes);
 
-        // View registration is not generated here: ReactiveUI.Binding's view locator registers every IViewFor<T>.
-        context.RegisterSourceOutput(types, static (context, infos) =>
+        // View registration is not generated here; ReactiveUI.Binding's view locator registers views. The interface is
+        // named in full from the compilation's references, so it binds without a using for ReactiveUI.Binding.
+        context.RegisterSourceOutput(types.Combine(context.ReactiveUiIntegration()), static (context, input) =>
         {
-            var info = infos[0];
+            var info = input.Left[0];
 
             // Only a supported UI framework base type gets a source.
-            if (GenerateSource(info) is not { } source)
+            if (GenerateSource(info, input.Right.ViewNamespace) is not { } source)
             {
                 return;
             }

@@ -118,8 +118,9 @@ public partial class RoutedControlHostGenerator
             .OpenBlock();
 
         WriteConstructor(writer, info.TargetName, exceptionHandler);
-        WriteProperties(writer.BlankLine());
-        WriteRouting(writer.BlankLine());
+        WriteProperties(writer.BlankLine(), integration);
+        WriteDispose(writer.BlankLine());
+        WriteRouting(writer.BlankLine(), integration);
         WriteObservableHelpers(writer.BlankLine());
         WriteCombineLatestSubscription(writer.BlankLine());
         WriteDisposableCollection(writer.BlankLine());
@@ -199,7 +200,8 @@ public partial class RoutedControlHostGenerator
 
     /// <summary>Writes the host's events and properties, and its <c>IReactiveObject</c> implementation.</summary>
     /// <param name="writer">The writer, at the level of the host's members.</param>
-    private static void WriteProperties(SourceWriter writer) =>
+    /// <param name="integration">The detected ReactiveUI integration, which names the view locator's interface.</param>
+    private static void WriteProperties(SourceWriter writer, ReactiveUiIntegration integration) =>
         _ = writer.Lines("""
             /// <inheritdoc/>
             public event PropertyChangingEventHandler? PropertyChanging;
@@ -234,8 +236,10 @@ public partial class RoutedControlHostGenerator
             /// Gets or sets the view locator.
             /// </summary>
             [Browsable(false)]
-            public IViewLocator? ViewLocator { get; set; }
-
+            """)
+            .Append("public ").Append(integration.ViewNamespace).Line(".IViewLocator? ViewLocator { get; set; }")
+            .BlankLine()
+            .Lines("""
             /// <inheritdoc/>
             void IReactiveObject.RaisePropertyChanging(PropertyChangingEventArgs args) => PropertyChanging?.Invoke(this, args);
 
@@ -243,9 +247,9 @@ public partial class RoutedControlHostGenerator
             void IReactiveObject.RaisePropertyChanged(PropertyChangedEventArgs args) => PropertyChanged?.Invoke(this, args);
             """);
 
-    /// <summary>Writes the host's disposal and the methods that swap the routed view in and out.</summary>
+    /// <summary>Writes the host's disposal.</summary>
     /// <param name="writer">The writer, at the level of the host's members.</param>
-    private static void WriteRouting(SourceWriter writer) =>
+    private static void WriteDispose(SourceWriter writer) =>
         _ = writer.Lines("""
             /// <summary>
             /// Clean up any resources being used.
@@ -263,7 +267,13 @@ public partial class RoutedControlHostGenerator
 
                 base.Dispose(disposing);
             }
+            """);
 
+    /// <summary>Writes the methods that swap the routed view in and out.</summary>
+    /// <param name="writer">The writer, at the level of the host's members.</param>
+    /// <param name="integration">The detected ReactiveUI integration, which names the current view locator.</param>
+    private static void WriteRouting(SourceWriter writer, ReactiveUiIntegration integration) =>
+        _ = writer.Lines("""
             private void UpdateRoutedContent(IRoutableViewModel? viewModel, string contract)
             {
                 SuspendLayout();
@@ -282,8 +292,12 @@ public partial class RoutedControlHostGenerator
 
                         return;
                     }
-
-                    var viewLocator = ViewLocator ?? ReactiveUI.ViewLocator.Current;
+            """)
+            .BlankLine()
+            .Indent().Indent()
+            .Append("var viewLocator = ViewLocator ?? ").Append(integration.CurrentViewLocator).EndStatement()
+            .Outdent().Outdent()
+            .Lines("""
                     var view = viewLocator.ResolveView(viewModel, contract);
                     if (view is not null)
                     {

@@ -16,7 +16,7 @@ namespace TestNs
             /// Partial class for the NestedView which contains ReactiveUI IViewFor initialization.
             /// </summary>
             [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-            public partial class NestedView : IViewFor<TestNs.TestViewModel>
+            public partial class NestedView : global::ReactiveUI.IViewFor<TestNs.TestViewModel>
             {
                 /// <summary>
                 /// The view model dependency property.
@@ -32,7 +32,7 @@ namespace TestNs
                 public TestNs.TestViewModel ViewModel { get => (TestNs.TestViewModel)GetValue(ViewModelProperty); set => SetValue(ViewModelProperty, value); }
 
                 /// <inheritdoc/>
-                object? IViewFor.ViewModel { get => ViewModel; set => ViewModel = (TestNs.TestViewModel)value; }
+                object? global::ReactiveUI.IViewFor.ViewModel { get => ViewModel; set => ViewModel = (TestNs.TestViewModel)value; }
             }
         }
     }

@@ -12,7 +12,7 @@ namespace Views
     /// Partial class for the ProductView which contains ReactiveUI IViewFor initialization.
     /// </summary>
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public partial class ProductView : IViewFor<ViewModels.ProductViewModel>
+    public partial class ProductView : global::ReactiveUI.IViewFor<ViewModels.ProductViewModel>
     {
         /// <summary>
         /// The view model dependency property.
@@ -28,7 +28,7 @@ namespace Views
         public ViewModels.ProductViewModel ViewModel { get => (ViewModels.ProductViewModel)GetValue(ViewModelProperty); set => SetValue(ViewModelProperty, value); }
 
         /// <inheritdoc/>
-        object? IViewFor.ViewModel { get => ViewModel; set => ViewModel = (ViewModels.ProductViewModel)value; }
+        object? global::ReactiveUI.IViewFor.ViewModel { get => ViewModel; set => ViewModel = (ViewModels.ProductViewModel)value; }
     }
 }
 #nullable restore

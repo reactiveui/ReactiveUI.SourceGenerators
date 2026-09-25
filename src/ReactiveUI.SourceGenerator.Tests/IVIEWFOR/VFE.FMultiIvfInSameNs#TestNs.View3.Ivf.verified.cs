@@ -12,7 +12,7 @@ namespace TestNs
     /// Partial class for the View3 which contains ReactiveUI IViewFor initialization.
     /// </summary>
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public partial class View3 : IViewFor<TestNs.ViewModel3>
+    public partial class View3 : global::ReactiveUI.IViewFor<TestNs.ViewModel3>
     {
         /// <summary>
         /// The view model dependency property.
@@ -28,7 +28,7 @@ namespace TestNs
         public TestNs.ViewModel3 ViewModel { get => (TestNs.ViewModel3)GetValue(ViewModelProperty); set => SetValue(ViewModelProperty, value); }
 
         /// <inheritdoc/>
-        object? IViewFor.ViewModel { get => ViewModel; set => ViewModel = (TestNs.ViewModel3)value; }
+        object? global::ReactiveUI.IViewFor.ViewModel { get => ViewModel; set => ViewModel = (TestNs.ViewModel3)value; }
     }
 }
 #nullable restore

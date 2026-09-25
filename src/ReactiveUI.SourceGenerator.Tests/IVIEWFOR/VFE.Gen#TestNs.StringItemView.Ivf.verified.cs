@@ -12,7 +12,7 @@ namespace TestNs
     /// Partial class for the StringItemView which contains ReactiveUI IViewFor initialization.
     /// </summary>
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public partial class StringItemView : IViewFor<TestNs.GenericViewModel<string>>
+    public partial class StringItemView : global::ReactiveUI.IViewFor<TestNs.GenericViewModel<string>>
     {
         /// <summary>
         /// The view model dependency property.
@@ -28,7 +28,7 @@ namespace TestNs
         public TestNs.GenericViewModel<string> ViewModel { get => (TestNs.GenericViewModel<string>)GetValue(ViewModelProperty); set => SetValue(ViewModelProperty, value); }
 
         /// <inheritdoc/>
-        object? IViewFor.ViewModel { get => ViewModel; set => ViewModel = (TestNs.GenericViewModel<string>)value; }
+        object? global::ReactiveUI.IViewFor.ViewModel { get => ViewModel; set => ViewModel = (TestNs.GenericViewModel<string>)value; }
     }
 }
 #nullable restore
