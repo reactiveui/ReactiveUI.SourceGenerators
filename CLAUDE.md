@@ -121,6 +121,15 @@ Initialize()
        └─ RegisterSourceOutput → GenerateSource() → AddSource()
 ```
 
+**Fast paths:**
+- Find attributed targets with `ForAttributeWithMetadataName`; benchmarks show it allocates less than a syntax
+  provider, cold and incrementally. A generic attribute is registered by its arity name (``IViewForAttribute`1``).
+- Reject nodes in the syntax predicate before any binding: node kind, parent shape, `partial` modifier.
+- In the transform, read `context.Attributes[0]` rather than searching the symbol's attributes again, and ask for
+  semantic information only when syntax says it can exist (documentation only when the node has a doc comment).
+- Group models per type with `GroupByTarget` and register one source output per type, so an edit rewrites only the
+  types whose models changed. Tag steps with `TrackingNames`; `IncrementalCachingTests` asserts what is reused.
+
 **Incremental caching rules:**
 - All pipeline output models must implement value equality (`record`, `IEquatable<T>`, or `EquatableArray<T>`).
 - Never store `ISymbol`, `SyntaxNode`, `SemanticModel`, or `CancellationToken` in a model.
@@ -226,12 +235,15 @@ dotnet test src/ReactiveUI.SourceGenerator.Tests --configuration Release
 ```pwsh
 cd src/benchmarks/ReactiveUI.SourceGenerators.Benchmarks
 dotnet run -c Release -- --smoke                      # every corpus generates and compiles
-dotnet run -c Release -- --filter '*' --artifacts <dir>
-dotnet run ~/source/rxui/tools/nettrace-analyzer.cs -- --top 40 <dir>/*.nettrace
+dotnet run -c Release -- --eventpipe <dir>            # bytes per run from GCAllocationTick, one trace per scenario
+dotnet run -c Release -- --eventpipe-discovery <dir>  # attribute discovery strategies against each other
+cd ../ReactiveUI.SourceGenerators.Runtime.Benchmarks
+dotnet run -c Release -- --eventpipe <dir>            # the generated code, as an app runs it
+dotnet run ~/source/rxui/tools/nettrace-analyzer.cs -- --top 40 <dir>/<scenario>.nettrace
 ```
 
-Each run records an EventPipe trace per corpus; its AllocationTick events give the allocated types, sites and
-inclusive frames. Set `BENCHMARK_PROFILERS=false` for timings only.
+Report allocation figures from the EventPipe traces, not the memory diagnoser, and compare a change against the
+previous commit with the same harness. `src/benchmarks/README.md` has the method and the current figures.
 
 ### Building
 
