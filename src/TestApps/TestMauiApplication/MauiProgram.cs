@@ -1,37 +1,31 @@
-// Copyright (c) 2024 .NET Foundation and Contributors. All rights reserved.
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
+// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using Microsoft.Extensions.Logging;
 
-namespace MauiApp1
+namespace MauiApp1;
+
+/// <summary>Builds and configures the MAUI application.</summary>
+public static class MauiProgram
 {
-    /// <summary>
-    /// MauiProgram.
-    /// </summary>
-    public static class MauiProgram
+    /// <summary>Creates the MAUI application.</summary>
+    /// <returns>The configured <see cref="MauiApp"/>.</returns>
+    public static MauiApp CreateMauiApp()
     {
-        /// <summary>
-        /// Creates the maui application.
-        /// </summary>
-        /// <returns>MauiApp.</returns>
-        public static MauiApp CreateMauiApp()
-        {
-            var builder = MauiApp.CreateBuilder();
-            builder
-                .UseMauiApp<App>()
-                .ConfigureFonts(fonts =>
-                {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-                });
+        var builder = MauiApp.CreateBuilder();
+        _ = builder
+            .UseMauiApp<App>()
+            .ConfigureFonts(static fonts =>
+            {
+                _ = fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                _ = fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+            });
 
 #if DEBUG
-            builder.Logging.AddDebug();
+        _ = builder.Logging.AddDebug();
 #endif
 
-            return builder.Build();
-        }
+        return builder.Build();
     }
 }
