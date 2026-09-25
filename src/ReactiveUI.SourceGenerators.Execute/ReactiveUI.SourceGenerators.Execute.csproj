@@ -9,7 +9,8 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <LangVersion>preview</LangVersion>
-    <NoWarn>$(NoWarn);CA1812</NoWarn>
+    <!-- SST1449: the sample reports what the generated members do on the console. -->
+    <NoWarn>$(NoWarn);CA1812;SST1449</NoWarn>
     <ExcludeFromCodeCoverage>true</ExcludeFromCodeCoverage>
     <PackageDescription>A MVVM framework that integrates with the Reactive Extensions for .NET to create elegant, testable User Interfaces that run on any mobile or desktop platform. This is the Source Generators package for ReactiveUI</PackageDescription>
   </PropertyGroup>

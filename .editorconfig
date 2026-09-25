@@ -1429,6 +1429,7 @@ dotnet_diagnostic.SST1522.severity = error # A file has more code lines than the
 dotnet_diagnostic.SST1523.severity = error # A member has more code lines than the configured maximum (default 60)
 dotnet_diagnostic.SST1524.severity = error # A switch section has more code lines than the configured maximum (default 20)
 dotnet_diagnostic.SST1525.severity = error # A multi-statement `switch` section has no braces; the braces-on policy extends to switch sections. Code fix wraps it.
+dotnet_diagnostic.SST1534.severity = none # Switch braces that scope nothing — conflicts with SST1525's braces-on policy
 dotnet_diagnostic.SST1526.severity = error # A wrapped binary expression places the operator inconsistently. Configurable (`before`/`after`, default before). Opt-in.
 dotnet_diagnostic.SST1527.severity = error # The `=>` of an expression-bodied member wraps inconsistently. Configurable. Opt-in.
 dotnet_diagnostic.SST1528.severity = error # The `=` of a wrapped initializer wraps inconsistently. Configurable. Opt-in.

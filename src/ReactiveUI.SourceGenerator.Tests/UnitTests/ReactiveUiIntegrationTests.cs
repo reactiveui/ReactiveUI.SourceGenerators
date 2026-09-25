@@ -930,11 +930,9 @@ public sealed class ReactiveUiIntegrationTests
     private static int CountOccurrences(string source, string value)
     {
         var count = 0;
-        var startIndex = 0;
-        while ((startIndex = source.IndexOf(value, startIndex, StringComparison.Ordinal)) >= 0)
+        for (var startIndex = source.IndexOf(value, StringComparison.Ordinal); startIndex >= 0; startIndex = source.IndexOf(value, startIndex + value.Length, StringComparison.Ordinal))
         {
             count++;
-            startIndex += value.Length;
         }
 
         return count;

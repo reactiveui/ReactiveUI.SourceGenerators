@@ -380,7 +380,7 @@ public sealed class AttributeDataExtensionTests
         var compilation = CreateCompilation(source);
         var classDeclaration = await GetClassDeclaration(compilation);
         var semanticModel = compilation.GetSemanticModel(classDeclaration.SyntaxTree);
-        var typeSymbol = (INamedTypeSymbol)compilation.GetTypeByMetadataName("T.C")!;
+        var typeSymbol = compilation.GetTypeByMetadataName("T.C")!;
         AttributeData? triggerAttr = null;
         foreach (var candidate in typeSymbol.GetAttributes())
         {

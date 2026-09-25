@@ -3,7 +3,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
     <CodeAnalysisVersion>4.14.0</CodeAnalysisVersion>
-    <RoslynCommonAnalyzersVersion>3.40.2</RoslynCommonAnalyzersVersion>
+    <RoslynCommonAnalyzersVersion>5.1.2</RoslynCommonAnalyzersVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.401" />
@@ -20,24 +20,23 @@
     <PackageVersion Include="Microsoft.CodeAnalysis.Common" Version="$(CodeAnalysisVersion)" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(CodeAnalysisVersion)" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="$(CodeAnalysisVersion)" />
-    <PackageVersion Include="PolySharp" Version="1.16.0" />
-    <PackageVersion Include="Avalonia" Version="12.1.2" />
-    <PackageVersion Include="Avalonia.Themes.Fluent" Version="12.1.2" />
-    <PackageVersion Include="Avalonia.Fonts.Inter" Version="12.1.2" />
+    <PackageVersion Include="Avalonia" Version="12.1.3" />
+    <PackageVersion Include="Avalonia.Themes.Fluent" Version="12.1.3" />
+    <PackageVersion Include="Avalonia.Fonts.Inter" Version="12.1.3" />
     <PackageVersion Include="ReactiveUI.Avalonia" Version="12.1.2" />
     <PackageVersion Include="Avalonia.Diagnostics" Version="11.3.22" />
-    <PackageVersion Include="Avalonia.Desktop" Version="12.1.2" />
+    <PackageVersion Include="Avalonia.Desktop" Version="12.1.3" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.12" />
     <PackageVersion Include="DynamicData" Version="9.4.33" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
     <PackageVersion Include="System.Formats.Asn1" Version="10.0.12" />
     <PackageVersion Include="PublicApiGenerator" Version="11.5.4" />
     <PackageVersion Include="Splat" Version="21.0.0" />
-    <PackageVersion Include="ReactiveUI" Version="24.2.0" />
-    <PackageVersion Include="ReactiveUI.Reactive" Version="24.2.0" />
-    <PackageVersion Include="ReactiveUI.Maui" Version="24.2.0" />
+    <PackageVersion Include="ReactiveUI" Version="24.3.0" />
+    <PackageVersion Include="ReactiveUI.Reactive" Version="24.3.0" />
+    <PackageVersion Include="ReactiveUI.Maui" Version="24.3.0" />
     <PackageVersion Include="System.Reactive" Version="7.0.0" />
-    <PackageVersion Include="TUnit" Version="1.61.38" />
+    <PackageVersion Include="TUnit" Version="1.69.16" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.16.0-preview.2" />
   </ItemGroup>
 </Project>

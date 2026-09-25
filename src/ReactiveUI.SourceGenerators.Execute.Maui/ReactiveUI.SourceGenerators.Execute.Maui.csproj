@@ -8,6 +8,8 @@
     <IsPackable>false</IsPackable>
     <LangVersion>latest</LangVersion>
     <ExcludeFromCodeCoverage>true</ExcludeFromCodeCoverage>
+    <!-- SST1449: the sample reports what the generated members do on the console. -->
+    <NoWarn>$(NoWarn);SST1449</NoWarn>
 
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">12.2</SupportedOSPlatformVersion>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
