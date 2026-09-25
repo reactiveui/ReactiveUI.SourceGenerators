@@ -40,14 +40,7 @@ public sealed partial class RoutedControlHostGenerator : IIncrementalGenerator
         {
             foreach (var info in input.Left)
             {
-                var source = GetRoutedControlHost(
-                    info.TargetName,
-                    info.TargetNamespace,
-                    info.TargetVisibility,
-                    info.TargetType,
-                    info,
-                    input.Right);
-                context.AddSource($"{info.FileHintName}.RoutedControlHost.g.cs", source);
+                context.AddSource($"{info.FileHintName}.RoutedControlHost.g.cs", GenerateSource(info, input.Right));
             }
         });
     }
