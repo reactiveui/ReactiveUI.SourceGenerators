@@ -7,9 +7,8 @@ using ReactiveUI;
 
 namespace TestNs
 {
-        public partial class TestVM
+    public partial class TestVM
     {
-        
         /// <inheritdoc cref="_status"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::TestNs.Status Status
@@ -20,7 +19,7 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _status, value);
             }
         }
-        
+
         /// <inheritdoc cref="_nullableStatus"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::TestNs.Status? NullableStatus
@@ -31,7 +30,7 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _nullableStatus, value);
             }
         }
-        
+
         /// <inheritdoc cref="_permissions"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::TestNs.Permissions Permissions

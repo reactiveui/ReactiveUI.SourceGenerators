@@ -90,7 +90,7 @@ public sealed partial class ReactiveGenerator : IIncrementalGenerator
 
             foreach (var grouping in groupedPropertyInfo)
             {
-                var source = GenerateSource(grouping.Key.TargetName, grouping.Key.TargetNamespace, grouping.Key.TargetVisibility, grouping.Key.TargetType, grouping.Value.ToArray(), input.Right);
+                var source = GenerateSource(grouping.Value, input.Right);
                 context.AddSource($"{grouping.Key.FileHintName}.Properties.g.cs", source);
             }
         });
@@ -149,7 +149,7 @@ public sealed partial class ReactiveGenerator : IIncrementalGenerator
 
             foreach (var grouping in groupedPropertyInfo)
             {
-                var source = GenerateSource(grouping.Key.TargetName, grouping.Key.TargetNamespace, grouping.Key.TargetVisibility, grouping.Key.TargetType, grouping.Value.ToArray(), input.Right);
+                var source = GenerateSource(grouping.Value, input.Right);
                 context.AddSource($"{grouping.Key.FileHintName}.PartialProperties.g.cs", source);
             }
         });

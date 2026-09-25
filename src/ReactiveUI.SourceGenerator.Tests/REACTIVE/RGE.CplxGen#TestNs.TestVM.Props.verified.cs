@@ -7,13 +7,12 @@ using ReactiveUI;
 
 namespace TestNs
 {
-        public partial class TestVM
+    public partial class TestVM
     {
-        
         /// <inheritdoc cref="_nestedGenerics"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Collections.Generic.Dictionary<string, global::System.Collections.Generic.List<int>>? NestedGenerics
-        { 
+        {
             get => _nestedGenerics;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_nestedGenerics")]
             set
@@ -21,11 +20,11 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _nestedGenerics, value);
             }
         }
-        
+
         /// <inheritdoc cref="_readOnlyNestedGenerics"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Collections.Generic.IReadOnlyDictionary<string, global::System.Collections.Generic.IReadOnlyList<string>>? ReadOnlyNestedGenerics
-        { 
+        {
             get => _readOnlyNestedGenerics;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_readOnlyNestedGenerics")]
             set
@@ -33,11 +32,11 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _readOnlyNestedGenerics, value);
             }
         }
-        
+
         /// <inheritdoc cref="_complexFunc"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Func<global::System.Collections.Generic.Dictionary<int, global::System.Collections.Generic.List<string>>, bool>? ComplexFunc
-        { 
+        {
             get => _complexFunc;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_complexFunc")]
             set

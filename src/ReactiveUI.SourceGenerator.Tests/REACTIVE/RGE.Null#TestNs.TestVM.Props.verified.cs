@@ -7,9 +7,8 @@ using ReactiveUI;
 
 namespace TestNs
 {
-        public partial class TestVM
+    public partial class TestVM
     {
-        
         /// <inheritdoc cref="_nullableInt"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int? NullableInt
@@ -20,7 +19,7 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _nullableInt, value);
             }
         }
-        
+
         /// <inheritdoc cref="_nullableDateTime"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.DateTime? NullableDateTime
@@ -31,7 +30,7 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _nullableDateTime, value);
             }
         }
-        
+
         /// <inheritdoc cref="_nullableGuid"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Guid? NullableGuid
@@ -42,7 +41,7 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _nullableGuid, value);
             }
         }
-        
+
         /// <inheritdoc cref="_nullableDecimal"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public decimal? NullableDecimal

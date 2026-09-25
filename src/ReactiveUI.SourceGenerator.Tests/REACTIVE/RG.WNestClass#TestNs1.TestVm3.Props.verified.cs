@@ -7,9 +7,8 @@ using ReactiveUI;
 
 namespace TestNs1
 {
-        public partial class TestViewModel3
+    public partial class TestViewModel3
     {
-        
         /// <inheritdoc cref="_testVM3Property"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public float TestVM3Property
@@ -20,7 +19,7 @@ namespace TestNs1
                 this.RaiseAndSetIfChanged(ref _testVM3Property, value);
             }
         }
-        
+
         /// <inheritdoc cref="_testVM3Property2"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public float TestVM3Property2

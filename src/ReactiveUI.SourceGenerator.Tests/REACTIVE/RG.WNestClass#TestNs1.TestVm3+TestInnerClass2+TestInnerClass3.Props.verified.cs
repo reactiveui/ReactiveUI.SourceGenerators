@@ -8,37 +8,35 @@ using ReactiveUI;
 namespace TestNs1
 {
     public partial class TestViewModel3
-{
-public partial class TestInnerClass2
-{
-    public partial class TestInnerClass3
     {
-        
-        /// <inheritdoc cref="_testInner3"/>
-        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        public int TestInner3
+        public partial class TestInnerClass2
         {
-            get => _testInner3;
-            set
+            public partial class TestInnerClass3
             {
-                this.RaiseAndSetIfChanged(ref _testInner3, value);
-            }
-        }
-        
-        /// <inheritdoc cref="_testInner33"/>
-        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        public int TestInner33
-        {
-            get => _testInner33;
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _testInner33, value);
+                /// <inheritdoc cref="_testInner3"/>
+                [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+                public int TestInner3
+                {
+                    get => _testInner3;
+                    set
+                    {
+                        this.RaiseAndSetIfChanged(ref _testInner3, value);
+                    }
+                }
+
+                /// <inheritdoc cref="_testInner33"/>
+                [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+                public int TestInner33
+                {
+                    get => _testInner33;
+                    set
+                    {
+                        this.RaiseAndSetIfChanged(ref _testInner33, value);
+                    }
+                }
             }
         }
     }
-}
-}
-
 }
 #nullable restore
 #pragma warning restore

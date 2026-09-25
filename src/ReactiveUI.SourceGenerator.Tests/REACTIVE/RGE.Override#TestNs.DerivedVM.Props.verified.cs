@@ -7,13 +7,12 @@ using ReactiveUI;
 
 namespace TestNs
 {
-        public partial class DerivedVM
+    public partial class DerivedVM
     {
-        
         /// <inheritdoc cref="_baseName"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public override string? BaseName
-        { 
+        {
             get => _baseName;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_baseName")]
             set

@@ -7,13 +7,12 @@ using ReactiveUI;
 
 namespace TestNs
 {
-        public partial class TestVM
+    public partial class TestVM
     {
-        
         /// <inheritdoc cref="_lazyString"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Lazy<string>? LazyString
-        { 
+        {
             get => _lazyString;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_lazyString")]
             set
@@ -21,11 +20,11 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _lazyString, value);
             }
         }
-        
+
         /// <inheritdoc cref="_lazyInt"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Lazy<int>? LazyInt
-        { 
+        {
             get => _lazyInt;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_lazyInt")]
             set

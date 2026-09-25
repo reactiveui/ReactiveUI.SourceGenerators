@@ -8,26 +8,24 @@ using ReactiveUI;
 namespace TestNs
 {
     public partial class Level1
-{
-public partial class Level2
-{
-    public partial class Level3
     {
-        
-        /// <inheritdoc cref="_level3Prop"/>
-        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        public int Level3Prop
+        public partial class Level2
         {
-            get => _level3Prop;
-            set
+            public partial class Level3
             {
-                this.RaiseAndSetIfChanged(ref _level3Prop, value);
+                /// <inheritdoc cref="_level3Prop"/>
+                [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+                public int Level3Prop
+                {
+                    get => _level3Prop;
+                    set
+                    {
+                        this.RaiseAndSetIfChanged(ref _level3Prop, value);
+                    }
+                }
             }
         }
     }
-}
-}
-
 }
 #nullable restore
 #pragma warning restore

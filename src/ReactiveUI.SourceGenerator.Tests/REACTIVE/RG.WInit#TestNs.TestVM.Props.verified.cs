@@ -7,9 +7,8 @@ using ReactiveUI;
 
 namespace TestNs
 {
-        public partial class TestVM
+    public partial class TestVM
     {
-        
         /// <inheritdoc cref="_mustBeSet"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public required string MustBeSet

@@ -7,9 +7,8 @@ using ReactiveUI;
 
 namespace TestNs
 {
-        public partial class Level1
+    public partial class Level1
     {
-        
         /// <inheritdoc cref="_level1Prop"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int Level1Prop

@@ -7,13 +7,12 @@ using ReactiveUI;
 
 namespace TestNs
 {
-        public partial class DerivedVM
+    public partial class DerivedVM
     {
-        
         /// <inheritdoc cref="_shadowedProp"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public new string? ShadowedProp
-        { 
+        {
             get => _shadowedProp;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_shadowedProp")]
             set

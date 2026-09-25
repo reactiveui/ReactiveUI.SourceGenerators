@@ -7,13 +7,12 @@ using ReactiveUI;
 
 namespace TestNs
 {
-        public partial class TestVM
+    public partial class TestVM
     {
-        
         /// <inheritdoc cref="_bytes"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public byte[]? Bytes
-        { 
+        {
             get => _bytes;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_bytes")]
             set
@@ -21,11 +20,11 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _bytes, value);
             }
         }
-        
+
         /// <inheritdoc cref="_strings"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public string[]? Strings
-        { 
+        {
             get => _strings;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_strings")]
             set
@@ -33,11 +32,11 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _strings, value);
             }
         }
-        
+
         /// <inheritdoc cref="_jaggedArray"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int[][]? JaggedArray
-        { 
+        {
             get => _jaggedArray;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_jaggedArray")]
             set

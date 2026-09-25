@@ -7,13 +7,12 @@ using ReactiveUI;
 
 namespace TestNs
 {
-        public partial class TestVM
+    public partial class TestVM
     {
-        
         /// <inheritdoc cref="_publicSet"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public string? PublicSet
-        { 
+        {
             get => _publicSet;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_publicSet")]
             set
@@ -21,11 +20,11 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _publicSet, value);
             }
         }
-        
+
         /// <inheritdoc cref="_protectedSet"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public string? ProtectedSet
-        { 
+        {
             get => _protectedSet;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_protectedSet")]
             protected set
@@ -33,11 +32,11 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _protectedSet, value);
             }
         }
-        
+
         /// <inheritdoc cref="_internalSet"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public string? InternalSet
-        { 
+        {
             get => _internalSet;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_internalSet")]
             internal set
@@ -45,11 +44,11 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _internalSet, value);
             }
         }
-        
+
         /// <inheritdoc cref="_privateSet"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public string? PrivateSet
-        { 
+        {
             get => _privateSet;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_privateSet")]
             private set
@@ -57,11 +56,11 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _privateSet, value);
             }
         }
-        
+
         /// <inheritdoc cref="_internalProtectedSet"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public string? InternalProtectedSet
-        { 
+        {
             get => _internalProtectedSet;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_internalProtectedSet")]
             protected internal set
@@ -69,11 +68,11 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _internalProtectedSet, value);
             }
         }
-        
+
         /// <inheritdoc cref="_privateProtectedSet"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public string? PrivateProtectedSet
-        { 
+        {
             get => _privateProtectedSet;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_privateProtectedSet")]
             private protected set

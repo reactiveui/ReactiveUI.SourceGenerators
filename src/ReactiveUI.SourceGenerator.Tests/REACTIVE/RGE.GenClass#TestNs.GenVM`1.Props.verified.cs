@@ -7,13 +7,12 @@ using ReactiveUI;
 
 namespace TestNs
 {
-        public partial class GenericVM<T>
+    public partial class GenericVM<T>
     {
-        
         /// <inheritdoc cref="_item"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public T? Item
-        { 
+        {
             get => _item;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_item")]
             set
@@ -21,7 +20,7 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _item, value);
             }
         }
-        
+
         /// <inheritdoc cref="_count"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int Count

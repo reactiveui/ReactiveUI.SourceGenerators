@@ -7,13 +7,12 @@ using ReactiveUI;
 
 namespace TestNs
 {
-        public partial record TestVMRecord
+    public partial record TestVMRecord
     {
-        
         /// <inheritdoc cref="_name"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public string? Name
-        { 
+        {
             get => _name;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_name")]
             set
@@ -21,7 +20,7 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _name, value);
             }
         }
-        
+
         /// <inheritdoc cref="_age"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public int Age

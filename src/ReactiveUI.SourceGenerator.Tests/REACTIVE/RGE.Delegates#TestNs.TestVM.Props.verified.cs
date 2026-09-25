@@ -7,13 +7,12 @@ using ReactiveUI;
 
 namespace TestNs
 {
-        public partial class TestVM
+    public partial class TestVM
     {
-        
         /// <inheritdoc cref="_action"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Action? Action
-        { 
+        {
             get => _action;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_action")]
             set
@@ -21,11 +20,11 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _action, value);
             }
         }
-        
+
         /// <inheritdoc cref="_func"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Func<int, string>? Func
-        { 
+        {
             get => _func;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_func")]
             set
@@ -33,11 +32,11 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _func, value);
             }
         }
-        
+
         /// <inheritdoc cref="_handler"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.EventHandler? Handler
-        { 
+        {
             get => _handler;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_handler")]
             set

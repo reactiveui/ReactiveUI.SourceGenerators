@@ -7,9 +7,8 @@ using ReactiveUI;
 
 namespace TestNs
 {
-        public partial class TestVM
+    public partial class TestVM
     {
-        
         /// <inheritdoc cref="_point"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::TestNs.ImmutablePoint Point
@@ -20,7 +19,7 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _point, value);
             }
         }
-        
+
         /// <inheritdoc cref="_optionalPoint"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::TestNs.ImmutablePoint? OptionalPoint

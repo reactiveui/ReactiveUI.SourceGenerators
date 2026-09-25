@@ -7,13 +7,12 @@ using ReactiveUI;
 
 namespace TestNs
 {
-        public partial class GenericVM<TKey, TValue>
+    public partial class GenericVM<TKey, TValue>
     {
-        
         /// <inheritdoc cref="_key"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public TKey? Key
-        { 
+        {
             get => _key;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_key")]
             set
@@ -21,11 +20,11 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _key, value);
             }
         }
-        
+
         /// <inheritdoc cref="_value"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public TValue? Value
-        { 
+        {
             get => _value;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_value")]
             set

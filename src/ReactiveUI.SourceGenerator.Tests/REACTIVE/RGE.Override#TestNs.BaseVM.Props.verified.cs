@@ -7,13 +7,12 @@ using ReactiveUI;
 
 namespace TestNs
 {
-        public partial class BaseVM
+    public partial class BaseVM
     {
-        
         /// <inheritdoc cref="_baseName"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public virtual string? BaseName
-        { 
+        {
             get => _baseName;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_baseName")]
             set

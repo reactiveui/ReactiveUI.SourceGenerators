@@ -7,9 +7,8 @@ using ReactiveUI;
 
 namespace TestNs
 {
-        public partial class TestVM
+    public partial class TestVM
     {
-        
         /// <inheritdoc cref="_duration"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.TimeSpan Duration
@@ -20,7 +19,7 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _duration, value);
             }
         }
-        
+
         /// <inheritdoc cref="_optionalDuration"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.TimeSpan? OptionalDuration
@@ -31,7 +30,7 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _optionalDuration, value);
             }
         }
-        
+
         /// <inheritdoc cref="_timestamp"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.DateTimeOffset Timestamp
@@ -42,7 +41,7 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _timestamp, value);
             }
         }
-        
+
         /// <inheritdoc cref="_optionalTimestamp"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.DateTimeOffset? OptionalTimestamp
@@ -53,7 +52,7 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _optionalTimestamp, value);
             }
         }
-        
+
         /// <inheritdoc cref="_timeOnly"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.TimeOnly TimeOnly
@@ -64,7 +63,7 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _timeOnly, value);
             }
         }
-        
+
         /// <inheritdoc cref="_dateOnly"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.DateOnly DateOnly

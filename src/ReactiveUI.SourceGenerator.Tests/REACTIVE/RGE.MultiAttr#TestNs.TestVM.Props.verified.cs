@@ -7,16 +7,15 @@ using ReactiveUI;
 
 namespace TestNs
 {
-        public partial class TestVM
+    public partial class TestVM
     {
-        
         /// <inheritdoc cref="_userName"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         [global::System.Runtime.Serialization.DataMemberAttribute(Name="userName")]
         [global::System.Text.Json.Serialization.JsonIncludeAttribute()]
         [global::System.Text.Json.Serialization.JsonPropertyNameAttribute("user_name")]
         public string? UserName
-        { 
+        {
             get => _userName;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_userName")]
             set
@@ -24,13 +23,13 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _userName, value);
             }
         }
-        
+
         /// <inheritdoc cref="_password"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         [global::System.Runtime.Serialization.IgnoreDataMemberAttribute()]
         [global::System.Text.Json.Serialization.JsonIgnoreAttribute()]
         public string? Password
-        { 
+        {
             get => _password;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_password")]
             set

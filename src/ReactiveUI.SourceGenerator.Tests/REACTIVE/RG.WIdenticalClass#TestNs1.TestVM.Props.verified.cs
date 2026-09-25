@@ -7,15 +7,14 @@ using ReactiveUI;
 
 namespace TestNs1
 {
-        public partial class TestVM
+    public partial class TestVM
     {
-        
         /// <inheritdoc cref="_name"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         [global::System.Runtime.Serialization.DataMemberAttribute()]
         [global::System.Text.Json.Serialization.JsonIncludeAttribute()]
         public virtual string? Name
-        { 
+        {
             get => _name;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_name")]
             protected set

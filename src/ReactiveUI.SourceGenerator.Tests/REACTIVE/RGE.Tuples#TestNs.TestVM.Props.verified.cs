@@ -7,9 +7,8 @@ using ReactiveUI;
 
 namespace TestNs
 {
-        public partial class TestVM
+    public partial class TestVM
     {
-        
         /// <inheritdoc cref="_namedTuple"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public (int Id, string Name)? NamedTuple
@@ -20,11 +19,11 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _namedTuple, value);
             }
         }
-        
+
         /// <inheritdoc cref="_tuple"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Tuple<int, string>? Tuple
-        { 
+        {
             get => _tuple;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_tuple")]
             set
@@ -32,7 +31,7 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _tuple, value);
             }
         }
-        
+
         /// <inheritdoc cref="_valueTuple"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public (string, int, bool) ValueTuple

@@ -7,13 +7,12 @@ using ReactiveUI;
 
 namespace TestNs
 {
-        public partial class TestVM
+    public partial class TestVM
     {
-        
         /// <inheritdoc cref="_items"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Collections.Generic.List<string>? Items
-        { 
+        {
             get => _items;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_items")]
             set
@@ -21,11 +20,11 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _items, value);
             }
         }
-        
+
         /// <inheritdoc cref="_mappings"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Collections.Generic.Dictionary<int, string>? Mappings
-        { 
+        {
             get => _mappings;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_mappings")]
             set
@@ -33,11 +32,11 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _mappings, value);
             }
         }
-        
+
         /// <inheritdoc cref="_numbers"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Collections.Generic.IEnumerable<int>? Numbers
-        { 
+        {
             get => _numbers;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_numbers")]
             set

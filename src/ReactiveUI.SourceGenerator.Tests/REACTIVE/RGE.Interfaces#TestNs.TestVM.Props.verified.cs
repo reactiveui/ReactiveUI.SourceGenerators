@@ -7,13 +7,12 @@ using ReactiveUI;
 
 namespace TestNs
 {
-        public partial class TestVM
+    public partial class TestVM
     {
-        
         /// <inheritdoc cref="_item"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::TestNs.IItem? Item
-        { 
+        {
             get => _item;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_item")]
             set
@@ -21,11 +20,11 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _item, value);
             }
         }
-        
+
         /// <inheritdoc cref="_disposable"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.IDisposable? Disposable
-        { 
+        {
             get => _disposable;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_disposable")]
             set
@@ -33,11 +32,11 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _disposable, value);
             }
         }
-        
+
         /// <inheritdoc cref="_list"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Collections.Generic.IList<int>? List
-        { 
+        {
             get => _list;
             [global::System.Diagnostics.CodeAnalysis.MemberNotNull("_list")]
             set

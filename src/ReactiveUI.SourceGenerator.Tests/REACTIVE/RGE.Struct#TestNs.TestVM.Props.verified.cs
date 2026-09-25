@@ -7,9 +7,8 @@ using ReactiveUI;
 
 namespace TestNs
 {
-        public partial class TestVM
+    public partial class TestVM
     {
-        
         /// <inheritdoc cref="_location"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::TestNs.Point Location
@@ -20,7 +19,7 @@ namespace TestNs
                 this.RaiseAndSetIfChanged(ref _location, value);
             }
         }
-        
+
         /// <inheritdoc cref="_optionalLocation"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::TestNs.Point? OptionalLocation
