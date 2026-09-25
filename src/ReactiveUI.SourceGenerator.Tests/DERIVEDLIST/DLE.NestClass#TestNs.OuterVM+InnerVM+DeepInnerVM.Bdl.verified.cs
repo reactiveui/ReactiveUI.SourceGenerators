@@ -10,19 +10,17 @@ using ReactiveUI;
 namespace TestNs
 {
     public partial class OuterVM
-{
-public partial class InnerVM
-{
-
-    public partial class DeepInnerVM
     {
-        /// <inheritdoc cref="_deepList"/>
-        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        public global::System.Collections.ObjectModel.ReadOnlyObservableCollection<double>? DeepList => _deepList;
+        public partial class InnerVM
+        {
+            public partial class DeepInnerVM
+            {
+                /// <inheritdoc cref="_deepList"/>
+                [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+                public global::System.Collections.ObjectModel.ReadOnlyObservableCollection<double>? DeepList => _deepList;
+            }
+        }
     }
-}
-}
-
 }
 #nullable restore
 #pragma warning restore

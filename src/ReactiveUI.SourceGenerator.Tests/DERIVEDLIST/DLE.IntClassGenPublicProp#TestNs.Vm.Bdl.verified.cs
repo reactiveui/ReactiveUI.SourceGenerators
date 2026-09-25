@@ -9,7 +9,6 @@ using ReactiveUI;
 
 namespace TestNs
 {
-    
     internal partial class ViewModel
     {
         /// <inheritdoc cref="_theList"/>

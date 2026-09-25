@@ -9,7 +9,6 @@ using ReactiveUI;
 
 namespace TestNs
 {
-    
     public partial record TestVMRecord
     {
         /// <inheritdoc cref="_numbers"/>

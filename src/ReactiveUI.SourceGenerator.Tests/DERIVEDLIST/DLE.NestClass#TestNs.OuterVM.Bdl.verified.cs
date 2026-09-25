@@ -9,7 +9,6 @@ using ReactiveUI;
 
 namespace TestNs
 {
-    
     public partial class OuterVM
     {
         /// <inheritdoc cref="_outerList"/>

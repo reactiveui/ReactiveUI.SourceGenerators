@@ -9,7 +9,6 @@ using ReactiveUI;
 
 namespace Namespace1
 {
-    
     public partial class TestVM
     {
         /// <inheritdoc cref="_numbers"/>

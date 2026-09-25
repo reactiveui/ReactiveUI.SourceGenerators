@@ -10,16 +10,14 @@ using ReactiveUI;
 namespace TestNs
 {
     public partial class OuterVM
-{
-
-    public partial class InnerVM
     {
-        /// <inheritdoc cref="_innerList"/>
-        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        public global::System.Collections.ObjectModel.ReadOnlyObservableCollection<string>? InnerList => _innerList;
+        public partial class InnerVM
+        {
+            /// <inheritdoc cref="_innerList"/>
+            [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+            public global::System.Collections.ObjectModel.ReadOnlyObservableCollection<string>? InnerList => _innerList;
+        }
     }
-}
-
 }
 #nullable restore
 #pragma warning restore

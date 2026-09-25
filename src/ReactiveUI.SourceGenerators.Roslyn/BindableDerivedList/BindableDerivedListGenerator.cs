@@ -75,7 +75,7 @@ public sealed partial class BindableDerivedListGenerator : IIncrementalGenerator
 
             foreach (var grouping in groupedPropertyInfo)
             {
-                var source = GenerateSource(grouping.Key.TargetName, grouping.Key.TargetNamespace, grouping.Key.TargetVisibility, grouping.Key.TargetType, grouping.Value.ToArray());
+                var source = GenerateSource(grouping.Value);
                 context.AddSource($"{grouping.Key.FileHintName}.BindableDerivedList.g.cs", source);
             }
         });
