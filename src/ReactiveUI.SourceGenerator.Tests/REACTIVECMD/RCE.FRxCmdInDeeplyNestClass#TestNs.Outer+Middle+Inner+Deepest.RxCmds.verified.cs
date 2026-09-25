@@ -7,24 +7,21 @@
 namespace TestNs
 {
     public partial class Outer
-{
-public partial class Middle
-{
-public partial class Inner
-{
-
-    public partial class Deepest
     {
-        private global::ReactiveUI.ReactiveCommand<string, string>? _deepestCommandCommand;
+        public partial class Middle
+        {
+            public partial class Inner
+            {
+                public partial class Deepest
+                {
+                    private global::ReactiveUI.ReactiveCommand<string, string>? _deepestCommandCommand;
 
-
-        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        public global::ReactiveUI.ReactiveCommand<string, string> DeepestCommandCommand { get => _deepestCommandCommand ??= global::ReactiveUI.ReactiveCommand.Create<string, string>(DeepestCommand); }
+                    [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+                    public global::ReactiveUI.ReactiveCommand<string, string> DeepestCommandCommand { get => _deepestCommandCommand ??= global::ReactiveUI.ReactiveCommand.Create<string, string>(DeepestCommand); }
+                }
+            }
+        }
     }
-}
-}
-}
-
 }
 #nullable restore
 #pragma warning restore

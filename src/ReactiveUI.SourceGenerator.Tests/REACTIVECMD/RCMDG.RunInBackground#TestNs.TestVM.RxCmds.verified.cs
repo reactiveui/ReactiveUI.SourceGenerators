@@ -6,26 +6,24 @@
 
 namespace TestNs
 {
-    
     public partial class TestVM
     {
         private global::ReactiveUI.ReactiveCommand<global::ReactiveUI.Primitives.RxVoid, global::ReactiveUI.Primitives.RxVoid>? _saveCommand;
 
-
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::ReactiveUI.ReactiveCommand<global::ReactiveUI.Primitives.RxVoid, global::ReactiveUI.Primitives.RxVoid> SaveCommand { get => _saveCommand ??= global::ReactiveUI.ReactiveCommand.CreateRunInBackground(Save); }
-        private global::ReactiveUI.ReactiveCommand<int, int>? _calculateCommand;
 
+        private global::ReactiveUI.ReactiveCommand<int, int>? _calculateCommand;
 
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::ReactiveUI.ReactiveCommand<int, int> CalculateCommand { get => _calculateCommand ??= global::ReactiveUI.ReactiveCommand.CreateRunInBackground<int, int>(Calculate); }
-        private global::ReactiveUI.ReactiveCommand<int, string>? _formatCommand;
 
+        private global::ReactiveUI.ReactiveCommand<int, string>? _formatCommand;
 
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::ReactiveUI.ReactiveCommand<int, string> FormatCommand { get => _formatCommand ??= global::ReactiveUI.ReactiveCommand.CreateRunInBackground<int, string>(Format, CanRun, backgroundScheduler: null, outputScheduler: global::ReactiveUI.RxSchedulers.MainThreadScheduler); }
-        private global::ReactiveUI.ReactiveCommand<global::ReactiveUI.Primitives.RxVoid, global::ReactiveUI.Primitives.RxVoid>? _foregroundCommand;
 
+        private global::ReactiveUI.ReactiveCommand<global::ReactiveUI.Primitives.RxVoid, global::ReactiveUI.Primitives.RxVoid>? _foregroundCommand;
 
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::ReactiveUI.ReactiveCommand<global::ReactiveUI.Primitives.RxVoid, global::ReactiveUI.Primitives.RxVoid> ForegroundCommand { get => _foregroundCommand ??= global::ReactiveUI.ReactiveCommand.Create(Foreground); }

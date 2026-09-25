@@ -6,16 +6,14 @@
 
 namespace TestNs
 {
-    
     public partial class TestVM
     {
         private global::ReactiveUI.ReactiveCommand<string?, string?>? _processNullableCommand;
 
-
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::ReactiveUI.ReactiveCommand<string?, string?> ProcessNullableCommand { get => _processNullableCommand ??= global::ReactiveUI.ReactiveCommand.Create<string?, string?>(ProcessNullable); }
-        private global::ReactiveUI.ReactiveCommand<int?, int>? _processNullableIntCommand;
 
+        private global::ReactiveUI.ReactiveCommand<int?, int>? _processNullableIntCommand;
 
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::ReactiveUI.ReactiveCommand<int?, int> ProcessNullableIntCommand { get => _processNullableIntCommand ??= global::ReactiveUI.ReactiveCommand.Create<int?, int>(ProcessNullableInt); }

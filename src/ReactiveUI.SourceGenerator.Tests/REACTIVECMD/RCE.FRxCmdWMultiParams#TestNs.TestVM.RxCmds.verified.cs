@@ -6,11 +6,9 @@
 
 namespace TestNs
 {
-    
     public partial class TestVM
     {
         private global::ReactiveUI.ReactiveCommand<(int number, string text), string>? _combineValuesCommand;
-
 
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::ReactiveUI.ReactiveCommand<(int number, string text), string> CombineValuesCommand { get => _combineValuesCommand ??= global::ReactiveUI.ReactiveCommand.Create<(int number, string text), string>(CombineValues); }

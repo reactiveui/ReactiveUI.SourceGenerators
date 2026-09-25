@@ -6,11 +6,9 @@
 
 namespace TestNs
 {
-    
     public partial class TestVM
     {
         private global::ReactiveUI.ReactiveCommand<string, string>? _processWithCancellationCommand;
-
 
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::ReactiveUI.ReactiveCommand<string, string> ProcessWithCancellationCommand { get => _processWithCancellationCommand ??= global::ReactiveUI.ReactiveCommand.CreateFromTask<string, string>(ProcessWithCancellation); }

@@ -6,11 +6,9 @@
 
 namespace TestNs
 {
-    
     public partial class TestVM
     {
         private global::ReactiveUI.ReactiveCommand<string, int>? _test3Command;
-
 
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::ReactiveUI.ReactiveCommand<string, int> Test3Command { get => _test3Command ??= global::ReactiveUI.ReactiveCommand.Create<string, int>(Test3); }

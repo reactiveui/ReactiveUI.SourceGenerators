@@ -6,16 +6,14 @@
 
 namespace TestNs
 {
-    
     public partial class GenericVM<T>
     {
         private global::ReactiveUI.ReactiveCommand<T?, T?>? _processItemCommand;
 
-
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::ReactiveUI.ReactiveCommand<T?, T?> ProcessItemCommand { get => _processItemCommand ??= global::ReactiveUI.ReactiveCommand.Create<T?, T?>(ProcessItem); }
-        private global::ReactiveUI.ReactiveCommand<T?, T?>? _processItemLaterCommand;
 
+        private global::ReactiveUI.ReactiveCommand<T?, T?>? _processItemLaterCommand;
 
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::ReactiveUI.ReactiveCommand<T?, T?> ProcessItemLaterCommand { get => _processItemLaterCommand ??= global::ReactiveUI.ReactiveCommand.CreateFromTask<T?, T?>(ProcessItemLater); }

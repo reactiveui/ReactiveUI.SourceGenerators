@@ -57,13 +57,7 @@ public sealed partial class ReactiveCommandGenerator : IIncrementalGenerator
 
             foreach (var grouping in groupedCommandInfo)
             {
-                var source = GenerateSource(
-                    grouping.Key.TargetName,
-                    grouping.Key.TargetNamespace,
-                    grouping.Key.TargetVisibility,
-                    grouping.Key.TargetType,
-                    grouping.Value.ToArray(),
-                    input.Right);
+                var source = GenerateSource(grouping.Value, input.Right);
                 context.AddSource($"{grouping.Key.FileHintName}.ReactiveCommands.g.cs", source);
             }
         });

@@ -6,16 +6,14 @@
 
 namespace TestNs
 {
-    
     public partial class TestVM
     {
         private global::ReactiveUI.ReactiveCommand<int[], int>? _sumArrayCommand;
 
-
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::ReactiveUI.ReactiveCommand<int[], int> SumArrayCommand { get => _sumArrayCommand ??= global::ReactiveUI.ReactiveCommand.Create<int[], int>(SumArray); }
-        private global::ReactiveUI.ReactiveCommand<string[]?, string[]>? _processStringsCommand;
 
+        private global::ReactiveUI.ReactiveCommand<string[]?, string[]>? _processStringsCommand;
 
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::ReactiveUI.ReactiveCommand<string[]?, string[]> ProcessStringsCommand { get => _processStringsCommand ??= global::ReactiveUI.ReactiveCommand.Create<string[]?, string[]>(ProcessStrings); }
