@@ -54,7 +54,7 @@ public sealed partial class ReactiveObjectGenerator : IIncrementalGenerator
 
             foreach (var grouping in groupedPropertyInfo)
             {
-                var source = GenerateSource(grouping.Key.TargetName, grouping.Key.TargetNamespace, grouping.Key.TargetVisibility, grouping.Key.TargetType, input.Right);
+                var source = GenerateSource(grouping.Value.TargetInfo, input.Right);
                 context.AddSource($"{grouping.Key.FileHintName}.IReactiveObject.g.cs", source);
             }
         });
