@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks/ReactiveUI.SourceGenerators.Benchmarks/ReactiveUI.SourceGenerators.Benchmarks.csproj" />
+  </Folder>
   <Folder Name="/SolutionConfig/">
     <File Path="../.editorconfig" />
     <File Path="../.gitignore" />
