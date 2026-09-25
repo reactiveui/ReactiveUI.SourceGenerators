@@ -105,10 +105,10 @@ public sealed class GeneratedOutputCoverageTests
         await Assert.That(generatedSource.Contains("DataMemberAttribute", StringComparison.Ordinal)).IsTrue();
     }
 
-    /// <summary>ObservableAsProperty fields cover invalid targets, collisions, and inheritance modifiers.</summary>
+    /// <summary>Reactive fields cover invalid targets, collisions, and inheritance modifiers.</summary>
     /// <returns>A task representing the asynchronous assertion work.</returns>
     [Test]
-    public async Task ObservableAsPropertyFieldsCoverValidationAndInheritanceOutput()
+    public async Task ReactiveFieldsCoverValidationAndInheritanceOutput()
     {
         const string source = """
             using ReactiveUI;
@@ -116,37 +116,34 @@ public sealed class GeneratedOutputCoverageTests
 
             namespace Coverage;
 
-            public partial class InvalidObservableTarget
+            public partial class InvalidReactiveTarget
             {
-                [ObservableAsProperty]
+                [Reactive]
                 private int _invalid;
             }
 
-            public class ObservableBase : ReactiveObject
+            public class ReactiveBase : ReactiveObject
             {
                 public virtual int Override { get; set; }
             }
 
-            public partial class ObservableViewModel : ObservableBase
+            public partial class ReactiveViewModel : ReactiveBase
             {
-                [ObservableAsProperty]
+                [Reactive]
                 private int Collision;
 
-                [ObservableAsProperty(Inheritance = InheritanceModifier.Virtual)]
+                [Reactive(Inheritance = InheritanceModifier.Virtual)]
                 private int _virtual;
 
-                [ObservableAsProperty(Inheritance = InheritanceModifier.Override)]
+                [Reactive(Inheritance = InheritanceModifier.Override)]
                 private int _override;
 
-                [ObservableAsProperty(Inheritance = InheritanceModifier.New)]
+                [Reactive(Inheritance = InheritanceModifier.New)]
                 private int _new;
             }
             """;
 
-        var (generatedSource, diagnostics) = RunGenerator(
-            source,
-            new ObservableAsPropertyGenerator(),
-            new ReactiveGenerator());
+        var (generatedSource, diagnostics) = RunGenerator(source, new ReactiveGenerator());
         var diagnosticIds = GetDiagnosticIds(diagnostics);
 
         await Assert.That(diagnosticIds).Contains("RXUISG0018");

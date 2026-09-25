@@ -39,20 +39,7 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
         {
             var groupedPropertyInfo = GroupByTarget(input);
 
-            const string fileName = "ReactiveUI.ReactiveUISourceGeneratorsExtensions.g.cs";
-
-            if (groupedPropertyInfo.Count == 0)
-            {
-                // Even if there are no views, emit an empty extension to keep API stable.
-                var empty = GenerateRegistrationExtensions(ImmutableArray<IViewForInfo>.Empty);
-                context.AddSource(fileName, SourceText.From(empty, Encoding.UTF8));
-                return;
-            }
-
-            // Generate the IViewFor Splat Registration code for all classes in a single extension method here
-            var registrationSource = GenerateRegistrationExtensions(input);
-            context.AddSource(fileName, SourceText.From(registrationSource, Encoding.UTF8));
-
+            // View registration is not generated here: ReactiveUI.Binding's view locator registers every IViewFor<T>.
             foreach (var grouping in groupedPropertyInfo.Values)
             {
                 var info = grouping[0];

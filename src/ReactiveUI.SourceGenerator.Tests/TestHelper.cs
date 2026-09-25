@@ -133,7 +133,6 @@ public sealed partial class TestHelper<T> : IDisposable
         {
             nameof(ReactiveGenerator) => "REACTIVE",
             nameof(ReactiveCommandGenerator) => "REACTIVECMD",
-            nameof(ObservableAsPropertyGenerator) => "OAPH",
             nameof(IViewForGenerator) => "IVIEWFOR",
             nameof(RoutedControlHostGenerator) => "ROUTEDHOST",
             nameof(ViewModelControlHostGenerator) => "CONTROLHOST",
@@ -180,7 +179,6 @@ public sealed partial class TestHelper<T> : IDisposable
         if (typeof(T) == typeof(ReactiveObjectGenerator))
         {
             AddSyntaxTree(syntaxTrees, GetAttributeDefinitionsPropertyResult(ReactiveAttributeName), parseOptions, ReactiveAttributeHintName);
-            AddSyntaxTree(syntaxTrees, GetAttributeDefinitionsPropertyResult("ObservableAsPropertyAttribute"), parseOptions, "ObservableAsPropertyAttribute.g.cs");
         }
 
         if (typeof(T) != typeof(BindableDerivedListGenerator) && typeof(T) != typeof(ReactiveCollectionGenerator))
@@ -273,11 +271,6 @@ public sealed partial class TestHelper<T> : IDisposable
         if (typeof(T) != typeof(IViewForGenerator))
         {
             supportSources.Add(GetAttributeDefinitionsPropertyResult("IViewForAttribute"));
-        }
-
-        if (typeof(T) != typeof(ObservableAsPropertyGenerator) && typeof(T) != typeof(ReactiveObjectGenerator))
-        {
-            supportSources.Add(GetAttributeDefinitionsPropertyResult("ObservableAsPropertyAttribute"));
         }
 
         AddRemainingAttributeDefinitions(supportSources);

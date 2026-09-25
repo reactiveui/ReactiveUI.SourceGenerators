@@ -59,14 +59,14 @@ This rule checks if the `Reactive` has Invalid property targeted attribute type.
 - RXUISG0011 - ReactiveGenerator
 This rule checks if the `Reactive` has Invalid property targeted attribute expression.
 
-- RXUISG0012 - ObservableAsPropertyGenerator
-This rule checks if the `ObservableAsProperty` has Invalid property targeted attribute type.
+- RXUISG0012 - Forwarded attributes
+This rule checks that an attribute a member forwards to its generated member with a `[property:]` or `[field:]` target resolves to a valid type.
 
-- RXUISG0013 - ObservableAsPropertyGenerator
-This rule checks if the `ObservableAsProperty` has Invalid property targeted attribute expression.
+- RXUISG0013 - Forwarded attributes
+This rule checks that an attribute a member forwards to its generated member with a `[property:]` or `[field:]` target uses valid expressions.
 
-- RXUISG0014 - ObservableAsPropertyGenerator
-This rule checks if the `ObservableAsProperty` has Invalid generated property declaration.
+- RXUISG0014 - Removed
+`[ObservableAsProperty]` moved to ReactiveUI.Binding.
 
 - RXUISG0015 - ReactiveGenerator
 This rule checks if the `Reactive` attribute is being used correctly. If the `Reactive` has Invalid generated property declaration.
@@ -74,11 +74,11 @@ This rule checks if the `Reactive` attribute is being used correctly. If the `Re
 - RXUISG0016 - PropertyToReactiveFieldCodeFixProvider
 This rule checks if there are any Properties to change to Reactive Field, change to [Reactive] private type _fieldName;.
 
-- RXUISG0017 - ObservableAsPropertyFromObservableGenerator
-This rule checks if the `ObservableAsProperty` has Invalid generated property declaration.
+- RXUISG0017 - Removed
+`[ObservableAsProperty]` moved to ReactiveUI.Binding.
 
-- RXUISG0018 - ObservableAsPropertyFromObservableGenerator/ReactiveGenerator
-This rule checks if the `ObservableAsProperty` or `Reactive` has Invalid class inheritance, must inherit from `ReactiveObject`.
+- RXUISG0018 - ReactiveGenerator
+This rule checks if the `Reactive` has Invalid class inheritance, must inherit from `ReactiveObject`.
 
 - RXUISG0019 - BindableDerivedListGenerator
 - This rule checks if the `BindableDerivedList` has Invalid property inheritance type.

@@ -242,7 +242,7 @@ internal static class ContextExtensions
     {
         if (!context.SemanticModel.GetSymbolInfo(attribute, token).TryGetAttributeTypeSymbol(out var attributeType))
         {
-            diagnostics.Add(InvalidPropertyTargetedAttributeOnObservableAsPropertyField, attribute, symbol, attribute.Name);
+            diagnostics.Add(InvalidForwardedAttributeType, attribute, symbol, attribute.Name);
             return;
         }
 
@@ -253,7 +253,7 @@ internal static class ContextExtensions
                 token,
                 out var attributeInfo))
         {
-            diagnostics.Add(InvalidPropertyTargetedAttributeExpressionOnObservableAsPropertyField, attribute, symbol, attribute.Name);
+            diagnostics.Add(InvalidForwardedAttributeExpression, attribute, symbol, attribute.Name);
             return;
         }
 

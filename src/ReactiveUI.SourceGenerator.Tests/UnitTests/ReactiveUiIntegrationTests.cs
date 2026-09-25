@@ -259,66 +259,6 @@ public sealed class ReactiveUiIntegrationTests
         }
         """;
 
-    /// <summary>Consumer source covering observable-as-property generation and rejection paths.</summary>
-    private const string ObservableAsPropertyOptionsSource = """
-        using System;
-        using ReactiveUI;
-        using ReactiveUI.SourceGenerators;
-
-        namespace Compatibility;
-
-        public partial class ObservableOptionsViewModel : ReactiveObject
-        {
-            [ObservableAsProperty(UseProtected = true, InitialValue = "42")]
-            public IObservable<int> NumberStream => null!;
-
-            [ObservableAsProperty(PropertyName = "Status", InitialValue = "ready")]
-            public IObservable<string?> StatusStream => null!;
-
-            [ObservableAsProperty(PropertyName = "Computed", UseProtected = true)]
-            public IObservable<int> Compute() => null!;
-
-            [ObservableAsProperty]
-            public IObservable<string?> Maybe() => null!;
-
-            [ObservableAsProperty]
-            public IObservable<int> HasParameter(int value) => null!;
-
-            [ObservableAsProperty]
-            public int NotObservable() => 0;
-
-            [ObservableAsProperty]
-            public int OrdinaryProperty { get; set; }
-
-            [ObservableAsProperty(ReadOnly = false, UseProtected = true, InitialValue = "7")]
-            public partial int PartialValue { get; }
-
-            [ObservableAsProperty]
-            private int _defaultField;
-
-            [ObservableAsProperty(UseProtected = true)]
-            private string? _nullableField;
-
-            [ObservableAsProperty(ReadOnly = false)]
-            private int _mutableField = 1;
-
-            [ObservableAsProperty]
-            private int Collision;
-        }
-
-        public partial class InvalidObservableTarget
-        {
-            [ObservableAsProperty]
-            public IObservable<int> InvalidProperty => null!;
-
-            [ObservableAsProperty]
-            public IObservable<int> InvalidMethod() => null!;
-
-            [ObservableAsProperty]
-            private int _invalidField;
-        }
-        """;
-
     /// <summary>Verifies this test project is executing against a real ReactiveUI 24-or-newer package.</summary>
     /// <returns>A task representing the asynchronous assertion work.</returns>
     [Test]
@@ -488,28 +428,6 @@ public sealed class ReactiveUiIntegrationTests
         await Assert.That(previewIds).Contains("RXUISG0009");
         await Assert.That(previewIds).Contains("RXUISG0018");
         await Assert.That(GetDiagnosticIds(csharp13Diagnostics)).IsEquivalentTo(previewIds);
-    }
-
-    /// <summary>Verifies observable-as-property options and rejected member shapes end to end.</summary>
-    /// <returns>A task representing the asynchronous assertion work.</returns>
-    [Test]
-    public async Task ObservableAsPropertyOptionsCoverGeneratedAndDiagnosticPaths()
-    {
-        var (_, generatedSource, diagnostics) = RunObservableAsPropertyGenerator(ObservableAsPropertyOptionsSource);
-        var diagnosticIds = GetDiagnosticIds(diagnostics);
-
-        await Assert.That(generatedSource.Contains("protected ReactiveUI.ObservableAsPropertyHelper<int>?", StringComparison.Ordinal)).IsTrue();
-        await Assert.That(generatedSource.Contains("private string? _status = \"ready\";", StringComparison.Ordinal)).IsTrue();
-        await Assert.That(generatedSource.Contains("public string? Status", StringComparison.Ordinal)).IsTrue();
-        await Assert.That(generatedSource.Contains("Compute()!.ToProperty", StringComparison.Ordinal)).IsTrue();
-        await Assert.That(generatedSource.Contains("NumberStream!.ToProperty", StringComparison.Ordinal)).IsTrue();
-        await Assert.That(generatedSource.Contains("public partial int PartialValue", StringComparison.Ordinal)).IsTrue();
-        await Assert.That(generatedSource.Contains("protected ReactiveUI.ObservableAsPropertyHelper<int>? _partialValueHelper", StringComparison.Ordinal)).IsTrue();
-        await Assert.That(generatedSource.Contains("private readonly ReactiveUI.ObservableAsPropertyHelper<int> _defaultFieldHelper", StringComparison.Ordinal)).IsTrue();
-        await Assert.That(generatedSource.Contains("private ReactiveUI.ObservableAsPropertyHelper<int>? _mutableFieldHelper", StringComparison.Ordinal)).IsTrue();
-        await Assert.That(diagnosticIds).Contains("RXUISG0009");
-        await Assert.That(diagnosticIds).Contains("RXUISG0017");
-        await Assert.That(diagnosticIds).Contains("RXUISG0018");
     }
 
     /// <summary>Verifies that the ReactiveUI 24 System.Reactive variant selects its moved namespace.</summary>
@@ -721,7 +639,7 @@ public sealed class ReactiveUiIntegrationTests
     /// <summary>Verifies unresolved and nonconstant forwarded attribute expressions produce generator diagnostics.</summary>
     /// <returns>A task representing the asynchronous assertion work.</returns>
     [Test]
-    public async Task ObservableAsPropertyReportsInvalidForwardedAttributeForms()
+    public async Task ReactiveReportsInvalidForwardedAttributeForms()
     {
         const string source = """
             using System;
@@ -732,11 +650,11 @@ public sealed class ReactiveUiIntegrationTests
 
             public partial class InvalidForwardingViewModel : ReactiveObject
             {
-                [ObservableAsProperty]
+                [Reactive]
                 [property: Missing]
                 private int _missing;
 
-                [ObservableAsProperty]
+                [Reactive]
                 [property: Obsolete(GetMessage())]
                 private int _invalidExpression;
 
@@ -744,7 +662,7 @@ public sealed class ReactiveUiIntegrationTests
             }
             """;
 
-        var (_, _, diagnostics) = RunObservableAsPropertyGenerator(source);
+        var (_, _, diagnostics) = RunReactiveGenerator(source, LanguageVersion.Preview);
         var diagnosticIds = GetDiagnosticIds(diagnostics);
 
         await Assert.That(diagnosticIds).Contains("RXUISG0012");
@@ -955,18 +873,6 @@ public sealed class ReactiveUiIntegrationTests
             languageVersion,
             new ReactiveGenerator(),
             static hintName => hintName.EndsWith("Properties.g.cs", StringComparison.Ordinal));
-
-    /// <summary>Runs the observable-as-property generator and collects its product sources.</summary>
-    /// <param name="source">The consumer source text.</param>
-    /// <returns>The output compilation, generated source, and generator diagnostics.</returns>
-    private static (Compilation Compilation, string GeneratedSource, ImmutableArray<Diagnostic> Diagnostics) RunObservableAsPropertyGenerator(
-        string source) =>
-        RunGenerator(
-            source,
-            LanguageVersion.Preview,
-            new ObservableAsPropertyGenerator(),
-            static hintName => hintName.EndsWith(".ObservableAsProperties.g.cs", StringComparison.Ordinal)
-                || hintName.EndsWith(".ObservableAsPropertyFromObservable.g.cs", StringComparison.Ordinal));
 
     /// <summary>Runs one incremental generator and collects selected generated sources.</summary>
     /// <param name="source">The consumer source text.</param>

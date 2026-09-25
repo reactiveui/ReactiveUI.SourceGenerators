@@ -37,8 +37,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Core\Models\TargetInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\DiagnosticDescriptors.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\SuppressionDescriptors.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Suppressions\OAPHMethodDoesNotNeedToBeStaticDiagnosticSuppressor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Suppressions\ObservableAsPropertyAttributeWithFieldNeverReadDiagnosticSuppressor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Suppressions\ReactiveAttributeWithPropertyTargetDiagnosticSuppressor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Suppressions\ReactiveAttributeWithFieldTargetDiagnosticSuppressor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Suppressions\ReactiveCommandAttributeWithFieldOrPropertyTargetDiagnosticSuppressor.cs" />
@@ -54,13 +52,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)IViewFor\IViewForGenerator.Execute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IViewFor\Models\IViewForBaseType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IViewFor\Models\IViewForInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ObservableAsProperty\Models\ObservableFieldInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ObservableAsProperty\Models\ObservableMethodInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ObservableAsProperty\ObservableAsPropertyGenerator.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ObservableAsProperty\ObservableAsPropertyGenerator{FromField}.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ObservableAsProperty\ObservableAsPropertyGenerator{FromField}.Execute.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ObservableAsProperty\ObservableAsPropertyGenerator{FromObservable}.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ObservableAsProperty\ObservableAsPropertyGenerator{FromObservable}.Execute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ReactiveCollection\Models\ReactiveCollectionFieldInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ReactiveCollection\ReactiveCollectionGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ReactiveCollection\ReactiveCollectionGenerator.Execute.cs" />

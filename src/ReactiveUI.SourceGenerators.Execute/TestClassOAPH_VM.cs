@@ -8,13 +8,23 @@ using ReactiveUI.SourceGenerators;
 
 namespace SGReactiveUI.SourceGenerators.Test;
 
-/// <summary>TestClassOAPH VM.</summary>
+/// <summary>Read-only properties that follow reactive properties.</summary>
+/// <remarks>
+/// <c>[ObservableAsProperty]</c> moved to ReactiveUI.Binding, so this sample writes each
+/// <see cref="ObservableAsPropertyHelper{T}"/> by hand with ReactiveUI's <c>ToProperty</c>. On ReactiveUI.Binding, mark a
+/// <c>partial</c> property <c>[ObservableAsProperty]</c> and the helper field is generated for you.
+/// </remarks>
 [ExcludeFromCodeCoverage]
 public partial class TestClassOAPH_VM : ReactiveObject
 {
-    /// <summary>Stores the observable boolean field.</summary>
-    [ObservableAsProperty]
-    private bool _observableTestField;
+    /// <summary>Backs <see cref="ObservableTestProperty"/>.</summary>
+    private readonly ObservableAsPropertyHelper<bool> _observableTestPropertyHelper;
+
+    /// <summary>Backs <see cref="ObservableTestField"/>.</summary>
+    private readonly ObservableAsPropertyHelper<bool> _observableTestFieldHelper;
+
+    /// <summary>Backs <see cref="Test"/>.</summary>
+    private readonly ObservableAsPropertyHelper<string?> _testHelper;
 
     /// <summary>Stores the reactive boolean field.</summary>
     [Reactive]
@@ -37,14 +47,11 @@ public partial class TestClassOAPH_VM : ReactiveObject
         TestProperty = "Test2";
     }
 
-    /// <summary>
-    /// Gets a value indicating whether [observable test property].
-    /// </summary>
-    /// <value>
-    ///   <c>true</c> if [observable test property]; otherwise, <c>false</c>.
-    /// </value>
-    [ObservableAsProperty]
-    public partial bool ObservableTestProperty { get; }
+    /// <summary>Gets a value indicating whether <see cref="ReactiveTestProperty"/> is set.</summary>
+    public bool ObservableTestProperty => _observableTestPropertyHelper.Value;
+
+    /// <summary>Gets a value indicating whether <see cref="ReactiveTestField"/> is set.</summary>
+    public bool ObservableTestField => _observableTestFieldHelper.Value;
 
     /// <summary>
     /// Gets or sets a value indicating whether [reactive test property].
@@ -55,14 +62,8 @@ public partial class TestClassOAPH_VM : ReactiveObject
     [Reactive]
     public partial bool ReactiveTestProperty { get; set; }
 
-    /// <summary>
-    /// Gets the test.
-    /// </summary>
-    /// <value>
-    /// The test.
-    /// </value>
-    [ObservableAsProperty]
-    public partial string? Test { get; }
+    /// <summary>Gets the latest <see cref="TestProperty"/>.</summary>
+    public string? Test => _testHelper.Value;
 
     /// <summary>Creates the helper that projects the reactive property to its observable counterpart.</summary>
     /// <returns>The initialized observable property helper.</returns>

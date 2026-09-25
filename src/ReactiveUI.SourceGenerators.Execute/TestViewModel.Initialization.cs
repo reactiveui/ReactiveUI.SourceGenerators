@@ -22,12 +22,12 @@ public partial class TestViewModel
     /// <summary>Creates the helper that projects the test command output.</summary>
     /// <returns>The initialized observable property helper.</returns>
     private ObservableAsPropertyHelper<double?> CreateTest2PropertyHelper() =>
-        Test8ObservableCommand!.ToProperty(this, x => x.Test2Property);
+        Test8ObservableCommand!.ToProperty(this, x => x.Test2Property, initialValue: Test2InitialValue);
 
     /// <summary>Creates the helper that projects the activated reactive property.</summary>
     /// <returns>The initialized observable property helper.</returns>
     private ObservableAsPropertyHelper<double?> CreateTest11PropertyHelper() =>
-        this.WhenAnyValue(x => x.Test12Property).ToProperty(this, x => x.Test11Property, out _);
+        this.WhenAnyValue(x => x.Test12Property).ToProperty(this, x => x.Test11Property, initialValue: Test11InitialValue);
 
     /// <summary>Creates the helper that projects the protected observable property.</summary>
     /// <returns>The initialized observable property helper.</returns>
@@ -37,34 +37,59 @@ public partial class TestViewModel
     /// <summary>Creates the helper that projects the partial observable property.</summary>
     /// <returns>The initialized observable property helper.</returns>
     private ObservableAsPropertyHelper<int> CreateObservableAsPropertyFromPropertyHelper() =>
-        _fromPartialTestSubject.ToProperty(this, x => x.ObservableAsPropertyFromProperty);
+        _fromPartialTestSubject.ToProperty(this, x => x.ObservableAsPropertyFromProperty, initialValue: FromPropertyInitialValue);
 
     /// <summary>Creates the helper that projects the active PLC identifier.</summary>
     /// <returns>The initialized observable property helper.</returns>
     private ObservableAsPropertyHelper<string?> CreatePlcActiveHelper() =>
-        this.WhenAnyValue(x => x.PartialRequiredPropertyTest).ToProperty(this, nameof(PLCActive));
+        this.WhenAnyValue(x => x.PartialRequiredPropertyTest).ToProperty(this, nameof(PLCActive), initialValue: "Not Connected");
 
     /// <summary>Creates the helper that projects the PLC status message.</summary>
     /// <returns>The initialized observable property helper.</returns>
     private ObservableAsPropertyHelper<string> CreatePlcStatusHelper() =>
-        this.WhenAnyValue(x => x.PLCActive).Select(static x => x ?? string.Empty).ToProperty(this, nameof(PLCStatus));
+        this.WhenAnyValue(x => x.PLCActive).Select(static x => x ?? string.Empty).ToProperty(this, nameof(PLCStatus), initialValue: string.Empty);
 
     /// <summary>Creates the helper that projects the PLC port.</summary>
     /// <returns>The initialized observable property helper.</returns>
     private ObservableAsPropertyHelper<int> CreatePlcPortHelper() =>
-        this.WhenAnyValue(x => x.Test1Property).ToProperty(this, nameof(PLCPort));
+        this.WhenAnyValue(x => x.Test1Property).ToProperty(this, nameof(PLCPort), initialValue: PlcInitialPort);
 
     /// <summary>Creates the helper that projects the PLC instance.</summary>
     /// <returns>The initialized observable property helper.</returns>
     private ObservableAsPropertyHelper<PLCInstance> CreatePlcInstanceHelper() =>
-        this.WhenAnyValue(x => x.PlcInstanceCore).ToProperty(this, nameof(InstanceOfPLC));
+        this.WhenAnyValue(x => x.PlcInstanceCore).ToProperty(this, nameof(InstanceOfPLC), initialValue: new());
+
+    /// <summary>Creates the helper that follows the non-null reference type observable.</summary>
+    /// <returns>The initialized observable property helper.</returns>
+    private ObservableAsPropertyHelper<object> CreateReferenceTypeHelper() =>
+        ReferenceTypeObservable.ToProperty(this, nameof(ReferenceTypeObservableProperty), initialValue: new());
+
+    /// <summary>Creates the helper that follows the nullable reference type observable.</summary>
+    /// <returns>The initialized observable property helper.</returns>
+    private ObservableAsPropertyHelper<object?> CreateNullableReferenceTypeHelper() =>
+        NullableReferenceTypeObservable.ToProperty(this, nameof(NullableReferenceTypeObservableProperty));
+
+    /// <summary>Creates the helper that follows <see cref="ObservableAsPropertyTest2"/>.</summary>
+    /// <returns>The initialized observable property helper.</returns>
+    private ObservableAsPropertyHelper<int> CreateObservableAsPropertyTest2PropertyHelper() =>
+        ObservableAsPropertyTest2.ToProperty(this, nameof(ObservableAsPropertyTest2Property), initialValue: ObservableAsPropertyInitialValue);
+
+    /// <summary>Creates the helper that follows <see cref="ObservableAsPropertyTest"/>.</summary>
+    /// <returns>The initialized observable property helper.</returns>
+    private ObservableAsPropertyHelper<double?> CreateMyReadOnlyPropertyHelper() =>
+        ObservableAsPropertyTest().ToProperty(this, nameof(MyReadOnlyProperty), initialValue: NegativeInitialReadOnlyValue);
+
+    /// <summary>Creates the helper that follows <see cref="ObservableAsPropertyTestNonNull"/>.</summary>
+    /// <returns>The initialized observable property helper.</returns>
+    private ObservableAsPropertyHelper<double> CreateMyReadOnlyNonNullPropertyHelper() =>
+        ObservableAsPropertyTestNonNull().ToProperty(this, nameof(MyReadOnlyNonNullProperty), initialValue: NegativeNonNullReadOnlyValue);
 
     /// <summary>Registers the lifecycle activation subscriptions.</summary>
     private void RegisterActivation() =>
         this.WhenActivated(disposables =>
         {
             Console.Out.WriteLine("Activated");
-            _test11PropertyHelper?.Dispose();
+            _test11PropertyHelper.Dispose();
             _test11PropertyHelper = CreateTest11PropertyHelper();
             disposables(_test11PropertyHelper);
             disposables(GetDataCommand.Do(static _ => Console.Out.WriteLine("GetDataCommand Executed")).Subscribe());
@@ -75,17 +100,12 @@ public partial class TestViewModel
     private void InitializeObservableProperties()
     {
         Console.Out.WriteLine("MyReadOnlyProperty before init");
-        _myReadOnlyProperty = NegativeInitialReadOnlyValue;
         Console.Out.WriteLine(MyReadOnlyProperty);
-        Console.Out.WriteLine(_myReadOnlyProperty);
         Console.Out.WriteLine("MyReadOnlyNonNullProperty before init");
-        _myReadOnlyNonNullProperty = NegativeNonNullReadOnlyValue;
         Console.Out.WriteLine(MyReadOnlyNonNullProperty);
-        Console.Out.WriteLine(_myReadOnlyNonNullProperty);
-        _observableAsPropertyTest2Property = ObservableAsPropertyInitialValue;
         Console.Out.WriteLine(ObservableAsPropertyTest2Property);
-        Console.Out.WriteLine(_observableAsPropertyTest2Property);
-        InitializeOAPH();
+        Console.Out.WriteLine(ReferenceTypeObservableProperty);
+        Console.Out.WriteLine(NullableReferenceTypeObservableProperty);
     }
 
     /// <summary>Exercises the initial generated command set.</summary>
@@ -111,7 +131,6 @@ public partial class TestViewModel
         Console.Out.WriteLine($"Test2Property default Value: {Test2Property}");
         Test8ObservableCommand?.Execute(CommandArgumentValue).Subscribe(static d => Console.Out.WriteLine(d));
         Console.Out.WriteLine($"Test2Property Value: {Test2Property}");
-        Console.Out.WriteLine($"Test2Property underlying Value: {_test2Property}");
         Console.Out.WriteLine(ObservableAsPropertyTest2Property);
     }
 
@@ -119,28 +138,20 @@ public partial class TestViewModel
     private void ExerciseReadOnlyProperties()
     {
         Console.Out.WriteLine("MyReadOnlyProperty After Init");
-        _myReadOnlyProperty = NegativeUpdatedReadOnlyValue;
+        _testSubject.OnNext(NegativeUpdatedReadOnlyValue);
         Console.Out.WriteLine(MyReadOnlyProperty);
-        Console.Out.WriteLine(_myReadOnlyProperty);
         _testSubject.OnNext(FirstObservedDoubleValue);
         Console.Out.WriteLine(MyReadOnlyProperty);
-        Console.Out.WriteLine(_myReadOnlyProperty);
         _testSubject.OnNext(null);
         Console.Out.WriteLine(MyReadOnlyProperty);
-        Console.Out.WriteLine(_myReadOnlyProperty);
         Console.Out.WriteLine("MyReadOnlyNonNullProperty After Init");
-        _myReadOnlyNonNullProperty = NegativeUpdatedReadOnlyValue;
+        _testNonNullSubject.OnNext(NegativeUpdatedReadOnlyValue);
         Console.Out.WriteLine(MyReadOnlyNonNullProperty);
-        Console.Out.WriteLine(_myReadOnlyNonNullProperty);
         _testNonNullSubject.OnNext(SecondObservedDoubleValue);
         Console.Out.WriteLine(MyReadOnlyNonNullProperty);
-        Console.Out.WriteLine(_myReadOnlyNonNullProperty);
         _testNonNullSubject.OnNext(default);
-        Console.Out.WriteLine(_test13Property);
         Console.Out.WriteLine(Test13Property);
-        Console.Out.WriteLine(_test13PropertyHelper);
         Console.Out.WriteLine(MyReadOnlyNonNullProperty);
-        Console.Out.WriteLine(_myReadOnlyNonNullProperty);
     }
 
     /// <summary>Exercises the remaining commands and observable property updates.</summary>

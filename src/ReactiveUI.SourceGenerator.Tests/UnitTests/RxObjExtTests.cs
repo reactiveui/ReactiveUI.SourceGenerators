@@ -67,31 +67,6 @@ public class RxObjExtTests : TestBase<ReactiveObjectGenerator>
         return TestHelper.TestPass(sourceCode);
     }
 
-    /// <summary>Tests ReactiveObject with ObservableAsProperty.</summary>
-    /// <returns>A task to monitor the async.</returns>
-    [Test]
-    public Task WithOap()
-    {
-        const string sourceCode = """
-            using System;
-            using ReactiveUI.SourceGenerators;
-
-            namespace TestNs;
-
-            [IReactiveObject]
-            public partial class TestVM
-            {
-                [Reactive]
-                private string? _input;
-
-                [ObservableAsProperty]
-                private string? _output;
-            }
-            """;
-
-        return TestHelper.TestPass(sourceCode);
-    }
-
     /// <summary>Tests ReactiveObject with generic type parameters.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]

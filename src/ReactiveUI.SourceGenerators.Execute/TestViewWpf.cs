@@ -10,7 +10,7 @@ using Splat;
 namespace SGReactiveUI.SourceGenerators.Test;
 
 /// <summary>Provides the WPF test view.</summary>
-[IViewFor<TestViewModel>(RegistrationType = SplatRegistrationType.PerRequest, ViewModelRegistrationType = SplatRegistrationType.Constant)]
+[IViewFor<TestViewModel>]
 public partial class TestViewWpf : Window
 {
     /// <summary>Initializes a new instance of the <see cref="TestViewWpf"/> class.</summary>

@@ -51,7 +51,6 @@ internal static class GeneratorCatalog
     [
         new ReactiveGenerator().AsSourceGenerator(),
         new ReactiveCommandGenerator().AsSourceGenerator(),
-        new ObservableAsPropertyGenerator().AsSourceGenerator(),
         new ReactiveObjectGenerator().AsSourceGenerator(),
         new BindableDerivedListGenerator().AsSourceGenerator(),
         new ReactiveCollectionGenerator().AsSourceGenerator(),

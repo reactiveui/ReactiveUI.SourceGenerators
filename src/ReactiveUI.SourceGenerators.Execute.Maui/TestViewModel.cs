@@ -34,11 +34,12 @@ public partial class TestViewModel : ReactiveObject
     /// <summary>Represents the duration of the cancellable sample command.</summary>
     private const int CancellableCommandDelayMilliseconds = 2_000;
 
-    /// <summary>Stores the observable-as-property sample value.</summary>
-    [JsonInclude]
-    [DataMember]
-    [ObservableAsProperty(ReadOnly = false)]
-    private double _test2Property;
+    /// <summary>Backs <see cref="Test2Property"/>.</summary>
+    /// <remarks>
+    /// <c>[ObservableAsProperty]</c> moved to ReactiveUI.Binding, so the helper is written by hand with ReactiveUI's
+    /// <c>ToProperty</c>. On ReactiveUI.Binding, mark a <c>partial</c> property <c>[ObservableAsProperty]</c> instead.
+    /// </remarks>
+    private ObservableAsPropertyHelper<double>? _test2PropertyHelper;
 
     /// <summary>Stores the reactive property sample value.</summary>
     [JsonInclude]
@@ -51,6 +52,11 @@ public partial class TestViewModel : ReactiveObject
 
     /// <summary>Gets an observable that enables the first sample command.</summary>
     public IObservable<bool> CanExecuteTest1 => Observable.Return(_test1Property >= 0);
+
+    /// <summary>Gets the latest value the observable command produced.</summary>
+    [JsonInclude]
+    [DataMember]
+    public double Test2Property => _test2PropertyHelper?.Value ?? default;
 
     /// <summary>Writes a message when the first generated command executes.</summary>
     [ReactiveCommand(CanExecute = nameof(CanExecuteTest1))]
@@ -179,7 +185,6 @@ public partial class TestViewModel : ReactiveObject
         _test2PropertyHelper = Test8ObservableCommand!.ToProperty(this, static viewModel => viewModel.Test2Property);
         _ = Test8ObservableCommand.Execute(ObservableCommandArgument).Subscribe(Console.Out.WriteLine);
         Console.Out.WriteLine($"Test2Property Value: {Test2Property}");
-        Console.Out.WriteLine($"Test2Property underlying Value: {_test2Property}");
     }
 
     /// <summary>Executes the cancellable and argument-taking generated commands.</summary>
