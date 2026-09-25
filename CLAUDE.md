@@ -4,9 +4,9 @@ This document provides guidance for AI assistants and contributors working in th
 
 ## Overview
 
-ReactiveUI.SourceGenerators is a Roslyn incremental source-generator package that automates ReactiveUI boilerplate at compile-time. It generates reactive properties, observable-as-property helpers, reactive commands, IViewFor registrations, bindable derived lists, reactive collections, and full reactive-object scaffolding — all with zero runtime reflection, making generated code fully AOT-compatible.
+ReactiveUI.SourceGenerators is a Roslyn incremental source-generator package that automates ReactiveUI boilerplate at compile-time. It generates reactive properties, reactive commands, `IViewFor<T>` implementations, WinForms view hosts, bindable derived lists, reactive collections, and full reactive-object scaffolding — all with zero runtime reflection, making generated code fully AOT-compatible.
 
-**Minimum consumer requirements:** C# 12.0 · Visual Studio 17.8.0 · ReactiveUI 19.5.31+
+**Minimum consumer requirements:** C# 12.0 · Visual Studio 17.8.0 · ReactiveUI 23.2.28+
 
 ## Architecture Overview
 
@@ -28,7 +28,9 @@ Each versioned project links all `.cs` files from `ReactiveUI.SourceGenerators.R
 
 The `ReactiveUI.SourceGenerators` NuGet project packages all three DLLs under separate `analyzers/dotnet/roslyn4.8/cs`, `analyzers/dotnet/roslyn4.14/cs`, and `analyzers/dotnet/roslyn5.0/cs` paths, so NuGet/MSBuild automatically selects the right build based on the host compiler.
 
-Diagnostics are **not** reported by generators. All `RXUISG*` diagnostics live in the separate `ReactiveUI.SourceGenerators.Analyzers.CodeFixes` project.
+Generators report only the `RXUISG*` diagnostics about input they cannot generate from (see
+[Analyzer Separation](#analyzer-separation-roslyn-best-practice)). Diagnostics about how code should be written, and
+their code fixes, live in the separate `ReactiveUI.SourceGenerators.Analyzers.CodeFixes` project.
 
 ## Project Structure
 
@@ -166,8 +168,13 @@ Suppressors silence noisy Roslyn/Roslynator diagnostics that are expected for ge
 
 ### Analyzer Separation (Roslyn Best Practice)
 
-- Generators do **not** report diagnostics — they only call `context.ReportDiagnostic` for internal invariant violations via `DiagnosticInfo` models.
-- The `ReactiveUI.SourceGenerators.Analyzers.CodeFixes` project owns all `RXUISG*` diagnostic descriptors and code fixers.
+- Generators report a diagnostic only when their input cannot be generated from: a name collision (RXUISG0009), an
+  invalid forwarded attribute (RXUISG0012, RXUISG0013), a containing type that is not a `ReactiveObject`
+  (RXUISG0018), or a `[BindableDerivedList]` field of the wrong type (RXUISG0019). The extraction step returns them as
+  `DiagnosticInfo` values inside `Result<T>`, and `RegisterDiagnostics` (`Core/Extensions/IncrementalPipelineExtensions.cs`)
+  reports them from a source output, so they never break caching. Do not add new diagnostics to generators.
+- The `ReactiveUI.SourceGenerators.Analyzers.CodeFixes` project owns every other `RXUISG*` diagnostic (such as
+  RXUISG0016 and RXUISG0020) and all code fixers.
 - `DiagnosticDescriptors.cs` and related files are compiled from the shared Roslyn source via the linked `<Compile>` items.
 
 ## Testing
@@ -193,7 +200,12 @@ attribute lines, which carry the assembly version, are left out of the snapshots
 
 #### Accepting snapshot changes
 
-1. Run `ACCEPT_SNAPSHOTS=1 dotnet test --project ReactiveUI.SourceGenerator.Tests/ReactiveUI.SourceGenerators.Tests.csproj -c Release -f net10.0` from `src`.
+1. From `src`, set `ACCEPT_SNAPSHOTS` to `1` (or `true`) and run the tests:
+   ```pwsh
+   $env:ACCEPT_SNAPSHOTS = '1'
+   dotnet test --project ReactiveUI.SourceGenerator.Tests/ReactiveUI.SourceGenerators.Tests.csproj -c Release -f net10.0
+   Remove-Item Env:ACCEPT_SNAPSHOTS
+   ```
 2. Review the snapshot diff; for a refactor, confirm the changes are whitespace only.
 3. Re-run the tests without `ACCEPT_SNAPSHOTS` to confirm all pass.
 
@@ -226,8 +238,11 @@ Analyzer and helper tests use direct `CSharpCompilation` / `CompilationWithAnaly
 
 ### Running Tests
 
+Run from `src`, where `global.json` selects the SDK and Microsoft.Testing.Platform:
+
 ```pwsh
-dotnet test src/ReactiveUI.SourceGenerator.Tests --configuration Release
+cd src
+dotnet test --project ReactiveUI.SourceGenerator.Tests/ReactiveUI.SourceGenerators.Tests.csproj -c Release
 ```
 
 ### Measuring allocations
@@ -239,8 +254,10 @@ dotnet run -c Release -- --eventpipe <dir>            # bytes per run from GCAll
 dotnet run -c Release -- --eventpipe-discovery <dir>  # attribute discovery strategies against each other
 cd ../ReactiveUI.SourceGenerators.Runtime.Benchmarks
 dotnet run -c Release -- --eventpipe <dir>            # the generated code, as an app runs it
-dotnet run ~/source/rxui/tools/nettrace-analyzer.cs -- --top 40 <dir>/<scenario>.nettrace
 ```
+
+Each scenario writes `<dir>/<scenario>.nettrace`; open it in PerfView's "GC Heap Alloc Ignore Free (Coarse Sampling)
+Stacks" view to see which frames allocate.
 
 Report allocation figures from the EventPipe traces, not the memory diagnoser, and compare a change against the
 previous commit with the same harness. `src/benchmarks/README.md` has the method and the current figures.
@@ -248,7 +265,7 @@ previous commit with the same harness. `src/benchmarks/README.md` has the method
 ### Building
 
 ```pwsh
-dotnet build src/ReactiveUI.SourceGenerators.sln
+dotnet build src/ReactiveUI.SourceGenerators.slnx
 ```
 
 ## What to Avoid
@@ -256,12 +273,14 @@ dotnet build src/ReactiveUI.SourceGenerators.sln
 - **`ISymbol` / `SyntaxNode` in pipeline output models** — breaks incremental caching; use value-equatable data records instead.
 - **`SyntaxFactory` for code generation** — write through `SourceWriter`.
 - **`StringBuilder`, `string.Join` or interpolation in emitters** — append into `SourceWriter`.
-- **Diagnostics reported inside generators** — use the separate analyzer project for all `RXUISG*` diagnostics.
+- **New diagnostics reported inside generators** — put new `RXUISG*` diagnostics in the separate analyzer project.
 - **LINQ in hot Roslyn pipeline paths** — use `foreach` loops (Roslyn convention for incremental generators).
 - **Non-value-equatable models** in the incremental pipeline — will defeat caching and cause unnecessary regeneration.
 - **APIs unavailable in `netstandard2.0`** inside `ReactiveUI.SourceGenerators.Roslyn*` projects — the generator must run inside the compiler host which targets netstandard2.0.
 - **Runtime reflection** in generated code — breaks Native AOT compatibility.
-- **`#nullable enable` / nullable annotations in generated output** — these require C# 8+ features; generated code must be compatible with the minimum consumer C# version (12.0).
+- **Language features newer than C# 12 in generated output** — generated code must compile at the minimum consumer
+  C# version (12.0). `#nullable enable` and nullable annotations are fine; generated files open with
+  `DisableWarningsEnableNullable()`.
 - **File-scoped namespaces in generated output** — requires C# 10; use block-scoped namespaces.
 
 ## Important Notes
