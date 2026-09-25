@@ -123,13 +123,14 @@ internal static class ITypeSymbolExtensions
     /// <summary>Checks whether or not a given type symbol has a specified fully qualified metadata name.</summary>
     /// <param name="name">The full name to check.</param>
     /// <returns>Whether the type symbol has a full name equal to <paramref name="name"/>.</returns>
+    /// <remarks>
+    /// The name is compared segment by segment against the symbol chain rather than built first: this runs for every
+    /// base type and interface a validity check walks, so building the name would allocate for each of them.
+    /// </remarks>
     internal bool HasFullyQualifiedMetadataName(string name)
     {
-        using var builder = ImmutableArrayBuilder<char>.Rent();
-
-        AppendFullyQualifiedMetadataName(typeSymbol, builder);
-
-        return builder.WrittenSpan.StartsWith(name.AsSpan());
+        var position = 0;
+        return MatchMetadataName(typeSymbol, name, ref position) && position == name.Length;
     }
 
     /// <summary>Checks whether a type symbol's metadata name contains a given value.</summary>
@@ -141,7 +142,7 @@ internal static class ITypeSymbolExtensions
 
         AppendFullyQualifiedMetadataName(typeSymbol, builder);
 
-        return builder.WrittenSpan.ToString().Contains(name);
+        return builder.WrittenSpan.IndexOf(name.AsSpan()) >= 0;
     }
 
     /// <summary>Gets the fully qualified metadata name for a given <see cref="ITypeSymbol"/> instance.</summary>
@@ -259,6 +260,85 @@ internal static class ITypeSymbolExtensions
         _ => compilation.GetSpecialType(SpecialType.System_Void)
     };
 
+    }
+
+    /// <summary>Matches the start of a name against the metadata name a symbol would build, without building it.</summary>
+    /// <param name="current">The symbol, walked outermost namespace first.</param>
+    /// <param name="name">The name to compare with.</param>
+    /// <param name="position">The number of characters of <paramref name="name"/> matched so far.</param>
+    /// <returns><see langword="false"/> at the first character that differs; otherwise <see langword="true"/>.</returns>
+    /// <remarks>Mirrors <see cref="AppendFullyQualifiedMetadataName"/>, character for character.</remarks>
+    private static bool MatchMetadataName(ISymbol? current, string name, ref int position) => current switch
+    {
+        INamespaceSymbol namespaceSymbol => MatchNamespaceName(namespaceSymbol, name, ref position),
+        ITypeSymbol typeSymbol => MatchTypeName(typeSymbol, name, ref position),
+        _ => true,
+    };
+
+    /// <summary>Matches the start of a name against a namespace's dotted name.</summary>
+    /// <param name="namespaceSymbol">The namespace.</param>
+    /// <param name="name">The name to compare with.</param>
+    /// <param name="position">The number of characters of <paramref name="name"/> matched so far.</param>
+    /// <returns><see langword="false"/> at the first character that differs; otherwise <see langword="true"/>.</returns>
+    private static bool MatchNamespaceName(INamespaceSymbol namespaceSymbol, string name, ref int position) =>
+        namespaceSymbol.IsGlobalNamespace
+        || ((namespaceSymbol.ContainingNamespace.IsGlobalNamespace
+                || (MatchNamespaceName(namespaceSymbol.ContainingNamespace, name, ref position) && MatchCharacter('.', name, ref position)))
+            && MatchText(namespaceSymbol.MetadataName, name, ref position));
+
+    /// <summary>Matches the start of a name against a type's metadata name, containing types joined by <c>+</c>.</summary>
+    /// <param name="currentType">The type.</param>
+    /// <param name="name">The name to compare with.</param>
+    /// <param name="position">The number of characters of <paramref name="name"/> matched so far.</param>
+    /// <returns><see langword="false"/> at the first character that differs; otherwise <see langword="true"/>.</returns>
+    private static bool MatchTypeName(ITypeSymbol currentType, string name, ref int position)
+    {
+        var containerMatches = currentType.ContainingSymbol switch
+        {
+            ITypeSymbol containingType => MatchMetadataName(containingType, name, ref position) && MatchCharacter('+', name, ref position),
+            INamespaceSymbol { IsGlobalNamespace: false } containingNamespace => MatchMetadataName(containingNamespace, name, ref position) && MatchCharacter('.', name, ref position),
+            _ => true,
+        };
+
+        return containerMatches && MatchText(currentType.MetadataName, name, ref position);
+    }
+
+    /// <summary>Matches one segment of a metadata name; once the name is exhausted, everything further matches.</summary>
+    /// <param name="text">The segment.</param>
+    /// <param name="name">The name to compare with.</param>
+    /// <param name="position">The number of characters of <paramref name="name"/> matched so far.</param>
+    /// <returns>Whether the segment matches.</returns>
+    private static bool MatchText(string text, string name, ref int position)
+    {
+        var count = Math.Min(text.Length, name.Length - position);
+        if (count > 0 && string.CompareOrdinal(text, 0, name, position, count) != 0)
+        {
+            return false;
+        }
+
+        position += count;
+        return true;
+    }
+
+    /// <summary>Matches one separator character of a metadata name; once the name is exhausted, everything further matches.</summary>
+    /// <param name="character">The separator.</param>
+    /// <param name="name">The name to compare with.</param>
+    /// <param name="position">The number of characters of <paramref name="name"/> matched so far.</param>
+    /// <returns>Whether the separator matches.</returns>
+    private static bool MatchCharacter(char character, string name, ref int position)
+    {
+        if (position >= name.Length)
+        {
+            return true;
+        }
+
+        if (name[position] != character)
+        {
+            return false;
+        }
+
+        position++;
+        return true;
     }
 
     /// <summary>Appends the fully qualified metadata name for a given symbol to a target builder.</summary>

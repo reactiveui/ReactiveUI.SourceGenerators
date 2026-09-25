@@ -421,9 +421,20 @@ public sealed partial class ReactiveGenerator
     private static EquatableArray<string> GetAlsoNotifyValues(AttributeData attributeData, string propertyName, SemanticModel semanticModel, CancellationToken token)
     {
         using var builder = ImmutableArrayBuilder<string>.Rent();
-        foreach (var notify in attributeData.GetConstructorArguments<string>())
+
+        // Read in place rather than through an iterator: the names arrive as the params array's elements.
+        foreach (var argument in attributeData.ConstructorArguments)
         {
-            AddAlsoNotifyValue(builder, notify, propertyName);
+            if (argument.Kind != TypedConstantKind.Array)
+            {
+                AddAlsoNotifyValue(builder, argument.Value as string, propertyName);
+                continue;
+            }
+
+            foreach (var item in argument.Values)
+            {
+                AddAlsoNotifyValue(builder, item.Value as string, propertyName);
+            }
         }
 
         if (builder.Count == 0 && attributeData.ApplicationSyntaxReference?.GetSyntax(token) is AttributeSyntax attributeSyntax)
@@ -454,6 +465,13 @@ public sealed partial class ReactiveGenerator
 
         foreach (var argument in arguments)
         {
+            // Named arguments such as SetModifier are settings, never notified property names; evaluating them
+            // would make the compiler bind and flow-analyse each one.
+            if (argument.NameEquals is not null)
+            {
+                continue;
+            }
+
             var constantValue = semanticModel.GetConstantValue(argument.Expression, token);
             AddAlsoNotifyValue(builder, constantValue.HasValue ? constantValue.Value as string : null, propertyName);
         }

@@ -18,7 +18,7 @@ internal static class AttributeDefinitions
 
     public static string[] ExcludeFromCodeCoverage = ["[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]"];
 
-    public static string GetAccessModifierEnum() => $$"""
+    private static string AccessModifierEnumText { get; } = $$"""
         // Copyright (c) {{DateTime.Now.Year}} .NET Foundation and Contributors. All rights reserved.
         // Licensed to the .NET Foundation under one or more agreements.
         // The .NET Foundation licenses this file to you under the MIT license.
@@ -70,9 +70,11 @@ internal static class AttributeDefinitions
         #pragma warning restore
         """;
 
+    public static string GetAccessModifierEnum() => AccessModifierEnumText;
+
     public const string ReactiveObjectAttributeType = "ReactiveUI.SourceGenerators.IReactiveObjectAttribute";
 
-    public static string ReactiveObjectAttribute => $$"""
+    public static string ReactiveObjectAttribute { get; } = $$"""
 // Copyright (c) {{DateTime.Now.Year}} .NET Foundation and Contributors. All rights reserved.
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
@@ -102,7 +104,7 @@ internal sealed class IReactiveObjectAttribute : global::System.Attribute;
     /// <value>
     /// The reactive command attribute.
     /// </value>
-    public static string ReactiveCommandAttribute => $$"""
+    public static string ReactiveCommandAttribute { get; } = $$"""
 // Copyright (c) {{DateTime.Now.Year}} .NET Foundation and Contributors. All rights reserved.
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
@@ -166,7 +168,7 @@ internal sealed class ReactiveCommandAttribute : global::System.Attribute
     /// The reactive attribute.
     /// </value>
 #if ROSYLN_412 || ROSYLN_500
-    public static string ReactiveAttribute => $$"""
+    public static string ReactiveAttribute { get; } = $$"""
 // Copyright (c) {{DateTime.Now.Year}} .NET Foundation and Contributors. All rights reserved.
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
@@ -220,7 +222,7 @@ internal sealed class ReactiveAttribute : global::System.Attribute
 #pragma warning restore
 """;
 #else
-    public static string ReactiveAttribute => $$"""
+    public static string ReactiveAttribute { get; } = $$"""
 // Copyright (c) {{DateTime.Now.Year}} .NET Foundation and Contributors. All rights reserved.
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
@@ -277,7 +279,7 @@ internal sealed class ReactiveAttribute : global::System.Attribute
 
     public const string IViewForAttributeType = "ReactiveUI.SourceGenerators.IViewForAttribute";
 
-    public static string IViewForAttribute => $$"""
+    public static string IViewForAttribute { get; } = $$"""
 // Copyright (c) {{DateTime.Now.Year}} .NET Foundation and Contributors. All rights reserved.
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
@@ -317,7 +319,7 @@ internal sealed class IViewForAttribute(string? viewModelType) : global::System.
 
     public const string ViewModelControlHostAttributeType = "ReactiveUI.SourceGenerators.WinForms.ViewModelControlHostAttribute";
 
-    public static string ViewModelControlHostAttribute => $$"""
+    public static string ViewModelControlHostAttribute { get; } = $$"""
 // Copyright (c) {{DateTime.Now.Year}} .NET Foundation and Contributors. All rights reserved.
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
@@ -345,7 +347,7 @@ internal sealed class ViewModelControlHostAttribute(string? baseType) : global::
 
     public const string RoutedControlHostAttributeType = "ReactiveUI.SourceGenerators.WinForms.RoutedControlHostAttribute";
 
-    public static string GetRoutedControlHostAttribute() => $$"""
+    private static string RoutedControlHostAttributeText { get; } = $$"""
 // Copyright (c) {{DateTime.Now.Year}} .NET Foundation and Contributors. All rights reserved.
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
@@ -371,9 +373,11 @@ internal sealed class RoutedControlHostAttribute(string? baseType) : global::Sys
 #pragma warning restore
 """;
 
+    public static string GetRoutedControlHostAttribute() => RoutedControlHostAttributeText;
+
     public const string BindableDerivedListAttributeType = "ReactiveUI.SourceGenerators.BindableDerivedListAttribute";
 
-    public static string BindableDerivedListAttribute => $$"""
+    public static string BindableDerivedListAttribute { get; } = $$"""
 // Copyright (c) {{DateTime.Now.Year}} .NET Foundation and Contributors. All rights reserved.
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
@@ -406,7 +410,7 @@ internal sealed class BindableDerivedListAttribute : global::System.Attribute
 
     public const string ReactiveCollectionAttributeType = "ReactiveUI.SourceGenerators.ReactiveCollectionAttribute";
 
-    public static string ReactiveCollectionAttribute => $$"""
+    public static string ReactiveCollectionAttribute { get; } = $$"""
 // Copyright (c) {{DateTime.Now.Year}} .NET Foundation and Contributors. All rights reserved.
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.

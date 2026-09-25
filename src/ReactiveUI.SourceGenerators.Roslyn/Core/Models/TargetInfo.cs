@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 
@@ -31,8 +32,12 @@ internal sealed record TargetInfo(
     /// <returns>The generated target information.</returns>
     internal static TargetInfo From(INamedTypeSymbol namedTypeSymbol)
     {
-        var targetHintName = namedTypeSymbol.GetFullyQualifiedMetadataName().Replace("<", "_").Replace(">", "_");
-        var targetName = namedTypeSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
+        var targetHintName = ToHintName(namedTypeSymbol.GetFullyQualifiedMetadataName());
+
+        // A plain type's display name is its name; only a generic or a keyword-named type needs the display format.
+        var targetName = namedTypeSymbol.IsGenericType || SyntaxFacts.GetKeywordKind(namedTypeSymbol.Name) != SyntaxKind.None
+            ? namedTypeSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)
+            : namedTypeSymbol.Name;
         var targetNamespace = namedTypeSymbol.ContainingNamespace.ToDisplayString(SymbolHelpers.DefaultDisplay);
         var targetNameWithNamespace = namedTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         var targetAccessibility = namedTypeSymbol.GetAccessibilityString();
@@ -127,4 +132,12 @@ internal sealed record TargetInfo(
 
         return closingBrackets;
     }
+
+    /// <summary>Makes a metadata name safe for a hint name, replacing angle brackets only when there are any.</summary>
+    /// <param name="metadataName">The fully qualified metadata name.</param>
+    /// <returns>The hint name.</returns>
+    private static string ToHintName(string metadataName) =>
+        metadataName.IndexOf('<') < 0 && metadataName.IndexOf('>') < 0
+            ? metadataName
+            : metadataName.Replace('<', '_').Replace('>', '_');
 }
