@@ -1,1 +1,13 @@
-*.cs text eol=lf
+# Text files are stored and checked out with LF line endings on every platform.
+# Files are UTF-8 without a byte order mark; .editorconfig sets that for editors.
+* text=auto eol=lf
+
+# Binary files are never normalised.
+*.png binary
+*.jpg binary
+*.ico binary
+*.snk binary
+*.dll binary
+*.exe binary
+*.nupkg binary
+*.nettrace binary

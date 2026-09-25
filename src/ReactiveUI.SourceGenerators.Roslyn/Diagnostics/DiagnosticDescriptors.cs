@@ -60,53 +60,37 @@ internal static class DiagnosticDescriptors
         helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>
-    /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a field with <c>[ObservableAsProperty]</c> is using an invalid attribute targeting the property.
+    /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a member forwards an attribute to its generated member and the attribute type cannot be resolved.
     /// <para>
-    /// Format: <c>"The field {0} annotated with [ObservableAsProperty] is using attribute "{1}" which was not recognized as a valid type (are you missing a using directive?)"</c>.
+    /// Format: <c>"The member {0} is forwarding attribute "{1}" to its generated member, but it was not recognized as a valid type (are you missing a using directive?)"</c>.
     /// </para>
     /// </summary>
-    internal static readonly DiagnosticDescriptor InvalidPropertyTargetedAttributeOnObservableAsPropertyField = new(
+    internal static readonly DiagnosticDescriptor InvalidForwardedAttributeType = new(
         id: "RXUISG0012",
-        title: "Invalid property targeted attribute type",
-        messageFormat: "The field {0} annotated with [ObservableAsProperty] is using attribute \"{1}\" which was not recognized as a valid type (are you missing a using directive?)",
-        category: "ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator",
+        title: "Invalid forwarded attribute type",
+        messageFormat: "The member {0} is forwarding attribute \"{1}\" to its generated member, but it was not recognized as a valid type (are you missing a using directive?)",
+        category: "ReactiveUI.SourceGenerators",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
-        description: "All attributes targeting the generated property for a field annotated with [ObservableAsProperty] must correctly be resolved to valid types.",
+        description: "All attributes a member forwards to its generated member with a [property:] or [field:] target must resolve to valid types.",
         helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>
-    /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a field with <c>[ObservableAsProperty]</c> is using an invalid attribute expression targeting the property.
+    /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a member forwards an attribute to its generated member with an invalid expression.
     /// <para>
-    /// Format: <c>"The field {0} annotated with [ObservableAsProperty] is using attribute "{1}" with an invalid expression.</c>
+    /// Format: <c>"The member {0} is forwarding attribute "{1}" to its generated member with an invalid expression"</c>.
     /// The attribute constructor parameters might be incorrect.
     /// </para>
     /// </summary>
-    internal static readonly DiagnosticDescriptor InvalidPropertyTargetedAttributeExpressionOnObservableAsPropertyField = new(
+    internal static readonly DiagnosticDescriptor InvalidForwardedAttributeExpression = new(
         id: "RXUISG0013",
-        title: "Invalid property targeted attribute expression",
-        messageFormat: "The field {0} annotated with [ObservableAsProperty] is using attribute \"{1}\" with an invalid expression "
+        title: "Invalid forwarded attribute expression",
+        messageFormat: "The member {0} is forwarding attribute \"{1}\" to its generated member with an invalid expression "
             + "(are you passing any incorrect parameters to the attribute constructor?)",
-        category: "ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator",
+        category: "ReactiveUI.SourceGenerators",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
-        description: "All attributes targeting the generated property for a field annotated with [ObservableAsProperty] must be using valid expressions.",
-        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
-
-    /// <summary>
-    /// Gets a <see cref="DiagnosticDescriptor"/> indicating when a generated property created with <c>[ObservableAsProperty]</c> would cause conflicts with other generated members.
-    /// <para>
-    /// Format: <c>"The field {0}.{1} cannot be used to generate an observable property, as its name or type would cause conflicts with other generated members"</c>.
-    /// </para>
-    /// </summary>
-    internal static readonly DiagnosticDescriptor InvalidObservableAsPropertyError = new(
-        id: "RXUISG0014",
-        title: "Invalid generated property declaration",
-        messageFormat: "The field {0}.{1} cannot be used to generate an observable As property, as its name or type would cause conflicts with other generated members",
-        category: "ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator",
-        defaultSeverity: DiagnosticSeverity.Error,
-        isEnabledByDefault: true,
-        description: "The fields annotated with [ObservableAsProperty] cannot result in a property name or have a type that would cause conflicts with other generated members.",
+        description: "All attributes a member forwards to its generated member with a [property:] or [field:] target must be using valid expressions.",
         helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>
@@ -125,17 +109,6 @@ internal static class DiagnosticDescriptors
         description: "The fields annotated with [Reactive] cannot result in a property name or have a type that would cause conflicts with other generated members.",
         helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
-    /// <summary>The observable as property method has parameters error.</summary>
-    internal static readonly DiagnosticDescriptor ObservableAsPropertyMethodHasParametersError = new(
-        id: "RXUISG0017",
-        title: "Invalid generated property declaration",
-        messageFormat: "The method {0} cannot be used to generate an observable As property, as it has parameters",
-        category: "ReactiveUI.SourceGenerators.ObservableAsPropertyGenerator",
-        defaultSeverity: DiagnosticSeverity.Error,
-        isEnabledByDefault: true,
-        description: "The method annotated with [ObservableAsProperty] cannot currently initialize methods with parameters.",
-        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
-
     /// <summary>The invalid reactive object error.</summary>
     internal static readonly DiagnosticDescriptor InvalidReactiveObjectError = new(
         id: "RXUISG0018",
@@ -144,7 +117,7 @@ internal static class DiagnosticDescriptors
         category: typeof(ReactiveGenerator).FullName,
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
-        description: "The fields annotated with [Reactive] or [ObservableAsProperty] must be part of a class that inherits from ReactiveObject.",
+        description: "The fields annotated with [Reactive] must be part of a class that inherits from ReactiveObject.",
         helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>The invalid reactive object error.</summary>

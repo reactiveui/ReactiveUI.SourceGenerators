@@ -58,6 +58,18 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     /// <summary>Represents the cancellation delay in milliseconds.</summary>
     private const int CancellationDelayMilliseconds = 2_000;
 
+    /// <summary>Represents the initial value of <see cref="Test2Property"/>.</summary>
+    private const double Test2InitialValue = 1.1D;
+
+    /// <summary>Represents the initial value of <see cref="Test11Property"/> and <see cref="Test13Property"/>.</summary>
+    private const double Test11InitialValue = 11.1D;
+
+    /// <summary>Represents the initial value of <see cref="PLCPort"/>.</summary>
+    private const int PlcInitialPort = 9000;
+
+    /// <summary>Represents the initial value of <see cref="ObservableAsPropertyFromProperty"/>.</summary>
+    private const int FromPropertyInitialValue = 10;
+
     /// <summary>Provides the observable used to control the private command.</summary>
     private readonly IObservable<bool> _observable = Observable.Return(true);
 
@@ -73,23 +85,51 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     /// <summary>Provides the scheduler used by generated reactive commands.</summary>
     private readonly IScheduler _scheduler = RxSchedulers.MainThreadScheduler;
 
-    /// <summary>Stores the first observable-as-property value.</summary>
-    [property: JsonInclude]
-    [DataMember]
-    [ObservableAsProperty]
-    private double? _test2Property = 1.1D;
+    // [ObservableAsProperty] moved to ReactiveUI.Binding. The read-only properties below are backed by
+    // ObservableAsPropertyHelper fields written by hand with ReactiveUI's ToProperty. On ReactiveUI.Binding, mark a
+    // partial property [ObservableAsProperty] and assign the generated _nameHelper field with ToProperty instead.
+    /// <summary>Backs <see cref="Test2Property"/>.</summary>
+    private readonly ObservableAsPropertyHelper<double?> _test2PropertyHelper;
 
-    /// <summary>Stores the second observable-as-property value.</summary>
-    [ObservableAsProperty(ReadOnly = false)]
-    private double? _test11Property = 11.1D;
+    /// <summary>Backs <see cref="ObservableAsPropertyTest3Property"/>.</summary>
+    private readonly ObservableAsPropertyHelper<double> _observableAsPropertyTest3PropertyHelper;
 
-    /// <summary>Stores the third observable-as-property value.</summary>
-    [ObservableAsProperty(ReadOnly = false)]
-    private double _test13Property = 11.1D;
+    /// <summary>Backs <see cref="ObservableAsPropertyTest2Property"/>.</summary>
+    private readonly ObservableAsPropertyHelper<int> _observableAsPropertyTest2PropertyHelper;
 
-    /// <summary>Stores the protected observable-as-property value.</summary>
-    [ObservableAsProperty(UseProtected = true)]
-    private double _observableAsPropertyTest3Property;
+    /// <summary>Backs <see cref="ObservableAsPropertyFromProperty"/>.</summary>
+    private readonly ObservableAsPropertyHelper<int> _observableAsPropertyFromPropertyHelper;
+
+    /// <summary>Backs <see cref="PLCActive"/>.</summary>
+    private readonly ObservableAsPropertyHelper<string?> _plcActiveHelper;
+
+    /// <summary>Backs <see cref="PLCStatus"/>.</summary>
+    private readonly ObservableAsPropertyHelper<string> _plcStatusHelper;
+
+    /// <summary>Backs <see cref="PLCPort"/>.</summary>
+    private readonly ObservableAsPropertyHelper<int> _plcPortHelper;
+
+    /// <summary>Backs <see cref="InstanceOfPLC"/>.</summary>
+    private readonly ObservableAsPropertyHelper<PLCInstance> _plcInstanceHelper;
+
+    /// <summary>Backs <see cref="ReferenceTypeObservableProperty"/>.</summary>
+    private readonly ObservableAsPropertyHelper<object> _referenceTypeObservablePropertyHelper;
+
+    /// <summary>Backs <see cref="NullableReferenceTypeObservableProperty"/>.</summary>
+    private readonly ObservableAsPropertyHelper<object?> _nullableReferenceTypeObservablePropertyHelper;
+
+    /// <summary>Backs <see cref="MyReadOnlyProperty"/>.</summary>
+    private readonly ObservableAsPropertyHelper<double?> _myReadOnlyPropertyHelper;
+
+    /// <summary>Backs <see cref="MyReadOnlyNonNullProperty"/>.</summary>
+    private readonly ObservableAsPropertyHelper<double> _myReadOnlyNonNullPropertyHelper;
+
+    /// <summary>Backs <see cref="Test11Property"/>; replaced each time the view model activates.</summary>
+    private ObservableAsPropertyHelper<double?> _test11PropertyHelper;
+
+    /// <summary>Stores the value <see cref="ObservableAsPropertyTest3Property"/> follows.</summary>
+    [Reactive]
+    private double _test13Property = Test11InitialValue;
 
     /// <summary>Stores the value used by the reactive test property.</summary>
     [property: Test(AParameter = "Test Input")]
@@ -149,13 +189,17 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
         _test2PropertyHelper = CreateTest2PropertyHelper();
         _observableAsPropertyTest3PropertyHelper = CreateObservableAsPropertyTest3PropertyHelper();
         _observableAsPropertyFromPropertyHelper = CreateObservableAsPropertyFromPropertyHelper();
-        _pLCActiveHelper = CreatePlcActiveHelper();
-        _pLCStatusHelper = CreatePlcStatusHelper();
-        _pLCPortHelper = CreatePlcPortHelper();
-        _instanceOfPLCHelper = CreatePlcInstanceHelper();
-        _referenceTypeObservableProperty = default!;
+        _plcActiveHelper = CreatePlcActiveHelper();
+        _plcStatusHelper = CreatePlcStatusHelper();
+        _plcPortHelper = CreatePlcPortHelper();
+        _plcInstanceHelper = CreatePlcInstanceHelper();
         ReferenceTypeObservable = Observable.Return(new object());
-        NullableReferenceTypeObservable = Observable.Return(new object());
+        NullableReferenceTypeObservable = Observable.Return<object?>(null);
+        _referenceTypeObservablePropertyHelper = CreateReferenceTypeHelper();
+        _nullableReferenceTypeObservablePropertyHelper = CreateNullableReferenceTypeHelper();
+        _observableAsPropertyTest2PropertyHelper = CreateObservableAsPropertyTest2PropertyHelper();
+        _myReadOnlyPropertyHelper = CreateMyReadOnlyPropertyHelper();
+        _myReadOnlyNonNullPropertyHelper = CreateMyReadOnlyNonNullPropertyHelper();
         RegisterActivation();
         InitializeObservableProperties();
         ExerciseInitialCommands();
@@ -245,45 +289,48 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     /// <value>
     /// The observable as property test2.
     /// </value>
-    [ObservableAsProperty]
-    [property: Test(AParameter = "Test Input")]
     public IObservable<int> ObservableAsPropertyTest2 => Observable.Return(DefaultObservableValue);
 
-    /// <summary>
-    /// Gets the current active PLC identifier or name.
-    /// </summary>
-    [ObservableAsProperty(InitialValue = "Not Connected")]
-    public partial string? PLCActive { get; }
+    /// <summary>Gets the latest value <see cref="ObservableAsPropertyTest2"/> produced.</summary>
+    [Test(AParameter = "Test Input")]
+    public int ObservableAsPropertyTest2Property => _observableAsPropertyTest2PropertyHelper.Value;
 
-    /// <summary>
-    /// Gets the current PLC status message, initialized with an empty string.
-    /// </summary>
-    [ObservableAsProperty(InitialValue = "")]
-    public partial string PLCStatus { get; }
+    /// <summary>Gets the latest value <see cref="Test8ObservableCommand"/> produced.</summary>
+    [JsonInclude]
+    public double? Test2Property => _test2PropertyHelper.Value;
 
-    /// <summary>
-    /// Gets the TCP port number used to communicate with the PLC.
-    /// </summary>
-    [ObservableAsProperty(InitialValue = "9000")]
-    public partial int PLCPort { get; }
+    /// <summary>Gets the latest <see cref="Test12Property"/>, following it while the view model is active.</summary>
+    public double? Test11Property => _test11PropertyHelper.Value;
 
-    /// <summary>
-    /// Gets the current instance of the PLC (Programmable Logic Controller) used by the application.
-    /// </summary>
-    [ObservableAsProperty(InitialValue = $"new {nameof(PLCInstance)}()")]
-    public partial PLCInstance InstanceOfPLC { get; }
+    /// <summary>Gets the latest <see cref="Test13Property"/>.</summary>
+    public double ObservableAsPropertyTest3Property => _observableAsPropertyTest3PropertyHelper.Value;
+
+    /// <summary>Gets the latest value <see cref="ObservableAsPropertyTest"/> produced.</summary>
+    public double? MyReadOnlyProperty => _myReadOnlyPropertyHelper.Value;
+
+    /// <summary>Gets the latest value <see cref="ObservableAsPropertyTestNonNull"/> produced.</summary>
+    public double MyReadOnlyNonNullProperty => _myReadOnlyNonNullPropertyHelper.Value;
+
+    /// <summary>Gets the current active PLC identifier or name.</summary>
+    public string? PLCActive => _plcActiveHelper.Value;
+
+    /// <summary>Gets the current PLC status message, initialized with an empty string.</summary>
+    public string PLCStatus => _plcStatusHelper.Value;
+
+    /// <summary>Gets the TCP port number used to communicate with the PLC.</summary>
+    public int PLCPort => _plcPortHelper.Value;
+
+    /// <summary>Gets the current instance of the PLC (Programmable Logic Controller) used by the application.</summary>
+    public PLCInstance InstanceOfPLC => _plcInstanceHelper.Value;
 
     /// <summary>Gets the Activator which will be used by the View when Activation/Deactivation occurs.</summary>
     public ViewModelActivator Activator { get; } = new();
 
-    /// <summary>
-    /// Gets the observable as property from property.
-    /// </summary>
+    /// <summary>Gets the observable as property from property.</summary>
     /// <value>
     /// The observable as property from property.
     /// </value>
-    [ObservableAsProperty(InitialValue = "10")]
-    public partial int ObservableAsPropertyFromProperty { get; }
+    public int ObservableAsPropertyFromProperty => _observableAsPropertyFromPropertyHelper.Value;
 
     /// <summary>
     /// Gets or sets the value for internal use within the partial class or assembly.
@@ -291,24 +338,26 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     [Reactive]
     internal partial int InternalPartialPropertyTest { get; set; }
 
+    /// <summary>Gets the latest value <see cref="ReferenceTypeObservable"/> produced.</summary>
+    private object ReferenceTypeObservableProperty => _referenceTypeObservablePropertyHelper.Value;
+
+    /// <summary>Gets the latest value <see cref="NullableReferenceTypeObservable"/> produced.</summary>
+    private object? NullableReferenceTypeObservableProperty => _nullableReferenceTypeObservablePropertyHelper.Value;
+
     /// <summary>Gets the observable used for the non-null reference type example.</summary>
-    [ObservableAsProperty]
     private IObservable<object> ReferenceTypeObservable { get; }
 
     /// <summary>Gets the observable used for the nullable reference type example.</summary>
-    [ObservableAsProperty]
     private IObservable<object?> NullableReferenceTypeObservable { get; }
 
     /// <summary>Gets observables as property test.</summary>
     /// <returns>
     /// Observable of double.
     /// </returns>
-    [ObservableAsProperty(PropertyName = "MyReadOnlyProperty")]
     public IObservable<double?> ObservableAsPropertyTest() => _testSubject;
 
     /// <summary>Observables as property test non null.</summary>
     /// <returns>Observable of double.</returns>
-    [ObservableAsProperty(PropertyName = "MyReadOnlyNonNullProperty")]
     public IObservable<double> ObservableAsPropertyTestNonNull() => _testNonNullSubject;
 
     /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
@@ -333,6 +382,19 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
             _testSubject.Dispose();
             _testNonNullSubject.Dispose();
             _fromPartialTestSubject.Dispose();
+            _test2PropertyHelper.Dispose();
+            _test11PropertyHelper.Dispose();
+            _observableAsPropertyTest2PropertyHelper.Dispose();
+            _observableAsPropertyTest3PropertyHelper.Dispose();
+            _observableAsPropertyFromPropertyHelper.Dispose();
+            _plcActiveHelper.Dispose();
+            _plcStatusHelper.Dispose();
+            _plcPortHelper.Dispose();
+            _plcInstanceHelper.Dispose();
+            _referenceTypeObservablePropertyHelper.Dispose();
+            _nullableReferenceTypeObservablePropertyHelper.Dispose();
+            _myReadOnlyPropertyHelper.Dispose();
+            _myReadOnlyNonNullPropertyHelper.Dispose();
         }
 
         _disposedValue = true;

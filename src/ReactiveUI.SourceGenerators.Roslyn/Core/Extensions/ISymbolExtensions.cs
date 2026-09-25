@@ -11,6 +11,10 @@ namespace ReactiveUI.SourceGenerators.Extensions;
 /// <summary>Extension methods for the <see cref="ISymbol"/> type.</summary>
 internal static class ISymbolExtensions
 {
+    /// <summary>The fully qualified format with nullable reference type annotations, built once rather than per call.</summary>
+    private static readonly SymbolDisplayFormat FullyQualifiedWithNullabilityFormat =
+        SymbolDisplayFormat.FullyQualifiedFormat.AddMiscellaneousOptions(SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
+
     /// <summary>Provides extension members for symbols.</summary>
     /// <param name="symbol">The symbol to extend.</param>
     extension(ISymbol symbol)
@@ -23,9 +27,7 @@ internal static class ISymbolExtensions
         /// <summary>Gets the fully qualified name for this symbol, including nullability annotations.</summary>
         /// <returns>The fully qualified name for this symbol.</returns>
         internal string GetFullyQualifiedNameWithNullabilityAnnotations() =>
-            symbol.ToDisplayString(
-                SymbolDisplayFormat.FullyQualifiedFormat.AddMiscellaneousOptions(
-                    SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier));
+            symbol.ToDisplayString(FullyQualifiedWithNullabilityFormat);
 
         /// <summary>Checks whether this symbol has an attribute with the specified fully qualified metadata name.</summary>
         /// <param name="name">The attribute name to look for.</param>

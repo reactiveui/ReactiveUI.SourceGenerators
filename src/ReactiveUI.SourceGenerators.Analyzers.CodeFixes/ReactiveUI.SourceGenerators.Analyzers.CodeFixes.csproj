@@ -27,6 +27,10 @@
   <ItemGroup>
     <InternalsVisibleTo Include="ReactiveUI.SourceGenerators.Tests" />
   </ItemGroup>
+  <!-- The netstandard2.0 polyfills, shared with the generators. -->
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.SourceGenerators.Roslyn\Polyfills\*.cs" Link="Polyfills\%(Filename)%(Extension)" />
+  </ItemGroup>
   <!-- This ensures the library will be packaged as a source generator when we use `dotnet pack` -->
   <ItemGroup>
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />

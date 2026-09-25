@@ -50,52 +50,46 @@ public sealed partial class TestHelper<T> : IDisposable
 
     /// <summary>Tests a generator expecting it to fail by throwing an <see cref="InvalidOperationException"/>.</summary>
     /// <param name="source">The source code to test.</param>
+    /// <param name="methodName">The calling test, which names the snapshots.</param>
+    /// <param name="filePath">The calling test's file, whose name is its class name.</param>
     /// <returns>A task representing the asynchronous assertion operation.</returns>
-    public async Task TestFail(string source) =>
-        await Assert.That(() => RunGeneratorAndCheck(source)).Throws<InvalidOperationException>();
+    public async Task TestFail(string source, [CallerMemberName] string methodName = "", [CallerFilePath] string filePath = "") =>
+        await Assert.That(() => RunGeneratorAndCheck(source, withPreDiagnosics: false, methodName, filePath)).Throws<InvalidOperationException>();
 
     /// <summary>Tests a generator expecting it to pass successfully.</summary>
     /// <param name="source">The source code to test.</param>
+    /// <param name="methodName">The calling test, which names the snapshots.</param>
+    /// <param name="filePath">The calling test's file, whose name is its class name.</param>
     /// <returns>A task representing the asynchronous verification operation.</returns>
-    public Task TestPass(string source) =>
-        TestPass(source, withPreDiagnosics: false);
+    public Task TestPass(string source, [CallerMemberName] string methodName = "", [CallerFilePath] string filePath = "") =>
+        RunGeneratorAndCheck(source, withPreDiagnosics: false, methodName, filePath);
 
     /// <summary>Tests a generator expecting it to pass successfully.</summary>
     /// <param name="source">The source code to test.</param>
     /// <param name="withPreDiagnosics">if set to <c>true</c> [with pre diagnosics].</param>
+    /// <param name="methodName">The calling test, which names the snapshots.</param>
+    /// <param name="filePath">The calling test's file, whose name is its class name.</param>
     /// <returns>A task representing the asynchronous verification operation.</returns>
-    public Task TestPass(string source, bool withPreDiagnosics) =>
-        RunGeneratorAndCheck(source, withPreDiagnosics);
+    public Task TestPass(string source, bool withPreDiagnosics, [CallerMemberName] string methodName = "", [CallerFilePath] string filePath = "") =>
+        RunGeneratorAndCheck(source, withPreDiagnosics, methodName, filePath);
 
     /// <inheritdoc/>
     public void Dispose()
     {
     }
 
-    /// <summary>Runs the specified source generator and validates the generated code.</summary>
-    /// <param name="code">The code to be parsed and processed by the generator.</param>
-    /// <returns>The generator driver used to run the generator.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if the compilation fails.</exception>
-    public SettingsTask RunGeneratorAndCheck(string code) =>
-        RunGeneratorAndCheck(code, withPreDiagnosics: false, rerunCompilation: true);
-
-    /// <summary>Runs the specified source generator and validates the generated code.</summary>
+    /// <summary>Runs the specified source generator, validates the generated code and compares it with its snapshots.</summary>
     /// <param name="code">The code to be parsed and processed by the generator.</param>
     /// <param name="withPreDiagnosics">if set to <c>true</c> [with pre diagnosics].</param>
-    /// <returns>The generator driver used to run the generator.</returns>
-    public SettingsTask RunGeneratorAndCheck(string code, bool withPreDiagnosics) =>
-        RunGeneratorAndCheck(code, withPreDiagnosics, rerunCompilation: true);
-
-    /// <summary>Runs the specified source generator and validates the generated code.</summary>
-    /// <param name="code">The code to be parsed and processed by the generator.</param>
-    /// <param name="withPreDiagnosics">if set to <c>true</c> [with pre diagnosics].</param>
-    /// <param name="rerunCompilation">Indicates whether to rerun the compilation after running the generator.</param>
-    /// <returns>The generator driver used to run the generator.</returns>
+    /// <param name="methodName">The calling test, which names the snapshots.</param>
+    /// <param name="filePath">The calling test's file, whose name is its class name.</param>
+    /// <returns>A task that completes once the snapshots have been compared.</returns>
     /// <exception cref="InvalidOperationException">Thrown if the compilation fails.</exception>
-    public SettingsTask RunGeneratorAndCheck(
+    public Task RunGeneratorAndCheck(
         string code,
         bool withPreDiagnosics,
-        bool rerunCompilation)
+        string methodName,
+        string filePath)
     {
         var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp13);
         var compilation = CreateTestCompilation(code, parseOptions);
@@ -118,10 +112,8 @@ public sealed partial class TestHelper<T> : IDisposable
 
         var generator = new T();
         var driver = CSharpGeneratorDriver.Create(generator).WithUpdatedParseOptions(parseOptions);
-
-        return rerunCompilation
-            ? RunGeneratorAndVerify(code, driver, compilation)
-            : VerifyGenerator(driver.RunGenerators(compilation));
+        var rerunDriver = RunGeneratorAndValidate(code, driver, compilation);
+        return GeneratorSnapshot.VerifyAsync(rerunDriver, GetVerifiedFilePath(), Path.GetFileNameWithoutExtension(filePath), methodName);
     }
 
     /// <summary>Gets the verified file path for generator type <typeparamref name="T"/>.</summary>
@@ -133,7 +125,6 @@ public sealed partial class TestHelper<T> : IDisposable
         {
             nameof(ReactiveGenerator) => "REACTIVE",
             nameof(ReactiveCommandGenerator) => "REACTIVECMD",
-            nameof(ObservableAsPropertyGenerator) => "OAPH",
             nameof(IViewForGenerator) => "IVIEWFOR",
             nameof(RoutedControlHostGenerator) => "ROUTEDHOST",
             nameof(ViewModelControlHostGenerator) => "CONTROLHOST",
@@ -180,7 +171,6 @@ public sealed partial class TestHelper<T> : IDisposable
         if (typeof(T) == typeof(ReactiveObjectGenerator))
         {
             AddSyntaxTree(syntaxTrees, GetAttributeDefinitionsPropertyResult(ReactiveAttributeName), parseOptions, ReactiveAttributeHintName);
-            AddSyntaxTree(syntaxTrees, GetAttributeDefinitionsPropertyResult("ObservableAsPropertyAttribute"), parseOptions, "ObservableAsPropertyAttribute.g.cs");
         }
 
         if (typeof(T) != typeof(BindableDerivedListGenerator) && typeof(T) != typeof(ReactiveCollectionGenerator))
@@ -216,14 +206,14 @@ public sealed partial class TestHelper<T> : IDisposable
     /// <param name="code">The original source code.</param>
     /// <param name="driver">The configured generator driver.</param>
     /// <param name="compilation">The input compilation.</param>
-    /// <returns>The snapshot verification settings.</returns>
-    private static SettingsTask RunGeneratorAndVerify(string code, GeneratorDriver driver, Compilation compilation)
+    /// <returns>The driver after the run.</returns>
+    private static GeneratorDriver RunGeneratorAndValidate(string code, GeneratorDriver driver, Compilation compilation)
     {
         var rerunDriver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
         ThrowIfDiagnosticsExist(GetDiagnosticsAtLeastSeverity(diagnostics, DiagnosticSeverity.Warning), "Diagnostic", "Compilation failed due to the above diagnostics.");
         ThrowIfDiagnosticsExist(GetUnexpectedOutputDiagnostics(outputCompilation.GetDiagnostics()), "Output diagnostic", "Output compilation failed due to the above diagnostics.");
         ValidateGeneratedCode(code, rerunDriver);
-        return VerifyGenerator(rerunDriver);
+        return rerunDriver;
     }
 
     /// <summary>Writes diagnostics and throws when a collection is non-empty.</summary>
@@ -273,11 +263,6 @@ public sealed partial class TestHelper<T> : IDisposable
         if (typeof(T) != typeof(IViewForGenerator))
         {
             supportSources.Add(GetAttributeDefinitionsPropertyResult("IViewForAttribute"));
-        }
-
-        if (typeof(T) != typeof(ObservableAsPropertyGenerator) && typeof(T) != typeof(ReactiveObjectGenerator))
-        {
-            supportSources.Add(GetAttributeDefinitionsPropertyResult("ObservableAsPropertyAttribute"));
         }
 
         AddRemainingAttributeDefinitions(supportSources);
@@ -623,12 +608,4 @@ public sealed partial class TestHelper<T> : IDisposable
     /// <summary>Writes a validation message to the current test output.</summary>
     /// <param name="message">The message to write.</param>
     private static void WriteTestOutput(string message) => TestContext.Current?.OutputWriter.WriteLine(message);
-
-    /// <summary>Creates snapshot verification settings for a generator driver.</summary>
-    /// <param name="driver">The generator driver to verify.</param>
-    /// <returns>The snapshot verification settings.</returns>
-    private static SettingsTask VerifyGenerator(GeneratorDriver driver) =>
-        Verify(driver)
-            .UseDirectory(GetVerifiedFilePath())
-            .ScrubLinesContaining("[global::System.CodeDom.Compiler.GeneratedCode(\"");
-    }
+}

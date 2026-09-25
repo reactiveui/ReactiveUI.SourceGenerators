@@ -2,13 +2,9 @@
 // ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ReactiveUI.SourceGenerators.CodeGeneration;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Models;
@@ -25,30 +21,25 @@ public partial class IViewForGenerator
     /// <summary>Gets the fully qualified name used in generated-code metadata.</summary>
     internal static readonly string GeneratorName = typeof(IViewForGenerator).FullName!;
 
-    /// <summary>The attribute value that selects constant registration.</summary>
-    private const int RegisterConstantValue = 2;
+    /// <summary>The ReactiveUI namespace every view file imports; <c>IViewFor</c> itself is named in full.</summary>
+    private const string ReactiveUINamespace = "ReactiveUI";
 
-    /// <summary>The attribute value that selects transient registration.</summary>
-    private const int RegisterValue = 3;
+    /// <summary>The modifier that opens each generated public member.</summary>
+    private const string PublicModifier = "public ";
+
+    /// <summary>The <c>GeneratedCode</c> attribute stamped on the generated view model property, built once.</summary>
+    private static readonly string GeneratedCodeAttribute = SourceWriterExtensions.GeneratedCodeAttribute(GeneratorName, GeneratorVersion);
 
     /// <summary>Creates the generation model for an annotated class declaration.</summary>
     /// <param name="context">The Roslyn context for the annotated declaration.</param>
     /// <param name="token">The cancellation token.</param>
     /// <returns>The generation model, or <see langword="null"/> when the target is unsupported.</returns>
-    private static IViewForInfo? GetClassInfo(in GenericGeneratorAttributeSyntaxContext context, CancellationToken token)
+    private static IViewForInfo? GetClassInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
-        if (!(context.TargetNode is ClassDeclarationSyntax declaredClass && declaredClass.Modifiers.Any(SyntaxKind.PartialKeyword)))
-        {
-            return default;
-        }
-
         var symbol = context.TargetSymbol;
         token.ThrowIfCancellationRequested();
 
-        if (!symbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.IViewForAttributeType, out var attributeData))
-        {
-            return default;
-        }
+        var attributeData = context.Attributes[0];
 
         token.ThrowIfCancellationRequested();
         if (symbol is not INamedTypeSymbol classSymbol)
@@ -78,22 +69,10 @@ public partial class IViewForGenerator
 
         token.ThrowIfCancellationRequested();
 
-        // Get RegistrationType enum value from the attribute
-        _ = attributeData.TryGetNamedArgument("RegistrationType", out int splatRegistrationType);
-        var registrationType = GetRegistrationType(splatRegistrationType);
-
-        token.ThrowIfCancellationRequested();
-
-        // Get ViewModelRegistrationType enum value from the attribute
-        _ = attributeData.TryGetNamedArgument("ViewModelRegistrationType", out int splatViewModelRegistrationType);
-        var viewModelRegistrationType = GetRegistrationType(splatViewModelRegistrationType);
-
         return new(
             targetInfo,
             viewModelTypeName!,
-            viewForBaseType,
-            registrationType,
-            viewModelRegistrationType);
+            viewForBaseType);
     }
 
     /// <summary>Identifies the supported UI framework represented by a class symbol.</summary>
@@ -134,414 +113,220 @@ public partial class IViewForGenerator
             : IViewForBaseType.None;
     }
 
-    /// <summary>Maps an attribute registration value to its Splat registration method name.</summary>
-    /// <param name="registrationType">The integer value supplied by the attribute.</param>
-    /// <returns>The Splat registration method name, or an empty string for no registration.</returns>
-    private static string GetRegistrationType(int registrationType) => registrationType switch
-    {
-        1 => "RegisterLazySingleton",
-        RegisterConstantValue => "RegisterConstant",
-        RegisterValue => "Register",
-        _ => string.Empty,
-    };
-
     /// <summary>Generates the partial type source for a supported <c>IViewFor</c> target.</summary>
-    /// <param name="viewForInfo">The generation model.</param>
-    /// <param name="parentInfo">The enclosing type model, when the target is nested.</param>
-    /// <returns>The generated source, or an empty string for unsupported types.</returns>
-    private static string GenerateSource(
-        IViewForInfo viewForInfo,
-        TargetInfo? parentInfo = null)
+    /// <param name="info">The generation model.</param>
+    /// <param name="viewNamespace">The qualified namespace declaring <c>IViewFor</c>.</param>
+    /// <returns>The generated source, or <see langword="null"/> for unsupported types.</returns>
+    private static string? GenerateSource(IViewForInfo info, string viewNamespace)
     {
-        var forwardedAttributesString = string.Join("\n        ", AttributeDefinitions.ExcludeFromCodeCoverage);
-        var (parentDeclarations, parentClosing) = parentInfo is null
-            ? (string.Empty, string.Empty)
-            : Models.TargetInfo.GenerateParentClassDeclarations([parentInfo]);
-        return viewForInfo.BaseType switch
+        var writer = info.BaseType switch
         {
-            IViewForBaseType.Wpf or IViewForBaseType.WinUI or IViewForBaseType.Uno => GenerateDependencyPropertyViewSource(viewForInfo, parentDeclarations, parentClosing, forwardedAttributesString),
-            IViewForBaseType.WinForms => GenerateWinFormsViewSource(viewForInfo, parentDeclarations, parentClosing, forwardedAttributesString),
-            IViewForBaseType.Avalonia => GenerateAvaloniaViewSource(viewForInfo, parentDeclarations, parentClosing, forwardedAttributesString),
-            IViewForBaseType.Maui => GenerateMauiViewSource(viewForInfo, parentDeclarations, parentClosing, forwardedAttributesString),
-            _ => string.Empty,
+            IViewForBaseType.Wpf => BeginDependencyPropertyFile("System.Windows"),
+            IViewForBaseType.WinUI => BeginDependencyPropertyFile("Microsoft.UI.Xaml"),
+            IViewForBaseType.Uno => BeginDependencyPropertyFile("Windows.UI.Xaml"),
+            IViewForBaseType.WinForms => BeginFile().Using(ReactiveUINamespace).Using("System.ComponentModel"),
+            IViewForBaseType.Avalonia => BeginFile().Using("System").Using(ReactiveUINamespace).Using("Avalonia").Using("Avalonia.Controls"),
+            IViewForBaseType.Maui => BeginFile().Using("System").Using(ReactiveUINamespace).Using("Microsoft.Maui.Controls"),
+            _ => null,
         };
-    }
 
-    /// <summary>Generates source for WPF, WinUI, and Uno views.</summary>
-    /// <param name="info">The IViewFor generation model.</param>
-    /// <param name="parents">The enclosing type declarations.</param>
-    /// <param name="closingParents">The enclosing type closures.</param>
-    /// <param name="attributes">The forwarded attributes.</param>
-    /// <returns>The generated source.</returns>
-    private static string GenerateDependencyPropertyViewSource(IViewForInfo info, string parents, string closingParents, string attributes)
-    {
-        var usings = info.BaseType switch
-        {
-            IViewForBaseType.Wpf => "using ReactiveUI;\nusing System.Windows;",
-            IViewForBaseType.WinUI => "using ReactiveUI;\nusing Microsoft.UI.Xaml;",
-            IViewForBaseType.Uno => "using ReactiveUI;\nusing Windows.UI.Xaml;",
-            _ => string.Empty,
-        };
-        var viewModelPropertyDeclaration = GetDependencyPropertyDeclaration(info);
-
-        return $$"""
-// <auto-generated/>
-{{usings}}
-
-#pragma warning disable
-#nullable enable
-
-namespace {{info.TargetInfo.TargetNamespace}}
-{
-{{parents}}    /// <summary>
-    /// Partial class for the {{info.TargetInfo.TargetName}} which contains ReactiveUI IViewFor initialization.
-    /// </summary>
-    {{attributes}}
-    {{info.TargetInfo.TargetVisibility}} partial {{info.TargetInfo.TargetType}} {{info.TargetInfo.TargetName}} : IViewFor<{{info.ViewModelTypeName}}>
-    {
-        /// <summary>
-        /// The view model dependency property.
-        /// </summary>
-        [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
-{{viewModelPropertyDeclaration}}
-
-        /// <summary>
-        /// Gets the binding root view model.
-        /// </summary>
-        public {{info.ViewModelTypeName}} BindingRoot => ViewModel;
-
-        /// <inheritdoc/>
-        public {{info.ViewModelTypeName}} ViewModel { get => ({{info.ViewModelTypeName}})GetValue(ViewModelProperty); set => SetValue(ViewModelProperty, value); }
-
-        /// <inheritdoc/>
-        object? IViewFor.ViewModel { get => ViewModel; set => ViewModel = ({{info.ViewModelTypeName}})value; }
-    }
-{{closingParents}}}
-#nullable restore
-#pragma warning restore
-""";
-    }
-
-    /// <summary>Creates the dependency-property declaration while preserving its generated one-line format.</summary>
-    /// <param name="info">The IViewFor generation model.</param>
-    /// <returns>The generated dependency-property declaration.</returns>
-    private static string GetDependencyPropertyDeclaration(IViewForInfo info)
-    {
-        var builder = new StringBuilder("        public static readonly DependencyProperty ViewModelProperty = ");
-        _ = builder.Append("DependencyProperty.Register(nameof(ViewModel), typeof(");
-        _ = builder.Append(info.ViewModelTypeName).Append("), typeof(");
-        _ = builder.Append(info.TargetInfo.TargetName).Append("), new PropertyMetadata(null));");
-        return builder.ToString();
-    }
-
-    /// <summary>Generates source for Windows Forms views.</summary>
-    /// <param name="info">The IViewFor generation model.</param>
-    /// <param name="parents">The enclosing type declarations.</param>
-    /// <param name="closingParents">The enclosing type closures.</param>
-    /// <param name="attributes">The forwarded attributes.</param>
-    /// <returns>The generated source.</returns>
-    private static string GenerateWinFormsViewSource(IViewForInfo info, string parents, string closingParents, string attributes) =>
-        $$"""
-// <auto-generated/>
-using ReactiveUI;
-using System.ComponentModel;
-#nullable restore
-#pragma warning disable
-
-namespace {{info.TargetInfo.TargetNamespace}}
-{
-{{parents}}    /// <summary>
-    /// Partial class for the {{info.TargetInfo.TargetName}} which contains ReactiveUI IViewFor initialization.
-    /// </summary>
-    {{attributes}}
-    {{info.TargetInfo.TargetVisibility}} partial {{info.TargetInfo.TargetType}} {{info.TargetInfo.TargetName}} : IViewFor<{{info.ViewModelTypeName}}>
-    {
-        /// <inheritdoc/>
-        [Category("ReactiveUI")]
-        [Description("The ViewModel.")]
-        [Bindable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
-        public {{info.ViewModelTypeName}}? ViewModel {get; set; }
-
-        /// <inheritdoc/>
-        object? IViewFor.ViewModel {get => ViewModel; set => ViewModel = ({{info.ViewModelTypeName}}? )value; }
-    }
-{{closingParents}}}
-#nullable restore
-#pragma warning restore
-""";
-
-    /// <summary>Generates source for Avalonia views.</summary>
-    /// <param name="info">The IViewFor generation model.</param>
-    /// <param name="parents">The enclosing type declarations.</param>
-    /// <param name="closingParents">The enclosing type closures.</param>
-    /// <param name="attributes">The forwarded attributes.</param>
-    /// <returns>The generated source.</returns>
-    private static string GenerateAvaloniaViewSource(IViewForInfo info, string parents, string closingParents, string attributes) =>
-        $$"""
-// <auto-generated/>
-using System;
-using ReactiveUI;
-using Avalonia;
-using Avalonia.Controls;
-#nullable restore
-#pragma warning disable
-
-namespace {{info.TargetInfo.TargetNamespace}}
-{
-{{parents}}    /// <summary>
-    /// Partial class for the {{info.TargetInfo.TargetName}} which contains ReactiveUI IViewFor initialization.
-    /// </summary>
-    {{attributes}}
-    {{info.TargetInfo.TargetVisibility}} partial {{info.TargetInfo.TargetType}} {{info.TargetInfo.TargetName}} : IViewFor<{{info.ViewModelTypeName}}>
-    {
-        /// <summary>
-        /// The view model dependency property.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("AvaloniaProperty", "AVP1002", Justification = "Generic avalonia property is expected here.")]
-        public static readonly StyledProperty<{{info.ViewModelTypeName}}?> ViewModelProperty = AvaloniaProperty.Register<{{info.TargetInfo.TargetName}}, {{info.ViewModelTypeName}}>(nameof(ViewModel));
-
-        /// <summary>
-        /// Gets the binding root view model.
-        /// </summary>
-        public {{info.ViewModelTypeName}}? BindingRoot => ViewModel;
-
-        /// <inheritdoc/>
-        public {{info.ViewModelTypeName}}? ViewModel { get => ({{info.ViewModelTypeName}}?)GetValue(ViewModelProperty); set => SetValue(ViewModelProperty, value); }
-
-        /// <inheritdoc/>
-        object? IViewFor.ViewModel { get => ViewModel; set => ViewModel = ({{info.ViewModelTypeName}}?)value; }
-
-        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
-        {
-            base.OnPropertyChanged(change);
-
-            if (change.Property == DataContextProperty)
-            {
-                if (ReferenceEquals(change.OldValue, ViewModel) && change.NewValue is null or {{info.ViewModelTypeName}})
-                {
-                    SetCurrentValue(ViewModelProperty, change.NewValue);
-                }
-            }
-            else if (change.Property == ViewModelProperty)
-            {
-                if (ReferenceEquals(change.OldValue, DataContext))
-                {
-                    SetCurrentValue(DataContextProperty, change.NewValue);
-                }
-            }
-        }
-    }
-{{closingParents}}}
-#nullable restore
-#pragma warning restore
-""";
-
-    /// <summary>Generates source for MAUI views.</summary>
-    /// <param name="info">The IViewFor generation model.</param>
-    /// <param name="parents">The enclosing type declarations.</param>
-    /// <param name="closingParents">The enclosing type closures.</param>
-    /// <param name="attributes">The forwarded attributes.</param>
-    /// <returns>The generated source.</returns>
-    private static string GenerateMauiViewSource(IViewForInfo info, string parents, string closingParents, string attributes)
-    {
-        var viewModelPropertyDeclaration = GetMauiViewModelPropertyDeclaration(info);
-        return $$"""
-// <auto-generated/>
-using System;
-using ReactiveUI;
-using Microsoft.Maui.Controls;
-#nullable restore
-#pragma warning disable
-
-namespace {{info.TargetInfo.TargetNamespace}}
-{
-{{parents}}    {{attributes}}
-    {{info.TargetInfo.TargetVisibility}} partial {{info.TargetInfo.TargetType}} {{info.TargetInfo.TargetName}} : IViewFor<{{info.ViewModelTypeName}}>
-    {
-{{viewModelPropertyDeclaration}}
-
-        /// <summary>
-        /// Gets the binding root view model.
-        /// </summary>
-        public {{info.ViewModelTypeName}}? BindingRoot => ViewModel;
-
-        /// <inheritdoc/>
-        public {{info.ViewModelTypeName}}? ViewModel { get => ({{info.ViewModelTypeName}}?)GetValue(ViewModelProperty); set => SetValue(ViewModelProperty, value); }
-
-        /// <inheritdoc/>
-        object? IViewFor.ViewModel { get => ViewModel; set => ViewModel = ({{info.ViewModelTypeName}}?)value; }
-
-        /// <inheritdoc/>
-        protected override void OnBindingContextChanged()
-        {
-            base.OnBindingContextChanged();
-            ViewModel = BindingContext as {{info.ViewModelTypeName}};
-        }
-
-        private static void OnViewModelChanged(BindableObject bindableObject, object oldValue, object newValue) => bindableObject.BindingContext = newValue;
-    }
-{{closingParents}}}
-#nullable restore
-#pragma warning restore
-""";
-    }
-
-    /// <summary>Creates the MAUI bindable-property declaration while preserving its generated one-line format.</summary>
-    /// <param name="info">The IViewFor generation model.</param>
-    /// <returns>The generated bindable-property declaration.</returns>
-    private static string GetMauiViewModelPropertyDeclaration(IViewForInfo info)
-    {
-        var builder = new StringBuilder("        public static readonly BindableProperty ViewModelProperty = ");
-        _ = builder.Append("BindableProperty.Create(nameof(ViewModel), typeof(");
-        _ = builder.Append(info.ViewModelTypeName).Append("), typeof(IViewFor<");
-        _ = builder.Append(info.ViewModelTypeName).Append(">), default(");
-        _ = builder.Append(info.ViewModelTypeName);
-        _ = builder.Append("), BindingMode.OneWay, propertyChanged: OnViewModelChanged);");
-        return builder.ToString();
-    }
-
-    /// <summary>Generates the Splat registration extension source for discovered views.</summary>
-    /// <param name="viewForInfo">The discovered view-generation models.</param>
-    /// <returns>The generated extension source.</returns>
-    private static string GenerateRegistrationExtensions(in ImmutableArray<IViewForInfo> viewForInfo)
-    {
-        var sb = new StringBuilder();
-        _ = sb.AppendLine("if (resolver is null) throw new global::System.ArgumentNullException(nameof(resolver));");
-        AppendViewRegistrations(sb, viewForInfo);
-        AppendViewModelRegistrations(sb, viewForInfo);
-
-        var registrationsBody = sb.ToString().TrimEnd();
-        return
-        $$"""
-// <auto-generated/>
-#pragma warning disable
-#nullable enable
-
-using global::ReactiveUI;
-using global::Splat;
-
-namespace ReactiveUI.SourceGenerators
-{
-    /// <summary>
-    /// Source-generated registration extensions for ReactiveUI views.
-    /// </summary>
-    internal static class ReactiveUISourceGeneratorsExtensions
-    {
-        [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
-        public static void RegisterViewsForViewModelsSourceGenerated(this global::Splat.IMutableDependencyResolver resolver)
-        {
-            {{registrationsBody}}
-        }
-    }
-}
-#nullable restore
-#pragma warning restore
-""";
-    }
-
-    /// <summary>Appends unique view registrations to a generated method body.</summary>
-    /// <param name="builder">The generated method-body builder.</param>
-    /// <param name="viewForInfo">The discovered view-generation models.</param>
-    private static void AppendViewRegistrations(StringBuilder builder, ImmutableArray<IViewForInfo> viewForInfo)
-    {
-        var registrations = new HashSet<(string ViewType, string ViewModelType, string RegistrationType)>();
-        foreach (var item in viewForInfo)
-        {
-            var registrationType = item.SplatRegistrationType;
-            var viewModelType = GetGlobalTypeName(item.ViewModelTypeName);
-            if (string.IsNullOrWhiteSpace(registrationType) || viewModelType is null)
-            {
-                continue;
-            }
-
-            var viewType = item.TargetInfo.TargetNamespaceWithNamespace;
-            if (registrations.Add((viewType, viewModelType, registrationType)))
-            {
-                AppendViewRegistration(builder, registrationType, viewType, viewModelType);
-            }
-        }
-    }
-
-    /// <summary>Appends unique view model registrations to a generated method body.</summary>
-    /// <param name="builder">The generated method-body builder.</param>
-    /// <param name="viewForInfo">The discovered view-generation models.</param>
-    private static void AppendViewModelRegistrations(StringBuilder builder, ImmutableArray<IViewForInfo> viewForInfo)
-    {
-        var registrations = new HashSet<(string ViewModelType, string RegistrationType)>();
-        foreach (var item in viewForInfo)
-        {
-            var registrationType = item.SplatViewModelRegistrationType;
-            var viewModelType = GetGlobalTypeName(item.ViewModelTypeName);
-            if (string.IsNullOrWhiteSpace(registrationType) || viewModelType is null)
-            {
-                continue;
-            }
-
-            if (registrations.Add((viewModelType, registrationType)))
-            {
-                AppendViewModelRegistration(builder, registrationType, viewModelType);
-            }
-        }
-    }
-
-    /// <summary>Normalizes a type name for use in generated source.</summary>
-    /// <param name="typeName">The type name supplied by the attribute.</param>
-    /// <returns>A global-qualified type name, or <see langword="null"/> when no type was supplied.</returns>
-    private static string? GetGlobalTypeName(string typeName)
-    {
-        if (string.IsNullOrWhiteSpace(typeName))
+        if (writer is null)
         {
             return null;
         }
 
-        return typeName.StartsWith("global::", System.StringComparison.Ordinal)
-            ? typeName
-            : $"global::{typeName}";
-    }
-
-    /// <summary>Appends one view registration statement.</summary>
-    /// <param name="builder">The generated method-body builder.</param>
-    /// <param name="registrationType">The Splat registration method.</param>
-    /// <param name="viewType">The generated view type.</param>
-    /// <param name="viewModelType">The generated view model type.</param>
-    private static void AppendViewRegistration(StringBuilder builder, string registrationType, string viewType, string viewModelType)
-    {
-        var serviceType = $"global::ReactiveUI.IViewFor<{viewModelType}>";
-        var registration = registrationType switch
+        // Only the dependency-property file opens with the usual pragma pair; the others restore nullability first.
+        if (info.BaseType is not (IViewForBaseType.Wpf or IViewForBaseType.WinUI or IViewForBaseType.Uno))
         {
-            "RegisterLazySingleton" => $"resolver.{registrationType}<{serviceType}>(() => new {viewType}());",
-            "Register" => $"resolver.{registrationType}<{serviceType}, {viewType}>();",
-            "RegisterConstant" => $"resolver.{registrationType}<{serviceType}>(new {viewType}());",
-            _ => null,
-        };
-        if (registration is null)
-        {
-            return;
+            _ = writer.Line("#nullable restore").Line("#pragma warning disable").BlankLine();
         }
 
-        _ = builder.Append("            ").AppendLine(registration);
-    }
-
-    /// <summary>Appends one view model registration statement.</summary>
-    /// <param name="builder">The generated method-body builder.</param>
-    /// <param name="registrationType">The Splat registration method.</param>
-    /// <param name="viewModelType">The generated view model type.</param>
-    private static void AppendViewModelRegistration(StringBuilder builder, string registrationType, string viewModelType)
-    {
-        var registration = registrationType switch
+        var target = info.TargetInfo;
+        var depth = writer.OpenNamespace(target.TargetNamespace) + writer.OpenContainingTypes(target.ParentInfo);
+        WriteTypeDeclaration(writer, info, viewNamespace, info.BaseType != IViewForBaseType.Maui);
+        if (info.BaseType == IViewForBaseType.WinForms)
         {
-            "RegisterLazySingleton" => $"resolver.{registrationType}<{viewModelType}>(() => new {viewModelType}());",
-            "Register" => $"resolver.{registrationType}<{viewModelType}, {viewModelType}>();",
-            "RegisterConstant" => $"resolver.{registrationType}<{viewModelType}>(new {viewModelType}());",
-            _ => null,
-        };
-        if (registration is null)
+            WriteWinFormsMembers(writer, info.ViewModelTypeName, viewNamespace);
+        }
+        else if (info.BaseType == IViewForBaseType.Avalonia)
         {
-            return;
+            WriteAvaloniaMembers(writer, info, viewNamespace);
+        }
+        else if (info.BaseType == IViewForBaseType.Maui)
+        {
+            WriteMauiMembers(writer, info.ViewModelTypeName, viewNamespace);
+        }
+        else
+        {
+            WriteDependencyPropertyMembers(writer, info, viewNamespace);
         }
 
-        _ = builder.Append("            ").AppendLine(registration);
+        return writer.CloseBlock()
+            .CloseBlocks(depth)
+            .RestoreNullableAndWarnings()
+            .ToStringAndReturn();
     }
+
+    /// <summary>Rents a writer and writes the auto-generated marker every view file starts with.</summary>
+    /// <returns>The writer.</returns>
+    private static SourceWriter BeginFile() => SourceWriter.Rent().AutoGenerated();
+
+    /// <summary>Starts a WPF, WinUI or Uno view file, whose imports differ only in the XAML namespace.</summary>
+    /// <param name="xamlNamespace">The namespace declaring <c>DependencyProperty</c>.</param>
+    /// <returns>The writer, after the file's header.</returns>
+    private static SourceWriter BeginDependencyPropertyFile(string xamlNamespace) =>
+        BeginFile()
+            .Using(ReactiveUINamespace)
+            .Using(xamlNamespace)
+            .BlankLine()
+            .DisableWarningsEnableNullable()
+            .BlankLine();
+
+    /// <summary>Opens the view's partial declaration implementing <c>IViewFor</c>.</summary>
+    /// <param name="writer">The writer, at the level of the view's declaration.</param>
+    /// <param name="info">The generation model.</param>
+    /// <param name="viewNamespace">The qualified namespace declaring <c>IViewFor</c>.</param>
+    /// <param name="includeSummary">Whether the declaration carries a summary doc comment.</param>
+    private static void WriteTypeDeclaration(SourceWriter writer, IViewForInfo info, string viewNamespace, bool includeSummary)
+    {
+        var target = info.TargetInfo;
+        if (includeSummary)
+        {
+            _ = writer.Line("/// <summary>")
+                .Append("/// Partial class for the ").Append(target.TargetName).Line(" which contains ReactiveUI IViewFor initialization.")
+                .Line("/// </summary>");
+        }
+
+        foreach (var attribute in AttributeDefinitions.ExcludeFromCodeCoverage)
+        {
+            _ = writer.Line(attribute);
+        }
+
+        _ = writer.BeginPartialType(target).Append(" : ").Append(viewNamespace).Append(".IViewFor<").Append(info.ViewModelTypeName).Line(">").OpenBlock();
+    }
+
+    /// <summary>Writes the members of a WPF, WinUI or Uno view, backed by a dependency property.</summary>
+    /// <param name="writer">The writer, at the level of the view's members.</param>
+    /// <param name="info">The generation model.</param>
+    /// <param name="viewNamespace">The qualified namespace declaring <c>IViewFor</c>.</param>
+    private static void WriteDependencyPropertyMembers(SourceWriter writer, IViewForInfo info, string viewNamespace)
+    {
+        var viewModelType = info.ViewModelTypeName;
+        _ = writer.Lines("""
+                /// <summary>
+                /// The view model dependency property.
+                /// </summary>
+                """)
+            .Line(GeneratedCodeAttribute)
+            .Append("public static readonly DependencyProperty ViewModelProperty = DependencyProperty.Register(nameof(ViewModel), typeof(")
+            .Append(viewModelType).Append("), typeof(").Append(info.TargetInfo.TargetName).Line("), new PropertyMetadata(null));")
+            .BlankLine();
+        WriteViewModelMembers(writer, viewModelType, string.Empty, viewNamespace);
+    }
+
+    /// <summary>Writes the members of a Windows Forms view, backed by an auto-property.</summary>
+    /// <param name="writer">The writer, at the level of the view's members.</param>
+    /// <param name="viewModelType">The view model's type name.</param>
+    /// <param name="viewNamespace">The qualified namespace declaring <c>IViewFor</c>.</param>
+    private static void WriteWinFormsMembers(SourceWriter writer, string viewModelType, string viewNamespace) =>
+        _ = writer.Lines("""
+                /// <inheritdoc/>
+                [Category("ReactiveUI")]
+                [Description("The ViewModel.")]
+                [Bindable(true)]
+                [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+                """)
+            .Line(GeneratedCodeAttribute)
+            .Append(PublicModifier).Append(viewModelType).Line("? ViewModel {get; set; }")
+            .BlankLine()
+            .InheritDoc()
+            .Append("object? ").Append(viewNamespace).Append(".IViewFor.ViewModel {get => ViewModel; set => ViewModel = (").Append(viewModelType).Line("? )value; }");
+
+    /// <summary>Writes the members of an Avalonia view, backed by a styled property kept in step with the data context.</summary>
+    /// <param name="writer">The writer, at the level of the view's members.</param>
+    /// <param name="info">The generation model.</param>
+    /// <param name="viewNamespace">The qualified namespace declaring <c>IViewFor</c>.</param>
+    private static void WriteAvaloniaMembers(SourceWriter writer, IViewForInfo info, string viewNamespace)
+    {
+        var viewModelType = info.ViewModelTypeName;
+        _ = writer.Lines("""
+                /// <summary>
+                /// The view model dependency property.
+                /// </summary>
+                [System.Diagnostics.CodeAnalysis.SuppressMessage("AvaloniaProperty", "AVP1002", Justification = "Generic avalonia property is expected here.")]
+                """)
+            .Append("public static readonly StyledProperty<").Append(viewModelType)
+            .Append("?> ViewModelProperty = AvaloniaProperty.Register<").Append(info.TargetInfo.TargetName).Append(", ").Append(viewModelType)
+            .Line(">(nameof(ViewModel));")
+            .BlankLine();
+        WriteViewModelMembers(writer, viewModelType, "?", viewNamespace);
+        _ = writer.BlankLine()
+            .Lines("""
+                protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+                {
+                    base.OnPropertyChanged(change);
+
+                    if (change.Property == DataContextProperty)
+                    {
+                """)
+            .Indent().Indent()
+            .Append("if (ReferenceEquals(change.OldValue, ViewModel) && change.NewValue is null or ").Append(viewModelType).Line(")")
+            .Outdent().Outdent()
+            .Lines("""
+                        {
+                            SetCurrentValue(ViewModelProperty, change.NewValue);
+                        }
+                    }
+                    else if (change.Property == ViewModelProperty)
+                    {
+                        if (ReferenceEquals(change.OldValue, DataContext))
+                        {
+                            SetCurrentValue(DataContextProperty, change.NewValue);
+                        }
+                    }
+                }
+                """);
+    }
+
+    /// <summary>Writes the members of a MAUI view, backed by a bindable property kept in step with the binding context.</summary>
+    /// <param name="writer">The writer, at the level of the view's members.</param>
+    /// <param name="viewModelType">The view model's type name.</param>
+    /// <param name="viewNamespace">The qualified namespace declaring <c>IViewFor</c>.</param>
+    private static void WriteMauiMembers(SourceWriter writer, string viewModelType, string viewNamespace)
+    {
+        _ = writer.Append("public static readonly BindableProperty ViewModelProperty = BindableProperty.Create(nameof(ViewModel), typeof(")
+            .Append(viewModelType).Append("), typeof(").Append(viewNamespace).Append(".IViewFor<").Append(viewModelType).Append(">), default(").Append(viewModelType)
+            .Line("), BindingMode.OneWay, propertyChanged: OnViewModelChanged);")
+            .BlankLine();
+        WriteViewModelMembers(writer, viewModelType, "?", viewNamespace);
+        _ = writer.BlankLine()
+            .InheritDoc()
+            .Line("protected override void OnBindingContextChanged()")
+            .OpenBlock()
+            .Line("base.OnBindingContextChanged();")
+            .Append("ViewModel = BindingContext as ").Append(viewModelType).EndStatement()
+            .CloseBlock()
+            .BlankLine()
+            .Line("private static void OnViewModelChanged(BindableObject bindableObject, object oldValue, object newValue) => bindableObject.BindingContext = newValue;");
+    }
+
+    /// <summary>Writes the binding root and the typed and untyped <c>ViewModel</c> properties over <c>ViewModelProperty</c>.</summary>
+    /// <param name="writer">The writer, at the level of the view's members.</param>
+    /// <param name="viewModelType">The view model's type name.</param>
+    /// <param name="nullableSuffix">The annotation after the view model type: <c>?</c>, or empty.</param>
+    /// <param name="viewNamespace">The qualified namespace declaring <c>IViewFor</c>.</param>
+    private static void WriteViewModelMembers(SourceWriter writer, string viewModelType, string nullableSuffix, string viewNamespace) =>
+        _ = writer.Lines("""
+                /// <summary>
+                /// Gets the binding root view model.
+                /// </summary>
+                """)
+            .Append(PublicModifier).Append(viewModelType).Append(nullableSuffix).Line(" BindingRoot => ViewModel;")
+            .BlankLine()
+            .InheritDoc()
+            .Append(PublicModifier).Append(viewModelType).Append(nullableSuffix).Append(" ViewModel { get => (").Append(viewModelType).Append(nullableSuffix)
+            .Line(")GetValue(ViewModelProperty); set => SetValue(ViewModelProperty, value); }")
+            .BlankLine()
+            .InheritDoc()
+            .Append("object? ").Append(viewNamespace).Append(".IViewFor.ViewModel { get => ViewModel; set => ViewModel = (").Append(viewModelType).Append(nullableSuffix).Line(")value; }");
 }

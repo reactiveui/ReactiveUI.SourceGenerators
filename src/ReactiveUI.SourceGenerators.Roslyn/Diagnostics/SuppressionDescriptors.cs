@@ -15,17 +15,11 @@ internal static class SuppressionDescriptors
         suppressedDiagnosticId: "CS0657",
         justification: "Methods using [ReactiveCommand] can use [field:] and [property:] attribute lists to forward attributes to the generated fields and properties");
 
-    /// <summary>Suppresses unused-field diagnostics for observable-as-property helpers.</summary>
-    internal static readonly SuppressionDescriptor FieldIsUsedToGenerateAObservableAsPropertyHelper = new(
-        id: "RXUISPR0002",
-        suppressedDiagnosticId: "IDE0052",
-        justification: "Fields using [ObservableAsProperty] are never read");
-
     /// <summary>Suppresses static-member recommendations for generator-backed reactive members.</summary>
     internal static readonly SuppressionDescriptor ReactiveCommandDoesNotAccessInstanceData = new(
         id: "RXUISPR0003",
         suppressedDiagnosticId: "CA1822",
-        justification: "Methods using [ReactiveCommand] or [ObservableAsProperty] do not need to be static");
+        justification: "Methods using [ReactiveCommand] do not need to be static");
 
     /// <summary>Suppresses readonly-field recommendations for reactive fields.</summary>
     internal static readonly SuppressionDescriptor ReactiveFieldsShouldNotBeReadOnly = new(

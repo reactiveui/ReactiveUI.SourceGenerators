@@ -2,12 +2,15 @@
 // ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
+using System;
 using System.Collections.Immutable;
-using System.Text;
+using System.Threading;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using ReactiveUI.SourceGenerators.CodeGeneration;
+using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Models;
 
@@ -21,72 +24,61 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(static ctx =>
-            ctx.AddSource($"{AttributeDefinitions.IViewForAttributeType}.g.cs", SourceText.From(AttributeDefinitions.IViewForAttribute, Encoding.UTF8)));
+            ctx.AddSource($"{AttributeDefinitions.IViewForAttributeType}.g.cs", SourceText.From(AttributeDefinitions.IViewForAttribute, SourceWriterExtensions.Utf8WithoutBom)));
 
         // Gather info for all annotated IViewFor Classes
-        var viewForInfo =
-            context.SyntaxProvider
-            .ForAttributeWithMetadataNameWithGenerics(
-                AttributeDefinitions.IViewForAttributeType,
-                static (node, _) => node is ClassDeclarationSyntax { AttributeLists.Count: > 0 },
-                static (context, token) => GetClassInfo(context, token))
-            .Where(static x => x is not null)
-            .Select(static (x, _) => x!)
-            .Collect();
+        // The generic IViewFor<T> and the IViewFor(string) forms are different metadata names, so each has its own
+        // ForAttributeWithMetadataName; both share one predicate and one transform. Only a partial class can take the
+        // generated members, so anything else is rejected from syntax before any binding.
+        Func<SyntaxNode, CancellationToken, bool> predicate = static (node, _) =>
+            node is ClassDeclarationSyntax { AttributeLists.Count: > 0 } declaration && declaration.Modifiers.Any(SyntaxKind.PartialKeyword);
+        Func<GeneratorAttributeSyntaxContext, CancellationToken, IViewForInfo?> transform = static (context, token) => GetClassInfo(context, token);
+        var named = context.SyntaxProvider.ForAttributeWithMetadataName(AttributeDefinitions.IViewForAttributeType, predicate, transform).Collect();
+        var generic = context.SyntaxProvider.ForAttributeWithMetadataName(AttributeDefinitions.IViewForGenericAttributeType, predicate, transform).Collect();
+        var types = named.Combine(generic)
+            .SelectMany(static (pair, _) => Join(pair.Left, pair.Right))
+            .GroupByTarget(static info => info.TargetInfo)
+            .WithTrackingName(TrackingNames.ViewForTypes);
 
-        // Generate the requested properties and methods for IViewFor
-        context.RegisterSourceOutput(viewForInfo, static (context, input) =>
+        // View registration is not generated here; ReactiveUI.Binding's view locator registers views. The interface is
+        // named in full from the compilation's references, so it binds without a using for ReactiveUI.Binding.
+        context.RegisterSourceOutput(types.Combine(context.ReactiveUiIntegration()), static (context, input) =>
         {
-            var groupedPropertyInfo = GroupByTarget(input);
+            var info = input.Left[0];
 
-            const string fileName = "ReactiveUI.ReactiveUISourceGeneratorsExtensions.g.cs";
-
-            if (groupedPropertyInfo.Count == 0)
+            // Only a supported UI framework base type gets a source.
+            if (GenerateSource(info, input.Right.ViewNamespace) is not { } source)
             {
-                // Even if there are no views, emit an empty extension to keep API stable.
-                var empty = GenerateRegistrationExtensions(ImmutableArray<IViewForInfo>.Empty);
-                context.AddSource(fileName, SourceText.From(empty, Encoding.UTF8));
                 return;
             }
 
-            // Generate the IViewFor Splat Registration code for all classes in a single extension method here
-            var registrationSource = GenerateRegistrationExtensions(input);
-            context.AddSource(fileName, SourceText.From(registrationSource, Encoding.UTF8));
-
-            foreach (var grouping in groupedPropertyInfo.Values)
-            {
-                var info = grouping[0];
-                var source = GenerateSource(info, info.TargetInfo.ParentInfo);
-
-                // Only add source if it's not empty (i.e., a supported UI framework base type was detected)
-                if (!string.IsNullOrWhiteSpace(source))
-                {
-                    context.AddSource($"{info.TargetInfo.FileHintName}.IViewFor.g.cs", source);
-                }
-            }
+            context.AddSource($"{info.TargetInfo.FileHintName}.IViewFor.g.cs", source);
         });
     }
 
-    /// <summary>Groups source-generation inputs by their annotated target type.</summary>
-    /// <param name="input">The discovered <c>IViewFor</c> targets.</param>
-    /// <returns>The targets grouped by their generated file identity.</returns>
-    private static Dictionary<(string FileHintName, string TargetName, string TargetNamespace, string TargetVisibility, string TargetType), List<IViewForInfo>> GroupByTarget(
-        ImmutableArray<IViewForInfo> input)
+    /// <summary>Joins the views found through each attribute form, dropping the targets that were declined.</summary>
+    /// <param name="named">The views marked <c>[IViewFor("...")]</c>.</param>
+    /// <param name="generic">The views marked <c>[IViewFor&lt;T&gt;]</c>.</param>
+    /// <returns>The views.</returns>
+    private static ImmutableArray<IViewForInfo> Join(ImmutableArray<IViewForInfo?> named, ImmutableArray<IViewForInfo?> generic)
     {
-        Dictionary<(string, string, string, string, string), List<IViewForInfo>> result = [];
-        foreach (var info in input)
+        var builder = ImmutableArray.CreateBuilder<IViewForInfo>(named.Length + generic.Length);
+        foreach (var info in named)
         {
-            var target = info.TargetInfo;
-            var key = (target.FileHintName, target.TargetName, target.TargetNamespace, target.TargetVisibility, target.TargetType);
-            if (!result.TryGetValue(key, out var values))
+            if (info is not null)
             {
-                values = [];
-                result.Add(key, values);
+                builder.Add(info);
             }
-
-            values.Add(info);
         }
 
-        return result;
+        foreach (var info in generic)
+        {
+            if (info is not null)
+            {
+                builder.Add(info);
+            }
+        }
+
+        return builder.ToImmutable();
     }
 }

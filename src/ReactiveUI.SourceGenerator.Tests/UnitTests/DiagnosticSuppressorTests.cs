@@ -18,10 +18,10 @@ public sealed class DiagnosticSuppressorTests
     private const int InvalidTargetDiagnosticCount = 4;
 
     /// <summary>The number of synthetic diagnostics expected to be suppressed.</summary>
-    private const int SyntheticSuppressedDiagnosticCount = 8;
+    private const int SyntheticSuppressedDiagnosticCount = 2;
 
     /// <summary>The number of synthetic diagnostics intentionally left unsuppressed.</summary>
-    private const int SyntheticUnsuppressedDiagnosticCount = 7;
+    private const int SyntheticUnsuppressedDiagnosticCount = 6;
 
     /// <summary>Source containing each invalid generated-member attribute target.</summary>
     private const string AttributeTargetSource = """
@@ -77,8 +77,6 @@ public sealed class DiagnosticSuppressorTests
             [AttributeUsage(AttributeTargets.Method)]
             public sealed class ReactiveCommandAttribute : Attribute;
 
-            [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property)]
-            public sealed class ObservableAsPropertyAttribute : Attribute;
         }
 
         namespace TestNs
@@ -99,26 +97,14 @@ public sealed class DiagnosticSuppressorTests
                 {
                 }
 
-                [ReactiveUI.SourceGenerators.ObservableAsProperty]
-                [field: Obsolete]
-                private object Observe() => new();
 
                 [field: Obsolete]
                 private object NotObservable() => new();
 
-                [ReactiveUI.SourceGenerators.ObservableAsProperty]
-                private object ObservableValue => new();
-
-                [ReactiveUI.SourceGenerators.ObservableAsProperty]
-                [property: Obsolete]
-                private object ObservePropertyTarget() => new();
 
                 [method: Obsolete]
                 private object MethodTarget() => new();
 
-                [ReactiveUI.SourceGenerators.ObservableAsProperty]
-                [field: Obsolete]
-                private object ObservablePropertyTarget => new();
             }
         }
         """;
@@ -176,18 +162,12 @@ public sealed class DiagnosticSuppressorTests
             new ReactiveCommandAttributeWithFieldOrPropertyTargetDiagnosticSuppressor(),
             "RXUISPR0001",
             InvalidAttributeTargetDiagnosticId);
-        await AssertDescriptor(
-            new ObservableAsPropertyAttributeWithFieldNeverReadDiagnosticSuppressor(),
-            "RXUISPR0002",
-            "IDE0052");
+
         await AssertDescriptor(
             new ReactiveCommandMethodDoesNotNeedToBeStaticDiagnosticSuppressor(),
             "RXUISPR0003",
             "CA1822");
-        await AssertDescriptor(
-            new OAPHMethodDoesNotNeedToBeStaticDiagnosticSuppressor(),
-            "RXUISPR0003",
-            "CA1822");
+
         await AssertDescriptor(
             new ReactiveFieldDoesNotNeedToBeReadOnlyDiagnosticSuppressor(),
             "RXUISPR0004",
@@ -260,8 +240,7 @@ public sealed class DiagnosticSuppressorTests
         ImmutableArray<DiagnosticAnalyzer> analyzers =
         [
             CreateMemberCoverageDiagnosticAnalyzer(),
-            new OAPHMethodDoesNotNeedToBeStaticDiagnosticSuppressor(),
-            new ObservableAsPropertyAttributeWithFieldNeverReadDiagnosticSuppressor(),
+
             new ReactiveCommandMethodDoesNotNeedToBeStaticDiagnosticSuppressor(),
             new ReactiveFieldDoesNotNeedToBeReadOnlyDiagnosticSuppressor(),
         ];

@@ -13,11 +13,11 @@ This documentation covers using ReactiveUI Source Generators to simplify and enh
 - [Supported Attributes & Features](#supported-attributes)
 - [Detailed Usage](#welcome-to-a-new-way---source-generators)
   - [Reactive](#reactive)
-  - [ObservableAsProperty](#observableasproperty)
   - [ReactiveCommand](#reactivecommand)
   - [IViewFor](#iviewfor)
   - [BindableDerivedList](#usage-readonlyobservablecollection)
   - [Platform-Specific Attributes](#platform-specific-attributes)
+- [Moved to ReactiveUI.Binding](#moved-to-reactiveuibinding)
 - [Compatibility Notes](#compatibility-notes)
 - [Credits](#credits)
 
@@ -40,10 +40,6 @@ ReactiveUI Source Generators automatically generate ReactiveUI objects to stream
 - `[Reactive(Inheritance = InheritanceModifier.Virtual)]` With field and access modifiers. This will generate a virtual property.
 - `[Reactive(UseRequired = true)]` With field and access modifiers. This will generate a required property, (Not Required for partial properties, use required keyword for property declaration).
 - `[Reactive(nameof(RaiseProperty1), nameof(RaiseProperty2))]` With field and property changed notification for additional properties.
-- `[ObservableAsProperty]` With field, method, Observable property and partial property support (C# 13 Visual Studio Version 17.12.0)
-- `[ObservableAsProperty(ReadOnly = false)]` Removes readonly keyword from the generated helper field
-- `[ObservableAsProperty(PropertyName = "ReadOnlyPropertyName")]`
-- `[ObservableAsProperty(InitialValue = "Default Value")]` Only valid for partial properties using (C# 13 Visual Studio Version 17.12.0)
 - `[ReactiveCommand]`
 - `[ReactiveCommand(RunInBackground = true)]` runs a synchronous command on ReactiveUI's background scheduler
 - `[ReactiveCommand(CanExecute = nameof(IObservableBoolName))]` with CanExecute
@@ -54,24 +50,13 @@ ReactiveUI Source Generators automatically generate ReactiveUI objects to stream
 - `[IViewFor(nameof(ViewModelName))]`
 - `[IViewFor<YourViewModelType>]`
 - `[IViewFor("YourNameSpace.YourGenericViewModel<int>")]` Generic
-- `[IViewFor<YourViewModelType>(RegistrationType = SplatRegistrationType.PerRequest)]` with Splat Registration Type for IViewFor registration.
-- `[IViewFor<YourViewModelType>(RegistrationType = SplatRegistrationType.LazySingleton)]` Generic with Splat Registration Type for IViewFor registration.
-- `[IViewFor<YourViewModelType>(RegistrationType = SplatRegistrationType.Constant)]` Generic with Splat Registration Type for IViewFor registration.
-- `[IViewFor<YourViewModelType>(ViewModelRegistrationType = SplatRegistrationType.PerRequest)]` Generic with Splat Registration Type for ViewModel registration.
-- `[IViewFor<YourViewModelType>(ViewModelRegistrationType = SplatRegistrationType.LazySingleton)]` Generic with Splat Registration Type for ViewModel registration.
-- `[IViewFor<YourViewModelType>(ViewModelRegistrationType = SplatRegistrationType.Constant)]` Generic with Splat Registration Type for ViewModel registration.
 - `[RoutedControlHost("YourNameSpace.CustomControl")]`
 - `[ViewModelControlHost("YourNameSpace.CustomControl")]`
 - `[BindableDerivedList]` Generates a derived list from a ReadOnlyObservableCollection backing field
 - `[ReactiveCollection]` Generates property changed notifications on add, remove, new actions on a ObservableCollection backing field
 - `[IReactiveObject]` Generates IReactiveObject implementation for classes not able to inherit from ReactiveObject
 
-#### IViewFor Registration generator
-
-To register all views for view models registered via the IViewFor Source Generator with a specified `RegistrationType`, call the following method during application startup:
-```csharp
-Splat.Locator.CurrentMutable.RegisterViewsForViewModelsSourceGenerated();
-```
+`[ObservableAsProperty]` and IViewFor view registration moved to ReactiveUI.Binding; see [Moved to ReactiveUI.Binding](#moved-to-reactiveuibinding).
 
 ### Compatibility Notes
 - For **.NET Framework 4.8 and older**, add [Polyfill by Simon Cropp](https://github.com/SimonCropp/Polyfill) or [PolySharp by Sergio Pedri](https://github.com/Sergio0694/PolySharp) to your project and set the `LangVersion` to 12.0 or later in your project file.
@@ -105,14 +90,11 @@ For more information on analyzer codes, see the [analyzer codes documentation](h
 ### `[Reactive]`
 Marks properties as reactive, generating getter and setter code.
 
-### `[ObservableAsProperty]`
-Generates read-only properties backed by an `ObservableAsPropertyHelper` based on an `IObservable`.
-
 ### `[ReactiveCommand]`
 Generates commands, with options to add attributes or enable `CanExecute` functionality.
 
 ### `[IViewFor]`
-Links a view to a view model for data binding. Supports generic types and Splat registration.
+Links a view to a view model for data binding. Supports generic types.
 
 ### `[RoutedControlHost]` and `[ViewModelControlHost]`
 Platform-specific attributes for control hosting in WinForms applications.
@@ -148,31 +130,6 @@ With ReactiveUI.Fody the `[Reactive]` Attribute was placed on a Public Property 
 public string Name { get; set; }
 ```
 
-## ObservableAsPropertyHelper properties
-Similarly, to declare output properties, the code looks like this:
-```csharp
-public partial class MyReactiveClass : ReactiveObject
-{
-    ObservableAsPropertyHelper<string> _firstName;
-
-    public MyReactiveClass()
-    {
-        _firstName = firstNameObservable
-            .ToProperty(this, x => x.FirstName);
-    }
-
-    public string FirstName => _firstName.Value;
-
-    private IObservable<string> firstNameObservable() => Observable.Return("Test");
-}
-```
-
-With ReactiveUI.Fody, you can simply declare a read-only property using the [ObservableAsProperty] attribute, using either option of the two options shown below.
-```csharp
-[ObservableAsProperty]
-public string FirstName { get; }
-```
-
 ## Migration from ReactiveUI.Fody
 To migrate from ReactiveUI.Fody to ReactiveUI.SourceGenerators, follow these steps:
 1. **Remove ReactiveUI.Fody**: Uninstall the ReactiveUI.Fody NuGet package from your project.
@@ -181,8 +138,9 @@ Remove the Fody support files from the project directory
 - FodyWeaver.xml
 - FodyWeavers.xsd
 2. **Install ReactiveUI.SourceGenerators**: Add the ReactiveUI.SourceGenerators NuGet package
-3. **Update Property Declarations**: Place `[Reactive]` and `[ObservableAsProperty]` attributes on your properties as shown in the examples below and ensure that your classes and properties are declared as `partial`. You can also use field backing for `[Reactive]` properties as shown in the examples. This is a change from ReactiveUI.Fody which only supported property backing.
+3. **Update Property Declarations**: Place `[Reactive]` attributes on your properties as shown in the examples below and ensure that your classes and properties are declared as `partial`. You can also use field backing for `[Reactive]` properties as shown in the examples. This is a change from ReactiveUI.Fody which only supported property backing.
 Remove using directives for `ReactiveUI.Fody.Helpers` and add using directives for `ReactiveUI.SourceGenerators`.
+Fody's `[ObservableAsProperty]` has no equivalent in this package; see [A read-only property backed by an observable](#a-read-only-property-backed-by-an-observable).
 4. **Rebuild Your Project**: Ensure that your project builds successfully and that the generated code behaves as expected.
 
 # Welcome to a new way - Source Generators
@@ -267,176 +225,81 @@ Define types with `[Reactive]` properties in assembly `A`, and then define the
 `System.Text.Json.JsonSerializerContext` source generation context in assembly `B`, and let
 `B` reference `A`.
 
-## Usage ObservableAsPropertyHelper `[ObservableAsProperty]`
+## Moved to ReactiveUI.Binding
 
-ObservableAsPropertyHelper is used to create a read-only property from an IObservable. The generated code will create a backing field and a property that returns the value of the backing field. The backing field is initialized with the value of the IObservable when the class is instantiated.
+ReactiveUI's binding engine, [ReactiveUI.Binding](https://github.com/reactiveui/ReactiveUI.Binding.SourceGenerators),
+now provides two features this package used to generate. They have been removed from ReactiveUI.SourceGenerators.
 
-A private field is created with the name of the property prefixed with an underscore. The field is initialized with the value of the IObservable when the class is instantiated. The property is created with the same name as the field without the underscore. The property returns the value of the field until initialized, then it returns the value of the IObservable.
+| Removed | Use instead |
+| --- | --- |
+| `[ObservableAsProperty]` on a field, method, observable property or partial property, and the generated `InitializeOAPH()` | ReactiveUI.Binding's `[ObservableAsProperty]` on a `partial` property, assigned with `ToProperty` |
+| `RegisterViewsForViewModelsSourceGenerated()`, the `RegistrationType` and `ViewModelRegistrationType` options of `[IViewFor]`, and `SplatRegistrationType` | ReactiveUI.Binding's view locator, which registers views at compile time |
+| RXUISG0014, RXUISG0017 and the RXUISPR0002 suppression | Nothing: they only applied to `[ObservableAsProperty]` |
 
-You can define the name of the property by using the PropertyName parameter. If you do not define the PropertyName, the property name will be the same as the field name without the underscore.
+`[IViewFor]` still generates the `ViewModel` property and the `IViewFor<T>` implementation for each UI platform. It
+implements the `IViewFor<T>` of the ReactiveUI the project references: ReactiveUI's own on releases not built on
+ReactiveUI.Binding, otherwise `ReactiveUI.Binding.IViewFor<T>`, or `ReactiveUI.Binding.Reactive.IViewFor<T>` with
+ReactiveUI.Reactive. The interface is named in full, so no `using` for ReactiveUI.Binding is needed. The Windows Forms
+`[RoutedControlHost]` and `[ViewModelControlHost]` resolve views through the matching view locator.
 
-### Usage ObservableAsPropertyHelper with Field
+The ReactiveUI.Binding replacements need a ReactiveUI release built on ReactiveUI.Binding. ReactiveUI 24.3 and earlier
+are not: there, ReactiveUI's own `ObservableAsPropertyHelper<T>` and `IViewFor<T>` are the ones in use, so
+ReactiveUI.Binding's `ToProperty` does not produce the helper its generated property expects, and its view locator does
+not see ReactiveUI's `IViewFor<T>`. On those releases, use the hand-written forms below.
+
+### A read-only property backed by an observable
+
+With ReactiveUI.Binding, mark a `partial` property `[ObservableAsProperty]` (C# 13 or later). The generator writes the
+property's body and a helper field named after it, which you assign with `ToProperty`:
+
 ```csharp
-using ReactiveUI.SourceGenerators;
+using ReactiveUI;
+using ReactiveUI.Binding;
 
 public partial class MyReactiveClass : ReactiveObject
 {
-    [ObservableAsProperty]
-    private string _myProperty = "Default Value";
-
-    public MyReactiveClass()
-    {
-        _myPrpertyHelper = MyPropertyObservable()
-            .ToProperty(this, x => x.MyProperty);
-    }
-
-    IObservable<string> MyPropertyObservable() => Observable.Return("Test Value");
-}
-```
-
-### Usage ObservableAsPropertyHelper with Field and non readonly nullable OAPH field
-```csharp
-using ReactiveUI.SourceGenerators;
-
-public partial class MyReactiveClass : ReactiveObject, IActivatableViewModel
-{
-    [ObservableAsProperty(ReadOnly = false)]
-    private string _myProperty = "Default Value";
-
-    public MyReactiveClass()
-    {
-        this.WhenActivated(disposables =>
-        {
-            _myPrpertyHelper = MyPropertyObservable()
-                .ToProperty(this, x => x.MyProperty)
-                .DisposeWith(disposables);
-        });
-    }
-
-    IObservable<string> MyPropertyObservable() => Observable.Return("Test Value");
-}
-```
-
-### Usage ObservableAsPropertyHelper with Observable Property and specific PropertyName
-```csharp
-using ReactiveUI.SourceGenerators;
-
-public partial class MyReactiveClass : ReactiveObject
-{    
-    [ObservableAsProperty(ReadOnly = false)]
-    private string _myProperty = "Default Value";
-
-    public MyReactiveClass()
-    {
-        this.WhenActivated(disposables =>
-        {
-            _myPrpertyHelper = MyPropertyObservable()
-                .ToProperty(this, x => x.MyProperty)
-                .DisposeWith(disposables);
-        });
-    }
-
-    IObservable<string> MyPropertyObservable() => Observable.Return("Test Value");
-}
-```
-
-### Usage ObservableAsPropertyHelper with Observable Property and protected OAPH field
-```csharp
-using ReactiveUI.SourceGenerators;
-
-public partial class MyReactiveClass : ReactiveObject
-{
-    [ObservableAsProperty(UseProtected = true)]
-    private string _myProperty = "Default Value";
-
-    public MyReactiveClass()
-    {
-        _myPrpertyHelper = MyPropertyObservable()
-            .ToProperty(this, x => x.MyProperty);
-    }
-
-    IObservable<string> MyPropertyObservable() => Observable.Return("Test Value");
-}
-```
-
-### Usage ObservableAsPropertyHelper with Observable Method
-
-NOTE: This does not currently support methods with parameters
-```csharp
-using ReactiveUI.SourceGenerators;
-
-public partial class MyReactiveClass : ReactiveObject
-{    
-    public MyReactiveClass()
-    { 
-        // Initialize generated _myObservablePropertyHelper
-        // for the generated MyObservableProperty
-        InitializeOAPH();
-    }
+    public MyReactiveClass(IObservable<string> myPropertySource) =>
+        _myPropertyHelper = myPropertySource.ToProperty(this, x => x.MyProperty, initialValue: "Default Value");
 
     [ObservableAsProperty]
-    IObservable<string> MyObservable() => Observable.Return("Test Value");
-}
-```
-
-### Usage ObservableAsPropertyHelper with Observable Method and specific PropertyName
-```csharp
-using ReactiveUI.SourceGenerators;
-
-public partial class MyReactiveClass : ReactiveObject
-{    
-    public MyReactiveClass()
-    { 
-        // Initialize generated _testValuePropertyHelper
-        // for the generated TestValueProperty
-        InitializeOAPH();
-    }
-
-    [ObservableAsProperty(PropertyName = TestValueProperty)]
-    IObservable<string> MyObservable() => Observable.Return("Test Value");
-}
-```
-
-### Usage ObservableAsPropertyHelper with Observable Method and protected OAPH field
-```csharp
-using ReactiveUI.SourceGenerators;
-
-public partial class MyReactiveClass : ReactiveObject
-{    
-    public MyReactiveClass()
-    { 
-        // Initialize generated _myObservablePropertyHelper
-        // for the generated MyObservableProperty
-        InitializeOAPH();
-    }
-
-    [ObservableAsProperty(UseProtected = true)]
-    IObservable<string> MyObservable() => Observable.Return("Test Value");
-}
-```
-
-### Usage ObservableAsPropertyHelper with partial Property and a default value
-```csharp
-using ReactiveUI.SourceGenerators;
-
-public partial class MyReactiveClass : ReactiveObject
-{
-    public MyReactiveClass()
-    {
-        // The value of MyProperty will be "Default Value" until the Observable is initialized
-        _myPrpertyHelper = MyPropertyObservable()
-            .ToProperty(this, nameof(MyProperty));
-    }
-    
-    [ObservableAsProperty(InitialValue = "Default Value")]
     public partial string MyProperty { get; }
-
-    public IObservable<string> MyPropertyObservable() => Observable.Return("Test Value");
 }
 ```
 
-String values are automatically quoted, so `InitialValue = ""` produces an empty string initial value.
-Non nullable `string` properties are initialized with `string.Empty` when no `InitialValue` is provided.
+Without ReactiveUI.Binding, or on ReactiveUI 24.3 and earlier, write the helper with ReactiveUI's `ToProperty`:
+
+```csharp
+using ReactiveUI;
+
+public class MyReactiveClass : ReactiveObject
+{
+    private readonly ObservableAsPropertyHelper<string> _myPropertyHelper;
+
+    public MyReactiveClass(IObservable<string> myPropertySource) =>
+        _myPropertyHelper = myPropertySource.ToProperty(this, x => x.MyProperty, initialValue: "Default Value");
+
+    public string MyProperty => _myPropertyHelper.Value;
+}
+```
+
+### Registering views
+
+ReactiveUI.Binding's view locator registers every class whose declaration implements `IViewFor<T>`. Source generators
+cannot see each other's output, so the view locator does not see the interface `[IViewFor]` adds. List the interface
+on the class as well; the generated members still implement it:
+
+```csharp
+[IViewFor<LoginViewModel>]
+public partial class LoginView : UserControl, IViewFor<LoginViewModel>
+{
+}
+```
+
+Without ReactiveUI.Binding, or on ReactiveUI 24.3 and earlier, register each view with Splat:
+
+```csharp
+AppLocator.CurrentMutable.Register<IViewFor<LoginViewModel>>(static () => new LoginView());
+```
 
 ## Usage ReactiveCommand `[ReactiveCommand]`
 
@@ -638,35 +501,6 @@ The class must inherit from a UI Control from any of the following platforms and
 - Avalonia (Avalonia)
 - Uno (Windows.UI.Xaml).
 
-### IViewFor with Splat Registration Type
-
-Choose from the following Splat Registration Types, option for IViewFor Registration and / or ViewModel Registration:
-- `SplatRegistrationType.PerRequest`
-- `SplatRegistrationType.LazySingleton`
-- `SplatRegistrationType.Constant`
-- `SplatRegistrationType.None` (Default if not specified - no registration is performed)
-
-```csharp
-using ReactiveUI.SourceGenerators;
-using Splat;
-[IViewFor<MyReactiveClass>(RegistrationType = SplatRegistrationType.PerRequest, ViewModelRegistrationType = SplatRegistrationType.LazySingleton)]
-public partial class MyReactiveControl : UserControl
-{
-    public MyReactiveControl()
-    {
-        InitializeComponent();
-        ViewModel = AppLocator.Current.GetService<MyReactiveClass>();
-    }
-}
-```
-
-this will generate the following code to enable you register the marked Views as `IViewFor<ViewModel>` with Splat:
-```csharp
-using ReactiveUI.SourceGenerators;
-
-Splat.AppLocator.CurrentMutable.RegisterViewsForViewModelsSourceGenerated();
-```
-
 ### Usage IViewFor with ViewModel Name - Generic Types should be used with the fully qualified name, otherwise use nameof(ViewModelTypeName)
 ```csharp
 using ReactiveUI.SourceGenerators;
@@ -761,9 +595,6 @@ public partial class MyReactiveClass
     private string _myProperty;
 }
 ```
-
-### TODO:
-- Add ObservableAsProperty to generate from a IObservable method with parameters.
 
 # Credits
 

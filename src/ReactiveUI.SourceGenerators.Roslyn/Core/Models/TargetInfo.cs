@@ -2,8 +2,9 @@
 // ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 
@@ -26,13 +27,30 @@ internal sealed record TargetInfo(
     string TargetType,
     TargetInfo? ParentInfo)
 {
+    /// <summary>The target information already built for a type symbol in the current compilation.</summary>
+    /// <remarks>
+    /// Every attributed member of a type needs its type's information, and each member is extracted separately, so without
+    /// this the same display strings were built once per member. The table holds its keys weakly, so it never keeps an
+    /// old compilation's symbols alive, and the values hold no symbols.
+    /// </remarks>
+    private static readonly ConditionalWeakTable<INamedTypeSymbol, TargetInfo> Cache = new();
+
+    /// <summary>Gets the target information for a named type symbol, building it once per symbol.</summary>
+    /// <param name="namedTypeSymbol">The target type symbol.</param>
+    /// <returns>The generated target information.</returns>
+    internal static TargetInfo From(INamedTypeSymbol namedTypeSymbol) => Cache.GetValue(namedTypeSymbol, Create);
+
     /// <summary>Creates target information from a named type symbol.</summary>
     /// <param name="namedTypeSymbol">The target type symbol.</param>
     /// <returns>The generated target information.</returns>
-    internal static TargetInfo From(INamedTypeSymbol namedTypeSymbol)
+    private static TargetInfo Create(INamedTypeSymbol namedTypeSymbol)
     {
-        var targetHintName = namedTypeSymbol.GetFullyQualifiedMetadataName().Replace("<", "_").Replace(">", "_");
-        var targetName = namedTypeSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
+        var targetHintName = ToHintName(namedTypeSymbol.GetFullyQualifiedMetadataName());
+
+        // A plain type's display name is its name; only a generic or a keyword-named type needs the display format.
+        var targetName = namedTypeSymbol.IsGenericType || SyntaxFacts.GetKeywordKind(namedTypeSymbol.Name) != SyntaxKind.None
+            ? namedTypeSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)
+            : namedTypeSymbol.Name;
         var targetNamespace = namedTypeSymbol.ContainingNamespace.ToDisplayString(SymbolHelpers.DefaultDisplay);
         var targetNameWithNamespace = namedTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         var targetAccessibility = namedTypeSymbol.GetAccessibilityString();
@@ -52,79 +70,11 @@ internal sealed record TargetInfo(
             parentInfo);
     }
 
-    /// <summary>Generates the containing type declarations and corresponding closing braces.</summary>
-    /// <param name="targetInfos">The target types whose parents should be generated.</param>
-    /// <returns>The declarations and closing braces.</returns>
-    internal static (string Declarations, string ClosingBrackets) GenerateParentClassDeclarations(TargetInfo?[] targetInfos)
-    {
-        var parentClassDeclarations = new List<string>();
-        foreach (var targetInfo in targetInfos)
-        {
-            GetParentClasses(parentClassDeclarations, targetInfo);
-        }
-
-        var parentClassDeclarationsString = GenerateParentClassDeclarations(parentClassDeclarations);
-        var closingBrackets = GenerateClosingBrackets(parentClassDeclarations.Count);
-        return (parentClassDeclarationsString, closingBrackets);
-    }
-
-    /// <summary>Adds all containing type declarations for a target type.</summary>
-    /// <param name="parentClassDeclarations">The declarations to populate.</param>
-    /// <param name="targetInfo">The target whose parents are processed.</param>
-    private static void GetParentClasses(List<string> parentClassDeclarations, TargetInfo? targetInfo)
-    {
-        if (targetInfo is null)
-        {
-            return;
-        }
-
-        var parentClassDeclaration = $"{targetInfo.TargetVisibility} partial {targetInfo.TargetType} {targetInfo.TargetName}";
-
-        // Add the parent class declaration if it does not exist in the list
-        if (!parentClassDeclarations.Contains(parentClassDeclaration))
-        {
-            parentClassDeclarations.Add(parentClassDeclaration);
-        }
-
-        if (targetInfo.ParentInfo is null)
-        {
-            return;
-        }
-
-        // Recursively get the parent classes
-        GetParentClasses(parentClassDeclarations, targetInfo.ParentInfo);
-    }
-
-    /// <summary>Generates the text for the supplied containing type declarations.</summary>
-    /// <param name="parentClassDeclarations">The containing type declarations.</param>
-    /// <returns>The generated declaration text.</returns>
-    private static string GenerateParentClassDeclarations(List<string> parentClassDeclarations)
-    {
-        // Reverse the list to get the parent classes in the correct order
-        parentClassDeclarations.Reverse();
-
-        // Generate the parent class declarations
-        var parentClassDeclarationsString = string.Join("\n{\n", parentClassDeclarations);
-        if (!string.IsNullOrWhiteSpace(parentClassDeclarationsString))
-        {
-            parentClassDeclarationsString += "\n{\n";
-        }
-
-        return parentClassDeclarationsString;
-    }
-
-    /// <summary>Generates closing braces for a nesting depth.</summary>
-    /// <param name="numberOfBrackets">The nesting depth.</param>
-    /// <returns>The generated closing brace text.</returns>
-    private static string GenerateClosingBrackets(int numberOfBrackets)
-    {
-        var closingBrackets = new string('}', numberOfBrackets);
-        closingBrackets = closingBrackets.Replace("}", "}\n");
-        if (!string.IsNullOrWhiteSpace(closingBrackets))
-        {
-            closingBrackets = $"\n{closingBrackets}";
-        }
-
-        return closingBrackets;
-    }
+    /// <summary>Makes a metadata name safe for a hint name, replacing angle brackets only when there are any.</summary>
+    /// <param name="metadataName">The fully qualified metadata name.</param>
+    /// <returns>The hint name.</returns>
+    private static string ToHintName(string metadataName) =>
+        metadataName.IndexOf('<') < 0 && metadataName.IndexOf('>') < 0
+            ? metadataName
+            : metadataName.Replace('<', '_').Replace('>', '_');
 }

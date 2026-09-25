@@ -348,3 +348,10 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+# Claude Code local workspace
+.claude/
+
+# BenchmarkDotNet
+**/.bdn/
+**/BenchmarkDotNet.Artifacts/

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
@@ -22,7 +22,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\ITypeSymbolExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\SymbolInfoExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\SyntaxTokenExtensions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\SyntaxValueProviderExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Helpers\AttributeInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Helpers\EquatableArray{T}.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Helpers\HashCode.cs" />
@@ -31,36 +30,20 @@
     <Compile Include="$(MSBuildThisFileDirectory)Core\Helpers\TypedConstantInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Helpers\TypedConstantInfo.Factory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Models\DiagnosticInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Core\Models\GenericGeneratorAttributeSyntaxContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Models\PropertyAttributeData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Models\Result.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Models\TargetInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\DiagnosticDescriptors.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\SuppressionDescriptors.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Suppressions\OAPHMethodDoesNotNeedToBeStaticDiagnosticSuppressor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Suppressions\ObservableAsPropertyAttributeWithFieldNeverReadDiagnosticSuppressor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Suppressions\ReactiveAttributeWithPropertyTargetDiagnosticSuppressor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Suppressions\ReactiveAttributeWithFieldTargetDiagnosticSuppressor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Suppressions\ReactiveCommandAttributeWithFieldOrPropertyTargetDiagnosticSuppressor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Suppressions\ReactiveCommandMethodDoesNotNeedToBeStaticDiagnosticSuppressor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Suppressions\ReactiveFieldDoesNotNeedToBeReadOnlyDiagnosticSuppressor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Generated\PolySharp.SourceGenerators\PolySharp.SourceGenerators.PolyfillsGenerator\System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute.g.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Generated\PolySharp.SourceGenerators\PolySharp.SourceGenerators.PolyfillsGenerator\System.Diagnostics.CodeAnalysis.NotNullWhenAttribute.g.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Generated\PolySharp.SourceGenerators\PolySharp.SourceGenerators.PolyfillsGenerator\System.Diagnostics.CodeAnalysis.UnscopedRefAttribute.g.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Generated\PolySharp.SourceGenerators\PolySharp.SourceGenerators.PolyfillsGenerator\System.Index.g.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Generated\PolySharp.SourceGenerators\PolySharp.SourceGenerators.PolyfillsGenerator\System.Range.g.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Generated\PolySharp.SourceGenerators\PolySharp.SourceGenerators.PolyfillsGenerator\System.Runtime.CompilerServices.IsExternalInit.g.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IViewFor\IViewForGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IViewFor\IViewForGenerator.Execute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IViewFor\Models\IViewForBaseType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IViewFor\Models\IViewForInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ObservableAsProperty\Models\ObservableFieldInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ObservableAsProperty\Models\ObservableMethodInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ObservableAsProperty\ObservableAsPropertyGenerator.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ObservableAsProperty\ObservableAsPropertyGenerator{FromField}.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ObservableAsProperty\ObservableAsPropertyGenerator{FromField}.Execute.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ObservableAsProperty\ObservableAsPropertyGenerator{FromObservable}.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ObservableAsProperty\ObservableAsPropertyGenerator{FromObservable}.Execute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ReactiveCollection\Models\ReactiveCollectionFieldInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ReactiveCollection\ReactiveCollectionGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ReactiveCollection\ReactiveCollectionGenerator.Execute.cs" />

@@ -4,6 +4,7 @@
 
 using System.Globalization;
 using Microsoft.CodeAnalysis;
+using ReactiveUI.SourceGenerators.CodeGeneration;
 using ReactiveUI.SourceGenerators.Helpers;
 
 namespace ReactiveUI.SourceGenerators.Extensions;
@@ -28,18 +29,24 @@ internal static class FieldSyntaxExtensions
         /// <returns>The generated property name.</returns>
         internal string GetGeneratedPropertyName()
         {
-            var propertyName = fieldSymbol.Name;
-
-            if (propertyName.StartsWith("m_", System.StringComparison.Ordinal))
+            var fieldName = fieldSymbol.Name;
+            var start = 0;
+            if (fieldName.StartsWith("m_", System.StringComparison.Ordinal))
             {
-                propertyName = propertyName[FieldPrefixLength..];
+                start = FieldPrefixLength;
             }
-            else if (propertyName.StartsWith("_", System.StringComparison.Ordinal))
+            else
             {
-                propertyName = propertyName.TrimStart('_');
+                while (start < fieldName.Length && fieldName[start] == '_')
+                {
+                    start++;
+                }
             }
 
-            return $"{char.ToUpper(propertyName[0], CultureInfo.InvariantCulture)}{propertyName[1..]}";
+            // Built in one pooled buffer: the name is cased and trimmed without intermediate strings.
+            var builder = PooledBuilder.Rent(fieldName.Length - start);
+            _ = builder.Append(char.ToUpper(fieldName[start], CultureInfo.InvariantCulture)).Append(fieldName, start + 1, fieldName.Length - start - 1);
+            return PooledBuilder.ToStringAndReturn(builder);
         }
 
         /// <summary>Gets nullability information for a generated property.</summary>
@@ -75,8 +82,9 @@ internal static class FieldSyntaxExtensions
         internal string GetGeneratedFieldName()
         {
             var propertyName = propertySymbol.Name;
-
-            return $"_{char.ToLower(propertyName[0], CultureInfo.InvariantCulture)}{propertyName[1..]}";
+            var builder = PooledBuilder.Rent(propertyName.Length + 1);
+            _ = builder.Append('_').Append(char.ToLower(propertyName[0], CultureInfo.InvariantCulture)).Append(propertyName, 1, propertyName.Length - 1);
+            return PooledBuilder.ToStringAndReturn(builder);
         }
 
         /// <summary>Gets nullability information for a generated property.</summary>
@@ -97,14 +105,14 @@ internal static class FieldSyntaxExtensions
     /// <summary>Determines whether a containing type supports ReactiveUI-generated members.</summary>
     /// <param name="containingType">The type that owns the annotated member.</param>
     /// <returns>Whether the containing type is a supported ReactiveUI observable type.</returns>
-    private static bool IsTargetTypeValid(INamedTypeSymbol containingType)
-    {
-        var isObservableObject = containingType.InheritsFromFullyQualifiedMetadataName(ReactiveObjectTypeName);
-        var isIObservableObject = containingType.ImplementsFullyQualifiedMetadataName(ReactiveObjectInterfaceTypeName);
-        var hasObservableObjectAttribute = containingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ReactiveObjectAttributeType);
-
-        return isIObservableObject || isObservableObject || hasObservableObjectAttribute;
-    }
+    /// <remarks>
+    /// The checks run cheapest first and stop at the first that holds. The attribute check comes last: it reads the
+    /// attributes of every base type, which makes the compiler bind them.
+    /// </remarks>
+    private static bool IsTargetTypeValid(INamedTypeSymbol containingType) =>
+        containingType.InheritsFromFullyQualifiedMetadataName(ReactiveObjectTypeName)
+        || containingType.ImplementsFullyQualifiedMetadataName(ReactiveObjectInterfaceTypeName)
+        || containingType.HasOrInheritsAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ReactiveObjectAttributeType);
 
     /// <summary>Gets nullability information for a property generated from a type.</summary>
     /// <param name="typeSymbol">The member type to evaluate.</param>

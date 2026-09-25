@@ -7,120 +7,6 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// <summary>Extended unit tests for the IViewFor generator covering edge cases.</summary>
 public class ViewForExtTests : TestBase<IViewForGenerator>
 {
-    /// <summary>Tests IViewFor with LazySingleton registration type.</summary>
-    /// <returns>A task to monitor the async.</returns>
-    [Test]
-    public Task LazySingle()
-    {
-        const string sourceCode = """
-            using System.Collections.ObjectModel;
-            using System.Windows;
-            using ReactiveUI;
-            using ReactiveUI.SourceGenerators;
-
-            namespace TestNs;
-
-            [IViewFor<TestViewModel>(RegistrationType = SplatRegistrationType.LazySingleton)]
-            public partial class TestView : Window
-            {
-                public TestView() => ViewModel = new TestViewModel();
-            }
-
-            public partial class TestViewModel : ReactiveObject
-            {
-                public int TestProperty { get; set; }
-            }
-            """;
-
-        return TestHelper.TestPass(sourceCode);
-    }
-
-    /// <summary>Tests IViewFor with Constant registration type.</summary>
-    /// <returns>A task to monitor the async.</returns>
-    [Test]
-    public Task Constant()
-    {
-        const string sourceCode = """
-            using System.Collections.ObjectModel;
-            using System.Windows;
-            using ReactiveUI;
-            using ReactiveUI.SourceGenerators;
-
-            namespace TestNs;
-
-            [IViewFor<TestViewModel>(RegistrationType = SplatRegistrationType.Constant)]
-            public partial class TestView : Window
-            {
-                public TestView() => ViewModel = new TestViewModel();
-            }
-
-            public partial class TestViewModel : ReactiveObject
-            {
-                public string? Name { get; set; }
-            }
-            """;
-
-        return TestHelper.TestPass(sourceCode);
-    }
-
-    /// <summary>Tests IViewFor with PerRequest registration type.</summary>
-    /// <returns>A task to monitor the async.</returns>
-    [Test]
-    public Task PerReq()
-    {
-        const string sourceCode = """
-            using System.Collections.ObjectModel;
-            using System.Windows;
-            using ReactiveUI;
-            using ReactiveUI.SourceGenerators;
-
-            namespace TestNs;
-
-            [IViewFor<TestViewModel>(RegistrationType = SplatRegistrationType.PerRequest)]
-            public partial class TestView : Window
-            {
-                public TestView() => ViewModel = new TestViewModel();
-            }
-
-            public partial class TestViewModel : ReactiveObject
-            {
-                public bool IsActive { get; set; }
-            }
-            """;
-
-        return TestHelper.TestPass(sourceCode);
-    }
-
-    /// <summary>Tests IViewFor with ViewModel registration.</summary>
-    /// <returns>A task to monitor the async.</returns>
-    [Test]
-    public Task FromIViewForWithViewModelRegistration()
-    {
-        const string sourceCode = """
-            using System.Collections.ObjectModel;
-            using System.Windows;
-            using ReactiveUI;
-            using ReactiveUI.SourceGenerators;
-
-            namespace TestNs;
-
-            [IViewFor<TestViewModel>(
-                RegistrationType = SplatRegistrationType.LazySingleton,
-                ViewModelRegistrationType = SplatRegistrationType.LazySingleton)]
-            public partial class TestView : Window
-            {
-                public TestView() => ViewModel = new TestViewModel();
-            }
-
-            public partial class TestViewModel : ReactiveObject
-            {
-                public int Count { get; set; }
-            }
-            """;
-
-        return TestHelper.TestPass(sourceCode);
-    }
-
     /// <summary>Tests IViewFor with nested ViewModel.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
@@ -257,7 +143,7 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
                 public View2() => ViewModel = new ViewModel2();
             }
 
-            [IViewFor<ViewModel3>(RegistrationType = SplatRegistrationType.LazySingleton)]
+            [IViewFor<ViewModel3>]
             public partial class View3 : Window
             {
                 public View3() => ViewModel = new ViewModel3();
@@ -424,36 +310,6 @@ public class ViewForExtTests : TestBase<IViewForGenerator>
             public partial class CommandsView : Window
             {
                 public CommandsView() => ViewModel = new CommandsViewModel();
-            }
-            """;
-
-        return TestHelper.TestPass(sourceCode);
-    }
-
-    /// <summary>Tests IViewFor with all registration options.</summary>
-    /// <returns>A task to monitor the async.</returns>
-    [Test]
-    public Task AllRegOpts()
-    {
-        const string sourceCode = """
-            using System.Collections.ObjectModel;
-            using System.Windows;
-            using ReactiveUI;
-            using ReactiveUI.SourceGenerators;
-
-            namespace TestNs;
-
-            public partial class FullViewModel
-            {
-                public string? Title { get; set; }
-            }
-
-            [IViewFor<FullViewModel>(
-                RegistrationType = SplatRegistrationType.Constant,
-                ViewModelRegistrationType = SplatRegistrationType.PerRequest)]
-            public partial class FullView : Window
-            {
-                public FullView() => ViewModel = new FullViewModel();
             }
             """;
 

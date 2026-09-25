@@ -13,11 +13,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- The generator snapshots live beside the tests; recorded here because CI maps source paths to /_/. -->
+    <AssemblyMetadata Include="GeneratorSnapshotDirectory" Value="$(MSBuildProjectDirectory)" />
+    <!-- Snapshots are generated source for comparison, not part of the test assembly. -->
+    <Compile Remove="**\*.verified.cs;**\*.received.cs" />
+    <None Include="**\*.verified.cs" Exclude="bin\**;obj\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="System.Formats.Asn1" />
     <PackageReference Include="TUnit" />
-    <PackageReference Include="Verify.TUnit" />
-    <PackageReference Include="Verify.SourceGenerators" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" VersionOverride="4.14.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" PrivateAssets="all" VersionOverride="4.14.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" PrivateAssets="all" VersionOverride="4.14.0" />

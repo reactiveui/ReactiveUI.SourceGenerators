@@ -2,10 +2,10 @@
 // ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using ReactiveUI.SourceGenerators.CodeGeneration;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 
@@ -19,12 +19,10 @@ public sealed partial class RoutedControlHostGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(static ctx =>
-            ctx.AddSource($"{AttributeDefinitions.RoutedControlHostAttributeType}.g.cs", SourceText.From(AttributeDefinitions.GetRoutedControlHostAttribute(), Encoding.UTF8)));
+            ctx.AddSource($"{AttributeDefinitions.RoutedControlHostAttributeType}.g.cs", SourceText.From(AttributeDefinitions.GetRoutedControlHostAttribute(), SourceWriterExtensions.Utf8WithoutBom)));
 
-        var reactiveUiIntegrationProvider = context.ReactiveUiIntegration();
-
-        // Gather info for all annotated IViewFor Classes
-        var rchInfo =
+        // One model per annotated class, each written by its own output so it caches on its own.
+        var hosts =
             context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 AttributeDefinitions.RoutedControlHostAttributeType,
@@ -32,23 +30,9 @@ public sealed partial class RoutedControlHostGenerator : IIncrementalGenerator
                 static (context, token) => GetClassInfo(context, token))
             .Where(static x => x is not null)
             .Select(static (x, _) => x!)
-            .Collect()
-            .Combine(reactiveUiIntegrationProvider);
+            .WithTrackingName(TrackingNames.RoutedControlHosts);
 
-        // Generate the requested properties and methods for IViewFor
-        context.RegisterSourceOutput(rchInfo, static (context, input) =>
-        {
-            foreach (var info in input.Left)
-            {
-                var source = GetRoutedControlHost(
-                    info.TargetName,
-                    info.TargetNamespace,
-                    info.TargetVisibility,
-                    info.TargetType,
-                    info,
-                    input.Right);
-                context.AddSource($"{info.FileHintName}.RoutedControlHost.g.cs", source);
-            }
-        });
+        context.RegisterSourceOutput(hosts.Combine(context.ReactiveUiIntegration()), static (context, input) =>
+            context.AddSource($"{input.Left.FileHintName}.RoutedControlHost.g.cs", GenerateSource(input.Left, input.Right)));
     }
 }

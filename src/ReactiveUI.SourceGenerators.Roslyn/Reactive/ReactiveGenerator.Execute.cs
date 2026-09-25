@@ -3,13 +3,13 @@
 // See the LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 #if ROSYLN_412 || ROSYLN_500
 using Microsoft.CodeAnalysis.CSharp;
 #endif
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ReactiveUI.SourceGenerators.CodeGeneration;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Models;
@@ -48,6 +48,8 @@ public sealed partial class ReactiveGenerator
     /// <summary>The inheritance value for a new property.</summary>
     private const int NewInheritanceModifier = 3;
 
+    /// <summary>The <c>GeneratedCode</c> attribute stamped on every generated property, built once.</summary>
+    private static readonly string GeneratedCodeAttribute = SourceWriterExtensions.GeneratedCodeAttribute(GeneratorName, GeneratorVersion);
 #if ROSYLN_412 || ROSYLN_500
     /// <summary>Gets metadata for an attributed partial property.</summary>
     /// <param name="context">The generator attribute context.</param>
@@ -57,10 +59,7 @@ public sealed partial class ReactiveGenerator
     {
         using var builder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
         var symbol = context.TargetSymbol;
-        if (!symbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ReactiveAttributeType, out var attributeData))
-        {
-            return default;
-        }
+        var attributeData = context.Attributes[0];
 
         if (symbol is not IPropertySymbol propertySymbol || !propertySymbol.IsPartialDefinition || propertySymbol.IsStatic)
         {
@@ -116,7 +115,7 @@ public sealed partial class ReactiveGenerator
             true,
             propertyAccessModifier,
             GetAlsoNotifyValues(attributeData, propertySymbol.Name, context.SemanticModel, token),
-            GetXmlDocumentation(propertySymbol, token));
+            context.TargetNode.HasDocumentationComment() ? GetXmlDocumentation(propertySymbol, token) : string.Empty);
     }
 
     /// <summary>Gets normalized C# accessibility text.</summary>
@@ -182,15 +181,20 @@ public sealed partial class ReactiveGenerator
             return string.Empty;
         }
 
-        var formattedDocumentation = new System.Text.StringBuilder();
+        // The first and the last two lines are the <member> envelope around the documentation.
         const int XmlMemberEnvelopeLineCount = 2;
+        var builder = PooledBuilder.Rent(xmlDocumentation.Length);
         for (var index = 1; index < lines.Length - XmlMemberEnvelopeLineCount; index++)
         {
-            _ = formattedDocumentation.Append("        /// ")
-                .AppendLine(lines[index].TrimStart());
+            if (index > 1)
+            {
+                _ = builder.Append('\n');
+            }
+
+            _ = builder.Append("/// ").Append(lines[index].Trim());
         }
 
-        return formattedDocumentation.ToString().TrimEnd();
+        return PooledBuilder.ToStringAndReturn(builder);
     }
 #endif
 
@@ -203,10 +207,7 @@ public sealed partial class ReactiveGenerator
     private static Result<PropertyInfo?>? GetVariableInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
         using var builder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
-        if (!context.TargetSymbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ReactiveAttributeType, out var attributeData))
-        {
-            return default;
-        }
+        var attributeData = context.Attributes[0];
 
         if (context.TargetSymbol is not IFieldSymbol fieldSymbol || !fieldSymbol.IsTargetTypeValid())
         {
@@ -296,214 +297,111 @@ public sealed partial class ReactiveGenerator
             _ => string.Empty,
         };
 
-    /// <summary>Generates the source code.</summary>
-    /// <param name="containingTypeName">The contain type name.</param>
-    /// <param name="containingNamespace">The containing namespace.</param>
-    /// <param name="containingClassVisibility">The containing class visibility.</param>
-    /// <param name="containingType">The containing type.</param>
-    /// <param name="properties">The properties.</param>
+    /// <summary>Generates the partial declaration holding one type's reactive properties.</summary>
+    /// <param name="properties">The properties the type declares, all sharing one <see cref="TargetInfo"/>.</param>
     /// <param name="integration">The selected ReactiveUI API surface.</param>
-    /// <returns>The value.</returns>
-    private static string GenerateSource(
-        string containingTypeName,
-        string containingNamespace,
-        string containingClassVisibility,
-        string containingType,
-        PropertyInfo[] properties,
-        ReactiveUiIntegration integration)
+    /// <returns>The file's text.</returns>
+    private static string GenerateSource(EquatableArray<PropertyInfo> properties, ReactiveUiIntegration integration)
     {
-        var parentTypes = new TargetInfo?[properties.Length];
-        for (var index = 0; index < properties.Length; index++)
+        var target = properties[0].TargetInfo;
+        var writer = SourceWriter.Rent()
+            .AutoGenerated()
+            .Lines(integration.UsingDirectives)
+            .BlankLine()
+            .DisableWarningsEnableNullable()
+            .BlankLine();
+
+        var depth = writer.OpenNamespace(target.TargetNamespace) + writer.OpenContainingTypes(target.ParentInfo);
+        _ = writer.OpenPartialType(target);
+        for (var i = 0; i < properties.Count; i++)
         {
-            parentTypes[index] = properties[index].TargetInfo.ParentInfo;
-        }
-
-        var (parentClassDeclarationsString, closingBrackets) = TargetInfo.GenerateParentClassDeclarations(parentTypes);
-
-        var classes = GenerateClassWithProperties(containingTypeName, containingClassVisibility, containingType, properties);
-
-        return
-$$"""
-// <auto-generated/>
-{{integration.UsingDirectives}}
-
-#pragma warning disable
-#nullable enable
-
-namespace {{containingNamespace}}
-{
-    {{parentClassDeclarationsString}}{{classes}}{{closingBrackets}}
-}
-#nullable restore
-#pragma warning restore
-""";
-    }
-
-    /// <summary>Generates the source code.</summary>
-    /// <param name="containingTypeName">The contain type name.</param>
-    /// <param name="containingClassVisibility">The containing class visibility.</param>
-    /// <param name="containingType">The containing type.</param>
-    /// <param name="properties">The properties.</param>
-    /// <returns>The value.</returns>
-    private static string GenerateClassWithProperties(string containingTypeName, string containingClassVisibility, string containingType, PropertyInfo[] properties)
-    {
-        var propertyDeclarationsBuilder = new System.Text.StringBuilder();
-        foreach (var property in properties)
-        {
-            if (propertyDeclarationsBuilder.Length > 0)
+            if (i > 0)
             {
-                _ = propertyDeclarationsBuilder.AppendLine();
+                _ = writer.BlankLine();
             }
 
-            _ = propertyDeclarationsBuilder.Append(GetPropertySyntax(property));
+            WriteProperty(writer, properties[i]);
         }
 
-        var propertyDeclarations = propertyDeclarationsBuilder.ToString();
-
-        return
-$$"""
-    {{containingClassVisibility}} partial {{containingType}} {{containingTypeName}}
-    {
-{{propertyDeclarations}}
-    }
-""";
+        return writer.CloseBlock()
+            .CloseBlocks(depth)
+            .RestoreNullableAndWarnings()
+            .ToStringAndReturn();
     }
 
-    /// <summary>Generates property declarations for the given observable method information.</summary>
-    /// <param name="propertyInfo">Metadata about the observable property.</param>
-    /// <returns>A string containing the generated code for the property.</returns>
-    private static string GetPropertySyntax(PropertyInfo propertyInfo)
+    /// <summary>Writes one reactive property, and the backing field a partial property needs below C# 14.</summary>
+    /// <param name="writer">The writer, at the level of the type's members.</param>
+    /// <param name="propertyInfo">The property.</param>
+    private static void WriteProperty(SourceWriter writer, PropertyInfo propertyInfo)
     {
-        if (propertyInfo.PropertyName is null)
-        {
-            return string.Empty;
-        }
-
-        var partialModifier = propertyInfo.IsProperty ? "partial " : string.Empty;
         var getFieldName = propertyInfo.FieldName;
         var setFieldName = getFieldName == "value" ? "this.value" : getFieldName;
-        var memberNotNullAttribute = GetMemberNotNullAttribute(propertyInfo, setFieldName);
-        var propertyDeclaration = GetPropertyDeclaration(propertyInfo, partialModifier);
-        var openingBrace = memberNotNullAttribute.Length > 0
-            && propertyInfo.TypeNameWithNullabilityAnnotations.EndsWith("?", StringComparison.Ordinal)
-            ? "{ "
-            : "{";
-        return $$"""
-        {{GetFieldSyntax(propertyInfo)}}
-{{GetDocumentationSyntax(propertyInfo, getFieldName)}}
-        [global::System.CodeDom.Compiler.GeneratedCode("{{GeneratorName}}", "{{GeneratorVersion}}")]
-        {{GetPropertyAttributes(propertyInfo)}}
-        {{propertyDeclaration}}
-        {{openingBrace}}
-            get => {{getFieldName}};
-{{memberNotNullAttribute}}            {{propertyInfo.SetAccessModifier}}
-            {
-                this.RaiseAndSetIfChanged(ref {{setFieldName}}, value);{{GetAlsoNotifyStatements(propertyInfo.AlsoNotify)}}
-            }
+
+        if (propertyInfo.IsProperty && getFieldName != "field")
+        {
+            WriteLines(writer, propertyInfo.ForwardedAttributes);
+            _ = writer.Append("private ").Append(propertyInfo.TypeNameWithNullabilityAnnotations).Append(' ').Append(getFieldName).EndStatement();
         }
-""";
+
+        WriteDocumentation(writer, propertyInfo, getFieldName);
+        _ = writer.Line(GeneratedCodeAttribute).ExcludeFromCodeCoverage();
+        if (!propertyInfo.IsProperty)
+        {
+            WriteLines(writer, propertyInfo.ForwardedAttributes);
+        }
+
+        _ = writer.Append(propertyInfo.PropertyAccessModifier).Append(propertyInfo.Inheritance).Append(' ').Append(propertyInfo.UseRequired);
+        if (propertyInfo.IsProperty)
+        {
+            _ = writer.Append("partial ");
+        }
+
+        _ = writer.Append(propertyInfo.TypeNameWithNullabilityAnnotations).Append(' ').Line(propertyInfo.PropertyName)
+            .OpenBlock()
+            .Append("get => ").Append(getFieldName).EndStatement();
+
+        if (propertyInfo.IncludeMemberNotNullOnSetAccessor || propertyInfo.IsReferenceTypeOrUnconstrainedTypeParameter)
+        {
+            _ = writer.Append("[global::System.Diagnostics.CodeAnalysis.MemberNotNull(\"").Append(setFieldName).Line("\")]");
+        }
+
+        _ = writer.Line(propertyInfo.SetAccessModifier)
+            .OpenBlock()
+            .Append("this.RaiseAndSetIfChanged(ref ").Append(setFieldName).Line(", value);");
+
+        foreach (var propertyName in propertyInfo.AlsoNotify.AsImmutableArray())
+        {
+            _ = writer.Append("this.RaisePropertyChanged(nameof(").Append(propertyName).Line("));");
+        }
+
+        _ = writer.CloseBlock().CloseBlock();
     }
 
-    /// <summary>Gets the optional backing-field declaration for a generated property.</summary>
-    /// <param name="propertyInfo">The generated property metadata.</param>
-    /// <returns>The field declaration, or an empty string.</returns>
-    private static string GetFieldSyntax(PropertyInfo propertyInfo) =>
-        !propertyInfo.IsProperty || propertyInfo.FieldName == "field"
-            ? string.Empty
-            : $$"""
-{{JoinIndentedLines(propertyInfo.ForwardedAttributes)}}
-        private {{propertyInfo.TypeNameWithNullabilityAnnotations}} {{propertyInfo.FieldName}};
-""";
-
-    /// <summary>Gets the declaration line for a generated property.</summary>
-    /// <param name="propertyInfo">The generated property metadata.</param>
-    /// <param name="partialModifier">The partial modifier, when applicable.</param>
-    /// <returns>The generated property declaration.</returns>
-    private static string GetPropertyDeclaration(PropertyInfo propertyInfo, string partialModifier)
-    {
-        var modifiers = $"{propertyInfo.PropertyAccessModifier}{propertyInfo.Inheritance} {propertyInfo.UseRequired}{partialModifier}";
-        return $"{modifiers}{propertyInfo.TypeNameWithNullabilityAnnotations} {propertyInfo.PropertyName}";
-    }
-
-    /// <summary>Gets the documentation declaration for a generated property.</summary>
-    /// <param name="propertyInfo">The generated property metadata.</param>
-    /// <param name="getFieldName">The generated getter field name.</param>
-    /// <returns>The documentation declaration.</returns>
-    private static string GetDocumentationSyntax(PropertyInfo propertyInfo, string getFieldName)
+    /// <summary>Writes a property's documentation: the partial property's own, or an <c>inheritdoc</c> of its source member.</summary>
+    /// <param name="writer">The writer.</param>
+    /// <param name="propertyInfo">The property.</param>
+    /// <param name="getFieldName">The field the getter reads.</param>
+    private static void WriteDocumentation(SourceWriter writer, PropertyInfo propertyInfo, string getFieldName)
     {
         if (!propertyInfo.IsProperty)
         {
-            return $$"""        /// <inheritdoc cref="{{getFieldName}}"/>""";
+            _ = writer.InheritDoc(getFieldName);
+            return;
         }
 
-        return string.IsNullOrWhiteSpace(propertyInfo.XmlComment)
-            ? $$"""        /// <inheritdoc cref="{{propertyInfo.PropertyName}}"/>"""
-            : propertyInfo.XmlComment!;
+        _ = string.IsNullOrWhiteSpace(propertyInfo.XmlComment)
+            ? writer.InheritDoc(propertyInfo.PropertyName)
+            : writer.Lines(propertyInfo.XmlComment!);
     }
 
-    /// <summary>Gets the attributes applied to a generated property.</summary>
-    /// <param name="propertyInfo">The generated property metadata.</param>
-    /// <returns>The formatted attribute list.</returns>
-    private static string GetPropertyAttributes(PropertyInfo propertyInfo)
+    /// <summary>Writes each line on its own line at the writer's level.</summary>
+    /// <param name="writer">The writer.</param>
+    /// <param name="lines">The lines, such as forwarded attributes.</param>
+    private static void WriteLines(SourceWriter writer, EquatableArray<string> lines)
     {
-        var builder = new System.Text.StringBuilder();
-        AppendIndentedLines(builder, AttributeDefinitions.ExcludeFromCodeCoverage);
-        if (!propertyInfo.IsProperty)
+        foreach (var line in lines.AsImmutableArray())
         {
-            AppendIndentedLines(builder, propertyInfo.ForwardedAttributes);
-        }
-
-        return builder.ToString();
-    }
-
-    /// <summary>Gets the optional member-not-null accessor attribute.</summary>
-    /// <param name="propertyInfo">The generated property metadata.</param>
-    /// <param name="setFieldName">The field assigned by the setter.</param>
-    /// <returns>The formatted attribute prefix, or an empty string.</returns>
-    private static string GetMemberNotNullAttribute(PropertyInfo propertyInfo, string setFieldName) =>
-        propertyInfo.IncludeMemberNotNullOnSetAccessor || propertyInfo.IsReferenceTypeOrUnconstrainedTypeParameter
-            ? $"            [global::System.Diagnostics.CodeAnalysis.MemberNotNull(\"{setFieldName}\")]\n"
-            : string.Empty;
-
-    /// <summary>Gets property-changed statements for additional notifications.</summary>
-    /// <param name="alsoNotify">The additional property names.</param>
-    /// <returns>The generated statements.</returns>
-    private static string GetAlsoNotifyStatements(EquatableArray<string> alsoNotify)
-    {
-        var builder = new System.Text.StringBuilder();
-        foreach (var propertyName in alsoNotify.AsImmutableArray())
-        {
-            _ = builder.Append("\n                this.RaisePropertyChanged(nameof(")
-                .Append(propertyName)
-                .Append("));");
-        }
-
-        return builder.ToString();
-    }
-
-    /// <summary>Joins source lines with generated-property indentation.</summary>
-    /// <param name="lines">The source lines.</param>
-    /// <returns>The joined and indented lines.</returns>
-    private static string JoinIndentedLines(IEnumerable<string> lines)
-    {
-        var builder = new System.Text.StringBuilder();
-        AppendIndentedLines(builder, lines);
-        return builder.ToString();
-    }
-
-    /// <summary>Appends generated-property source lines with indentation.</summary>
-    /// <param name="builder">The destination builder.</param>
-    /// <param name="lines">The source lines.</param>
-    private static void AppendIndentedLines(System.Text.StringBuilder builder, IEnumerable<string> lines)
-    {
-        foreach (var line in lines)
-        {
-            if (builder.Length > 0)
-            {
-                _ = builder.Append("\n        ");
-            }
-
-            _ = builder.Append(line);
+            _ = writer.Line(line);
         }
     }
 
@@ -516,9 +414,20 @@ $$"""
     private static EquatableArray<string> GetAlsoNotifyValues(AttributeData attributeData, string propertyName, SemanticModel semanticModel, CancellationToken token)
     {
         using var builder = ImmutableArrayBuilder<string>.Rent();
-        foreach (var notify in attributeData.GetConstructorArguments<string>())
+
+        // Read in place rather than through an iterator: the names arrive as the params array's elements.
+        foreach (var argument in attributeData.ConstructorArguments)
         {
-            AddAlsoNotifyValue(builder, notify, propertyName);
+            if (argument.Kind != TypedConstantKind.Array)
+            {
+                AddAlsoNotifyValue(builder, argument.Value as string, propertyName);
+                continue;
+            }
+
+            foreach (var item in argument.Values)
+            {
+                AddAlsoNotifyValue(builder, item.Value as string, propertyName);
+            }
         }
 
         if (builder.Count == 0 && attributeData.ApplicationSyntaxReference?.GetSyntax(token) is AttributeSyntax attributeSyntax)
@@ -549,6 +458,13 @@ $$"""
 
         foreach (var argument in arguments)
         {
+            // Named arguments such as SetModifier are settings, never notified property names; evaluating them
+            // would make the compiler bind and flow-analyse each one.
+            if (argument.NameEquals is not null)
+            {
+                continue;
+            }
+
             var constantValue = semanticModel.GetConstantValue(argument.Expression, token);
             AddAlsoNotifyValue(builder, constantValue.HasValue ? constantValue.Value as string : null, propertyName);
         }

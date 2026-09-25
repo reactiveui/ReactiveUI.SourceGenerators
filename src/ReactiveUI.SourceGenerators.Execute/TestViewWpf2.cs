@@ -9,7 +9,7 @@ namespace SGReactiveUI.SourceGenerators.Test;
 
 /// <summary>Provides the generic WPF test view.</summary>
 /// <seealso cref="System.Windows.Window" />
-[IViewFor("SGReactiveUI.SourceGenerators.Test.TestViewModel2<int>", RegistrationType = SplatRegistrationType.PerRequest)]
+[IViewFor("SGReactiveUI.SourceGenerators.Test.TestViewModel2<int>")]
 public partial class TestViewWpf2 : Window
 {
     /// <summary>Initializes a new instance of the <see cref="TestViewWpf2"/> class.</summary>

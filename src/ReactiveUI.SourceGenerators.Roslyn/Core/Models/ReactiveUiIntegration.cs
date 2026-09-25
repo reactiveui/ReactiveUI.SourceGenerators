@@ -7,7 +7,8 @@ namespace ReactiveUI.SourceGenerators.Models;
 /// <summary>Describes the ReactiveUI API surface referenced by a compilation.</summary>
 /// <param name="Api">The implementation API selected by the compilation.</param>
 /// <param name="IsNewerThan22">Whether the compilation references ReactiveUI 22 or later.</param>
-internal readonly record struct ReactiveUiIntegration(ReactiveUiApi Api, bool IsNewerThan22)
+/// <param name="ViewApi">The assembly declaring the <c>IViewFor</c> interfaces and the view locator.</param>
+internal readonly record struct ReactiveUiIntegration(ReactiveUiApi Api, bool IsNewerThan22, ReactiveUiViewApi ViewApi = ReactiveUiViewApi.ReactiveUI)
 {
     /// <summary>Gets the namespace containing the selected ReactiveUI implementation types.</summary>
     internal string Namespace => Api == ReactiveUiApi.SystemReactive
@@ -28,4 +29,20 @@ internal readonly record struct ReactiveUiIntegration(ReactiveUiApi Api, bool Is
     internal string UsingDirectives => Api == ReactiveUiApi.SystemReactive
         ? "using ReactiveUI;\nusing ReactiveUI.Reactive;"
         : "using ReactiveUI;";
+
+    /// <summary>Gets the qualified namespace declaring <c>IViewFor</c>, <c>IViewLocator</c> and <c>ViewLocator</c>.</summary>
+    internal string ViewNamespace => ViewApi switch
+    {
+        ReactiveUiViewApi.Binding => "global::ReactiveUI.Binding",
+        ReactiveUiViewApi.BindingReactive => "global::ReactiveUI.Binding.Reactive",
+        _ => "global::ReactiveUI",
+    };
+
+    /// <summary>Gets the expression for the application's current view locator.</summary>
+    internal string CurrentViewLocator => ViewApi switch
+    {
+        ReactiveUiViewApi.Binding => "global::ReactiveUI.Binding.ViewLocator.GetCurrent()",
+        ReactiveUiViewApi.BindingReactive => "global::ReactiveUI.Binding.Reactive.ViewLocator.GetCurrent()",
+        _ => "global::ReactiveUI.ViewLocator.Current",
+    };
 }

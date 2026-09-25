@@ -472,7 +472,7 @@ public sealed class SymbolExtensionTests
             }
             """);
 
-        var derived = (INamedTypeSymbol)compilation.GetTypeByMetadataName(DerivedTypeMetadataName)!;
+        var derived = compilation.GetTypeByMetadataName(DerivedTypeMetadataName)!;
         var members = new List<string>();
         foreach (var member in derived.GetAllMembers())
         {
@@ -500,7 +500,7 @@ public sealed class SymbolExtensionTests
             }
             """);
 
-        var derived = (INamedTypeSymbol)compilation.GetTypeByMetadataName(DerivedTypeMetadataName)!;
+        var derived = compilation.GetTypeByMetadataName(DerivedTypeMetadataName)!;
         List<ISymbol> members = [.. derived.GetAllMembers("Shared")];
 
         await Assert.That(members.Count).IsEqualTo(1);

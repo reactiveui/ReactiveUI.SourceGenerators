@@ -3,7 +3,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Diagnostics.CodeAnalysis;
-using ReactiveUI.SourceGenerators;
+using ReactiveUI;
 using Splat;
 
 namespace SGReactiveUI.SourceGenerators.Test;
@@ -16,7 +16,10 @@ public static class Program
     [System.STAThread]
     public static void Main()
     {
-        AppLocator.CurrentMutable.RegisterViewsForViewModelsSourceGenerated();
+        // The generated RegisterViewsForViewModelsSourceGenerated() is gone: ReactiveUI.Binding's view locator registers
+        // every IViewFor<T> at compile time. Without ReactiveUI.Binding, register the views with Splat yourself.
+        AppLocator.CurrentMutable.Register<IViewFor<TestViewModel>>(static () => new TestViewWinForms());
+        AppLocator.CurrentMutable.Register<IViewFor<TestViewModel2<int>>>(static () => new TestViewWpf2());
         Application.Run(new TestViewWinForms());
     }
 }

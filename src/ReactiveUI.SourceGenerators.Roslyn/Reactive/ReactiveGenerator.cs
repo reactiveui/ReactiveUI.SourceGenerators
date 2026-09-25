@@ -2,11 +2,10 @@
 // ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using ReactiveUI.SourceGenerators.CodeGeneration;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Models;
@@ -26,10 +25,10 @@ public sealed partial class ReactiveGenerator : IIncrementalGenerator
         context.RegisterPostInitializationOutput(static ctx =>
         {
             // Add the AccessModifier enum to the compilation
-            ctx.AddSource($"{AttributeDefinitions.AccessModifierType}.g.cs", SourceText.From(AttributeDefinitions.GetAccessModifierEnum(), Encoding.UTF8));
+            ctx.AddSource($"{AttributeDefinitions.AccessModifierType}.g.cs", SourceText.From(AttributeDefinitions.GetAccessModifierEnum(), SourceWriterExtensions.Utf8WithoutBom));
 
             // Add the ReactiveAttribute to the compilation
-            ctx.AddSource($"{AttributeDefinitions.ReactiveAttributeType}.g.cs", SourceText.From(AttributeDefinitions.ReactiveAttribute, Encoding.UTF8));
+            ctx.AddSource($"{AttributeDefinitions.ReactiveAttributeType}.g.cs", SourceText.From(AttributeDefinitions.ReactiveAttribute, SourceWriterExtensions.Utf8WithoutBom));
         });
 
         RunReactiveFromField(context);
@@ -43,7 +42,7 @@ public sealed partial class ReactiveGenerator : IIncrementalGenerator
     private static void RunReactiveFromField(in IncrementalGeneratorInitializationContext context)
     {
         // Gather info for all annotated variable with at least one attribute.
-        var propertyInfo =
+        var results =
             context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 AttributeDefinitions.ReactiveAttributeType,
@@ -55,45 +54,9 @@ public sealed partial class ReactiveGenerator : IIncrementalGenerator
                 static (context, token) => GetVariableInfo(context, token))
             .Where(static x => x is not null)
             .Select(static (x, _) => x!)
-            .Collect()
-            .Combine(context.ReactiveUiIntegration());
+            .WithTrackingName(TrackingNames.ReactiveFields);
 
-        // Generate the requested properties
-        context.RegisterSourceOutput(propertyInfo, static (context, input) =>
-        {
-            Dictionary<
-                (string FileHintName, string TargetName, string TargetNamespace, string TargetVisibility, string TargetType),
-                List<PropertyInfo>> groupedPropertyInfo = [];
-
-            foreach (var result in input.Left)
-            {
-                foreach (var diagnostic in result.Errors.AsImmutableArray())
-                {
-                    context.ReportDiagnostic(diagnostic.ToDiagnostic());
-                }
-
-                if (result.Value is not PropertyInfo propertyInfo)
-                {
-                    continue;
-                }
-
-                var targetInfo = propertyInfo.TargetInfo;
-                var key = (targetInfo.FileHintName, targetInfo.TargetName, targetInfo.TargetNamespace, targetInfo.TargetVisibility, targetInfo.TargetType);
-                if (!groupedPropertyInfo.TryGetValue(key, out var properties))
-                {
-                    properties = [];
-                    groupedPropertyInfo.Add(key, properties);
-                }
-
-                properties.Add(propertyInfo);
-            }
-
-            foreach (var grouping in groupedPropertyInfo)
-            {
-                var source = GenerateSource(grouping.Key.TargetName, grouping.Key.TargetNamespace, grouping.Key.TargetVisibility, grouping.Key.TargetType, grouping.Value.ToArray(), input.Right);
-                context.AddSource($"{grouping.Key.FileHintName}.Properties.g.cs", source);
-            }
-        });
+        RegisterOutputs(context, results, ".Properties.g.cs", TrackingNames.ReactiveFieldTypes);
     }
 
 #if ROSYLN_412 || ROSYLN_500
@@ -102,7 +65,7 @@ public sealed partial class ReactiveGenerator : IIncrementalGenerator
     private static void RunReactiveFromProperty(in IncrementalGeneratorInitializationContext context)
     {
         // Gather info for all annotated variable with at least one attribute.
-        var propertyInfo =
+        var results =
             context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 AttributeDefinitions.ReactiveAttributeType,
@@ -114,45 +77,35 @@ public sealed partial class ReactiveGenerator : IIncrementalGenerator
                 static (context, token) => GetPropertyInfo(context, token))
             .Where(static x => x is not null)
             .Select(static (x, _) => x!)
-            .Collect()
-            .Combine(context.ReactiveUiIntegration());
+            .WithTrackingName(TrackingNames.ReactivePartialProperties);
 
-        // Generate the requested properties
-        context.RegisterSourceOutput(propertyInfo, static (context, input) =>
-        {
-            Dictionary<
-                (string FileHintName, string TargetName, string TargetNamespace, string TargetVisibility, string TargetType),
-                List<PropertyInfo>> groupedPropertyInfo = [];
-
-            foreach (var result in input.Left)
-            {
-                foreach (var diagnostic in result.Errors.AsImmutableArray())
-                {
-                    context.ReportDiagnostic(diagnostic.ToDiagnostic());
-                }
-
-                if (result.Value is not PropertyInfo propertyInfo)
-                {
-                    continue;
-                }
-
-                var targetInfo = propertyInfo.TargetInfo;
-                var key = (targetInfo.FileHintName, targetInfo.TargetName, targetInfo.TargetNamespace, targetInfo.TargetVisibility, targetInfo.TargetType);
-                if (!groupedPropertyInfo.TryGetValue(key, out var properties))
-                {
-                    properties = [];
-                    groupedPropertyInfo.Add(key, properties);
-                }
-
-                properties.Add(propertyInfo);
-            }
-
-            foreach (var grouping in groupedPropertyInfo)
-            {
-                var source = GenerateSource(grouping.Key.TargetName, grouping.Key.TargetNamespace, grouping.Key.TargetVisibility, grouping.Key.TargetType, grouping.Value.ToArray(), input.Right);
-                context.AddSource($"{grouping.Key.FileHintName}.PartialProperties.g.cs", source);
-            }
-        });
+        RegisterOutputs(context, results, ".PartialProperties.g.cs", TrackingNames.ReactivePartialPropertyTypes);
     }
 #endif
+
+    /// <summary>Reports the extraction diagnostics and writes one file per type, each cached on its own.</summary>
+    /// <param name="context">The incremental generator initialization context.</param>
+    /// <param name="results">The extraction results.</param>
+    /// <param name="hintSuffix">The suffix of each type's file name.</param>
+    /// <param name="trackingName">The tracking name of the per-type step.</param>
+    private static void RegisterOutputs(
+        in IncrementalGeneratorInitializationContext context,
+        IncrementalValuesProvider<Result<PropertyInfo?>> results,
+        string hintSuffix,
+        string trackingName)
+    {
+        context.RegisterDiagnostics(results);
+
+        var types = results
+            .Where(static result => result.Value is not null)
+            .Select(static (result, _) => result.Value!)
+            .GroupByTarget(static property => property.TargetInfo)
+            .WithTrackingName(trackingName);
+
+        context.RegisterSourceOutput(types.Combine(context.ReactiveUiIntegration()), (context, input) =>
+        {
+            var properties = input.Left;
+            context.AddSource(properties[0].TargetInfo.FileHintName + hintSuffix, GenerateSource(properties, input.Right));
+        });
+    }
 }

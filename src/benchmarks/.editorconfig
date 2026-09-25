@@ -1,0 +1,10 @@
+[*.cs]
+
+###################
+# Benchmark harness relaxations
+#
+# The benchmark host is a console tool: it reports to the console rather than through a logging abstraction.
+###################
+dotnet_diagnostic.SST1449.severity = none # Console output is the harness's report
+dotnet_diagnostic.PSH1021.severity = none # The allocation harness collects before each traced session so earlier garbage is not counted
+dotnet_diagnostic.PSH1315.severity = none # The harness is a synchronous console tool; it waits for the trace copy to finish
