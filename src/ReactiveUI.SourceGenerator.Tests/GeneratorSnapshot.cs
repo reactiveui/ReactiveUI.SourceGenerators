@@ -2,6 +2,7 @@
 // ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System.Collections.Concurrent;
 using System.Reflection;
 using System.Text;
 
@@ -15,7 +16,8 @@ namespace ReactiveUI.SourceGenerator.Tests;
 /// <c>*.received.cs</c> and fails the test, as does a snapshot the run no longer produces.
 /// </para>
 /// <para>
-/// Set <c>ACCEPT_SNAPSHOTS=1</c> to write every output over its snapshot and delete snapshots nothing produces.
+/// Set <c>ACCEPT_SNAPSHOTS</c> to <c>1</c> or <c>true</c> to write every output over its snapshot and delete snapshots
+/// nothing produces. Two tests whose names abbreviate to the same snapshot name fail rather than share snapshots.
 /// </para>
 /// </remarks>
 internal static class GeneratorSnapshot
@@ -93,6 +95,12 @@ internal static class GeneratorSnapshot
     /// <summary>The directory holding the snapshot folders.</summary>
     private static readonly string SnapshotRoot = ReadSnapshotRoot();
 
+    /// <summary>Whether this run writes its output over the snapshots.</summary>
+    private static readonly bool Accept = ReadAccept();
+
+    /// <summary>The test that claimed each snapshot prefix, so two tests abbreviating to one name are caught.</summary>
+    private static readonly ConcurrentDictionary<string, string> PrefixOwners = new(StringComparer.Ordinal);
+
     /// <summary>Asserts that the generated files match the stored snapshots.</summary>
     /// <param name="driver">The driver after the generator has run.</param>
     /// <param name="folder">The snapshot folder, one per generator.</param>
@@ -107,7 +115,14 @@ internal static class GeneratorSnapshot
         _ = Directory.CreateDirectory(directory);
 
         var prefix = $"{AbbreviateTypeName(typeName)}.{Abbreviate(methodName)}#";
-        var accept = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(AcceptVariable));
+        var test = $"{typeName}.{methodName}";
+        var owner = PrefixOwners.GetOrAdd($"{folder}/{prefix}", test);
+        if (!string.Equals(owner, test, StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException(
+                $"{test} and {owner} both abbreviate to the snapshot name {folder}/{prefix}; rename one of them or add an abbreviation.");
+        }
+
         var produced = new HashSet<string>(StringComparer.Ordinal);
         var failures = new List<string>();
 
@@ -119,7 +134,7 @@ internal static class GeneratorSnapshot
                 _ = produced.Add(name);
 
                 var output = $"//HintName: {source.HintName}\n{Scrub(source.SourceText.ToString())}";
-                if (!await StoreAsync(Path.Combine(directory, name), output, accept))
+                if (!await StoreAsync(Path.Combine(directory, name), output))
                 {
                     failures.Add($"{folder}/{name}{VerifiedSuffix} does not match the generated output; see {name}{ReceivedSuffix}");
                 }
@@ -134,7 +149,7 @@ internal static class GeneratorSnapshot
                 continue;
             }
 
-            if (accept)
+            if (Accept)
             {
                 File.Delete(snapshot);
             }
@@ -150,9 +165,8 @@ internal static class GeneratorSnapshot
     /// <summary>Settles one generated file against its snapshot, writing the received or accepted output as needed.</summary>
     /// <param name="basePath">The snapshot path without its suffix.</param>
     /// <param name="output">The generated output, in snapshot form.</param>
-    /// <param name="accept">Whether the output replaces the snapshot.</param>
     /// <returns><see langword="true"/> when the output equals the snapshot or was accepted as it.</returns>
-    private static async Task<bool> StoreAsync(string basePath, string output, bool accept)
+    private static async Task<bool> StoreAsync(string basePath, string output)
     {
         var verifiedPath = basePath + VerifiedSuffix;
         var receivedPath = basePath + ReceivedSuffix;
@@ -166,7 +180,7 @@ internal static class GeneratorSnapshot
             return true;
         }
 
-        if (accept)
+        if (Accept)
         {
             await File.WriteAllTextAsync(verifiedPath, output, SnapshotEncoding);
             File.Delete(receivedPath);
@@ -175,6 +189,14 @@ internal static class GeneratorSnapshot
 
         await File.WriteAllTextAsync(receivedPath, output, SnapshotEncoding);
         return false;
+    }
+
+    /// <summary>Reads whether the run accepts its output, from <c>ACCEPT_SNAPSHOTS</c>.</summary>
+    /// <returns><see langword="true"/> when the variable is <c>1</c> or <c>true</c>, in any case.</returns>
+    private static bool ReadAccept()
+    {
+        var value = Environment.GetEnvironmentVariable(AcceptVariable);
+        return string.Equals(value, "1", StringComparison.Ordinal) || string.Equals(value, "true", StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>Reads the snapshot root the test project recorded when it was built.</summary>

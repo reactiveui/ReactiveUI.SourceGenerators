@@ -22,7 +22,7 @@ namespace ReactiveUI.SourceGenerators.Benchmarks.Shared;
 /// </para>
 /// <para>
 /// The trace of each scenario is kept, so the allocated types and the frames that allocated them can be broken down
-/// afterwards with <c>nettrace-analyzer.cs</c>. The Jit and Loader keywords are on so the frames resolve to methods.
+/// afterwards in PerfView. The Jit and Loader keywords are on so the frames resolve to methods.
 /// </para>
 /// </remarks>
 public static class EventPipeAllocations

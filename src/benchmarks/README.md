@@ -24,9 +24,10 @@ dotnet run -c Release -- --eventpipe <dir>                # generation scenarios
 dotnet run -c Release -- --eventpipe-discovery <dir>      # attribute discovery strategies
 cd ../ReactiveUI.SourceGenerators.Runtime.Benchmarks
 dotnet run -c Release -- --eventpipe <dir>                # generated code
-
-dotnet run ~/source/rxui/tools/nettrace-analyzer.cs -- --top 40 <dir>/<scenario>.nettrace
 ```
+
+Each scenario writes `<dir>/<scenario>.nettrace`. To see which frames allocate, open it in PerfView and use the
+"GC Heap Alloc Ignore Free (Coarse Sampling) Stacks" view.
 
 The BenchmarkDotNet entry points remain for timings; they attach the same EventPipe profiler to each benchmark.
 
@@ -40,8 +41,10 @@ All figures are on .NET 10 (x64, Linux).
 
 ## Results
 
-"Before" is commit 7ab0cbc (after `[ObservableAsProperty]` and view registration were removed, before the writer and
-the pipeline changes), measured with this same harness copied onto it. "After" is this branch.
+"Before" is the generators with `[ObservableAsProperty]` and view registration already removed, but still building
+their output with interpolated strings, binding every attribute for `[IViewFor]` and `[IReactiveObject]`, and writing
+every file from one collected output. It was measured with this same harness copied onto it. "After" is the generators
+as they are now.
 
 ### Generation
 

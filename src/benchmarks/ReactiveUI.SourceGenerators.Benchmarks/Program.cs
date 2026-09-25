@@ -62,7 +62,7 @@ internal static class Program
     /// <returns>An EventPipe trace per benchmark unless profiling is turned off; allocation figures come from its GC events.</returns>
     /// <remarks>
     /// The trace carries verbose GC events, whose AllocationTick events name the allocated type and its call stack,
-    /// and CPU samples. The traces land in BenchmarkDotNet.Artifacts and are summarised with nettrace-analyzer.cs.
+    /// and CPU samples. The traces land in BenchmarkDotNet.Artifacts and can be opened in PerfView.
     /// </remarks>
     private static ManualConfig CreateConfig()
     {
