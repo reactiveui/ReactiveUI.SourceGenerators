@@ -17,12 +17,6 @@ namespace ReactiveUI.SourceGenerators;
 [Generator(LanguageNames.CSharp)]
 public sealed partial class ReactiveCollectionGenerator : IIncrementalGenerator
 {
-    /// <summary>Gets the generator type name used in generated-code metadata.</summary>
-    internal static readonly string GeneratorName = typeof(ReactiveCollectionGenerator).FullName!;
-
-    /// <summary>Gets the generator assembly version used in generated-code metadata.</summary>
-    internal static readonly string GeneratorVersion = typeof(ReactiveCollectionGenerator).Assembly.GetName().Version.ToString();
-
     /// <inheritdoc/>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -89,7 +83,7 @@ public sealed partial class ReactiveCollectionGenerator : IIncrementalGenerator
 
             foreach (var grouping in groupedPropertyInfo)
             {
-                var source = GenerateSource(grouping.Key.TargetName, grouping.Key.TargetNamespace, grouping.Key.TargetVisibility, grouping.Key.TargetType, grouping.Value.ToArray(), input.Right);
+                var source = GenerateSource(grouping.Value, input.Right);
                 context.AddSource($"{grouping.Key.FileHintName}.ReactiveCollections.g.cs", source);
             }
         });

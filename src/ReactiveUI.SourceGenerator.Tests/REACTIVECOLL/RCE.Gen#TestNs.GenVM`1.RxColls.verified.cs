@@ -6,7 +6,6 @@ using ReactiveUI;
 #nullable enable
 namespace TestNs
 {
-    
     public partial class GenericVM<T>
     {
         /// <inheritdoc cref="_items"/>

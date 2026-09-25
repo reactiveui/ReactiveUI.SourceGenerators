@@ -7,40 +7,38 @@ using ReactiveUI;
 namespace TestNs
 {
     public partial class OuterVM
-{
-
-    public partial class InnerVM
     {
-        /// <inheritdoc cref="_innerCollection"/>
-        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        public global::System.Collections.ObjectModel.ObservableCollection<string>? InnerCollection
+        public partial class InnerVM
         {
-            get => _innerCollection;
-            set
+            /// <inheritdoc cref="_innerCollection"/>
+            [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+            public global::System.Collections.ObjectModel.ObservableCollection<string>? InnerCollection
             {
-                if (value == null)
+                get => _innerCollection;
+                set
                 {
-                    InnerCollection.CollectionChanged -= CollectionChanged(this, nameof(InnerCollection));
-                }
+                    if (value == null)
+                    {
+                        InnerCollection.CollectionChanged -= CollectionChanged(this, nameof(InnerCollection));
+                    }
 
-                _innerCollection = value;
-                this.RaisePropertyChanged(nameof(InnerCollection));
+                    _innerCollection = value;
+                    this.RaisePropertyChanged(nameof(InnerCollection));
 
-                if (_innerCollection != null)
-                {
-                    // Remove the old handler if it exists
-                    InnerCollection.CollectionChanged -= CollectionChanged(this, nameof(InnerCollection));
+                    if (_innerCollection != null)
+                    {
+                        // Remove the old handler if it exists
+                        InnerCollection.CollectionChanged -= CollectionChanged(this, nameof(InnerCollection));
 
-                    InnerCollection.CollectionChanged += CollectionChanged(this, nameof(InnerCollection));
+                        InnerCollection.CollectionChanged += CollectionChanged(this, nameof(InnerCollection));
+                    }
                 }
             }
+
+            [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+            private static global::System.Collections.Specialized.NotifyCollectionChangedEventHandler CollectionChanged(IReactiveObject @this, string propName)=> (_, _) =>  @this.RaisePropertyChanged(propName);
         }
-
-        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        private static global::System.Collections.Specialized.NotifyCollectionChangedEventHandler CollectionChanged(IReactiveObject @this, string propName)=> (_, _) =>  @this.RaisePropertyChanged(propName);
     }
-}
-
 }
 #nullable restore
 #pragma warning restore

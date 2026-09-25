@@ -6,7 +6,6 @@ using ReactiveUI;
 #nullable enable
 namespace TestNs
 {
-    
     public partial class OuterVM
     {
         /// <inheritdoc cref="_outerCollection"/>

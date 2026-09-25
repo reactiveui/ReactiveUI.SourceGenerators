@@ -7,43 +7,41 @@ using ReactiveUI;
 namespace TestNs
 {
     public partial class OuterVM
-{
-public partial class InnerVM
-{
-
-    public partial class DeepInnerVM
     {
-        /// <inheritdoc cref="_deepCollection"/>
-        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        public global::System.Collections.ObjectModel.ObservableCollection<double>? DeepCollection
+        public partial class InnerVM
         {
-            get => _deepCollection;
-            set
+            public partial class DeepInnerVM
             {
-                if (value == null)
+                /// <inheritdoc cref="_deepCollection"/>
+                [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+                public global::System.Collections.ObjectModel.ObservableCollection<double>? DeepCollection
                 {
-                    DeepCollection.CollectionChanged -= CollectionChanged(this, nameof(DeepCollection));
+                    get => _deepCollection;
+                    set
+                    {
+                        if (value == null)
+                        {
+                            DeepCollection.CollectionChanged -= CollectionChanged(this, nameof(DeepCollection));
+                        }
+
+                        _deepCollection = value;
+                        this.RaisePropertyChanged(nameof(DeepCollection));
+
+                        if (_deepCollection != null)
+                        {
+                            // Remove the old handler if it exists
+                            DeepCollection.CollectionChanged -= CollectionChanged(this, nameof(DeepCollection));
+
+                            DeepCollection.CollectionChanged += CollectionChanged(this, nameof(DeepCollection));
+                        }
+                    }
                 }
 
-                _deepCollection = value;
-                this.RaisePropertyChanged(nameof(DeepCollection));
-
-                if (_deepCollection != null)
-                {
-                    // Remove the old handler if it exists
-                    DeepCollection.CollectionChanged -= CollectionChanged(this, nameof(DeepCollection));
-
-                    DeepCollection.CollectionChanged += CollectionChanged(this, nameof(DeepCollection));
-                }
+                [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+                private static global::System.Collections.Specialized.NotifyCollectionChangedEventHandler CollectionChanged(IReactiveObject @this, string propName)=> (_, _) =>  @this.RaisePropertyChanged(propName);
             }
         }
-
-        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        private static global::System.Collections.Specialized.NotifyCollectionChangedEventHandler CollectionChanged(IReactiveObject @this, string propName)=> (_, _) =>  @this.RaisePropertyChanged(propName);
     }
-}
-}
-
 }
 #nullable restore
 #pragma warning restore
