@@ -40,14 +40,7 @@ public sealed partial class ViewModelControlHostGenerator : IIncrementalGenerato
         {
             foreach (var info in input.Left)
             {
-                var source = GetViewModelControlHost(
-                    info.TargetName,
-                    info.TargetNamespace,
-                    info.TargetVisibility,
-                    info.TargetType,
-                    info,
-                    input.Right);
-                context.AddSource($"{info.FileHintName}.ViewModelControlHost.g.cs", source);
+                context.AddSource($"{info.FileHintName}.ViewModelControlHost.g.cs", GenerateSource(info, input.Right));
             }
         });
     }
