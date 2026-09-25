@@ -244,7 +244,7 @@ public partial class ReactiveCommandGenerator
     /// <param name="commands">The commands the type declares, all sharing one <see cref="TargetInfo"/>.</param>
     /// <param name="integration">The selected ReactiveUI API surface.</param>
     /// <returns>The file's text.</returns>
-    private static string GenerateSource(List<CommandInfo> commands, ReactiveUiIntegration integration)
+    private static string GenerateSource(EquatableArray<CommandInfo> commands, ReactiveUiIntegration integration)
     {
         var target = commands[0].TargetInfo;
         var writer = SourceWriter.Rent()

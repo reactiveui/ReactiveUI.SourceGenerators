@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 #if ROSYLN_412 || ROSYLN_500
@@ -302,7 +301,7 @@ public sealed partial class ReactiveGenerator
     /// <param name="properties">The properties the type declares, all sharing one <see cref="TargetInfo"/>.</param>
     /// <param name="integration">The selected ReactiveUI API surface.</param>
     /// <returns>The file's text.</returns>
-    private static string GenerateSource(List<PropertyInfo> properties, ReactiveUiIntegration integration)
+    private static string GenerateSource(EquatableArray<PropertyInfo> properties, ReactiveUiIntegration integration)
     {
         var target = properties[0].TargetInfo;
         var writer = SourceWriter.Rent()

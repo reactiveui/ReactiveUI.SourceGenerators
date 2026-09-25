@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text;
 using System.Threading;
@@ -11,6 +10,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Models;
 
@@ -35,25 +35,23 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
         Func<GeneratorAttributeSyntaxContext, CancellationToken, IViewForInfo?> transform = static (context, token) => GetClassInfo(context, token);
         var named = context.SyntaxProvider.ForAttributeWithMetadataName(AttributeDefinitions.IViewForAttributeType, predicate, transform).Collect();
         var generic = context.SyntaxProvider.ForAttributeWithMetadataName(AttributeDefinitions.IViewForGenericAttributeType, predicate, transform).Collect();
-        var viewForInfo = named.Combine(generic).Select(static (pair, _) => Join(pair.Left, pair.Right));
+        var types = named.Combine(generic)
+            .SelectMany(static (pair, _) => Join(pair.Left, pair.Right))
+            .GroupByTarget(static info => info.TargetInfo)
+            .WithTrackingName(TrackingNames.ViewForTypes);
 
-        // Generate the requested properties and methods for IViewFor
-        context.RegisterSourceOutput(viewForInfo, static (context, input) =>
+        // View registration is not generated here: ReactiveUI.Binding's view locator registers every IViewFor<T>.
+        context.RegisterSourceOutput(types, static (context, infos) =>
         {
-            var groupedPropertyInfo = GroupByTarget(input);
+            var info = infos[0];
 
-            // View registration is not generated here: ReactiveUI.Binding's view locator registers every IViewFor<T>.
-            foreach (var grouping in groupedPropertyInfo.Values)
+            // Only a supported UI framework base type gets a source.
+            if (GenerateSource(info) is not { } source)
             {
-                var info = grouping[0];
-                var source = GenerateSource(info);
-
-                // Only add source when a supported UI framework base type was detected
-                if (source is not null)
-                {
-                    context.AddSource($"{info.TargetInfo.FileHintName}.IViewFor.g.cs", source);
-                }
+                return;
             }
+
+            context.AddSource($"{info.TargetInfo.FileHintName}.IViewFor.g.cs", source);
         });
     }
 
@@ -81,28 +79,5 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
         }
 
         return builder.ToImmutable();
-    }
-
-    /// <summary>Groups source-generation inputs by their annotated target type.</summary>
-    /// <param name="input">The discovered <c>IViewFor</c> targets.</param>
-    /// <returns>The targets grouped by their generated file identity.</returns>
-    private static Dictionary<(string FileHintName, string TargetName, string TargetNamespace, string TargetVisibility, string TargetType), List<IViewForInfo>> GroupByTarget(
-        ImmutableArray<IViewForInfo> input)
-    {
-        Dictionary<(string, string, string, string, string), List<IViewForInfo>> result = [];
-        foreach (var info in input)
-        {
-            var target = info.TargetInfo;
-            var key = (target.FileHintName, target.TargetName, target.TargetNamespace, target.TargetVisibility, target.TargetType);
-            if (!result.TryGetValue(key, out var values))
-            {
-                values = [];
-                result.Add(key, values);
-            }
-
-            values.Add(info);
-        }
-
-        return result;
     }
 }

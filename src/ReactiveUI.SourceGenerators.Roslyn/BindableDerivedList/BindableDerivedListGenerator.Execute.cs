@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
 using Microsoft.CodeAnalysis;
@@ -174,7 +173,7 @@ public sealed partial class BindableDerivedListGenerator
     /// <summary>Generates the partial declaration holding one type's bindable derived list properties.</summary>
     /// <param name="properties">The properties the type declares, all sharing one <see cref="TargetInfo"/>.</param>
     /// <returns>The file's text.</returns>
-    private static string GenerateSource(List<BindableDerivedListInfo> properties)
+    private static string GenerateSource(EquatableArray<BindableDerivedListInfo> properties)
     {
         var target = properties[0].TargetInfo;
         var writer = SourceWriter.Rent()

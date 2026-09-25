@@ -2,14 +2,12 @@
 // ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
-using ReactiveUI.SourceGenerators.Models;
 
 namespace ReactiveUI.SourceGenerators;
 
@@ -33,7 +31,7 @@ public sealed partial class ReactiveCollectionGenerator : IIncrementalGenerator
     /// <param name="context">The incremental generator initialization context.</param>
     private static void RunReactiveCollectionFromField(in IncrementalGeneratorInitializationContext context)
     {
-        var propertyInfo =
+        var results =
             context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 AttributeDefinitions.ReactiveCollectionAttributeType,
@@ -48,44 +46,17 @@ public sealed partial class ReactiveCollectionGenerator : IIncrementalGenerator
                 static (context, token) => GetVariableInfo(context, token))
             .Where(static x => x is not null)
             .Select(static (x, _) => x!)
-            .Collect()
-            .Combine(context.ReactiveUiIntegration());
+            .WithTrackingName(TrackingNames.ReactiveCollections);
 
-        // Generate the requested properties and methods
-        context.RegisterSourceOutput(propertyInfo, static (context, input) =>
-        {
-            Dictionary<
-                (string FileHintName, string TargetName, string TargetNamespace, string TargetVisibility, string TargetType),
-                List<ReactiveCollectionFieldInfo>> groupedPropertyInfo = [];
+        context.RegisterDiagnostics(results);
 
-            foreach (var result in input.Left)
-            {
-                foreach (var diagnostic in result.Errors.AsImmutableArray())
-                {
-                    context.ReportDiagnostic(diagnostic.ToDiagnostic());
-                }
+        var types = results
+            .Where(static result => result.Value is not null)
+            .Select(static (result, _) => result.Value!)
+            .GroupByTarget(static property => property.TargetInfo)
+            .WithTrackingName(TrackingNames.ReactiveCollectionTypes);
 
-                if (result.Value is not ReactiveCollectionFieldInfo propertyInfo)
-                {
-                    continue;
-                }
-
-                var targetInfo = propertyInfo.TargetInfo;
-                var key = (targetInfo.FileHintName, targetInfo.TargetName, targetInfo.TargetNamespace, targetInfo.TargetVisibility, targetInfo.TargetType);
-                if (!groupedPropertyInfo.TryGetValue(key, out var properties))
-                {
-                    properties = [];
-                    groupedPropertyInfo.Add(key, properties);
-                }
-
-                properties.Add(propertyInfo);
-            }
-
-            foreach (var grouping in groupedPropertyInfo)
-            {
-                var source = GenerateSource(grouping.Value, input.Right);
-                context.AddSource($"{grouping.Key.FileHintName}.ReactiveCollections.g.cs", source);
-            }
-        });
+        context.RegisterSourceOutput(types.Combine(context.ReactiveUiIntegration()), static (context, input) =>
+            context.AddSource($"{input.Left[0].TargetInfo.FileHintName}.ReactiveCollections.g.cs", GenerateSource(input.Left, input.Right)));
     }
 }

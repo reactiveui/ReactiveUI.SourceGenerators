@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
 using Microsoft.CodeAnalysis;
@@ -174,7 +173,7 @@ public sealed partial class ReactiveCollectionGenerator
     /// <param name="properties">The properties the type declares, all sharing one <see cref="TargetInfo"/>.</param>
     /// <param name="integration">The selected ReactiveUI API surface.</param>
     /// <returns>The file's text.</returns>
-    private static string GenerateSource(List<ReactiveCollectionFieldInfo> properties, ReactiveUiIntegration integration)
+    private static string GenerateSource(EquatableArray<ReactiveCollectionFieldInfo> properties, ReactiveUiIntegration integration)
     {
         var target = properties[0].TargetInfo;
         var writer = SourceWriter.Rent()

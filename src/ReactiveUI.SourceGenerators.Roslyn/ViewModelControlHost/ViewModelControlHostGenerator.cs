@@ -21,10 +21,8 @@ public sealed partial class ViewModelControlHostGenerator : IIncrementalGenerato
         context.RegisterPostInitializationOutput(static ctx =>
             ctx.AddSource($"{AttributeDefinitions.ViewModelControlHostAttributeType}.g.cs", SourceText.From(AttributeDefinitions.ViewModelControlHostAttribute, Encoding.UTF8)));
 
-        var reactiveUiIntegrationProvider = context.ReactiveUiIntegration();
-
-        // Gather info for all annotated IViewFor Classes
-        var vmcInfo =
+        // One model per annotated class, each written by its own output so it caches on its own.
+        var hosts =
             context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 AttributeDefinitions.ViewModelControlHostAttributeType,
@@ -32,16 +30,9 @@ public sealed partial class ViewModelControlHostGenerator : IIncrementalGenerato
                 static (context, token) => GetClassInfo(context, token))
             .Where(static x => x is not null)
             .Select(static (x, _) => x!)
-            .Collect()
-            .Combine(reactiveUiIntegrationProvider);
+            .WithTrackingName(TrackingNames.ViewModelControlHosts);
 
-        // Generate the requested properties and methods for IViewFor
-        context.RegisterSourceOutput(vmcInfo, static (context, input) =>
-        {
-            foreach (var info in input.Left)
-            {
-                context.AddSource($"{info.FileHintName}.ViewModelControlHost.g.cs", GenerateSource(info, input.Right));
-            }
-        });
+        context.RegisterSourceOutput(hosts.Combine(context.ReactiveUiIntegration()), static (context, input) =>
+            context.AddSource($"{input.Left.FileHintName}.ViewModelControlHost.g.cs", GenerateSource(input.Left, input.Right)));
     }
 }

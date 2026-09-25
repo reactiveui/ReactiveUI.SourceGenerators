@@ -21,10 +21,8 @@ public sealed partial class RoutedControlHostGenerator : IIncrementalGenerator
         context.RegisterPostInitializationOutput(static ctx =>
             ctx.AddSource($"{AttributeDefinitions.RoutedControlHostAttributeType}.g.cs", SourceText.From(AttributeDefinitions.GetRoutedControlHostAttribute(), Encoding.UTF8)));
 
-        var reactiveUiIntegrationProvider = context.ReactiveUiIntegration();
-
-        // Gather info for all annotated IViewFor Classes
-        var rchInfo =
+        // One model per annotated class, each written by its own output so it caches on its own.
+        var hosts =
             context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 AttributeDefinitions.RoutedControlHostAttributeType,
@@ -32,16 +30,9 @@ public sealed partial class RoutedControlHostGenerator : IIncrementalGenerator
                 static (context, token) => GetClassInfo(context, token))
             .Where(static x => x is not null)
             .Select(static (x, _) => x!)
-            .Collect()
-            .Combine(reactiveUiIntegrationProvider);
+            .WithTrackingName(TrackingNames.RoutedControlHosts);
 
-        // Generate the requested properties and methods for IViewFor
-        context.RegisterSourceOutput(rchInfo, static (context, input) =>
-        {
-            foreach (var info in input.Left)
-            {
-                context.AddSource($"{info.FileHintName}.RoutedControlHost.g.cs", GenerateSource(info, input.Right));
-            }
-        });
+        context.RegisterSourceOutput(hosts.Combine(context.ReactiveUiIntegration()), static (context, input) =>
+            context.AddSource($"{input.Left.FileHintName}.RoutedControlHost.g.cs", GenerateSource(input.Left, input.Right)));
     }
 }
