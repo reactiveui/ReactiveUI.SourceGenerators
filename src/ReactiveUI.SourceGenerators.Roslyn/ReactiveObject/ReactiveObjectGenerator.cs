@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using ReactiveUI.SourceGenerators.Extensions;
@@ -26,9 +27,9 @@ public sealed partial class ReactiveObjectGenerator : IIncrementalGenerator
         // Gather info for all annotated IReactiveObject Classes
         var reactiveObjectInfo =
             context.SyntaxProvider
-            .ForAttributeWithMetadataNameWithGenerics(
+            .ForAttributeWithMetadataName(
                 AttributeDefinitions.ReactiveObjectAttributeType,
-                static (node, _) => node is ClassDeclarationSyntax { AttributeLists.Count: > 0 },
+                static (node, _) => node is ClassDeclarationSyntax { AttributeLists.Count: > 0 } declaration && declaration.Modifiers.Any(SyntaxKind.PartialKeyword),
                 static (context, token) => GetClassInfo(context, token))
             .Where(static x => x is not null)
             .Select(static (x, _) => x!)

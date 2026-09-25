@@ -2,6 +2,7 @@
 // ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using ReactiveUI.SourceGenerators.Extensions;
@@ -26,10 +27,23 @@ internal sealed record TargetInfo(
     string TargetType,
     TargetInfo? ParentInfo)
 {
+    /// <summary>The target information already built for a type symbol in the current compilation.</summary>
+    /// <remarks>
+    /// Every attributed member of a type needs its type's information, and each member is extracted separately, so without
+    /// this the same display strings were built once per member. The table holds its keys weakly, so it never keeps an
+    /// old compilation's symbols alive, and the values hold no symbols.
+    /// </remarks>
+    private static readonly ConditionalWeakTable<INamedTypeSymbol, TargetInfo> Cache = new();
+
+    /// <summary>Gets the target information for a named type symbol, building it once per symbol.</summary>
+    /// <param name="namedTypeSymbol">The target type symbol.</param>
+    /// <returns>The generated target information.</returns>
+    internal static TargetInfo From(INamedTypeSymbol namedTypeSymbol) => Cache.GetValue(namedTypeSymbol, Create);
+
     /// <summary>Creates target information from a named type symbol.</summary>
     /// <param name="namedTypeSymbol">The target type symbol.</param>
     /// <returns>The generated target information.</returns>
-    internal static TargetInfo From(INamedTypeSymbol namedTypeSymbol)
+    private static TargetInfo Create(INamedTypeSymbol namedTypeSymbol)
     {
         var targetHintName = ToHintName(namedTypeSymbol.GetFullyQualifiedMetadataName());
 

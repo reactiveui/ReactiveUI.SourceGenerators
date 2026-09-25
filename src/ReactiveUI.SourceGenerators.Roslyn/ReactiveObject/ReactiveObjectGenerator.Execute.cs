@@ -24,7 +24,7 @@ public partial class ReactiveObjectGenerator
     /// <param name="context">The attribute syntax context for the class.</param>
     /// <param name="token">The cancellation token for the generator operation.</param>
     /// <returns>The class metadata, or <see langword="null"/> when not applicable.</returns>
-    private static ReactiveObjectInfo? GetClassInfo(in GenericGeneratorAttributeSyntaxContext context, CancellationToken token)
+    private static ReactiveObjectInfo? GetClassInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
         if (!(context.TargetNode is ClassDeclarationSyntax declaredClass && declaredClass.Modifiers.Any(SyntaxKind.PartialKeyword)))
         {

@@ -39,10 +39,7 @@ public partial class ViewModelControlHostGenerator
 
         token.ThrowIfCancellationRequested();
         var symbol = context.TargetSymbol;
-        if (!symbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ViewModelControlHostAttributeType, out var attributeData))
-        {
-            return default;
-        }
+        var attributeData = context.Attributes[0];
 
         token.ThrowIfCancellationRequested();
         if (symbol is not INamedTypeSymbol classSymbol)

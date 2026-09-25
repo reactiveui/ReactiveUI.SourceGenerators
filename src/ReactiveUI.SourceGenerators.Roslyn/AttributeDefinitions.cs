@@ -278,6 +278,7 @@ internal sealed class ReactiveAttribute : global::System.Attribute
 #endif
 
     public const string IViewForAttributeType = "ReactiveUI.SourceGenerators.IViewForAttribute";
+    public const string IViewForGenericAttributeType = "ReactiveUI.SourceGenerators.IViewForAttribute`1";
 
     public static string IViewForAttribute { get; } = $$"""
 // Copyright (c) {{DateTime.Now.Year}} .NET Foundation and Contributors. All rights reserved.

@@ -22,7 +22,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\ITypeSymbolExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\SymbolInfoExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\SyntaxTokenExtensions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Core\Extensions\SyntaxValueProviderExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Helpers\AttributeInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Helpers\EquatableArray{T}.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Helpers\HashCode.cs" />
@@ -31,7 +30,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Core\Helpers\TypedConstantInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Helpers\TypedConstantInfo.Factory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Models\DiagnosticInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Core\Models\GenericGeneratorAttributeSyntaxContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Models\PropertyAttributeData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Models\Result.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Models\TargetInfo.cs" />

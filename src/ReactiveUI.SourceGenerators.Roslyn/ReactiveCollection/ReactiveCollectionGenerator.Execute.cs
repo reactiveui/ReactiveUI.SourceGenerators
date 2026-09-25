@@ -43,12 +43,6 @@ public sealed partial class ReactiveCollectionGenerator
         var symbol = context.TargetSymbol;
         token.ThrowIfCancellationRequested();
 
-        // Skip symbols without the target attribute
-        if (!symbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ReactiveCollectionAttributeType, out _))
-        {
-            return default;
-        }
-
         if (symbol is not IFieldSymbol fieldSymbol)
         {
             return default;

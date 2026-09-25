@@ -60,10 +60,7 @@ public sealed partial class ReactiveGenerator
     {
         using var builder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
         var symbol = context.TargetSymbol;
-        if (!symbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ReactiveAttributeType, out var attributeData))
-        {
-            return default;
-        }
+        var attributeData = context.Attributes[0];
 
         if (symbol is not IPropertySymbol propertySymbol || !propertySymbol.IsPartialDefinition || propertySymbol.IsStatic)
         {
@@ -119,7 +116,7 @@ public sealed partial class ReactiveGenerator
             true,
             propertyAccessModifier,
             GetAlsoNotifyValues(attributeData, propertySymbol.Name, context.SemanticModel, token),
-            GetXmlDocumentation(propertySymbol, token));
+            context.TargetNode.HasDocumentationComment() ? GetXmlDocumentation(propertySymbol, token) : string.Empty);
     }
 
     /// <summary>Gets normalized C# accessibility text.</summary>
@@ -211,10 +208,7 @@ public sealed partial class ReactiveGenerator
     private static Result<PropertyInfo?>? GetVariableInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
         using var builder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
-        if (!context.TargetSymbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.ReactiveAttributeType, out var attributeData))
-        {
-            return default;
-        }
+        var attributeData = context.Attributes[0];
 
         if (context.TargetSymbol is not IFieldSymbol fieldSymbol || !fieldSymbol.IsTargetTypeValid())
         {

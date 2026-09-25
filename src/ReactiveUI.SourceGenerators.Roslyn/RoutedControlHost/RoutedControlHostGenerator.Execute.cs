@@ -40,10 +40,7 @@ public partial class RoutedControlHostGenerator
         token.ThrowIfCancellationRequested();
 
         var symbol = context.TargetSymbol;
-        if (!symbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.RoutedControlHostAttributeType, out var attributeData))
-        {
-            return default;
-        }
+        var attributeData = context.Attributes[0];
 
         token.ThrowIfCancellationRequested();
 

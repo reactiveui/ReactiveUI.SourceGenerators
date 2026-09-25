@@ -4,8 +4,6 @@
 
 using System.Threading;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ReactiveUI.SourceGenerators.CodeGeneration;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
@@ -36,20 +34,12 @@ public partial class IViewForGenerator
     /// <param name="context">The Roslyn context for the annotated declaration.</param>
     /// <param name="token">The cancellation token.</param>
     /// <returns>The generation model, or <see langword="null"/> when the target is unsupported.</returns>
-    private static IViewForInfo? GetClassInfo(in GenericGeneratorAttributeSyntaxContext context, CancellationToken token)
+    private static IViewForInfo? GetClassInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
-        if (!(context.TargetNode is ClassDeclarationSyntax declaredClass && declaredClass.Modifiers.Any(SyntaxKind.PartialKeyword)))
-        {
-            return default;
-        }
-
         var symbol = context.TargetSymbol;
         token.ThrowIfCancellationRequested();
 
-        if (!symbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.IViewForAttributeType, out var attributeData))
-        {
-            return default;
-        }
+        var attributeData = context.Attributes[0];
 
         token.ThrowIfCancellationRequested();
         if (symbol is not INamedTypeSymbol classSymbol)

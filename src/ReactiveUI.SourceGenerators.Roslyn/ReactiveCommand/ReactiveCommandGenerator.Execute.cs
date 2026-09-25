@@ -142,7 +142,7 @@ public partial class ReactiveCommandGenerator
             runInBackground,
             forwardedPropertyAttributes,
             accessModifier,
-            GetXmlDocumentation(methodSymbol, token));
+            context.TargetNode.HasDocumentationComment() ? GetXmlDocumentation(methodSymbol, token) : string.Empty);
     }
 
     /// <summary>Gets the relevant return-type details for a command method.</summary>

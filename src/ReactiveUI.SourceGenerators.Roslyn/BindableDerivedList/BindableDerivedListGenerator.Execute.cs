@@ -50,10 +50,7 @@ public sealed partial class BindableDerivedListGenerator
         using var builder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
         var symbol = context.TargetSymbol;
 
-        if (!symbol.TryGetAttributeWithFullyQualifiedMetadataName(AttributeDefinitions.BindableDerivedListAttributeType, out var attributeData))
-        {
-            return default;
-        }
+        var attributeData = context.Attributes[0];
 
         if (symbol is not IFieldSymbol fieldSymbol)
         {
