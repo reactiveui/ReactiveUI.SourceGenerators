@@ -43,10 +43,10 @@ public sealed partial class IViewForGenerator : IIncrementalGenerator
             foreach (var grouping in groupedPropertyInfo.Values)
             {
                 var info = grouping[0];
-                var source = GenerateSource(info, info.TargetInfo.ParentInfo);
+                var source = GenerateSource(info);
 
-                // Only add source if it's not empty (i.e., a supported UI framework base type was detected)
-                if (!string.IsNullOrWhiteSpace(source))
+                // Only add source when a supported UI framework base type was detected
+                if (source is not null)
                 {
                     context.AddSource($"{info.TargetInfo.FileHintName}.IViewFor.g.cs", source);
                 }

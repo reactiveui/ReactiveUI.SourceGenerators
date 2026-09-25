@@ -8,35 +8,34 @@ using System.Windows;
 
 namespace TestNs
 {
-public partial class OuterContainer
-{
-public partial class MiddleContainer
-{
-    /// <summary>
-    /// Partial class for the NestedView which contains ReactiveUI IViewFor initialization.
-    /// </summary>
-    [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public partial class NestedView : IViewFor<TestNs.TestViewModel>
+    public partial class OuterContainer
     {
-        /// <summary>
-        /// The view model dependency property.
-        /// </summary>
-        public static readonly DependencyProperty ViewModelProperty = DependencyProperty.Register(nameof(ViewModel), typeof(TestNs.TestViewModel), typeof(NestedView), new PropertyMetadata(null));
+        public partial class MiddleContainer
+        {
+            /// <summary>
+            /// Partial class for the NestedView which contains ReactiveUI IViewFor initialization.
+            /// </summary>
+            [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+            public partial class NestedView : IViewFor<TestNs.TestViewModel>
+            {
+                /// <summary>
+                /// The view model dependency property.
+                /// </summary>
+                public static readonly DependencyProperty ViewModelProperty = DependencyProperty.Register(nameof(ViewModel), typeof(TestNs.TestViewModel), typeof(NestedView), new PropertyMetadata(null));
 
-        /// <summary>
-        /// Gets the binding root view model.
-        /// </summary>
-        public TestNs.TestViewModel BindingRoot => ViewModel;
+                /// <summary>
+                /// Gets the binding root view model.
+                /// </summary>
+                public TestNs.TestViewModel BindingRoot => ViewModel;
 
-        /// <inheritdoc/>
-        public TestNs.TestViewModel ViewModel { get => (TestNs.TestViewModel)GetValue(ViewModelProperty); set => SetValue(ViewModelProperty, value); }
+                /// <inheritdoc/>
+                public TestNs.TestViewModel ViewModel { get => (TestNs.TestViewModel)GetValue(ViewModelProperty); set => SetValue(ViewModelProperty, value); }
 
-        /// <inheritdoc/>
-        object? IViewFor.ViewModel { get => ViewModel; set => ViewModel = (TestNs.TestViewModel)value; }
+                /// <inheritdoc/>
+                object? IViewFor.ViewModel { get => ViewModel; set => ViewModel = (TestNs.TestViewModel)value; }
+            }
+        }
     }
-
-}
-}
 }
 #nullable restore
 #pragma warning restore
