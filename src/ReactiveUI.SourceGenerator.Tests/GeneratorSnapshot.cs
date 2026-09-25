@@ -38,8 +38,57 @@ internal static class GeneratorSnapshot
     /// </summary>
     private const string GeneratedCodeAttributeLine = "[global::System.CodeDom.Compiler.GeneratedCode(\"";
 
+    /// <summary>The suffix a test class name ends with, dropped from the snapshot name.</summary>
+    private const string TestClassSuffix = "Tests";
+
+    /// <summary>The suffix every generated hint name ends with, dropped from the snapshot name.</summary>
+    private const string HintSuffix = ".g.cs";
+
     /// <summary>The encoding snapshots are written in: UTF-8 with a byte order mark, as the stored snapshots are.</summary>
     private static readonly UTF8Encoding SnapshotEncoding = new(encoderShouldEmitUTF8Identifier: true);
+
+    /// <summary>
+    /// The words shortened in a snapshot's method and hint segments, longest first so a longer word is never split by a
+    /// shorter one. They keep snapshot paths well inside the Windows path limit.
+    /// </summary>
+    private static readonly (string Word, string Abbreviation)[] Abbreviations =
+    [
+        ("ReactiveUI.SourceGenerators.", string.Empty),
+        ("CancellationToken", "Ct"),
+        ("ReactiveCommand", "RxCmd"),
+        ("ReactiveObject", "RxObj"),
+        ("ReactiveCollection", "RxColl"),
+        ("BindableDerivedList", "Bdl"),
+        ("ObservableCollection", "ObsColl"),
+        ("ReadOnly", "Ro"),
+        ("Observable", "Obs"),
+        ("Properties", "Props"),
+        ("Property", "Prop"),
+        ("Reactive", "Rx"),
+        ("Attribute", "Attr"),
+        ("Collection", "Coll"),
+        ("Command", "Cmd"),
+        ("Generic", "Gen"),
+        ("Generates", "Gen"),
+        ("Nullable", "Null"),
+        ("Parameter", "Param"),
+        ("Namespace", "Ns"),
+        ("Multiple", "Multi"),
+        ("ViewModel", "Vm"),
+        ("IViewFor", "Ivf"),
+        ("Internal", "Int"),
+        ("Inheritance", "Inh"),
+        ("Modifier", "Mod"),
+        ("Access", "Acc"),
+        ("Nested", "Nest"),
+        ("Different", "Diff"),
+        ("Complex", "Cplx"),
+        ("Return", "Ret"),
+        ("Type", "T"),
+        ("With", "W"),
+        ("From", "F"),
+        ("And", string.Empty),
+    ];
 
     /// <summary>The directory holding the snapshot folders.</summary>
     private static readonly string SnapshotRoot = ReadSnapshotRoot();
@@ -57,7 +106,7 @@ internal static class GeneratorSnapshot
         var directory = Path.Combine(SnapshotRoot, folder);
         _ = Directory.CreateDirectory(directory);
 
-        var prefix = $"{typeName}.{methodName}#";
+        var prefix = $"{AbbreviateTypeName(typeName)}.{Abbreviate(methodName)}#";
         var accept = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(AcceptVariable));
         var produced = new HashSet<string>(StringComparer.Ordinal);
         var failures = new List<string>();
@@ -66,7 +115,7 @@ internal static class GeneratorSnapshot
         {
             foreach (var source in result.GeneratedSources)
             {
-                var name = prefix + Path.GetFileNameWithoutExtension(source.HintName);
+                var name = prefix + AbbreviateHintName(source.HintName);
                 _ = produced.Add(name);
 
                 var output = $"//HintName: {source.HintName}\n{Scrub(source.SourceText.ToString())}";
@@ -143,6 +192,44 @@ internal static class GeneratorSnapshot
         }
 
         throw new InvalidOperationException($"The test assembly records no '{DirectoryMetadataKey}' assembly metadata.");
+    }
+
+    /// <summary>Shortens a test class name to its capitals, such as <c>RGE</c> for <c>RxGenExtTests</c>.</summary>
+    /// <param name="typeName">The test class name.</param>
+    /// <returns>The abbreviated name.</returns>
+    /// <remarks>Each generator's snapshots live in their own folder, so the codes only need to differ within one folder.</remarks>
+    private static string AbbreviateTypeName(string typeName)
+    {
+        var name = typeName.EndsWith(TestClassSuffix, StringComparison.Ordinal) ? typeName[..^TestClassSuffix.Length] : typeName;
+        var builder = new StringBuilder(name.Length);
+        foreach (var character in name)
+        {
+            if (char.IsUpper(character) || char.IsDigit(character))
+            {
+                _ = builder.Append(character);
+            }
+        }
+
+        return builder.ToString();
+    }
+
+    /// <summary>Shortens a generated file's hint name: no <c>.g.cs</c> suffix, and the common words abbreviated.</summary>
+    /// <param name="hintName">The hint name.</param>
+    /// <returns>The abbreviated name.</returns>
+    private static string AbbreviateHintName(string hintName) =>
+        Abbreviate(hintName.EndsWith(HintSuffix, StringComparison.Ordinal) ? hintName[..^HintSuffix.Length] : Path.GetFileNameWithoutExtension(hintName));
+
+    /// <summary>Replaces each common word with its abbreviation.</summary>
+    /// <param name="text">The text to shorten.</param>
+    /// <returns>The shortened text.</returns>
+    private static string Abbreviate(string text)
+    {
+        foreach (var (word, abbreviation) in Abbreviations)
+        {
+            text = text.Replace(word, abbreviation, StringComparison.Ordinal);
+        }
+
+        return text;
     }
 
     /// <summary>Puts generated text in snapshot form: LF line endings, without the generated-code attribute lines.</summary>
