@@ -8,6 +8,8 @@ namespace TestNs
 {
     public partial class TestVM
     {
+        private global::System.Collections.Specialized.NotifyCollectionChangedEventHandler? _publicObservableCollectionTestCollectionChangedHandler;
+
         /// <inheritdoc cref="_publicObservableCollectionTest"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Collections.ObjectModel.ObservableCollection<int>? PublicObservableCollectionTest
@@ -15,26 +17,21 @@ namespace TestNs
             get => _publicObservableCollectionTest;
             set
             {
-                if (value == null)
+                var handler = _publicObservableCollectionTestCollectionChangedHandler ??= (_, _) => this.RaisePropertyChanged(nameof(PublicObservableCollectionTest));
+                if (_publicObservableCollectionTest != null)
                 {
-                    PublicObservableCollectionTest.CollectionChanged -= CollectionChanged(this, nameof(PublicObservableCollectionTest));
+                    _publicObservableCollectionTest.CollectionChanged -= handler;
                 }
 
                 _publicObservableCollectionTest = value;
                 this.RaisePropertyChanged(nameof(PublicObservableCollectionTest));
 
-                if (_publicObservableCollectionTest != null)
+                if (value != null)
                 {
-                    // Remove the old handler if it exists
-                    PublicObservableCollectionTest.CollectionChanged -= CollectionChanged(this, nameof(PublicObservableCollectionTest));
-
-                    PublicObservableCollectionTest.CollectionChanged += CollectionChanged(this, nameof(PublicObservableCollectionTest));
+                    value.CollectionChanged += handler;
                 }
             }
         }
-
-        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        private static global::System.Collections.Specialized.NotifyCollectionChangedEventHandler CollectionChanged(IReactiveObject @this, string propName)=> (_, _) =>  @this.RaisePropertyChanged(propName);
     }
 }
 #nullable restore

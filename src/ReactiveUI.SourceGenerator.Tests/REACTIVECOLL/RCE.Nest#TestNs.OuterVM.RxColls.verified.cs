@@ -8,6 +8,8 @@ namespace TestNs
 {
     public partial class OuterVM
     {
+        private global::System.Collections.Specialized.NotifyCollectionChangedEventHandler? _outerCollectionCollectionChangedHandler;
+
         /// <inheritdoc cref="_outerCollection"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Collections.ObjectModel.ObservableCollection<int>? OuterCollection
@@ -15,26 +17,21 @@ namespace TestNs
             get => _outerCollection;
             set
             {
-                if (value == null)
+                var handler = _outerCollectionCollectionChangedHandler ??= (_, _) => this.RaisePropertyChanged(nameof(OuterCollection));
+                if (_outerCollection != null)
                 {
-                    OuterCollection.CollectionChanged -= CollectionChanged(this, nameof(OuterCollection));
+                    _outerCollection.CollectionChanged -= handler;
                 }
 
                 _outerCollection = value;
                 this.RaisePropertyChanged(nameof(OuterCollection));
 
-                if (_outerCollection != null)
+                if (value != null)
                 {
-                    // Remove the old handler if it exists
-                    OuterCollection.CollectionChanged -= CollectionChanged(this, nameof(OuterCollection));
-
-                    OuterCollection.CollectionChanged += CollectionChanged(this, nameof(OuterCollection));
+                    value.CollectionChanged += handler;
                 }
             }
         }
-
-        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        private static global::System.Collections.Specialized.NotifyCollectionChangedEventHandler CollectionChanged(IReactiveObject @this, string propName)=> (_, _) =>  @this.RaisePropertyChanged(propName);
     }
 }
 #nullable restore

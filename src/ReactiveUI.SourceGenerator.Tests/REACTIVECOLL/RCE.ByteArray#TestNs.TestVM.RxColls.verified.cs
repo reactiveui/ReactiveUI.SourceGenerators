@@ -8,6 +8,8 @@ namespace TestNs
 {
     public partial class TestVM
     {
+        private global::System.Collections.Specialized.NotifyCollectionChangedEventHandler? _binaryDataCollectionChangedHandler;
+
         /// <inheritdoc cref="_binaryData"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Collections.ObjectModel.ObservableCollection<byte[]>? BinaryData
@@ -15,26 +17,21 @@ namespace TestNs
             get => _binaryData;
             set
             {
-                if (value == null)
+                var handler = _binaryDataCollectionChangedHandler ??= (_, _) => this.RaisePropertyChanged(nameof(BinaryData));
+                if (_binaryData != null)
                 {
-                    BinaryData.CollectionChanged -= CollectionChanged(this, nameof(BinaryData));
+                    _binaryData.CollectionChanged -= handler;
                 }
 
                 _binaryData = value;
                 this.RaisePropertyChanged(nameof(BinaryData));
 
-                if (_binaryData != null)
+                if (value != null)
                 {
-                    // Remove the old handler if it exists
-                    BinaryData.CollectionChanged -= CollectionChanged(this, nameof(BinaryData));
-
-                    BinaryData.CollectionChanged += CollectionChanged(this, nameof(BinaryData));
+                    value.CollectionChanged += handler;
                 }
             }
         }
-
-        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        private static global::System.Collections.Specialized.NotifyCollectionChangedEventHandler CollectionChanged(IReactiveObject @this, string propName)=> (_, _) =>  @this.RaisePropertyChanged(propName);
     }
 }
 #nullable restore

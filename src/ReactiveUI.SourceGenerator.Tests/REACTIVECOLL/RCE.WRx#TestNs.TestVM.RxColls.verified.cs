@@ -8,6 +8,8 @@ namespace TestNs
 {
     public partial class TestVM
     {
+        private global::System.Collections.Specialized.NotifyCollectionChangedEventHandler? _itemsCollectionChangedHandler;
+
         /// <inheritdoc cref="_items"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Collections.ObjectModel.ObservableCollection<string>? Items
@@ -15,23 +17,24 @@ namespace TestNs
             get => _items;
             set
             {
-                if (value == null)
+                var handler = _itemsCollectionChangedHandler ??= (_, _) => this.RaisePropertyChanged(nameof(Items));
+                if (_items != null)
                 {
-                    Items.CollectionChanged -= CollectionChanged(this, nameof(Items));
+                    _items.CollectionChanged -= handler;
                 }
 
                 _items = value;
                 this.RaisePropertyChanged(nameof(Items));
 
-                if (_items != null)
+                if (value != null)
                 {
-                    // Remove the old handler if it exists
-                    Items.CollectionChanged -= CollectionChanged(this, nameof(Items));
-
-                    Items.CollectionChanged += CollectionChanged(this, nameof(Items));
+                    value.CollectionChanged += handler;
                 }
             }
         }
+
+        private global::System.Collections.Specialized.NotifyCollectionChangedEventHandler? _selectedIdsCollectionChangedHandler;
+
         /// <inheritdoc cref="_selectedIds"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Collections.ObjectModel.ObservableCollection<int>? SelectedIds
@@ -39,26 +42,21 @@ namespace TestNs
             get => _selectedIds;
             set
             {
-                if (value == null)
+                var handler = _selectedIdsCollectionChangedHandler ??= (_, _) => this.RaisePropertyChanged(nameof(SelectedIds));
+                if (_selectedIds != null)
                 {
-                    SelectedIds.CollectionChanged -= CollectionChanged(this, nameof(SelectedIds));
+                    _selectedIds.CollectionChanged -= handler;
                 }
 
                 _selectedIds = value;
                 this.RaisePropertyChanged(nameof(SelectedIds));
 
-                if (_selectedIds != null)
+                if (value != null)
                 {
-                    // Remove the old handler if it exists
-                    SelectedIds.CollectionChanged -= CollectionChanged(this, nameof(SelectedIds));
-
-                    SelectedIds.CollectionChanged += CollectionChanged(this, nameof(SelectedIds));
+                    value.CollectionChanged += handler;
                 }
             }
         }
-
-        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        private static global::System.Collections.Specialized.NotifyCollectionChangedEventHandler CollectionChanged(IReactiveObject @this, string propName)=> (_, _) =>  @this.RaisePropertyChanged(propName);
     }
 }
 #nullable restore

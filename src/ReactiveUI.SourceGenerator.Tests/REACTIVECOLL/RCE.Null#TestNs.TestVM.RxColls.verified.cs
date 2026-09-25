@@ -8,6 +8,8 @@ namespace TestNs
 {
     public partial class TestVM
     {
+        private global::System.Collections.Specialized.NotifyCollectionChangedEventHandler? _nullableStringsCollectionChangedHandler;
+
         /// <inheritdoc cref="_nullableStrings"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Collections.ObjectModel.ObservableCollection<string?>? NullableStrings
@@ -15,23 +17,24 @@ namespace TestNs
             get => _nullableStrings;
             set
             {
-                if (value == null)
+                var handler = _nullableStringsCollectionChangedHandler ??= (_, _) => this.RaisePropertyChanged(nameof(NullableStrings));
+                if (_nullableStrings != null)
                 {
-                    NullableStrings.CollectionChanged -= CollectionChanged(this, nameof(NullableStrings));
+                    _nullableStrings.CollectionChanged -= handler;
                 }
 
                 _nullableStrings = value;
                 this.RaisePropertyChanged(nameof(NullableStrings));
 
-                if (_nullableStrings != null)
+                if (value != null)
                 {
-                    // Remove the old handler if it exists
-                    NullableStrings.CollectionChanged -= CollectionChanged(this, nameof(NullableStrings));
-
-                    NullableStrings.CollectionChanged += CollectionChanged(this, nameof(NullableStrings));
+                    value.CollectionChanged += handler;
                 }
             }
         }
+
+        private global::System.Collections.Specialized.NotifyCollectionChangedEventHandler? _nullableIntsCollectionChangedHandler;
+
         /// <inheritdoc cref="_nullableInts"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Collections.ObjectModel.ObservableCollection<int?>? NullableInts
@@ -39,26 +42,21 @@ namespace TestNs
             get => _nullableInts;
             set
             {
-                if (value == null)
+                var handler = _nullableIntsCollectionChangedHandler ??= (_, _) => this.RaisePropertyChanged(nameof(NullableInts));
+                if (_nullableInts != null)
                 {
-                    NullableInts.CollectionChanged -= CollectionChanged(this, nameof(NullableInts));
+                    _nullableInts.CollectionChanged -= handler;
                 }
 
                 _nullableInts = value;
                 this.RaisePropertyChanged(nameof(NullableInts));
 
-                if (_nullableInts != null)
+                if (value != null)
                 {
-                    // Remove the old handler if it exists
-                    NullableInts.CollectionChanged -= CollectionChanged(this, nameof(NullableInts));
-
-                    NullableInts.CollectionChanged += CollectionChanged(this, nameof(NullableInts));
+                    value.CollectionChanged += handler;
                 }
             }
         }
-
-        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        private static global::System.Collections.Specialized.NotifyCollectionChangedEventHandler CollectionChanged(IReactiveObject @this, string propName)=> (_, _) =>  @this.RaisePropertyChanged(propName);
     }
 }
 #nullable restore

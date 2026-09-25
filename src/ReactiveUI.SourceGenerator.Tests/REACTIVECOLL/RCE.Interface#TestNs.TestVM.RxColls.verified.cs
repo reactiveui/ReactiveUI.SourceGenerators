@@ -8,6 +8,8 @@ namespace TestNs
 {
     public partial class TestVM
     {
+        private global::System.Collections.Specialized.NotifyCollectionChangedEventHandler? _itemsCollectionChangedHandler;
+
         /// <inheritdoc cref="_items"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Collections.ObjectModel.ObservableCollection<global::TestNs.IItem>? Items
@@ -15,23 +17,24 @@ namespace TestNs
             get => _items;
             set
             {
-                if (value == null)
+                var handler = _itemsCollectionChangedHandler ??= (_, _) => this.RaisePropertyChanged(nameof(Items));
+                if (_items != null)
                 {
-                    Items.CollectionChanged -= CollectionChanged(this, nameof(Items));
+                    _items.CollectionChanged -= handler;
                 }
 
                 _items = value;
                 this.RaisePropertyChanged(nameof(Items));
 
-                if (_items != null)
+                if (value != null)
                 {
-                    // Remove the old handler if it exists
-                    Items.CollectionChanged -= CollectionChanged(this, nameof(Items));
-
-                    Items.CollectionChanged += CollectionChanged(this, nameof(Items));
+                    value.CollectionChanged += handler;
                 }
             }
         }
+
+        private global::System.Collections.Specialized.NotifyCollectionChangedEventHandler? _disposablesCollectionChangedHandler;
+
         /// <inheritdoc cref="_disposables"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Collections.ObjectModel.ObservableCollection<global::System.IDisposable>? Disposables
@@ -39,26 +42,21 @@ namespace TestNs
             get => _disposables;
             set
             {
-                if (value == null)
+                var handler = _disposablesCollectionChangedHandler ??= (_, _) => this.RaisePropertyChanged(nameof(Disposables));
+                if (_disposables != null)
                 {
-                    Disposables.CollectionChanged -= CollectionChanged(this, nameof(Disposables));
+                    _disposables.CollectionChanged -= handler;
                 }
 
                 _disposables = value;
                 this.RaisePropertyChanged(nameof(Disposables));
 
-                if (_disposables != null)
+                if (value != null)
                 {
-                    // Remove the old handler if it exists
-                    Disposables.CollectionChanged -= CollectionChanged(this, nameof(Disposables));
-
-                    Disposables.CollectionChanged += CollectionChanged(this, nameof(Disposables));
+                    value.CollectionChanged += handler;
                 }
             }
         }
-
-        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        private static global::System.Collections.Specialized.NotifyCollectionChangedEventHandler CollectionChanged(IReactiveObject @this, string propName)=> (_, _) =>  @this.RaisePropertyChanged(propName);
     }
 }
 #nullable restore

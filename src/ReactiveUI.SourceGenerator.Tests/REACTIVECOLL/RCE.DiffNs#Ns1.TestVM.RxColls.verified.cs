@@ -8,6 +8,8 @@ namespace Namespace1
 {
     public partial class TestVM
     {
+        private global::System.Collections.Specialized.NotifyCollectionChangedEventHandler? _numbersCollectionChangedHandler;
+
         /// <inheritdoc cref="_numbers"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Collections.ObjectModel.ObservableCollection<int>? Numbers
@@ -15,26 +17,21 @@ namespace Namespace1
             get => _numbers;
             set
             {
-                if (value == null)
+                var handler = _numbersCollectionChangedHandler ??= (_, _) => this.RaisePropertyChanged(nameof(Numbers));
+                if (_numbers != null)
                 {
-                    Numbers.CollectionChanged -= CollectionChanged(this, nameof(Numbers));
+                    _numbers.CollectionChanged -= handler;
                 }
 
                 _numbers = value;
                 this.RaisePropertyChanged(nameof(Numbers));
 
-                if (_numbers != null)
+                if (value != null)
                 {
-                    // Remove the old handler if it exists
-                    Numbers.CollectionChanged -= CollectionChanged(this, nameof(Numbers));
-
-                    Numbers.CollectionChanged += CollectionChanged(this, nameof(Numbers));
+                    value.CollectionChanged += handler;
                 }
             }
         }
-
-        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        private static global::System.Collections.Specialized.NotifyCollectionChangedEventHandler CollectionChanged(IReactiveObject @this, string propName)=> (_, _) =>  @this.RaisePropertyChanged(propName);
     }
 }
 #nullable restore

@@ -10,6 +10,8 @@ namespace TestNs
     {
         public partial class InnerVM
         {
+            private global::System.Collections.Specialized.NotifyCollectionChangedEventHandler? _innerCollectionCollectionChangedHandler;
+
             /// <inheritdoc cref="_innerCollection"/>
             [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
             public global::System.Collections.ObjectModel.ObservableCollection<string>? InnerCollection
@@ -17,26 +19,21 @@ namespace TestNs
                 get => _innerCollection;
                 set
                 {
-                    if (value == null)
+                    var handler = _innerCollectionCollectionChangedHandler ??= (_, _) => this.RaisePropertyChanged(nameof(InnerCollection));
+                    if (_innerCollection != null)
                     {
-                        InnerCollection.CollectionChanged -= CollectionChanged(this, nameof(InnerCollection));
+                        _innerCollection.CollectionChanged -= handler;
                     }
 
                     _innerCollection = value;
                     this.RaisePropertyChanged(nameof(InnerCollection));
 
-                    if (_innerCollection != null)
+                    if (value != null)
                     {
-                        // Remove the old handler if it exists
-                        InnerCollection.CollectionChanged -= CollectionChanged(this, nameof(InnerCollection));
-
-                        InnerCollection.CollectionChanged += CollectionChanged(this, nameof(InnerCollection));
+                        value.CollectionChanged += handler;
                     }
                 }
             }
-
-            [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-            private static global::System.Collections.Specialized.NotifyCollectionChangedEventHandler CollectionChanged(IReactiveObject @this, string propName)=> (_, _) =>  @this.RaisePropertyChanged(propName);
         }
     }
 }

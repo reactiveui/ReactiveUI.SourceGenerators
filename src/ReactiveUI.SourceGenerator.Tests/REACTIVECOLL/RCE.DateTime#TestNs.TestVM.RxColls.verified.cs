@@ -8,6 +8,8 @@ namespace TestNs
 {
     public partial class TestVM
     {
+        private global::System.Collections.Specialized.NotifyCollectionChangedEventHandler? _datesCollectionChangedHandler;
+
         /// <inheritdoc cref="_dates"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Collections.ObjectModel.ObservableCollection<global::System.DateTime>? Dates
@@ -15,23 +17,24 @@ namespace TestNs
             get => _dates;
             set
             {
-                if (value == null)
+                var handler = _datesCollectionChangedHandler ??= (_, _) => this.RaisePropertyChanged(nameof(Dates));
+                if (_dates != null)
                 {
-                    Dates.CollectionChanged -= CollectionChanged(this, nameof(Dates));
+                    _dates.CollectionChanged -= handler;
                 }
 
                 _dates = value;
                 this.RaisePropertyChanged(nameof(Dates));
 
-                if (_dates != null)
+                if (value != null)
                 {
-                    // Remove the old handler if it exists
-                    Dates.CollectionChanged -= CollectionChanged(this, nameof(Dates));
-
-                    Dates.CollectionChanged += CollectionChanged(this, nameof(Dates));
+                    value.CollectionChanged += handler;
                 }
             }
         }
+
+        private global::System.Collections.Specialized.NotifyCollectionChangedEventHandler? _timestampsCollectionChangedHandler;
+
         /// <inheritdoc cref="_timestamps"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Collections.ObjectModel.ObservableCollection<global::System.DateTimeOffset>? Timestamps
@@ -39,26 +42,21 @@ namespace TestNs
             get => _timestamps;
             set
             {
-                if (value == null)
+                var handler = _timestampsCollectionChangedHandler ??= (_, _) => this.RaisePropertyChanged(nameof(Timestamps));
+                if (_timestamps != null)
                 {
-                    Timestamps.CollectionChanged -= CollectionChanged(this, nameof(Timestamps));
+                    _timestamps.CollectionChanged -= handler;
                 }
 
                 _timestamps = value;
                 this.RaisePropertyChanged(nameof(Timestamps));
 
-                if (_timestamps != null)
+                if (value != null)
                 {
-                    // Remove the old handler if it exists
-                    Timestamps.CollectionChanged -= CollectionChanged(this, nameof(Timestamps));
-
-                    Timestamps.CollectionChanged += CollectionChanged(this, nameof(Timestamps));
+                    value.CollectionChanged += handler;
                 }
             }
         }
-
-        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        private static global::System.Collections.Specialized.NotifyCollectionChangedEventHandler CollectionChanged(IReactiveObject @this, string propName)=> (_, _) =>  @this.RaisePropertyChanged(propName);
     }
 }
 #nullable restore

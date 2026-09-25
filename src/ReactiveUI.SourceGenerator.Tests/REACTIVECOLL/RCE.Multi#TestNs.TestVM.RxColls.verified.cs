@@ -8,6 +8,8 @@ namespace TestNs
 {
     public partial class TestVM
     {
+        private global::System.Collections.Specialized.NotifyCollectionChangedEventHandler? _namesCollectionChangedHandler;
+
         /// <inheritdoc cref="_names"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Collections.ObjectModel.ObservableCollection<string>? Names
@@ -15,23 +17,24 @@ namespace TestNs
             get => _names;
             set
             {
-                if (value == null)
+                var handler = _namesCollectionChangedHandler ??= (_, _) => this.RaisePropertyChanged(nameof(Names));
+                if (_names != null)
                 {
-                    Names.CollectionChanged -= CollectionChanged(this, nameof(Names));
+                    _names.CollectionChanged -= handler;
                 }
 
                 _names = value;
                 this.RaisePropertyChanged(nameof(Names));
 
-                if (_names != null)
+                if (value != null)
                 {
-                    // Remove the old handler if it exists
-                    Names.CollectionChanged -= CollectionChanged(this, nameof(Names));
-
-                    Names.CollectionChanged += CollectionChanged(this, nameof(Names));
+                    value.CollectionChanged += handler;
                 }
             }
         }
+
+        private global::System.Collections.Specialized.NotifyCollectionChangedEventHandler? _numbersCollectionChangedHandler;
+
         /// <inheritdoc cref="_numbers"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Collections.ObjectModel.ObservableCollection<int>? Numbers
@@ -39,23 +42,24 @@ namespace TestNs
             get => _numbers;
             set
             {
-                if (value == null)
+                var handler = _numbersCollectionChangedHandler ??= (_, _) => this.RaisePropertyChanged(nameof(Numbers));
+                if (_numbers != null)
                 {
-                    Numbers.CollectionChanged -= CollectionChanged(this, nameof(Numbers));
+                    _numbers.CollectionChanged -= handler;
                 }
 
                 _numbers = value;
                 this.RaisePropertyChanged(nameof(Numbers));
 
-                if (_numbers != null)
+                if (value != null)
                 {
-                    // Remove the old handler if it exists
-                    Numbers.CollectionChanged -= CollectionChanged(this, nameof(Numbers));
-
-                    Numbers.CollectionChanged += CollectionChanged(this, nameof(Numbers));
+                    value.CollectionChanged += handler;
                 }
             }
         }
+
+        private global::System.Collections.Specialized.NotifyCollectionChangedEventHandler? _valuesCollectionChangedHandler;
+
         /// <inheritdoc cref="_values"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Collections.ObjectModel.ObservableCollection<double>? Values
@@ -63,26 +67,21 @@ namespace TestNs
             get => _values;
             set
             {
-                if (value == null)
+                var handler = _valuesCollectionChangedHandler ??= (_, _) => this.RaisePropertyChanged(nameof(Values));
+                if (_values != null)
                 {
-                    Values.CollectionChanged -= CollectionChanged(this, nameof(Values));
+                    _values.CollectionChanged -= handler;
                 }
 
                 _values = value;
                 this.RaisePropertyChanged(nameof(Values));
 
-                if (_values != null)
+                if (value != null)
                 {
-                    // Remove the old handler if it exists
-                    Values.CollectionChanged -= CollectionChanged(this, nameof(Values));
-
-                    Values.CollectionChanged += CollectionChanged(this, nameof(Values));
+                    value.CollectionChanged += handler;
                 }
             }
         }
-
-        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        private static global::System.Collections.Specialized.NotifyCollectionChangedEventHandler CollectionChanged(IReactiveObject @this, string propName)=> (_, _) =>  @this.RaisePropertyChanged(propName);
     }
 }
 #nullable restore

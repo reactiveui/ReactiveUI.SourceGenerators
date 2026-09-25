@@ -8,6 +8,8 @@ namespace TestNs
 {
     public partial class TestVM
     {
+        private global::System.Collections.Specialized.NotifyCollectionChangedEventHandler? _idsCollectionChangedHandler;
+
         /// <inheritdoc cref="_ids"/>
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::System.Collections.ObjectModel.ObservableCollection<global::System.Guid>? Ids
@@ -15,26 +17,21 @@ namespace TestNs
             get => _ids;
             set
             {
-                if (value == null)
+                var handler = _idsCollectionChangedHandler ??= (_, _) => this.RaisePropertyChanged(nameof(Ids));
+                if (_ids != null)
                 {
-                    Ids.CollectionChanged -= CollectionChanged(this, nameof(Ids));
+                    _ids.CollectionChanged -= handler;
                 }
 
                 _ids = value;
                 this.RaisePropertyChanged(nameof(Ids));
 
-                if (_ids != null)
+                if (value != null)
                 {
-                    // Remove the old handler if it exists
-                    Ids.CollectionChanged -= CollectionChanged(this, nameof(Ids));
-
-                    Ids.CollectionChanged += CollectionChanged(this, nameof(Ids));
+                    value.CollectionChanged += handler;
                 }
             }
         }
-
-        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        private static global::System.Collections.Specialized.NotifyCollectionChangedEventHandler CollectionChanged(IReactiveObject @this, string propName)=> (_, _) =>  @this.RaisePropertyChanged(propName);
     }
 }
 #nullable restore

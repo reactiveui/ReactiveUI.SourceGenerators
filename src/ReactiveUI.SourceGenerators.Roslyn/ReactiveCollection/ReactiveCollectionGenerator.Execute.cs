@@ -24,10 +24,11 @@ public sealed partial class ReactiveCollectionGenerator
     /// <summary>Gets the generator assembly version used in generated-code metadata.</summary>
     internal static readonly string GeneratorVersion = typeof(ReactiveCollectionGenerator).Assembly.GetName().Version.ToString();
 
-    /// <summary>The helper that turns a collection's changes into property changes, kept on the one line it has always been.</summary>
-    private const string CollectionChangedDeclaration =
-        "private static global::System.Collections.Specialized.NotifyCollectionChangedEventHandler "
-        + "CollectionChanged(IReactiveObject @this, string propName)=> (_, _) =>  @this.RaisePropertyChanged(propName);";
+    /// <summary>The suffix of the field that holds a property's collection-changed handler.</summary>
+    private const string HandlerFieldSuffix = "CollectionChangedHandler";
+
+    /// <summary>The handler type the generated field holds.</summary>
+    private const string HandlerType = "global::System.Collections.Specialized.NotifyCollectionChangedEventHandler";
 
     /// <summary>The <c>GeneratedCode</c> attribute stamped on the generated properties, built once.</summary>
     private static readonly string GeneratedCodeAttribute = SourceWriterExtensions.GeneratedCodeAttribute(GeneratorName, GeneratorVersion);
@@ -184,17 +185,18 @@ public sealed partial class ReactiveCollectionGenerator
 
         var depth = writer.OpenNamespace(target.TargetNamespace) + writer.OpenContainingTypes(target.ParentInfo);
 
-        // The GeneratedCode attribute has always been stamped once, ahead of the first property.
-        _ = writer.OpenPartialType(target).Line(GeneratedCodeAttribute);
+        _ = writer.OpenPartialType(target);
         for (var i = 0; i < properties.Count; i++)
         {
+            if (i > 0)
+            {
+                _ = writer.BlankLine();
+            }
+
             WriteProperty(writer, properties[i]);
         }
 
-        return writer.BlankLine()
-            .ExcludeFromCodeCoverage()
-            .Line(CollectionChangedDeclaration)
-            .CloseBlock()
+        return writer.CloseBlock()
             .CloseBlocks(depth)
             .RestoreNullableAndWarnings()
             .ToStringAndReturn();
@@ -203,12 +205,21 @@ public sealed partial class ReactiveCollectionGenerator
     /// <summary>Writes one reactive collection property, which re-raises the collection's changes as property changes.</summary>
     /// <param name="writer">The writer, at the level of the type's members.</param>
     /// <param name="propertyInfo">The property.</param>
+    /// <remarks>
+    /// The handler is created once per property and kept in a field, so the setter unsubscribes the same instance it
+    /// subscribed: from the collection being replaced, not the new one. A handler made per call could never be removed,
+    /// so every replacement left one more subscribed and allocated three more.
+    /// </remarks>
     private static void WriteProperty(SourceWriter writer, ReactiveCollectionFieldInfo propertyInfo)
     {
         var fieldName = propertyInfo.FieldName;
         var propertyName = propertyInfo.PropertyName;
 
-        _ = writer.InheritDoc(fieldName).ExcludeFromCodeCoverage();
+        _ = writer.Append("private ").Append(HandlerType).Append("? ").Append(fieldName).Append(HandlerFieldSuffix).EndStatement()
+            .BlankLine()
+            .InheritDoc(fieldName)
+            .Line(GeneratedCodeAttribute)
+            .ExcludeFromCodeCoverage();
         foreach (var attribute in propertyInfo.ForwardedAttributes.AsImmutableArray())
         {
             _ = writer.Line(attribute);
@@ -219,28 +230,21 @@ public sealed partial class ReactiveCollectionGenerator
             .Append("get => ").Append(fieldName).EndStatement()
             .Line("set")
             .OpenBlock()
-            .Line("if (value == null)")
-            .OpenBlock();
-        WriteCollectionChangedHandler(writer, propertyName, " -= ");
-        _ = writer.CloseBlock()
+            .Append("var handler = ").Append(fieldName).Append(HandlerFieldSuffix)
+            .Append(" ??= (_, _) => this.RaisePropertyChanged(nameof(").Append(propertyName).Line("));")
+            .Append("if (").Append(fieldName).Line(" != null)")
+            .OpenBlock()
+            .Append(fieldName).Line(".CollectionChanged -= handler;")
+            .CloseBlock()
             .BlankLine()
             .Append(fieldName).Line(" = value;")
             .Append("this.RaisePropertyChanged(nameof(").Append(propertyName).Line("));")
             .BlankLine()
-            .Append("if (").Append(fieldName).Line(" != null)")
+            .Line("if (value != null)")
             .OpenBlock()
-            .Line("// Remove the old handler if it exists");
-        WriteCollectionChangedHandler(writer, propertyName, " -= ");
-        _ = writer.BlankLine();
-        WriteCollectionChangedHandler(writer, propertyName, " += ");
-        _ = writer.CloseBlock().CloseBlock().CloseBlock();
+            .Line("value.CollectionChanged += handler;")
+            .CloseBlock()
+            .CloseBlock()
+            .CloseBlock();
     }
-
-    /// <summary>Writes a statement that subscribes or unsubscribes the property's collection-changed handler.</summary>
-    /// <param name="writer">The writer.</param>
-    /// <param name="propertyName">The generated property name.</param>
-    /// <param name="assignment">The event operator, <c> += </c> or <c> -= </c>, with its surrounding spaces.</param>
-    private static void WriteCollectionChangedHandler(SourceWriter writer, string propertyName, string assignment) =>
-        _ = writer.Append(propertyName).Append(".CollectionChanged").Append(assignment)
-            .Append("CollectionChanged(this, nameof(").Append(propertyName).Line("));");
 }

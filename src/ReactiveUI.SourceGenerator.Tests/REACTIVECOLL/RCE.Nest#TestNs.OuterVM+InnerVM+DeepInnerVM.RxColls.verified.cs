@@ -12,6 +12,8 @@ namespace TestNs
         {
             public partial class DeepInnerVM
             {
+                private global::System.Collections.Specialized.NotifyCollectionChangedEventHandler? _deepCollectionCollectionChangedHandler;
+
                 /// <inheritdoc cref="_deepCollection"/>
                 [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
                 public global::System.Collections.ObjectModel.ObservableCollection<double>? DeepCollection
@@ -19,26 +21,21 @@ namespace TestNs
                     get => _deepCollection;
                     set
                     {
-                        if (value == null)
+                        var handler = _deepCollectionCollectionChangedHandler ??= (_, _) => this.RaisePropertyChanged(nameof(DeepCollection));
+                        if (_deepCollection != null)
                         {
-                            DeepCollection.CollectionChanged -= CollectionChanged(this, nameof(DeepCollection));
+                            _deepCollection.CollectionChanged -= handler;
                         }
 
                         _deepCollection = value;
                         this.RaisePropertyChanged(nameof(DeepCollection));
 
-                        if (_deepCollection != null)
+                        if (value != null)
                         {
-                            // Remove the old handler if it exists
-                            DeepCollection.CollectionChanged -= CollectionChanged(this, nameof(DeepCollection));
-
-                            DeepCollection.CollectionChanged += CollectionChanged(this, nameof(DeepCollection));
+                            value.CollectionChanged += handler;
                         }
                     }
                 }
-
-                [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-                private static global::System.Collections.Specialized.NotifyCollectionChangedEventHandler CollectionChanged(IReactiveObject @this, string propName)=> (_, _) =>  @this.RaisePropertyChanged(propName);
             }
         }
     }
