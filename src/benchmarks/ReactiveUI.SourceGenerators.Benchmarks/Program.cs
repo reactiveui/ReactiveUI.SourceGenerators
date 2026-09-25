@@ -5,6 +5,7 @@
 using System.Diagnostics.Tracing;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Diagnosers;
+using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
 using Microsoft.Diagnostics.NETCore.Client;
 using Microsoft.Diagnostics.Tracing.Parsers;
@@ -66,7 +67,8 @@ internal static class Program
     /// </remarks>
     private static ManualConfig CreateConfig()
     {
-        var config = ManualConfig.Create(DefaultConfig.Instance);
+        // Built under obj rather than in a .bdn folder beside the project, which git would otherwise pick up.
+        var config = ManualConfig.Create(DefaultConfig.Instance).AddJob(Job.Default.WithToolchain(ObjFolderToolchain.Instance).AsDefault());
         if (string.Equals(Environment.GetEnvironmentVariable(ProfilersVariable), "false", StringComparison.OrdinalIgnoreCase))
         {
             return config;
