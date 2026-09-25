@@ -2,11 +2,11 @@
 // ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using ReactiveUI.SourceGenerators.CodeGeneration;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Models;
@@ -21,7 +21,7 @@ public sealed partial class ReactiveObjectGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(static ctx =>
-            ctx.AddSource($"{AttributeDefinitions.ReactiveObjectAttributeType}.g.cs", SourceText.From(AttributeDefinitions.ReactiveObjectAttribute, Encoding.UTF8)));
+            ctx.AddSource($"{AttributeDefinitions.ReactiveObjectAttributeType}.g.cs", SourceText.From(AttributeDefinitions.ReactiveObjectAttribute, SourceWriterExtensions.Utf8WithoutBom)));
 
         // Gather info for all annotated IReactiveObject Classes, one output per type.
         var types =

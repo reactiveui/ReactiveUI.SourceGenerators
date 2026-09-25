@@ -7,6 +7,8 @@ root = true
 # Default settings
 #############################################
 [*]
+# Every file is UTF-8 without a byte order mark, with LF line endings, on every platform. XAML included.
+charset = utf-8
 end_of_line = lf
 insert_final_newline = true
 indent_style = space
@@ -2827,9 +2829,6 @@ indent_size = 2
 #############################################
 [*.sh]
 end_of_line = lf
-
-[*.{cmd, bat}]
-end_of_line = crlf
 
 #############################################
 # Test projects (TUnit)

@@ -2,10 +2,10 @@
 // ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using ReactiveUI.SourceGenerators.CodeGeneration;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 
@@ -21,7 +21,7 @@ public sealed partial class ReactiveCollectionGenerator : IIncrementalGenerator
         context.RegisterPostInitializationOutput(static ctx =>
         {
             // Add the ReactiveAttribute to the compilation
-            ctx.AddSource($"{AttributeDefinitions.ReactiveCollectionAttributeType}.g.cs", SourceText.From(AttributeDefinitions.ReactiveCollectionAttribute, Encoding.UTF8));
+            ctx.AddSource($"{AttributeDefinitions.ReactiveCollectionAttributeType}.g.cs", SourceText.From(AttributeDefinitions.ReactiveCollectionAttribute, SourceWriterExtensions.Utf8WithoutBom));
         });
 
         RunReactiveCollectionFromField(in context);

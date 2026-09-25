@@ -44,8 +44,8 @@ internal static class GeneratorSnapshot
     /// <summary>The suffix every generated hint name ends with, dropped from the snapshot name.</summary>
     private const string HintSuffix = ".g.cs";
 
-    /// <summary>The encoding snapshots are written in: UTF-8 with a byte order mark, as the stored snapshots are.</summary>
-    private static readonly UTF8Encoding SnapshotEncoding = new(encoderShouldEmitUTF8Identifier: true);
+    /// <summary>The encoding snapshots are written in: UTF-8 without a byte order mark, as every file in the repository is.</summary>
+    private static readonly UTF8Encoding SnapshotEncoding = new(encoderShouldEmitUTF8Identifier: false);
 
     /// <summary>
     /// The words shortened in a snapshot's method and hint segments, longest first so a longer word is never split by a

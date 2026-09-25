@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Runtime.CompilerServices;
+using System.Text;
 using ReactiveUI.SourceGenerators.Models;
 
 namespace ReactiveUI.SourceGenerators.CodeGeneration;
@@ -20,6 +21,9 @@ internal static class SourceWriterExtensions
 
     /// <summary>The attribute that keeps generated members out of the consumer's code coverage.</summary>
     internal const string ExcludeFromCodeCoverageAttribute = "[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]";
+
+    /// <summary>The encoding generated sources are handed to the compiler in: UTF-8 without a byte order mark.</summary>
+    internal static readonly UTF8Encoding Utf8WithoutBom = new(encoderShouldEmitUTF8Identifier: false);
 
     /// <summary>Writes C# constructs through a writer.</summary>
     /// <param name="writer">The writer the construct is written to.</param>
