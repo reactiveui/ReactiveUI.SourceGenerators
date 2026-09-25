@@ -351,3 +351,7 @@ MigrationBackup/
 
 # Claude Code local workspace
 .claude/
+
+# BenchmarkDotNet
+**/.bdn/
+**/BenchmarkDotNet.Artifacts/

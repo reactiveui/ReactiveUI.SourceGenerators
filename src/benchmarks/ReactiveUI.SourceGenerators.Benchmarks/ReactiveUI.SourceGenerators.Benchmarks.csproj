@@ -12,8 +12,8 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" VersionOverride="4.14.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" VersionOverride="4.14.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" />
     <PackageReference Include="DynamicData" />
     <PackageReference Include="ReactiveUI.Reactive" />
     <PackageReference Include="Splat" />
@@ -25,7 +25,7 @@
     measurement covers the generator rather than whatever the host build decides to do with it.
   -->
   <ItemGroup>
-    <ProjectReference Include="..\..\ReactiveUI.SourceGenerators.Roslyn4140\ReactiveUI.SourceGenerators.Roslyn4140.csproj" />
+    <ProjectReference Include="..\..\ReactiveUI.SourceGenerators.Roslyn5000\ReactiveUI.SourceGenerators.Roslyn5000.csproj" />
   </ItemGroup>
 
   <ItemGroup>

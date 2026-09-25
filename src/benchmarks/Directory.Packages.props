@@ -1,0 +1,9 @@
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Packages.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <!-- The benchmark host runs the generator inside a current compiler, as a .NET 10 SDK build does, and
+       BenchmarkDotNet itself needs Roslyn 5.6 or later. The generator it measures is still the Roslyn 5.0 band. -->
+  <PropertyGroup>
+    <CodeAnalysisVersion>5.9.0</CodeAnalysisVersion>
+  </PropertyGroup>
+</Project>
