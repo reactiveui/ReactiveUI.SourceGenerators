@@ -42,12 +42,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Suppressions\ReactiveCommandAttributeWithFieldOrPropertyTargetDiagnosticSuppressor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Suppressions\ReactiveCommandMethodDoesNotNeedToBeStaticDiagnosticSuppressor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Suppressions\ReactiveFieldDoesNotNeedToBeReadOnlyDiagnosticSuppressor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Generated\PolySharp.SourceGenerators\PolySharp.SourceGenerators.PolyfillsGenerator\System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute.g.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Generated\PolySharp.SourceGenerators\PolySharp.SourceGenerators.PolyfillsGenerator\System.Diagnostics.CodeAnalysis.NotNullWhenAttribute.g.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Generated\PolySharp.SourceGenerators\PolySharp.SourceGenerators.PolyfillsGenerator\System.Diagnostics.CodeAnalysis.UnscopedRefAttribute.g.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Generated\PolySharp.SourceGenerators\PolySharp.SourceGenerators.PolyfillsGenerator\System.Index.g.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Generated\PolySharp.SourceGenerators\PolySharp.SourceGenerators.PolyfillsGenerator\System.Range.g.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Generated\PolySharp.SourceGenerators\PolySharp.SourceGenerators.PolyfillsGenerator\System.Runtime.CompilerServices.IsExternalInit.g.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IViewFor\IViewForGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IViewFor\IViewForGenerator.Execute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IViewFor\Models\IViewForBaseType.cs" />
