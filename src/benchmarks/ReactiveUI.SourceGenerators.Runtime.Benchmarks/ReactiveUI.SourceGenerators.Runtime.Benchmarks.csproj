@@ -14,25 +14,17 @@
     <PackageReference Include="BenchmarkDotNet" />
     <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" />
     <Compile Include="..\Shared\*.cs" Link="Shared\%(Filename)%(Extension)" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" />
-    <PackageReference Include="DynamicData" />
     <PackageReference Include="ReactiveUI.Reactive" />
-    <PackageReference Include="Splat" />
     <PackageReference Include="System.Reactive" />
   </ItemGroup>
 
-  <!--
-    The generator is referenced as a plain library, not as an analyzer: the benchmarks drive it directly so the
-    measurement covers the generator rather than whatever the host build decides to do with it.
-  -->
+  <!-- The generators run on this project, so the benchmarks measure the code they generate. -->
   <ItemGroup>
-    <ProjectReference Include="..\..\ReactiveUI.SourceGenerators.Roslyn5000\ReactiveUI.SourceGenerators.Roslyn5000.csproj" />
+    <ProjectReference Include="..\..\ReactiveUI.SourceGenerators.Roslyn5000\ReactiveUI.SourceGenerators.Roslyn5000.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Mocks\**" />
-    <Content Include="Mocks\*.cs" CopyToOutputDirectory="PreserveNewest" />
+    <Using Include="ReactiveUI.Reactive" />
   </ItemGroup>
 
 </Project>

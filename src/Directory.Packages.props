@@ -38,5 +38,6 @@
     <PackageVersion Include="System.Reactive" Version="7.0.0" />
     <PackageVersion Include="TUnit" Version="1.69.16" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.16.0-preview.2" />
+    <PackageVersion Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.2.6" />
   </ItemGroup>
 </Project>

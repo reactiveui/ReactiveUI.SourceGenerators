@@ -9,9 +9,8 @@ using BenchmarkDotNet.Running;
 using Microsoft.Diagnostics.NETCore.Client;
 using Microsoft.Diagnostics.Tracing.Parsers;
 using ReactiveUI.SourceGenerators.Benchmarks.Shared;
-using ReactiveUI.SourceGenerators.Benchmarks.Support;
 
-namespace ReactiveUI.SourceGenerators.Benchmarks;
+namespace ReactiveUI.SourceGenerators.Runtime.Benchmarks;
 
 /// <summary>Entry point that hands the command line to the BenchmarkDotNet switcher.</summary>
 internal static class Program
@@ -19,39 +18,14 @@ internal static class Program
     /// <summary>The environment variable that turns the EventPipe profiler off when set to <c>false</c>.</summary>
     private const string ProfilersVariable = "BENCHMARK_PROFILERS";
 
-    /// <summary>Runs the benchmarks the command line selects, <c>--smoke</c> to run each corpus once, or <c>--eventpipe dir</c> to trace allocations.</summary>
+    /// <summary>Runs the benchmarks the command line selects, or <c>--eventpipe dir</c> to trace allocations.</summary>
     /// <param name="args">The command-line arguments.</param>
     internal static void Main(string[] args)
     {
         if (args is ["--eventpipe", var outputDirectory])
         {
-            // Allocation figures: GCAllocationTick events from an EventPipe session over a fixed number of runs.
-            _ = EventPipeAllocations.Measure(GenerationScenarios.Create(), outputDirectory);
-            return;
-        }
-
-        if (args is ["--eventpipe-discovery", var discoveryDirectory])
-        {
-            // Attribute discovery strategies against each other, measured the same way.
-            _ = EventPipeAllocations.Measure(DiscoveryScenarios.Create(), discoveryDirectory);
-            return;
-        }
-
-        if (args is ["--smoke"])
-        {
-            // Runs each corpus once outside BenchmarkDotNet, to prove the mocks still generate before a long run.
-            foreach (var corpus in GeneratorCatalog.Corpora)
-            {
-                var benchmark = new GenerationBenchmarks { Corpus = corpus };
-                benchmark.Setup();
-                Console.WriteLine($"{corpus}: {benchmark.Generate():N0} characters, {GeneratorHarness.CountErrors(corpus)} compile errors");
-            }
-
-            foreach (var finding in DiscoveryScenarios.DescribeFindings())
-            {
-                Console.WriteLine(finding);
-            }
-
+            // Allocation figures: GCAllocationTick events from an EventPipe session over a fixed number of operations.
+            _ = EventPipeAllocations.Measure(RuntimeScenarios.Create(), outputDirectory);
             return;
         }
 
@@ -60,10 +34,6 @@ internal static class Program
 
     /// <summary>Creates the run configuration.</summary>
     /// <returns>An EventPipe trace per benchmark unless profiling is turned off; allocation figures come from its GC events.</returns>
-    /// <remarks>
-    /// The trace carries verbose GC events, whose AllocationTick events name the allocated type and its call stack,
-    /// and CPU samples. The traces land in BenchmarkDotNet.Artifacts and are summarised with nettrace-analyzer.cs.
-    /// </remarks>
     private static ManualConfig CreateConfig()
     {
         var config = ManualConfig.Create(DefaultConfig.Instance);

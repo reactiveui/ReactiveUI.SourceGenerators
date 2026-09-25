@@ -39,7 +39,9 @@ internal static class GeneratorHarness
         foreach (var path in paths)
         {
             var name = Path.GetFileNameWithoutExtension(path);
-            if (corpus != AllCorpus && !string.Equals(name, corpus, StringComparison.Ordinal) && !string.Equals(name, "Stubs", StringComparison.Ordinal))
+
+            // Stubs and Noise are in every corpus: the platform types the mocks derive from, and code no generator acts on.
+            if (corpus != AllCorpus && !string.Equals(name, corpus, StringComparison.Ordinal) && name is not ("Stubs" or "Noise"))
             {
                 continue;
             }
@@ -107,6 +109,9 @@ internal static class GeneratorHarness
             typeof(System.Reactive.Unit).Assembly,
             typeof(DynamicData.SourceList<>).Assembly,
             typeof(Splat.Locator).Assembly,
+            typeof(System.Text.Json.JsonSerializer).Assembly,
+            typeof(System.Runtime.Serialization.DataContractAttribute).Assembly,
+            typeof(System.ComponentModel.DescriptionAttribute).Assembly,
         ];
 
         foreach (var seed in seeds)
