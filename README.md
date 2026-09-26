@@ -241,7 +241,9 @@ now covers three features this package used to generate. They have been removed 
 | RXUISG0014, RXUISG0017 and the RXUISPR0002 suppression | Nothing: they only applied to `[ObservableAsProperty]` |
 
 The Windows Forms `[RoutedControlHost]` and `[ViewModelControlHost]` remain. They resolve views through ReactiveUI's
-view locator, or through ReactiveUI.Binding's when the project's ReactiveUI is built on it.
+view locator, or through ReactiveUI.Binding's when the project's ReactiveUI is built on it. With ReactiveUI.Binding
+8.4.0 or later they follow their own properties through Binding's `ObservedProperty`, with `WhenAnyValue`'s semantics;
+with anything older they follow them through `PropertyChanged`, and RXUISG0022 notes the difference.
 
 The ReactiveUI.Binding replacements need a ReactiveUI release built on ReactiveUI.Binding. ReactiveUI 24.3 and earlier
 are not: there, ReactiveUI's own `ObservableAsPropertyHelper<T>` and `IViewFor<T>` are the ones in use, so

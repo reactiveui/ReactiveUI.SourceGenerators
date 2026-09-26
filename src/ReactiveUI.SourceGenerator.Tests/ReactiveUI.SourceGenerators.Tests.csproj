@@ -31,10 +31,21 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="all" VersionOverride="4.14.0" />
     <PackageReference Include="DynamicData" PrivateAssets="all" />
     <PackageReference Include="ReactiveUI" />
+    <!-- The hosts' ObservedProperty, in both flavours; Binding's own generators are not run on the tests. -->
+    <PackageReference Include="ReactiveUI.Binding" ExcludeAssets="analyzers;build;buildTransitive" PrivateAssets="all" />
+    <PackageReference Include="ReactiveUI.Binding.Reactive" ExcludeAssets="analyzers;build;buildTransitive" PrivateAssets="all" />
     <PackageReference Include="ReactiveUI.Reactive" PrivateAssets="all" />
     <PackageReference Include="Splat" />
     <PackageReference Include="System.Reactive" PrivateAssets="all" />
   </ItemGroup>
+
+  <!-- The tests reference ReactiveUI.Binding for its runtime types only; its generator and analyzer still reach the
+       compiler, so they are removed before it runs. -->
+  <Target Name="RemoveReactiveUIBindingAnalyzers" BeforeTargets="CoreCompile">
+    <ItemGroup>
+      <Analyzer Remove="@(Analyzer)" Condition="'%(Filename)' == 'ReactiveUI.Binding.SourceGenerators' or '%(Filename)' == 'ReactiveUI.Binding.Analyzer'" />
+    </ItemGroup>
+  </Target>
 
   <ItemGroup>
     <Using Include="TUnit.Assertions" />

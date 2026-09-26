@@ -8,8 +8,17 @@ namespace ReactiveUI.SourceGenerators.Models;
 /// <param name="Api">The implementation API selected by the compilation.</param>
 /// <param name="IsNewerThan22">Whether the compilation references ReactiveUI 22 or later.</param>
 /// <param name="ViewApi">The assembly declaring the <c>IViewFor</c> interfaces and the view locator.</param>
-internal readonly record struct ReactiveUiIntegration(ReactiveUiApi Api, bool IsNewerThan22, ReactiveUiViewApi ViewApi = ReactiveUiViewApi.ReactiveUI)
+/// <param name="HasObservedProperty">Whether the view API's assembly has ReactiveUI.Binding's <c>ObservedProperty</c>.</param>
+internal readonly record struct ReactiveUiIntegration(
+    ReactiveUiApi Api,
+    bool IsNewerThan22,
+    ReactiveUiViewApi ViewApi = ReactiveUiViewApi.ReactiveUI,
+    bool HasObservedProperty = false)
 {
+    /// <summary>Gets ReactiveUI.Binding's <c>ObservedProperty</c> in the view API's flavour.</summary>
+    /// <remarks>Only meaningful when <see cref="HasObservedProperty"/> is set.</remarks>
+    internal string ObservedProperty => $"{ViewNamespace}.ObservedProperty";
+
     /// <summary>Gets the namespace containing the selected ReactiveUI implementation types.</summary>
     internal string Namespace => Api == ReactiveUiApi.SystemReactive
         ? "global::ReactiveUI.Reactive"

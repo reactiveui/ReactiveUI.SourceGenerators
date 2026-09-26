@@ -54,6 +54,17 @@ internal static class DiagnosticDescriptors
             + "such as RxSchedulers.MainThreadScheduler, whose type is the scheduler type ReactiveUI's commands take.",
         helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
+    /// <summary>A WinForms host follows its properties without ReactiveUI.Binding's <c>ObservedProperty</c>.</summary>
+    internal static readonly DiagnosticDescriptor ControlHostWithoutObservedPropertyRule = new(
+        id: "RXUISG0022",
+        title: "WinForms host follows its properties without ObservedProperty",
+        messageFormat: "`{0}` follows its own properties through PropertyChanged; with ReactiveUI.Binding {1} or later it would follow them with WhenAnyValue semantics",
+        category: typeof(ControlHostAnalyzer).FullName,
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        description: "The [RoutedControlHost] and [ViewModelControlHost] hosts use ReactiveUI.Binding's ObservedProperty when the referenced ReactiveUI.Binding has it.",
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
+
     /// <summary>The `[Reactive]` attribute was used on a property, but required `partial` modifiers are missing.</summary>
     internal static readonly DiagnosticDescriptor ReactiveAttributeRequiresPartialRule = new(
         id: "RXUISG0020",

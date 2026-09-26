@@ -2,16 +2,64 @@
 // ReactiveUI Association Incorporated licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using ReactiveUI.SourceGenerators.Models;
+
 namespace ReactiveUI.SourceGenerators.CodeGeneration;
 
 /// <summary>The members both Windows Forms hosts share, written through a <see cref="SourceWriter"/>.</summary>
 /// <remarks>
-/// A host follows its own properties through its <c>PropertyChanged</c> event, never through <c>WhenAny</c>: the
-/// binding engine's generator cannot see call sites in this generator's output, so a <c>WhenAny</c> in a host would not
-/// be dispatched.
+/// A host never calls <c>WhenAny</c>: the binding engine's generator cannot see call sites in this generator's output,
+/// so a <c>WhenAny</c> in a host would not be dispatched. With ReactiveUI.Binding 8.4.0 or later a host follows its
+/// properties through Binding's <c>ObservedProperty</c>, which has <c>WhenAnyValue</c>'s semantics; with anything older
+/// it follows them through its own <c>PropertyObservable</c> over its <c>PropertyChanged</c> event.
 /// </remarks>
-internal static class ControlHostWriter
+internal static class ControlHostExtensions
 {
+    /// <summary>Writes the observables a host follows its own properties with.</summary>
+    /// <param name="writer">The writer the observable expression is appended to.</param>
+    extension(SourceWriter writer)
+    {
+        /// <summary>Writes an observable of a host property's value: its current value, then each change.</summary>
+        /// <param name="integration">The detected ReactiveUI integration, which says whether <c>ObservedProperty</c> exists.</param>
+        /// <param name="type">The property's type.</param>
+        /// <param name="property">The property's name.</param>
+        /// <returns>The writer.</returns>
+        internal SourceWriter AppendPropertyValue(ReactiveUiIntegration integration, string type, string property) =>
+            integration.HasObservedProperty
+                ? writer.AppendObservedPropertyCreate(integration, property)
+                : writer.Append("new PropertyObservable<").Append(type).Append(">(this, nameof(").Append(property)
+                    .Append("), () => new ReturnObservable<").Append(type).Append(">(").Append(property).Append("))");
+
+        /// <summary>Writes an observable of what the observable a host property holds produces, switching as it changes.</summary>
+        /// <param name="integration">The ReactiveUI integration, which names the <c>ObservedProperty</c> flavour when there is one.</param>
+        /// <param name="type">The type the property's observable produces.</param>
+        /// <param name="property">The name of the property holding the observable.</param>
+        /// <returns>The writer, after the expression.</returns>
+        internal SourceWriter AppendPropertyObservable(ReactiveUiIntegration integration, string type, string property) =>
+            integration.HasObservedProperty
+                ? writer.Append(integration.ObservedProperty).Append(".Switch(").AppendObservedPropertyCreate(integration, property).Append(')')
+                : writer.Append("new PropertyObservable<").Append(type).Append(">(this, nameof(").Append(property)
+                    .Append("), () => ").Append(property).Append(')');
+
+        /// <summary>Writes an observable of the routed host's current view model, following <c>Router.CurrentViewModel</c>.</summary>
+        /// <param name="integration">The integration that decides between <c>ObservedProperty</c> and the host's own observable.</param>
+        /// <returns>The writer, after the routed view model expression.</returns>
+        internal SourceWriter AppendRoutedViewModel(ReactiveUiIntegration integration) =>
+            integration.HasObservedProperty
+                ? writer.Append(integration.ObservedProperty).Append(".Switch(")
+                    .Append(integration.ObservedProperty).Append(".Then(").AppendObservedPropertyCreate(integration, "Router")
+                    .Append(", static router => router.CurrentViewModel, static router => router.CurrentViewModel))")
+                : writer.Append("new PropertyObservable<IRoutableViewModel?>(this, nameof(Router), () => Router?.CurrentViewModel)");
+
+        /// <summary>Writes <c>ObservedProperty.Create</c> for a host property, with static lambdas that do not allocate.</summary>
+        /// <param name="integration">The integration naming the flavour <c>ObservedProperty</c> is written from.</param>
+        /// <param name="property">The observed property's name.</param>
+        /// <returns>The writer, after the call.</returns>
+        private SourceWriter AppendObservedPropertyCreate(ReactiveUiIntegration integration, string property) =>
+            writer.Append(integration.ObservedProperty).Append(".Create(this, static x => x.").Append(property)
+                .Append(", static x => x.").Append(property).Append(')');
+    }
+
     /// <summary>Writes the host's change events and its <c>IReactiveObject</c> implementation.</summary>
     /// <param name="writer">The writer, at the level of the host's members.</param>
     /// <remarks>

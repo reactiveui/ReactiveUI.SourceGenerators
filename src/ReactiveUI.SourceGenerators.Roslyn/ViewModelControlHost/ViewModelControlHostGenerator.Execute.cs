@@ -111,9 +111,13 @@ public partial class ViewModelControlHostGenerator
         WriteProperties(writer.BlankLine(), integration);
         WriteBindableProperties(writer.BlankLine());
         WriteDispose(writer.BlankLine());
-        WriteSetupBindings(writer.BlankLine(), exceptionHandler);
+        WriteSetupBindings(writer.BlankLine(), exceptionHandler, integration);
         WriteUpdateContent(writer.BlankLine(), integration);
-        ControlHostWriter.WritePropertyObservable(writer.BlankLine());
+        if (!integration.HasObservedProperty)
+        {
+            ControlHostExtensions.WritePropertyObservable(writer.BlankLine());
+        }
+
         WriteObservableHelpers(writer.BlankLine());
         WriteCombineLatestSubscription(writer.BlankLine());
         WriteDisposableCollection(writer.BlankLine());
@@ -178,7 +182,7 @@ public partial class ViewModelControlHostGenerator
     /// <param name="integration">The detected ReactiveUI integration, which names the view locator's interface.</param>
     private static void WriteProperties(SourceWriter writer, ReactiveUiIntegration integration)
     {
-        ControlHostWriter.WritePropertyChangeEvents(writer);
+        ControlHostExtensions.WritePropertyChangeEvents(writer);
         _ = writer.BlankLine().Lines("""
             /// <summary>
             /// Gets or sets a value indicating whether [default cache views enabled].
@@ -265,11 +269,12 @@ public partial class ViewModelControlHostGenerator
     /// <summary>Writes the bindings that swap the hosted view as the content, default content, and view model change.</summary>
     /// <param name="writer">The writer, at the level of the host's members.</param>
     /// <param name="exceptionHandler">The ReactiveUI default exception handler subscriptions report to.</param>
-    private static void WriteSetupBindings(SourceWriter writer, string exceptionHandler) =>
+    /// <param name="integration">The detected ReactiveUI integration, which picks how the host follows its properties.</param>
+    private static void WriteSetupBindings(SourceWriter writer, string exceptionHandler, ReactiveUiIntegration integration) =>
         _ = writer.Line("private void SetupBindings()")
             .OpenBlock()
+            .Append("AddSubscription(").AppendPropertyValue(integration, "object?", "Content").Line(", new ValueObserver<object?>(x =>")
             .Lines("""
-                AddSubscription(new PropertyObservable<object?>(this, nameof(Content), () => new ReturnObservable<object?>(Content)), new ValueObserver<object?>(x =>
                 {
                     if (x is not Control control)
                     {
@@ -290,8 +295,8 @@ public partial class ViewModelControlHostGenerator
                     ResumeLayout();
                 """)
             .Append("}, ").Append(exceptionHandler).Line("));")
+            .Append("AddSubscription(").AppendPropertyValue(integration, "Control?", "DefaultContent").Line(", new ValueObserver<Control?>(x =>")
             .Lines("""
-                AddSubscription(new PropertyObservable<Control?>(this, nameof(DefaultContent), () => new ReturnObservable<Control?>(DefaultContent)), new ValueObserver<Control?>(x =>
                 {
                     if (x is not null)
                     {
@@ -308,9 +313,9 @@ public partial class ViewModelControlHostGenerator
             .Lines("""
                 _disposables.Add(viewModelSubscription);
                 viewModelSubscription.Connect(
-                    new PropertyObservable<object?>(this, nameof(ViewModel), () => new ReturnObservable<object?>(ViewModel)),
-                    new PropertyObservable<string>(this, nameof(ViewContractObservable), () => ViewContractObservable));
                 """)
+            .Indent().AppendPropertyValue(integration, "object?", "ViewModel").Line(",")
+            .AppendPropertyObservable(integration, "string", "ViewContractObservable").Line(");").Outdent()
             .CloseBlock();
 
     /// <summary>Writes the methods that register a subscription and resolve the view for a new view model.</summary>
