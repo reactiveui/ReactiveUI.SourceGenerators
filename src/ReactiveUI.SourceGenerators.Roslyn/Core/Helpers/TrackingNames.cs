@@ -37,9 +37,6 @@ internal static class TrackingNames
     /// <summary>The <c>[ReactiveCollection]</c> models grouped per type.</summary>
     internal const string ReactiveCollectionTypes = nameof(ReactiveCollectionTypes);
 
-    /// <summary>The <c>[IViewFor]</c> view models grouped per type.</summary>
-    internal const string ViewForTypes = nameof(ViewForTypes);
-
     /// <summary>The <c>[IReactiveObject]</c> models grouped per type.</summary>
     internal const string ReactiveObjectTypes = nameof(ReactiveObjectTypes);
 

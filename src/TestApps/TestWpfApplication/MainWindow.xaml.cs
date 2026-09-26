@@ -3,12 +3,12 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Windows;
+using ReactiveUI;
 
 namespace WpfApp1;
 
 /// <summary>Provides the interaction logic for MainWindow.xaml.</summary>
-[ReactiveUI.SourceGenerators.IViewFor<MainViewModel>]
-public partial class MainWindow : Window
+public partial class MainWindow : Window, IViewFor<MainViewModel>
 {
     /// <summary>Initializes a new instance of the <see cref="MainWindow"/> class.</summary>
     public MainWindow()
@@ -17,4 +17,10 @@ public partial class MainWindow : Window
         ViewModel = new();
         DataContext = ViewModel;
     }
+
+    /// <inheritdoc/>
+    public MainViewModel? ViewModel { get; set; }
+
+    /// <inheritdoc/>
+    object? IViewFor.ViewModel { get => ViewModel; set => ViewModel = (MainViewModel?)value; }
 }

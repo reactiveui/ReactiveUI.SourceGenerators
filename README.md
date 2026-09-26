@@ -14,7 +14,6 @@ This documentation covers using ReactiveUI Source Generators to simplify and enh
 - [Detailed Usage](#welcome-to-a-new-way---source-generators)
   - [Reactive](#reactive)
   - [ReactiveCommand](#reactivecommand)
-  - [IViewFor](#iviewfor)
   - [BindableDerivedList](#usage-readonlyobservablecollection)
   - [Platform-Specific Attributes](#platform-specific-attributes)
 - [Moved to ReactiveUI.Binding](#moved-to-reactiveuibinding)
@@ -47,16 +46,13 @@ ReactiveUI Source Generators automatically generate ReactiveUI objects to stream
 - `[ReactiveCommand(OutputScheduler = nameof(_isheduler))]` using a Scheduler defined in the class
 - `[ReactiveCommand][property: AttributeToAddToCommand]` with Attribute passthrough
 - `[ReactiveCommand(AccessModifier = PropertyAccessModifier.Internal)]` sets the access modifier of the generated command property
-- `[IViewFor(nameof(ViewModelName))]`
-- `[IViewFor<YourViewModelType>]`
-- `[IViewFor("YourNameSpace.YourGenericViewModel<int>")]` Generic
 - `[RoutedControlHost("YourNameSpace.CustomControl")]`
 - `[ViewModelControlHost("YourNameSpace.CustomControl")]`
 - `[BindableDerivedList]` Generates a derived list from a ReadOnlyObservableCollection backing field
 - `[ReactiveCollection]` Generates property changed notifications on add, remove, new actions on a ObservableCollection backing field
 - `[IReactiveObject]` Generates IReactiveObject implementation for classes not able to inherit from ReactiveObject
 
-`[ObservableAsProperty]` and IViewFor view registration moved to ReactiveUI.Binding; see [Moved to ReactiveUI.Binding](#moved-to-reactiveuibinding).
+`[ObservableAsProperty]`, view registration and `[IViewFor]` have been removed in favour of ReactiveUI.Binding; see [Moved to ReactiveUI.Binding](#moved-to-reactiveuibinding).
 
 ### Compatibility Notes
 - For **.NET Framework 4.8 and older**, add [Polyfill by Simon Cropp](https://github.com/SimonCropp/Polyfill) or [PolySharp by Sergio Pedri](https://github.com/Sergio0694/PolySharp) to your project and set the `LangVersion` to 12.0 or later in your project file.
@@ -92,9 +88,6 @@ Marks properties as reactive, generating getter and setter code.
 
 ### `[ReactiveCommand]`
 Generates commands, with options to add attributes or enable `CanExecute` functionality.
-
-### `[IViewFor]`
-Links a view to a view model for data binding. Supports generic types.
 
 ### `[RoutedControlHost]` and `[ViewModelControlHost]`
 Platform-specific attributes for control hosting in WinForms applications.
@@ -228,19 +221,17 @@ Define types with `[Reactive]` properties in assembly `A`, and then define the
 ## Moved to ReactiveUI.Binding
 
 ReactiveUI's binding engine, [ReactiveUI.Binding](https://github.com/reactiveui/ReactiveUI.Binding.SourceGenerators),
-now provides two features this package used to generate. They have been removed from ReactiveUI.SourceGenerators.
+now covers three features this package used to generate. They have been removed from ReactiveUI.SourceGenerators.
 
 | Removed | Use instead |
 | --- | --- |
 | `[ObservableAsProperty]` on a field, method, observable property or partial property, and the generated `InitializeOAPH()` | ReactiveUI.Binding's `[ObservableAsProperty]` on a `partial` property, assigned with `ToProperty` |
 | `RegisterViewsForViewModelsSourceGenerated()`, the `RegistrationType` and `ViewModelRegistrationType` options of `[IViewFor]`, and `SplatRegistrationType` | ReactiveUI.Binding's view locator, which registers views at compile time |
+| `[IViewFor<T>]` and `[IViewFor("...")]`, which generated the `ViewModel` property and the `IViewFor<T>` implementation | Implement `IViewFor<T>` on the view yourself, or derive from one of ReactiveUI's view base classes; ReactiveUI.Binding's view locator registers it |
 | RXUISG0014, RXUISG0017 and the RXUISPR0002 suppression | Nothing: they only applied to `[ObservableAsProperty]` |
 
-`[IViewFor]` still generates the `ViewModel` property and the `IViewFor<T>` implementation for each UI platform. It
-implements the `IViewFor<T>` of the ReactiveUI the project references: ReactiveUI's own on releases not built on
-ReactiveUI.Binding, otherwise `ReactiveUI.Binding.IViewFor<T>`, or `ReactiveUI.Binding.Reactive.IViewFor<T>` with
-ReactiveUI.Reactive. The interface is named in full, so no `using` for ReactiveUI.Binding is needed. The Windows Forms
-`[RoutedControlHost]` and `[ViewModelControlHost]` resolve views through the matching view locator.
+The Windows Forms `[RoutedControlHost]` and `[ViewModelControlHost]` remain. They resolve views through ReactiveUI's
+view locator, or through ReactiveUI.Binding's when the project's ReactiveUI is built on it.
 
 The ReactiveUI.Binding replacements need a ReactiveUI release built on ReactiveUI.Binding. ReactiveUI 24.3 and earlier
 are not: there, ReactiveUI's own `ObservableAsPropertyHelper<T>` and `IViewFor<T>` are the ones in use, so
@@ -266,6 +257,9 @@ public partial class MyReactiveClass : ReactiveObject
 }
 ```
 
+ReactiveUI.Binding 7.11 and later report `[ObservableAsProperty]` on a field, method or observable property
+(RXUIBIND018), and its code fix rewrites each as a partial property.
+
 Without ReactiveUI.Binding, or on ReactiveUI 24.3 and earlier, write the helper with ReactiveUI's `ToProperty`:
 
 ```csharp
@@ -282,20 +276,24 @@ public class MyReactiveClass : ReactiveObject
 }
 ```
 
-### Registering views
+### Views
 
-ReactiveUI.Binding's view locator registers every class whose declaration implements `IViewFor<T>`. Source generators
-cannot see each other's output, so the view locator does not see the interface `[IViewFor]` adds. List the interface
-on the class as well; the generated members still implement it:
+`[IViewFor]` generated a view's `ViewModel` property and its `IViewFor<T>` implementation. Write them on the view, or
+derive the view from one of ReactiveUI's view base classes such as `ReactiveUserControl<T>`:
 
 ```csharp
-[IViewFor<LoginViewModel>]
+using ReactiveUI;
+
 public partial class LoginView : UserControl, IViewFor<LoginViewModel>
 {
+    public LoginViewModel? ViewModel { get; set; }
+
+    object? IViewFor.ViewModel { get => ViewModel; set => ViewModel = (LoginViewModel?)value; }
 }
 ```
 
-Without ReactiveUI.Binding, or on ReactiveUI 24.3 and earlier, register each view with Splat:
+ReactiveUI.Binding's view locator registers every class whose declaration implements `IViewFor<T>`. Without
+ReactiveUI.Binding, or on ReactiveUI 24.3 and earlier, register each view with Splat:
 
 ```csharp
 AppLocator.CurrentMutable.Register<IViewFor<LoginViewModel>>(static () => new LoginView());
@@ -484,51 +482,6 @@ public partial class MyReactiveClass
 {
     [ReactiveCommand(AccessModifier = PropertyAccessModifier.Internal)]
     private void Execute() { }
-}
-```
-
-## Usage IViewFor `[IViewFor(nameof(ViewModelName))]`
-
-### IViewFor usage
-
-IViewFor is used to link a View to a ViewModel, this is used to link the ViewModel to the View in a way that ReactiveUI can use it to bind the ViewModel to the View.
-The ViewModel is passed as a type to the IViewFor Attribute using generics.
-The class must inherit from a UI Control from any of the following platforms and namespaces:
-- Maui (Microsoft.Maui)
-- WinUI (Microsoft.UI.Xaml)
-- WPF (System.Windows or System.Windows.Controls)
-- WinForms (System.Windows.Forms)
-- Avalonia (Avalonia)
-- Uno (Windows.UI.Xaml).
-
-### Usage IViewFor with ViewModel Name - Generic Types should be used with the fully qualified name, otherwise use nameof(ViewModelTypeName)
-```csharp
-using ReactiveUI.SourceGenerators;
-
-[IViewFor("MyReactiveGenericClass<int>")]
-public partial class MyReactiveControl : UserControl
-{
-    public MyReactiveControl()
-    {
-        InitializeComponent();
-        ViewModel = new MyReactiveClass();
-    }
-}
-```
-
-### Usage IViewFor with ViewModel Type
-
-```csharp
-using ReactiveUI.SourceGenerators;
-
-[IViewFor<MyReactiveClass>]
-public partial class MyReactiveControl : UserControl
-{
-    public MyReactiveControl()
-    {
-        InitializeComponent();
-        ViewModel = new MyReactiveClass();
-    }
 }
 ```
 

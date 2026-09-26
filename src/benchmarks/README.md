@@ -44,7 +44,10 @@ All figures are on .NET 10 (x64, Linux).
 "Before" is the generators with `[ObservableAsProperty]` and view registration already removed, but still building
 their output with interpolated strings, binding every attribute for `[IViewFor]` and `[IReactiveObject]`, and writing
 every file from one collected output. It was measured with this same harness copied onto it. "After" is the generators
-as they are now.
+once those changes were made, in PR #501.
+
+`[IViewFor]` has since been removed, and its corpus with it; its row and the whole-corpus and rerun figures below still
+include it.
 
 ### Generation
 

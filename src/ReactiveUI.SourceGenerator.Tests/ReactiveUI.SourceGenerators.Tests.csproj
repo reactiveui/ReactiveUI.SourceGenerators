@@ -60,7 +60,6 @@
 
   <ItemGroup>
     <Folder Include="DERIVEDLIST\" />
-    <Folder Include="IVIEWFOR\" />
     <Folder Include="OAPH\" />
     <Folder Include="REACTIVECMD\" />
     <Folder Include="REACTIVE\" />

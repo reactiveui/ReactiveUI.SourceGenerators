@@ -90,26 +90,6 @@ internal static class ITypeSymbolExtensions
         return false;
     }
 
-    /// <summary>Checks whether or not a given <see cref="ITypeSymbol"/> inherits from a specified type.</summary>
-    /// <param name="name">The full name of the type to check for inheritance.</param>
-    /// <returns>Whether the type symbol inherits from <paramref name="name"/>.</returns>
-    internal bool InheritsFromFullyQualifiedMetadataNameStartingWith(string name)
-    {
-        var baseType = typeSymbol.BaseType;
-
-        while (baseType is not null)
-        {
-            if (baseType.ContainsFullyQualifiedMetadataName(name))
-            {
-                return true;
-            }
-
-            baseType = baseType.BaseType;
-        }
-
-        return false;
-    }
-
     /// <summary>Checks whether or not a given <see cref="ITypeSymbol"/> has or inherits a specified attribute.</summary>
     /// <param name="name">The name of the attribute to look for.</param>
     /// <returns>Whether the type symbol has an attribute with the specified type name.</returns>

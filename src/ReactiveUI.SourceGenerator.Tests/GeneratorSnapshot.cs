@@ -77,7 +77,6 @@ internal static class GeneratorSnapshot
         ("Namespace", "Ns"),
         ("Multiple", "Multi"),
         ("ViewModel", "Vm"),
-        ("IViewFor", "Ivf"),
         ("Internal", "Int"),
         ("Inheritance", "Inh"),
         ("Modifier", "Mod"),

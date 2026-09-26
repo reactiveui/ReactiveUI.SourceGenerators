@@ -169,24 +169,6 @@ internal static class AttributeDataExtensions
 
             classAttributesInfo = classAttributesInfoBuilder.ToImmutable();
         }
-
-        /// <summary>Gets the generic type from this instance.</summary>
-        /// <returns>The generic type name, if present.</returns>
-        internal string? GetGenericType()
-        {
-            var attributeClassName = attributeData.AttributeClass?.ToDisplayString();
-            if (string.IsNullOrWhiteSpace(attributeClassName))
-            {
-                return null;
-            }
-
-            var start = attributeClassName!.IndexOf('<');
-            var end = attributeClassName.LastIndexOf('>');
-
-            return start >= 0 && end > start
-                ? attributeClassName.Substring(start + 1, end - start - 1)
-                : null;
-        }
     }
 
     /// <summary>Tries to convert a typed constant to the requested value type.</summary>

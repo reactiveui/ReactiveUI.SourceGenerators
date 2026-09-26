@@ -4,7 +4,7 @@ This document provides guidance for AI assistants and contributors working in th
 
 ## Overview
 
-ReactiveUI.SourceGenerators is a Roslyn incremental source-generator package that automates ReactiveUI boilerplate at compile-time. It generates reactive properties, reactive commands, `IViewFor<T>` implementations, WinForms view hosts, bindable derived lists, reactive collections, and full reactive-object scaffolding — all with zero runtime reflection, making generated code fully AOT-compatible.
+ReactiveUI.SourceGenerators is a Roslyn incremental source-generator package that automates ReactiveUI boilerplate at compile-time. It generates reactive properties, reactive commands, WinForms view hosts, bindable derived lists, reactive collections, and full reactive-object scaffolding — all with zero runtime reflection, making generated code fully AOT-compatible.
 
 **Minimum consumer requirements:** C# 12.0 · Visual Studio 17.8.0 · ReactiveUI 23.2.28+
 
@@ -40,7 +40,6 @@ src/
 │   ├── AttributeDefinitions.cs                  # Injected attribute source texts
 │   ├── Reactive/                                # [Reactive] generator + Execute + models
 │   ├── ReactiveCommand/                         # [ReactiveCommand] generator + Execute + models
-│   ├── IViewFor/                                # [IViewFor<T>] generator + Execute + models
 │   ├── RoutedControlHost/                       # [RoutedControlHost] generator
 │   ├── ViewModelControlHost/                    # [ViewModelControlHost] generator
 │   ├── BindableDerivedList/                     # [BindableDerivedList] generator
@@ -125,7 +124,7 @@ Initialize()
 
 **Fast paths:**
 - Find attributed targets with `ForAttributeWithMetadataName`; benchmarks show it allocates less than a syntax
-  provider, cold and incrementally. A generic attribute is registered by its arity name (``IViewForAttribute`1``).
+  provider, cold and incrementally. A generic attribute is registered by its arity name (``NameAttribute`1``).
 - Reject nodes in the syntax predicate before any binding: node kind, parent shape, `partial` modifier.
 - In the transform, read `context.Attributes[0]` rather than searching the symbol's attributes again, and ask for
   semantic information only when syntax says it can exist (documentation only when the node has a doc comment).
@@ -143,15 +142,14 @@ Initialize()
 |-----------------|-----------|--------------|
 | `ReactiveGenerator` | `[Reactive]` | Field (all Roslyn) or partial property (ROSYLN_412+) |
 | `ReactiveCommandGenerator` | `[ReactiveCommand]` | Method |
-| `IViewForGenerator` | `[IViewFor<T>]` | Class (the `IViewFor<T>` implementation; view registration belongs to ReactiveUI.Binding) |
 | `RoutedControlHostGenerator` | `[RoutedControlHost]` | Class |
 | `ViewModelControlHostGenerator` | `[ViewModelControlHost]` | Class |
 | `BindableDerivedListGenerator` | `[BindableDerivedList]` | Field (`ReadOnlyObservableCollection<T>`) |
 | `ReactiveCollectionGenerator` | `[ReactiveCollection]` | Field (`ObservableCollection<T>`) |
 | `ReactiveObjectGenerator` | `[IReactiveObject]` | Class |
 
-`[ObservableAsProperty]` and IViewFor view registration moved to ReactiveUI.Binding (ReactiveUI's binding engine) and
-were removed here. Do not reintroduce features ReactiveUI.Binding provides.
+`[ObservableAsProperty]`, IViewFor view registration and `[IViewFor]` were removed here in favour of ReactiveUI.Binding
+(ReactiveUI's binding engine). Do not reintroduce features ReactiveUI.Binding provides.
 
 ## Analyzers & Suppressors
 
@@ -192,7 +190,7 @@ The test project multi-targets `net8.0;net9.0;net10.0` (controlled by `$(TestTfm
 ### Snapshot tests
 
 Generator tests extend `TestBase<TGenerator>` and call `TestHelper.TestPass(sourceCode)`. Each generated file is stored
-as `{FOLDER}/{class}.{method}#{hint}.verified.cs` in the generator's folder (`REACTIVE/`, `REACTIVECMD/`, `IVIEWFOR/`,
+as `{FOLDER}/{class}.{method}#{hint}.verified.cs` in the generator's folder (`REACTIVE/`, `REACTIVECMD/`,
 `DERIVEDLIST/`, `REACTIVECOLL/`, `REACTIVEOBJ/`). The class segment is the test class's capitals, and common words in the
 method and hint segments are abbreviated, so every path stays well inside the Windows path limit. A mismatch writes
 `*.received.cs` beside the snapshot and fails; a snapshot the run no longer produces also fails. Generated-code

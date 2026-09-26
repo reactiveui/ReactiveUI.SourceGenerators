@@ -40,10 +40,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Suppressions\ReactiveCommandAttributeWithFieldOrPropertyTargetDiagnosticSuppressor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Suppressions\ReactiveCommandMethodDoesNotNeedToBeStaticDiagnosticSuppressor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Suppressions\ReactiveFieldDoesNotNeedToBeReadOnlyDiagnosticSuppressor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)IViewFor\IViewForGenerator.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)IViewFor\IViewForGenerator.Execute.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)IViewFor\Models\IViewForBaseType.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)IViewFor\Models\IViewForInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ReactiveCollection\Models\ReactiveCollectionFieldInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ReactiveCollection\ReactiveCollectionGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ReactiveCollection\ReactiveCollectionGenerator.Execute.cs" />
