@@ -131,6 +131,7 @@ public sealed class ReactiveUiV23CompatibilityTests
 
         AddReference(reactiveUiAssembly.Location, paths, references);
         AddReference(typeof(System.Reactive.Unit).Assembly.Location, paths, references);
+        AddReference(typeof(ReactiveAttribute).Assembly.Location, paths, references);
         return references.ToImmutable();
     }
 

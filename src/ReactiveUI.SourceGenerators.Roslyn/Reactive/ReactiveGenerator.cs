@@ -4,8 +4,6 @@
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
-using ReactiveUI.SourceGenerators.CodeGeneration;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Models;
@@ -22,15 +20,6 @@ public sealed partial class ReactiveGenerator : IIncrementalGenerator
     /// <inheritdoc/>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        context.RegisterPostInitializationOutput(static ctx =>
-        {
-            // Add the AccessModifier enum to the compilation
-            ctx.AddSource($"{AttributeDefinitions.AccessModifierType}.g.cs", SourceText.From(AttributeDefinitions.GetAccessModifierEnum(), SourceWriterExtensions.Utf8WithoutBom));
-
-            // Add the ReactiveAttribute to the compilation
-            ctx.AddSource($"{AttributeDefinitions.ReactiveAttributeType}.g.cs", SourceText.From(AttributeDefinitions.ReactiveAttribute, SourceWriterExtensions.Utf8WithoutBom));
-        });
-
         RunReactiveFromField(context);
 #if ROSYLN_412 || ROSYLN_500
         RunReactiveFromProperty(context);

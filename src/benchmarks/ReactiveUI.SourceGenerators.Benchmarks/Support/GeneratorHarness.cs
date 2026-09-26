@@ -112,6 +112,7 @@ internal static class GeneratorHarness
             typeof(System.Text.Json.JsonSerializer).Assembly,
             typeof(System.Runtime.Serialization.DataContractAttribute).Assembly,
             typeof(System.ComponentModel.DescriptionAttribute).Assembly,
+            typeof(ReactiveAttribute).Assembly,
         ];
 
         foreach (var seed in seeds)

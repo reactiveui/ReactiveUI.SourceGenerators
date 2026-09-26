@@ -4,8 +4,6 @@
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
-using ReactiveUI.SourceGenerators.CodeGeneration;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 
@@ -18,9 +16,6 @@ public sealed partial class RoutedControlHostGenerator : IIncrementalGenerator
     /// <inheritdoc/>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        context.RegisterPostInitializationOutput(static ctx =>
-            ctx.AddSource($"{AttributeDefinitions.RoutedControlHostAttributeType}.g.cs", SourceText.From(AttributeDefinitions.GetRoutedControlHostAttribute(), SourceWriterExtensions.Utf8WithoutBom)));
-
         // One model per annotated class, each written by its own output so it caches on its own.
         var hosts =
             context.SyntaxProvider

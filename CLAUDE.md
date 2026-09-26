@@ -26,7 +26,24 @@ Each versioned project links all `.cs` files from `ReactiveUI.SourceGenerators.R
 
 `#if ROSYLN_412 || ROSYLN_500` guards inside the shared source enable partial-property pipelines only on the newer Roslyn builds.
 
-The `ReactiveUI.SourceGenerators` NuGet project packages all three DLLs under separate `analyzers/dotnet/roslyn4.8/cs`, `analyzers/dotnet/roslyn4.14/cs`, and `analyzers/dotnet/roslyn5.0/cs` paths, so NuGet/MSBuild automatically selects the right build based on the host compiler.
+Each versioned project builds `ReactiveUI.SourceGenerators.Roslyn.dll`. The `ReactiveUI.SourceGenerators` project is
+the package consumers install: it builds the attributes into `ReactiveUI.SourceGenerators.dll` under `lib/`, and bundles
+the three generator DLLs, each with the code fixes, under `analyzers/dotnet/roslyn4.8/cs`, `analyzers/dotnet/roslyn4.14/cs`,
+and `analyzers/dotnet/roslyn5.0/cs`, so NuGet/MSBuild automatically selects the right build based on the host compiler.
+
+### Generated code never declares a shared type
+
+The attributes and the enums they take (`AccessModifier`, `PropertyAccessModifier`, `InheritanceModifier`) are public
+types in `ReactiveUI.SourceGenerators`, which targets `$(LibraryTfms)` (net8.0-net11.0, net462-net481). A type
+declared into each consumer would repeat in every assembly, and an assembly granted `InternalsVisibleTo` would see two
+copies (CS0436).
+
+- **Do not use `RegisterPostInitializationOutput`**, or emit any type whose fully qualified name another assembly
+  could also declare.
+- A new attribute goes in `ReactiveUI.SourceGenerators` and is `[Conditional(KeepAttributes.Symbol)]`: the generators
+  read it from source, so a consumer keeps no reference to the attributes assembly.
+- Generators, analyzers and code fixes stay `netstandard2.0`, the Roslyn host's framework. Only the attributes library
+  targets `$(LibraryTfms)`.
 
 Generators report only the `RXUISG*` diagnostics about input they cannot generate from (see
 [Analyzer Separation](#analyzer-separation-roslyn-best-practice)). Diagnostics about how code should be written, and
@@ -37,7 +54,7 @@ their code fixes, live in the separate `ReactiveUI.SourceGenerators.Analyzers.Co
 ```
 src/
 ├── ReactiveUI.SourceGenerators.Roslyn/          # Shared source (linked into all versioned projects)
-│   ├── AttributeDefinitions.cs                  # Injected attribute source texts
+│   ├── AttributeDefinitions.cs                  # Metadata names of the attributes the generators read
 │   ├── Reactive/                                # [Reactive] generator + Execute + models
 │   ├── ReactiveCommand/                         # [ReactiveCommand] generator + Execute + models
 │   ├── RoutedControlHost/                       # [RoutedControlHost] generator
@@ -52,11 +69,11 @@ src/
 │       ├── Extensions/                          # ISymbol*, ITypeSymbol*, INamedTypeSymbol*, AttributeData extensions
 │       ├── Helpers/                             # ImmutableArrayBuilder<T>, EquatableArray<T>, HashCode, etc.
 │       └── Models/                              # Result<T>, DiagnosticInfo, TargetInfo, etc.
-├── ReactiveUI.SourceGenerators.Roslyn480/       # Roslyn 4.8 build (no define)
+├── ReactiveUI.SourceGenerators.Roslyn480/       # Roslyn 4.8 build (no define) of ReactiveUI.SourceGenerators.Roslyn.dll
 ├── ReactiveUI.SourceGenerators.Roslyn4140/      # Roslyn 4.14 build (ROSYLN_412)
 ├── ReactiveUI.SourceGenerators.Roslyn5000/      # Roslyn 5.0 build (ROSYLN_500)
 ├── ReactiveUI.SourceGenerators.Analyzers.CodeFixes/  # Analyzers + code fixers
-├── ReactiveUI.SourceGenerators/                 # NuGet packaging project (bundles all three DLLs)
+├── ReactiveUI.SourceGenerators/                 # The package: public attributes, with the Roslyn builds bundled
 ├── ReactiveUI.SourceGenerator.Tests/            # TUnit tests with generator snapshots (GeneratorSnapshot)
 ├── benchmarks/                                  # BenchmarkDotNet generation benchmarks with EventPipe tracing
 ├── ReactiveUI.SourceGenerators.Execute*/        # Compile-time execution verification projects
@@ -98,9 +115,6 @@ _ = writer.Lines("""
 nothing), `OpenContainingTypes`, `OpenPartialType`, `CloseBlocks`, `InheritDoc`, `ExcludeFromCodeCoverage`. Build a
 generator's `GeneratedCode` attribute once, in a static field, with `SourceWriterExtensions.GeneratedCodeAttribute`.
 
-The injected attribute source texts (in `AttributeDefinitions.cs`) are fixed `$$"""..."""` raw strings, each built once
-per process.
-
 A change to an emitter must keep the output token-for-token the same unless it deliberately changes generated code;
 compare changed snapshots with whitespace removed to prove it.
 
@@ -108,14 +122,13 @@ compare changed snapshots with whitespace removed to prove it.
 
 Each generator follows this structure:
 
-1. **`Initialize`** — registers post-initialization output (inject attribute source), then calls one or more `Run*` methods.
+1. **`Initialize`** — calls one or more `Run*` methods. It registers no post-initialization output.
 2. **`Run*`** — builds the `IncrementalValuesProvider` using `ForAttributeWithMetadataName` + a syntax predicate + a semantic extraction function.
 3. **`Get*Info` (Execute file)** — stateless extraction function. Returns `Result<TModel?>` with embedded diagnostics. Must be pure; must not capture any `ISymbol` or `SyntaxNode` beyond this call.
 4. **`GenerateSource` (Execute file)** — pure function that writes a model through `SourceWriter`. No Roslyn symbols allowed here.
 
 ```
 Initialize()
-  ├─ RegisterPostInitializationOutput → inject attribute definitions
   └─ SyntaxProvider.ForAttributeWithMetadataName
        ├─ syntax predicate (fast, node-type check only)
        ├─ semantic extraction → Get*Info() → Result<Model>
@@ -220,7 +233,8 @@ Analyzer and helper tests use direct `CSharpCompilation` / `CompilationWithAnaly
 ### Adding a New Generator
 
 1. Create a value-equatable model record in `Core/Models/` or the generator's own `Models/` folder.
-2. Add attribute source text to `AttributeDefinitions.cs` as a `$$"""..."""` raw string property initialised once.
+2. Add the attribute as a public `[Conditional(KeepAttributes.Symbol)]` type in `ReactiveUI.SourceGenerators`, and its
+   metadata name to `AttributeDefinitions.cs`.
 3. Create `<Name>Generator.cs` with `Initialize` wiring up `ForAttributeWithMetadataName`.
 4. Create `<Name>Generator.Execute.cs` with `Get*Info` (extraction) and `GenerateSource` (writes through `SourceWriter`).
 5. Add snapshot tests in `ReactiveUI.SourceGenerator.Tests/UnitTests/`.

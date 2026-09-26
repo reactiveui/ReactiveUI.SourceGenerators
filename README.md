@@ -26,6 +26,15 @@ dotnet add package ReactiveUI.SourceGenerators
 
 Ensure the package is loaded with `PrivateAssets="all"` to avoid issues with generated code in consuming projects.
 
+The attributes (`[Reactive]`, `[ReactiveCommand]` and the rest) are public types in the package's
+`ReactiveUI.SourceGenerators` assembly; the generators no longer declare them in your project, so assemblies
+that share internals through `InternalsVisibleTo` no longer see two copies. Your project compiles against that assembly
+but keeps no reference to it. If an older install added an `<IncludeAssets>` line without `compile`, remove it:
+
+```xml
+<PackageReference Include="ReactiveUI.SourceGenerators" Version="..." PrivateAssets="all" />
+```
+
 ReactiveUI V24.x.x consumers can reference either `ReactiveUI` for the primitives-based API without
 System.Reactive, or `ReactiveUI.Reactive` for the System.Reactive-based API. The generators detect
 the referenced API surface automatically. ReactiveUI releases from 23.2.28 remain supported.

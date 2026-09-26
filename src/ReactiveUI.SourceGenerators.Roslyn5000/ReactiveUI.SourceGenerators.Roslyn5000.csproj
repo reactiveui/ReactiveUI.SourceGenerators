@@ -11,7 +11,7 @@
     <DevelopmentDependency>true</DevelopmentDependency>
     <IsPackable>false</IsPackable>
     <PackageDescription>A MVVM framework that integrates with the Reactive Extensions for .NET to create elegant, testable User Interfaces that run on any mobile or desktop platform. This is the Source Generators package for ReactiveUI</PackageDescription>
-    <AssemblyName>ReactiveUI.SourceGenerators</AssemblyName>
+    <AssemblyName>ReactiveUI.SourceGenerators.Roslyn</AssemblyName>
     <DefineConstants>$(DefineConstants);ROSYLN_500</DefineConstants>
   </PropertyGroup>
   <ItemGroup>

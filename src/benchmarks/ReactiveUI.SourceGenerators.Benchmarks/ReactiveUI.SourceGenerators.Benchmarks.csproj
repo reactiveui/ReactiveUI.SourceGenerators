@@ -28,6 +28,7 @@
   -->
   <ItemGroup>
     <ProjectReference Include="..\..\ReactiveUI.SourceGenerators.Roslyn5000\ReactiveUI.SourceGenerators.Roslyn5000.csproj" />
+    <ProjectReference Include="..\..\ReactiveUI.SourceGenerators\ReactiveUI.SourceGenerators.csproj" />
   </ItemGroup>
 
   <ItemGroup>

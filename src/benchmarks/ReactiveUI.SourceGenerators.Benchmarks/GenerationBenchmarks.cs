@@ -34,7 +34,7 @@ public class GenerationBenchmarks
 
     /// <summary>Runs a whole cold generation: syntax scan, extraction and emission.</summary>
     /// <returns>The number of generated characters, so the work cannot be optimized away.</returns>
-    /// <exception cref="InvalidOperationException">The corpus generated nothing beyond the injected attributes.</exception>
+    /// <exception cref="InvalidOperationException">The corpus generated fewer files than it has copies.</exception>
     [Benchmark]
     public int Generate()
     {
@@ -51,8 +51,9 @@ public class GenerationBenchmarks
             }
         }
 
-        // A corpus that stopped matching the attributes would quietly measure driver overhead instead.
-        return files <= Copies
+        // Every copy generates at least one file. A corpus that stopped matching the attributes would quietly measure
+        // driver overhead instead.
+        return files < Copies
             ? throw new InvalidOperationException($"The {Corpus} corpus generated {files} files; the benchmark is measuring nothing.")
             : characters;
     }

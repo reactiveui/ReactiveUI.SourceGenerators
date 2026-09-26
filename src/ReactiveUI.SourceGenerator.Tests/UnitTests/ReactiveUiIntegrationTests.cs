@@ -441,7 +441,8 @@ public sealed class ReactiveUiIntegrationTests
             typeof(System.ComponentModel.INotifyPropertyChanged).Assembly,
             typeof(ReactiveUI.Reactive.ReactiveObject).Assembly,
             typeof(System.Reactive.Unit).Assembly,
-            typeof(ReactiveCommandGenerator).Assembly);
+            typeof(ReactiveCommandGenerator).Assembly,
+            typeof(ReactiveCommandAttribute).Assembly);
         var (compilation, generatedSource) = RunCommandGenerator(
             """
             using ReactiveUI.Reactive;
@@ -492,7 +493,8 @@ public sealed class ReactiveUiIntegrationTests
                 typeof(Enumerable).Assembly,
                 typeof(System.ComponentModel.INotifyPropertyChanged).Assembly,
                 typeof(System.Reactive.Unit).Assembly,
-                typeof(ReactiveCommandGenerator).Assembly)
+                typeof(ReactiveCommandGenerator).Assembly,
+                typeof(ReactiveCommandAttribute).Assembly)
             .Add(legacyReference);
         var (compilation, generatedSource) = RunCommandGenerator(
             """
