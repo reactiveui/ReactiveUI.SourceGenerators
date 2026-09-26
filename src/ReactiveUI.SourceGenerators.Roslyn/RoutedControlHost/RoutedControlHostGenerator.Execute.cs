@@ -71,7 +71,8 @@ public partial class RoutedControlHostGenerator
             targetInfo.TargetNamespaceWithNamespace,
             targetInfo.TargetVisibility,
             targetInfo.TargetType,
-            baseTypeName);
+            baseTypeName,
+            targetInfo.ParentInfo);
     };
 
     /// <summary>Gets routed control host metadata from a generator attribute context.</summary>
@@ -104,9 +105,8 @@ public partial class RoutedControlHostGenerator
         var writer = SourceWriter.Rent();
         WriteFileHeader(writer, integration);
 
-        // The namespace is written as-is, even when empty, to keep the historical output.
-        _ = writer.Append("namespace ").Line(info.TargetNamespace).OpenBlock()
-            .Line(AttributeDefinitions.ExcludeFromCodeCoverage)
+        var depth = writer.OpenNamespace(info.TargetNamespace) + writer.OpenContainingTypes(info.ParentInfo);
+        _ = writer.Line(AttributeDefinitions.ExcludeFromCodeCoverage)
             .Line("[DefaultProperty(\"ViewModel\")]")
             .Line(GeneratedCodeAttribute)
             .Append(info.TargetVisibility).Append(" partial ").Append(info.TargetType).Append(' ').Append(info.TargetName)
@@ -117,6 +117,7 @@ public partial class RoutedControlHostGenerator
         WriteProperties(writer.BlankLine(), integration);
         WriteDispose(writer.BlankLine());
         WriteRouting(writer.BlankLine(), integration);
+        ControlHostWriter.WritePropertyObservable(writer.BlankLine());
         WriteObservableHelpers(writer.BlankLine());
         WriteCombineLatestSubscription(writer.BlankLine());
         WriteDisposableCollection(writer.BlankLine());
@@ -124,7 +125,7 @@ public partial class RoutedControlHostGenerator
         WriteEmptyDisposable(writer.BlankLine());
 
         return writer.CloseBlock()
-            .CloseBlock()
+            .CloseBlocks(depth)
             .RestoreNullableAndWarnings()
             .ToStringAndReturn();
     }
@@ -171,7 +172,7 @@ public partial class RoutedControlHostGenerator
             .OpenBlock()
             .Lines("""
                 InitializeComponent();
-                _disposables.Add(this.WhenAny(x => x.DefaultContent, x => x.Value).Subscribe(new ValueObserver<Control?>(x =>
+                _disposables.Add(new PropertyObservable<Control?>(this, nameof(DefaultContent), () => new ReturnObservable<Control?>(DefaultContent)).Subscribe(new ValueObserver<Control?>(x =>
                 {
                     if (x is not null && Controls.Count == 0)
                     {
@@ -189,22 +190,18 @@ public partial class RoutedControlHostGenerator
             .Lines("""
                 _disposables.Add(routeSubscription);
                 routeSubscription.Connect(
-                    this.WhenAnyObservable(x => x.Router!.CurrentViewModel!),
-                    this.WhenAnyObservable(x => x.ViewContractObservable!));
+                    new PropertyObservable<IRoutableViewModel?>(this, nameof(Router), () => Router?.CurrentViewModel),
+                    new PropertyObservable<string>(this, nameof(ViewContractObservable), () => ViewContractObservable));
                 """)
             .CloseBlock();
 
     /// <summary>Writes the host's events and properties, and its <c>IReactiveObject</c> implementation.</summary>
     /// <param name="writer">The writer, at the level of the host's members.</param>
     /// <param name="integration">The detected ReactiveUI integration, which names the view locator's interface.</param>
-    private static void WriteProperties(SourceWriter writer, ReactiveUiIntegration integration) =>
-        _ = writer.Lines("""
-            /// <inheritdoc/>
-            public event PropertyChangingEventHandler? PropertyChanging;
-
-            /// <inheritdoc/>
-            public event PropertyChangedEventHandler? PropertyChanged;
-
+    private static void WriteProperties(SourceWriter writer, ReactiveUiIntegration integration)
+    {
+        ControlHostWriter.WritePropertyChangeEvents(writer);
+        _ = writer.BlankLine().Lines("""
             /// <summary>
             /// Gets or sets the default content.
             /// </summary>
@@ -233,15 +230,8 @@ public partial class RoutedControlHostGenerator
             /// </summary>
             [Browsable(false)]
             """)
-            .Append("public ").Append(integration.ViewNamespace).Line(".IViewLocator? ViewLocator { get; set; }")
-            .BlankLine()
-            .Lines("""
-            /// <inheritdoc/>
-            void IReactiveObject.RaisePropertyChanging(PropertyChangingEventArgs args) => PropertyChanging?.Invoke(this, args);
-
-            /// <inheritdoc/>
-            void IReactiveObject.RaisePropertyChanged(PropertyChangedEventArgs args) => PropertyChanged?.Invoke(this, args);
-            """);
+            .Append("public ").Append(integration.ViewNamespace).Line(".IViewLocator? ViewLocator { get; set; }");
+    }
 
     /// <summary>Writes the host's disposal.</summary>
     /// <param name="writer">The writer, at the level of the host's members.</param>
