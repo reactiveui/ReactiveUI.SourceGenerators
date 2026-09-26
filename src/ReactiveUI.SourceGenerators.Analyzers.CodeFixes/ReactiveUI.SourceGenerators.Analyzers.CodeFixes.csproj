@@ -32,6 +32,8 @@
     <Compile Include="..\ReactiveUI.SourceGenerators.Roslyn\Polyfills\*.cs" Link="Polyfills\%(Filename)%(Extension)" />
     <!-- The command generator's rules, so the analyzer reports exactly what the generator skips. -->
     <Compile Include="..\ReactiveUI.SourceGenerators.Roslyn\ReactiveCommand\ReactiveCommandRules.cs" Link="Shared\ReactiveCommandRules.cs" />
+    <!-- The hosts' view API rules, so the analyzer reports exactly the hosts the generator writes without ObservedProperty. -->
+    <Compile Include="..\ReactiveUI.SourceGenerators.Roslyn\Core\Helpers\ViewApiRules.cs" Link="Shared\ViewApiRules.cs" />
   </ItemGroup>
   <!-- This ensures the library will be packaged as a source generator when we use `dotnet pack` -->
   <ItemGroup>

@@ -22,23 +22,18 @@ internal static class ContextExtensions
     /// <summary>The metadata name of the ReactiveUI primitive void type.</summary>
     private const string RxVoidMetadataName = "ReactiveUI.Primitives.RxVoid";
 
-    /// <summary>The metadata name of the <c>IViewFor&lt;T&gt;</c> declared by ReactiveUI releases not built on ReactiveUI.Binding.</summary>
-    private const string ReactiveUIViewForMetadataName = "ReactiveUI.IViewFor`1";
-
-    /// <summary>The metadata name of ReactiveUI.Binding's <c>IViewFor&lt;T&gt;</c>.</summary>
-    private const string BindingViewForMetadataName = "ReactiveUI.Binding.IViewFor`1";
-
-    /// <summary>The metadata name of ReactiveUI.Binding.Reactive's <c>IViewFor&lt;T&gt;</c>.</summary>
-    private const string BindingReactiveViewForMetadataName = "ReactiveUI.Binding.Reactive.IViewFor`1";
-
     /// <summary>Provides extension members for compilations.</summary>
     /// <param name="compilation">The compilation to extend.</param>
     extension(Compilation compilation)
     {
         /// <summary>Gets the ReactiveUI integration supported by this compilation.</summary>
-        /// <returns>The ReactiveUI API, command behavior and view API supported by this compilation.</returns>
+        /// <returns>The ReactiveUI API, command behavior, view API and property observation supported by this compilation.</returns>
         internal ReactiveUiIntegration GetReactiveUiIntegration() =>
-            GetApiIntegration(compilation) with { ViewApi = GetViewApi(compilation) };
+            GetApiIntegration(compilation) with
+            {
+                ViewApi = GetViewApi(compilation),
+                HasObservedProperty = ViewApiRules.HasObservedProperty(compilation),
+            };
     }
 
     /// <summary>Provides extension members for generator attribute syntax contexts.</summary>
@@ -315,29 +310,14 @@ internal static class ContextExtensions
 
     /// <summary>Gets which assembly declares the <c>IViewFor</c> interfaces and the view locator a compilation uses.</summary>
     /// <param name="compilation">The compilation to inspect.</param>
-    /// <returns>The view API.</returns>
-    /// <remarks>
-    /// A ReactiveUI that declares its own <c>IViewFor&lt;T&gt;</c> is not built on ReactiveUI.Binding, so its interface
-    /// wins even when ReactiveUI.Binding is referenced too. Otherwise the ReactiveUI.Binding flavour matching the
-    /// ReactiveUI flavour is used: the System.Reactive one when <c>ReactiveUI.Reactive</c> is referenced or it is the only
-    /// one present.
-    /// </remarks>
-    private static ReactiveUiViewApi GetViewApi(Compilation compilation)
-    {
-        if (compilation.GetTypeByMetadataName(ReactiveUIViewForMetadataName) is not null)
+    /// <returns>The view API, chosen by <see cref="ViewApiRules.GetViewNamespace"/>.</returns>
+    private static ReactiveUiViewApi GetViewApi(Compilation compilation) =>
+        ViewApiRules.GetViewNamespace(compilation) switch
         {
-            return ReactiveUiViewApi.ReactiveUI;
-        }
-
-        var hasBinding = compilation.GetTypeByMetadataName(BindingViewForMetadataName) is not null;
-        if (compilation.GetTypeByMetadataName(BindingReactiveViewForMetadataName) is not null
-            && (!hasBinding || compilation.GetTypeByMetadataName("ReactiveUI.Reactive.ReactiveCommand") is not null))
-        {
-            return ReactiveUiViewApi.BindingReactive;
-        }
-
-        return hasBinding ? ReactiveUiViewApi.Binding : ReactiveUiViewApi.ReactiveUI;
-    }
+            ViewApiRules.BindingNamespace => ReactiveUiViewApi.Binding,
+            ViewApiRules.BindingReactiveNamespace => ReactiveUiViewApi.BindingReactive,
+            _ => ReactiveUiViewApi.ReactiveUI,
+        };
 
     /// <summary>Gets the integration details from a referenced ReactiveUI assembly.</summary>
     /// <param name="compilation">The compilation to inspect.</param>

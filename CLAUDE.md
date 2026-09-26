@@ -44,6 +44,10 @@ copies (CS0436).
   read it from source, so a consumer keeps no reference to the attributes assembly.
 - Generators, analyzers and code fixes stay `netstandard2.0`, the Roslyn host's framework. Only the attributes library
   targets `$(LibraryTfms)`.
+- Never emit a call ReactiveUI.Binding has to intercept (`WhenAny*`, `Bind`, `OneWayBind`, `BindCommand`): its
+  generator cannot see another generator's output, so the call has no dispatch and throws at run time. Generated code
+  that follows properties uses Binding's non-intercepted `ObservedProperty` when `ViewApiRules.HasObservedProperty`
+  finds it (ReactiveUI.Binding 8.4.0 or later), and its own `PropertyChanged` following otherwise.
 
 Generators report only the `RXUISG*` diagnostics about input they cannot generate from (see
 [Analyzer Separation](#analyzer-separation-roslyn-best-practice)). Diagnostics about how code should be written, and
@@ -173,6 +177,7 @@ All diagnostics use the `RXUISG` prefix. All suppressions use the `RXUISPR` pref
 | `PropertyToReactiveFieldAnalyzer` | RXUISG0016 | Suggests converting auto-properties to `[Reactive]` properties |
 | `ReactiveAttributeMisuseAnalyzer` | RXUISG0020 | Detects `[Reactive]` on non-partial or non-partial-type members |
 | `ReactiveCommandAnalyzer` | RXUISG0002, RXUISG0008, RXUISG0021 | Reports `[ReactiveCommand]` methods and schedulers the generator skips |
+| `ControlHostAnalyzer` | RXUISG0022 | Reports WinForms hosts generated without ReactiveUI.Binding 8.4.0's `ObservedProperty` (Info) |
 | `PropertyToReactiveFieldCodeFixProvider` | — | Converts auto-property → `[Reactive]` partial property (C# 13+; C# 14+ with an initializer), else a `[Reactive]` field |
 | `ReactiveAttributeMisuseCodeFixProvider` | — | Fixes misuse of `[Reactive]` attribute |
 

@@ -18,6 +18,7 @@ Rule ID | Category | Severity | Notes
 RXUISG0002 | ReactiveUI.SourceGenerators.CodeFixers.ReactiveCommandAnalyzer | Error | A `[ReactiveCommand]` method takes more than one parameter besides a CancellationToken
 RXUISG0008 | ReactiveUI.SourceGenerators.CodeFixers.ReactiveCommandAnalyzer | Error | A `[ReactiveCommand]` method is async void
 RXUISG0021 | ReactiveUI.SourceGenerators.CodeFixers.ReactiveCommandAnalyzer | Warning | A `[ReactiveCommand]` OutputScheduler or BackgroundScheduler does not resolve to a scheduler
+RXUISG0022 | ReactiveUI.SourceGenerators.CodeFixers.ControlHostAnalyzer | Info | A WinForms host follows its properties without ReactiveUI.Binding 8.4.0's ObservedProperty
 
 
 ## Rules

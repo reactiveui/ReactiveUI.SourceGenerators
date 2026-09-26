@@ -113,11 +113,15 @@ public partial class RoutedControlHostGenerator
             .Append(" : ").Append(info.BaseTypeName).Line(", IReactiveObject")
             .OpenBlock();
 
-        WriteConstructor(writer, info.TargetName, exceptionHandler);
+        WriteConstructor(writer, info.TargetName, exceptionHandler, integration);
         WriteProperties(writer.BlankLine(), integration);
         WriteDispose(writer.BlankLine());
         WriteRouting(writer.BlankLine(), integration);
-        ControlHostWriter.WritePropertyObservable(writer.BlankLine());
+        if (!integration.HasObservedProperty)
+        {
+            ControlHostExtensions.WritePropertyObservable(writer.BlankLine());
+        }
+
         WriteObservableHelpers(writer.BlankLine());
         WriteCombineLatestSubscription(writer.BlankLine());
         WriteDisposableCollection(writer.BlankLine());
@@ -156,7 +160,8 @@ public partial class RoutedControlHostGenerator
     /// <param name="writer">The writer, at the level of the host's members.</param>
     /// <param name="typeName">The host type's name.</param>
     /// <param name="exceptionHandler">The ReactiveUI default exception handler subscriptions report to.</param>
-    private static void WriteConstructor(SourceWriter writer, string typeName, string exceptionHandler) =>
+    /// <param name="integration">The detected ReactiveUI integration, which picks how the host follows its properties.</param>
+    private static void WriteConstructor(SourceWriter writer, string typeName, string exceptionHandler, ReactiveUiIntegration integration) =>
         _ = writer.Lines("""
                 private readonly DisposableCollection _disposables = new();
                 private RoutingState? _router;
@@ -170,9 +175,9 @@ public partial class RoutedControlHostGenerator
             .Line("/// </summary>")
             .Append("public ").Append(typeName).Line("()")
             .OpenBlock()
+            .Line("InitializeComponent();")
+            .Append("_disposables.Add(").AppendPropertyValue(integration, "Control?", "DefaultContent").Line(".Subscribe(new ValueObserver<Control?>(x =>")
             .Lines("""
-                InitializeComponent();
-                _disposables.Add(new PropertyObservable<Control?>(this, nameof(DefaultContent), () => new ReturnObservable<Control?>(DefaultContent)).Subscribe(new ValueObserver<Control?>(x =>
                 {
                     if (x is not null && Controls.Count == 0)
                     {
@@ -190,9 +195,9 @@ public partial class RoutedControlHostGenerator
             .Lines("""
                 _disposables.Add(routeSubscription);
                 routeSubscription.Connect(
-                    new PropertyObservable<IRoutableViewModel?>(this, nameof(Router), () => Router?.CurrentViewModel),
-                    new PropertyObservable<string>(this, nameof(ViewContractObservable), () => ViewContractObservable));
                 """)
+            .Indent().AppendRoutedViewModel(integration).Line(",")
+            .AppendPropertyObservable(integration, "string", "ViewContractObservable").Line(");").Outdent()
             .CloseBlock();
 
     /// <summary>Writes the host's events and properties, and its <c>IReactiveObject</c> implementation.</summary>
@@ -200,7 +205,7 @@ public partial class RoutedControlHostGenerator
     /// <param name="integration">The detected ReactiveUI integration, which names the view locator's interface.</param>
     private static void WriteProperties(SourceWriter writer, ReactiveUiIntegration integration)
     {
-        ControlHostWriter.WritePropertyChangeEvents(writer);
+        ControlHostExtensions.WritePropertyChangeEvents(writer);
         _ = writer.BlankLine().Lines("""
             /// <summary>
             /// Gets or sets the default content.
