@@ -77,6 +77,28 @@ public sealed class ReactiveUiIntegrationTests
                 CanExecute = nameof(CanRun),
                 OutputScheduler = "global::ReactiveUI.RxSchedulers.MainThreadScheduler")]
             private IObservable<int> AlreadyObservable() => Observable.Return(1);
+
+            [ReactiveCommand(RunInBackground = true)]
+            private Task Cancellable(System.Threading.CancellationToken token) => Task.CompletedTask;
+
+            [ReactiveCommand(RunInBackground = true)]
+            private Task<int> Fetch(int value, System.Threading.CancellationToken token) => Task.FromResult(value);
+
+            [ReactiveCommand(RunInBackground = true)]
+            private Task<string> Describe(int value) => Task.FromResult(value.ToString());
+
+            private static global::ReactiveUI.Primitives.Concurrency.ISequencer Worker => global::ReactiveUI.RxSchedulers.TaskpoolScheduler;
+
+            [ReactiveCommand(BackgroundScheduler = "global::ReactiveUI.RxSchedulers.TaskpoolScheduler")]
+            private void Pooled() { }
+
+            [ReactiveCommand(
+                BackgroundScheduler = nameof(Worker),
+                OutputScheduler = "global::ReactiveUI.RxSchedulers.MainThreadScheduler")]
+            private int Compute() => 1;
+
+            [ReactiveCommand(BackgroundScheduler = nameof(Worker), CanExecute = nameof(CanRun))]
+            private void Guarded(int value) { }
         }
         """;
 
@@ -339,7 +361,7 @@ public sealed class ReactiveUiIntegrationTests
         await Assert.That(GetErrors(compilation)).IsEmpty();
     }
 
-    /// <summary>Verifies background command generation for every synchronous delegate shape.</summary>
+    /// <summary>Verifies background command generation for every synchronous and task delegate shape.</summary>
     /// <returns>A task representing the asynchronous assertion work.</returns>
     [Test]
     public async Task ReactiveCommandRunInBackgroundUsesBackgroundFactoryForSynchronousMethods()
@@ -348,8 +370,16 @@ public sealed class ReactiveUiIntegrationTests
         const string scheduler = "global::ReactiveUI.RxSchedulers.MainThreadScheduler";
         const string scheduledCommandFactory = $"ReactiveCommand.CreateRunInBackground(Scheduled, backgroundScheduler: null, outputScheduler: {scheduler})";
         const string formattedCommandFactory = $"ReactiveCommand.CreateRunInBackground<int, string>(Format, CanRun, backgroundScheduler: null, outputScheduler: {scheduler})";
-        const string asyncCommandFactory = $"ReactiveCommand.CreateFromTask(AlreadyAsync, CanRun, outputScheduler: {scheduler})";
+        const string taskRun = "global::System.Threading.Tasks.Task.Run";
+        const string token = "global::System.Threading.CancellationToken";
+        const string asyncCommandFactory = $"ReactiveCommand.CreateFromTask(() => {taskRun}(() => AlreadyAsync()), CanRun, outputScheduler: {scheduler})";
         const string observableCommandFactory = $"ReactiveCommand.CreateFromObservable(AlreadyObservable, CanRun, outputScheduler: {scheduler})";
+        const string cancellableCommandFactory = $"ReactiveCommand.CreateFromTask(({token} ct) => {taskRun}(() => Cancellable(ct), ct))";
+        const string fetchCommandFactory = $"ReactiveCommand.CreateFromTask<int, int>((int p, {token} ct) => {taskRun}(() => Fetch(p, ct), ct))";
+        const string describeCommandFactory = $"ReactiveCommand.CreateFromTask<int, string>((int p) => {taskRun}(() => Describe(p)))";
+        const string pooledCommandFactory = "ReactiveCommand.CreateRunInBackground(Pooled, canExecute: null, backgroundScheduler: global::ReactiveUI.RxSchedulers.TaskpoolScheduler)";
+        const string computeCommandFactory = $"ReactiveCommand.CreateRunInBackground(Compute, backgroundScheduler: Worker, outputScheduler: {scheduler})";
+        const string guardedCommandFactory = "ReactiveCommand.CreateRunInBackground<int>(Guarded, CanRun, backgroundScheduler: Worker)";
 
         await Assert.That(generatedSource.Contains("ReactiveCommand.CreateRunInBackground(Save)", StringComparison.Ordinal)).IsTrue();
         await Assert.That(generatedSource.Contains("ReactiveCommand.CreateRunInBackground(Calculate)", StringComparison.Ordinal)).IsTrue();
@@ -358,8 +388,14 @@ public sealed class ReactiveUiIntegrationTests
         await Assert.That(generatedSource.Contains(scheduledCommandFactory, StringComparison.Ordinal)).IsTrue();
         await Assert.That(generatedSource.Contains(formattedCommandFactory, StringComparison.Ordinal)).IsTrue();
         await Assert.That(generatedSource.Contains("ReactiveCommand.Create(Foreground)", StringComparison.Ordinal)).IsTrue();
-        await Assert.That(generatedSource.Contains(asyncCommandFactory, StringComparison.Ordinal)).IsTrue();
+        await Assert.That(generatedSource).Contains(asyncCommandFactory);
         await Assert.That(generatedSource.Contains(observableCommandFactory, StringComparison.Ordinal)).IsTrue();
+        await Assert.That(generatedSource).Contains(cancellableCommandFactory);
+        await Assert.That(generatedSource).Contains(fetchCommandFactory);
+        await Assert.That(generatedSource).Contains(describeCommandFactory);
+        await Assert.That(generatedSource).Contains(pooledCommandFactory);
+        await Assert.That(generatedSource).Contains(computeCommandFactory);
+        await Assert.That(generatedSource).Contains(guardedCommandFactory);
         await Assert.That(GetErrors(compilation)).IsEmpty();
     }
 

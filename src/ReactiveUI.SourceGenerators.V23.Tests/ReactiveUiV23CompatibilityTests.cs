@@ -20,6 +20,62 @@ public sealed class ReactiveUiV23CompatibilityTests
     /// <summary>The ReactiveUI package version intentionally covered by this project.</summary>
     private const string ExpectedReactiveUiVersion = "23.2.28";
 
+    /// <summary>The consumer source compiled against ReactiveUI 23.</summary>
+    private const string ConsumerSource = """
+        using System;
+        using System.Reactive.Concurrency;
+        using System.Reactive.Linq;
+        using ReactiveUI;
+        using ReactiveUI.SourceGenerators;
+
+        namespace Compatibility;
+
+        public partial class ViewModel : ReactiveObject
+        {
+            private IObservable<bool> CanRefresh => Observable.Return(true);
+
+            private static IScheduler Scheduler => ImmediateScheduler.Instance;
+
+            [Reactive]
+            private string? _name;
+
+            [ReactiveCommand]
+            private void Save()
+            {
+            }
+
+            [ReactiveCommand(RunInBackground = true)]
+            private void Refresh()
+            {
+            }
+
+            [ReactiveCommand(RunInBackground = true, CanExecute = nameof(CanRefresh))]
+            private void ConditionalRefresh()
+            {
+            }
+
+            [ReactiveCommand(RunInBackground = true, OutputScheduler = nameof(Scheduler))]
+            private void ScheduledRefresh()
+            {
+            }
+
+            [ReactiveCommand(
+                RunInBackground = true,
+                CanExecute = nameof(CanRefresh),
+                OutputScheduler = nameof(Scheduler))]
+            private int Recalculate() => 42;
+
+            [ReactiveCommand(BackgroundScheduler = nameof(Scheduler))]
+            private void Pooled()
+            {
+            }
+
+            [ReactiveCommand(RunInBackground = true)]
+            private System.Threading.Tasks.Task<int> FetchAsync(int value, System.Threading.CancellationToken token) =>
+                System.Threading.Tasks.Task.FromResult(value);
+        }
+        """;
+
     /// <summary>ReactiveUI 23 produces compilable legacy command output.</summary>
     /// <returns>A task representing the asynchronous assertion work.</returns>
     [Test]
@@ -52,6 +108,9 @@ public sealed class ReactiveUiV23CompatibilityTests
         await Assert.That(generatedSource.Contains(
             "ReactiveCommand.CreateRunInBackground(Recalculate, CanRefresh, backgroundScheduler: null, outputScheduler: Scheduler)",
             StringComparison.Ordinal)).IsTrue();
+        await Assert.That(generatedSource).Contains("ReactiveCommand.CreateRunInBackground(Pooled, canExecute: null, backgroundScheduler: Scheduler)");
+        await Assert.That(generatedSource).Contains(
+            "ReactiveCommand.CreateFromTask<int, int>((int p, global::System.Threading.CancellationToken ct) => global::System.Threading.Tasks.Task.Run(() => FetchAsync(p, ct), ct))");
         await Assert.That(errors).IsEmpty();
     }
 
@@ -60,55 +119,10 @@ public sealed class ReactiveUiV23CompatibilityTests
     /// <returns>The consumer compilation.</returns>
     private static CSharpCompilation CreateCompilation(Assembly reactiveUiAssembly)
     {
-        const string source = """
-            using System;
-            using System.Reactive.Concurrency;
-            using System.Reactive.Linq;
-            using ReactiveUI;
-            using ReactiveUI.SourceGenerators;
-
-            namespace Compatibility;
-
-            public partial class ViewModel : ReactiveObject
-            {
-                private IObservable<bool> CanRefresh => Observable.Return(true);
-
-                private static IScheduler Scheduler => ImmediateScheduler.Instance;
-
-                [Reactive]
-                private string? _name;
-
-                [ReactiveCommand]
-                private void Save()
-                {
-                }
-
-                [ReactiveCommand(RunInBackground = true)]
-                private void Refresh()
-                {
-                }
-
-                [ReactiveCommand(RunInBackground = true, CanExecute = nameof(CanRefresh))]
-                private void ConditionalRefresh()
-                {
-                }
-
-                [ReactiveCommand(RunInBackground = true, OutputScheduler = nameof(Scheduler))]
-                private void ScheduledRefresh()
-                {
-                }
-
-                [ReactiveCommand(
-                    RunInBackground = true,
-                    CanExecute = nameof(CanRefresh),
-                    OutputScheduler = nameof(Scheduler))]
-                private int Recalculate() => 42;
-            }
-            """;
         var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp13);
         return CSharpCompilation.Create(
             "ReactiveUiV23Consumer",
-            [CSharpSyntaxTree.ParseText(SourceText.From(source), parseOptions)],
+            [CSharpSyntaxTree.ParseText(SourceText.From(ConsumerSource), parseOptions)],
             CreateReferences(reactiveUiAssembly),
             new(OutputKind.DynamicallyLinkedLibrary));
     }

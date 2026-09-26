@@ -17,7 +17,9 @@ namespace ReactiveUI.SourceGenerators.Models;
 /// <param name="CanExecuteObservableName">The optional can-execute member name.</param>
 /// <param name="CanExecuteTypeInfo">The kind of can-execute member.</param>
 /// <param name="OutputScheduler">The optional output scheduler expression.</param>
-/// <param name="RunInBackground">Whether a synchronous method uses the background command factory.</param>
+/// <param name="RunInBackground">Whether the method runs off the calling thread.</param>
+/// <param name="BackgroundScheduler">The optional scheduler a synchronous background command runs on.</param>
+/// <param name="HasCancellationToken">Whether the method's last parameter is a <c>CancellationToken</c>.</param>
 /// <param name="ForwardedPropertyAttributes">Attributes copied to the generated property.</param>
 /// <param name="AccessModifier">The generated property access modifier.</param>
 /// <param name="XmlComment">XML documentation copied to the generated property.</param>
@@ -33,6 +35,8 @@ internal sealed record CommandInfo(
     CanExecuteTypeInfo? CanExecuteTypeInfo,
     string? OutputScheduler,
     bool RunInBackground,
+    string? BackgroundScheduler,
+    bool HasCancellationToken,
     EquatableArray<string> ForwardedPropertyAttributes,
     string AccessModifier,
     string? XmlComment)

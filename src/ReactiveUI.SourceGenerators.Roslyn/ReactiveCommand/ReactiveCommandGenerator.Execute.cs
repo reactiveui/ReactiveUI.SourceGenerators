@@ -51,6 +51,15 @@ public partial class ReactiveCommandGenerator
     /// <summary>The attribute property used to request background execution.</summary>
     private const string RunInBackground = "RunInBackground";
 
+    /// <summary>The attribute property used to specify the background scheduler.</summary>
+    private const string BackgroundScheduler = "BackgroundScheduler";
+
+    /// <summary>The method that starts a task-returning command on the thread pool.</summary>
+    private const string TaskRun = "global::System.Threading.Tasks.Task.Run";
+
+    /// <summary>The cancellation token type a task-returning command method may take last.</summary>
+    private const string CancellationTokenType = "global::System.Threading.CancellationToken";
+
     /// <summary>The access-modifier value for internal generated commands.</summary>
     private const int InternalAccessibility = 2;
 
@@ -106,9 +115,11 @@ public partial class ReactiveCommandGenerator
         token.ThrowIfCancellationRequested();
         TryGetCanExecuteExpressionType(methodSymbol, attributeData, out var canExecuteObservableName, out var canExecuteTypeInfo);
         token.ThrowIfCancellationRequested();
-        TryGetOutputScheduler(methodSymbol, attributeData, context.SemanticModel.Compilation.GetReactiveUiIntegration(), out var outputScheduler);
+        var integration = context.SemanticModel.Compilation.GetReactiveUiIntegration();
+        TryGetScheduler(methodSymbol, attributeData, OutputScheduler, integration, out var outputScheduler);
         token.ThrowIfCancellationRequested();
-        var runInBackground = attributeData.GetNamedArgument<bool>(RunInBackground);
+        TryGetScheduler(methodSymbol, attributeData, BackgroundScheduler, integration, out var backgroundScheduler);
+        var runInBackground = backgroundScheduler is not null || attributeData.GetNamedArgument<bool>(RunInBackground);
         token.ThrowIfCancellationRequested();
         var accessModifier = GetAccessModifier(attributeData);
         token.ThrowIfCancellationRequested();
@@ -140,6 +151,8 @@ public partial class ReactiveCommandGenerator
             canExecuteTypeInfo,
             outputScheduler,
             runInBackground,
+            backgroundScheduler,
+            HasTrailingCancellationToken(methodSymbol),
             forwardedPropertyAttributes,
             accessModifier,
             context.TargetNode.HasDocumentationComment() ? GetXmlDocumentation(methodSymbol, token) : string.Empty);
@@ -191,6 +204,13 @@ public partial class ReactiveCommandGenerator
 
         return builder.ToImmutable();
     }
+
+    /// <summary>Determines whether a command method takes a <c>CancellationToken</c> as its last parameter.</summary>
+    /// <param name="methodSymbol">The command method.</param>
+    /// <returns><see langword="true"/> when the last parameter is a <c>CancellationToken</c>.</returns>
+    private static bool HasTrailingCancellationToken(IMethodSymbol methodSymbol) =>
+        !methodSymbol.Parameters.IsEmpty
+        && methodSymbol.Parameters[methodSymbol.Parameters.Length - 1].Type.ToDisplayString() == "System.Threading.CancellationToken";
 
     /// <summary>Gets the generated command property's access modifier.</summary>
     /// <param name="attributeData">The command attribute.</param>
@@ -307,10 +327,53 @@ public partial class ReactiveCommandGenerator
         WriteFieldName(writer, methodName, stemStart, stemLength);
         _ = writer.Append(" ??= ").Append(integration.Namespace).Append('.').Append(ReactiveCommand).Append(GetCommandFactoryMethod(commandInfo));
         WriteGenericTypeArguments(writer, commandInfo, inputType, outputType);
-        _ = writer.Append('(').Append(methodName);
+        _ = writer.Append('(');
+        WriteExecuteArgument(writer, commandInfo);
         WriteCanExecuteArgument(writer, commandInfo);
-        WriteOutputSchedulerArgument(writer, commandInfo);
+        WriteSchedulerArguments(writer, commandInfo);
         _ = writer.Line("); }");
+    }
+
+    /// <summary>Writes the execute argument: the method group, or for a background task a lambda starting it on the thread pool.</summary>
+    /// <param name="writer">The writer.</param>
+    /// <param name="commandInfo">The command.</param>
+    /// <remarks>
+    /// The lambda's parameters are typed, so it selects the same factory overload the method group would:
+    /// <c>(T p, CancellationToken ct) =&gt; Task.Run(() =&gt; M(p, ct), ct)</c>.
+    /// </remarks>
+    private static void WriteExecuteArgument(SourceWriter writer, CommandInfo commandInfo)
+    {
+        if (!commandInfo.IsTask || !commandInfo.RunInBackground)
+        {
+            _ = writer.Append(commandInfo.MethodName);
+            return;
+        }
+
+        var hasArgument = commandInfo.ArgumentType is not null;
+        var hasToken = commandInfo.HasCancellationToken;
+        _ = writer.Append('(');
+        if (hasArgument)
+        {
+            _ = writer.Append(commandInfo.ArgumentType).Append(" p");
+        }
+
+        if (hasToken)
+        {
+            _ = writer.Append(hasArgument ? ", " : null).Append(CancellationTokenType).Append(" ct");
+        }
+
+        _ = writer.Append(") => ").Append(TaskRun).Append("(() => ").Append(commandInfo.MethodName).Append('(');
+        if (hasArgument)
+        {
+            _ = writer.Append('p');
+        }
+
+        if (hasToken)
+        {
+            _ = writer.Append(hasArgument ? ", " : null).Append("ct");
+        }
+
+        _ = writer.Append(hasToken ? "), ct)" : "))");
     }
 
     /// <summary>Writes the closed command type, <c>{namespace}.ReactiveCommand&lt;{input}, {output}&gt;</c>.</summary>
@@ -343,19 +406,32 @@ public partial class ReactiveCommandGenerator
         _ = writer.Append('>');
     }
 
-    /// <summary>Writes the optional output-scheduler arguments of a command factory call.</summary>
+    /// <summary>Writes the optional background- and output-scheduler arguments of a command factory call.</summary>
     /// <param name="writer">The writer.</param>
     /// <param name="commandInfo">The command.</param>
-    private static void WriteOutputSchedulerArgument(SourceWriter writer, CommandInfo commandInfo)
+    /// <remarks>
+    /// <c>CreateRunInBackground</c> takes the background scheduler before the output scheduler, so a synchronous
+    /// background command names it, as <see langword="null"/> for ReactiveUI's default, whenever either is set.
+    /// ReactiveUI 24 has no overload taking only the execute delegate and a background scheduler, so that call also
+    /// names a <see langword="null"/> can-execute, which ReactiveUI 23's all-optional overload accepts too.
+    /// </remarks>
+    private static void WriteSchedulerArguments(SourceWriter writer, CommandInfo commandInfo)
     {
-        if (string.IsNullOrEmpty(commandInfo.OutputScheduler))
+        var hasOutputScheduler = !string.IsNullOrEmpty(commandInfo.OutputScheduler);
+        if (commandInfo.RunInBackground && !commandInfo.IsTask && !commandInfo.IsObservable
+            && (hasOutputScheduler || !string.IsNullOrEmpty(commandInfo.BackgroundScheduler)))
         {
-            return;
+            if (!hasOutputScheduler && string.IsNullOrEmpty(commandInfo.CanExecuteObservableName))
+            {
+                _ = writer.Append(", canExecute: null");
+            }
+
+            _ = writer.Append(", backgroundScheduler: ").Append(commandInfo.BackgroundScheduler ?? "null");
         }
 
-        if (commandInfo.RunInBackground && !commandInfo.IsTask && !commandInfo.IsObservable)
+        if (!hasOutputScheduler)
         {
-            _ = writer.Append(", backgroundScheduler: null");
+            return;
         }
 
         _ = writer.Append(", outputScheduler: ").Append(commandInfo.OutputScheduler);
@@ -456,36 +532,38 @@ public partial class ReactiveCommandGenerator
         canExecuteTypeInfo = null;
     }
 
-    /// <summary>Gets the configured output scheduler, when its member is valid.</summary>
+    /// <summary>Gets a configured scheduler, when its member is valid.</summary>
     /// <param name="methodSymbol">The attributed command method.</param>
     /// <param name="attributeData">The command attribute.</param>
+    /// <param name="argumentName">The attribute property naming the scheduler.</param>
     /// <param name="integration">The selected ReactiveUI API surface.</param>
-    /// <param name="outputScheduler">The scheduler expression, when valid.</param>
-    private static void TryGetOutputScheduler(
+    /// <param name="schedulerExpression">The scheduler expression, when valid.</param>
+    private static void TryGetScheduler(
         IMethodSymbol methodSymbol,
         AttributeData attributeData,
+        string argumentName,
         ReactiveUiIntegration integration,
-        out string? outputScheduler)
+        out string? schedulerExpression)
     {
-        if (!attributeData.TryGetNamedArgument(OutputScheduler, out string? scheduler) || scheduler is null)
+        if (!attributeData.TryGetNamedArgument(argumentName, out string? scheduler) || scheduler is null)
         {
-            outputScheduler = null;
+            schedulerExpression = null;
             return;
         }
 
         if (IsReactiveUiScheduler(scheduler))
         {
-            outputScheduler = scheduler;
+            schedulerExpression = scheduler;
             return;
         }
 
-        if (!TryGetSingleMember(methodSymbol.ContainingType!.GetAllMembers(scheduler), out var outputSchedulerSymbol))
+        if (!TryGetSingleMember(methodSymbol.ContainingType!.GetAllMembers(scheduler), out var schedulerSymbol))
         {
-            outputScheduler = null;
+            schedulerExpression = null;
             return;
         }
 
-        _ = TryGetOutputSchedulerFromSymbol(outputSchedulerSymbol, integration.Api, out outputScheduler);
+        _ = TryGetSchedulerFromSymbol(schedulerSymbol, integration.Api, out schedulerExpression);
     }
 
     /// <summary>Determines whether a scheduler expression names a built-in ReactiveUI scheduler.</summary>
@@ -518,38 +596,38 @@ public partial class ReactiveCommandGenerator
     }
 
     /// <summary>Validates a candidate scheduler symbol and gets its expression.</summary>
-    /// <param name="outputSchedulerSymbol">The candidate scheduler symbol.</param>
+    /// <param name="schedulerSymbol">The candidate scheduler symbol.</param>
     /// <param name="api">The selected ReactiveUI API.</param>
-    /// <param name="outputScheduler">The scheduler expression, when valid.</param>
+    /// <param name="schedulerExpression">The scheduler expression, when valid.</param>
     /// <returns><see langword="true"/> when the symbol is a supported scheduler.</returns>
-    private static bool TryGetOutputSchedulerFromSymbol(
-        ISymbol outputSchedulerSymbol,
+    private static bool TryGetSchedulerFromSymbol(
+        ISymbol schedulerSymbol,
         ReactiveUiApi api,
-        [NotNullWhen(true)] out string? outputScheduler)
+        [NotNullWhen(true)] out string? schedulerExpression)
     {
-        switch (outputSchedulerSymbol)
+        switch (schedulerSymbol)
         {
             case IFieldSymbol fieldSymbol when fieldSymbol.Type.IsSchedulerType(api):
             {
-                outputScheduler = fieldSymbol.Name;
+                schedulerExpression = fieldSymbol.Name;
                 return true;
             }
 
             case IPropertySymbol { GetMethod: not null } propertySymbol when propertySymbol.Type.IsSchedulerType(api):
             {
-                outputScheduler = propertySymbol.Name;
+                schedulerExpression = propertySymbol.Name;
                 return true;
             }
 
             case IMethodSymbol methodSymbol when methodSymbol.ReturnType.IsSchedulerType(api):
             {
-                outputScheduler = $"{methodSymbol.Name}()";
+                schedulerExpression = $"{methodSymbol.Name}()";
                 return true;
             }
 
             default:
             {
-                outputScheduler = null;
+                schedulerExpression = null;
                 return false;
             }
         }

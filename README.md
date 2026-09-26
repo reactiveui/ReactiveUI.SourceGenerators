@@ -49,7 +49,8 @@ ReactiveUI Source Generators automatically generate ReactiveUI objects to stream
 - `[Reactive(UseRequired = true)]` With field and access modifiers. This will generate a required property, (Not Required for partial properties, use required keyword for property declaration).
 - `[Reactive(nameof(RaiseProperty1), nameof(RaiseProperty2))]` With field and property changed notification for additional properties.
 - `[ReactiveCommand]`
-- `[ReactiveCommand(RunInBackground = true)]` runs a synchronous command on ReactiveUI's background scheduler
+- `[ReactiveCommand(RunInBackground = true)]` runs a synchronous command on ReactiveUI's background scheduler, and starts a task-returning command with `Task.Run`
+- `[ReactiveCommand(BackgroundScheduler = nameof(_scheduler))]` runs a synchronous command on the given scheduler
 - `[ReactiveCommand(CanExecute = nameof(IObservableBoolName))]` with CanExecute
 - `[ReactiveCommand(OutputScheduler = "RxSchedulers.MainThreadScheduler")]` using a ReactiveUI Scheduler
 - `[ReactiveCommand(OutputScheduler = nameof(_isheduler))]` using a Scheduler defined in the class
@@ -334,7 +335,9 @@ public partial class MyReactiveClass
 
 ### Usage ReactiveCommand on the background scheduler
 
-Use `RunInBackground` for synchronous command methods that should be created with `ReactiveCommand.CreateRunInBackground`. Task- and observable-returning methods continue to use their asynchronous ReactiveCommand factories.
+Use `RunInBackground` to run a command's method off the calling thread. A synchronous method's command is created with `ReactiveCommand.CreateRunInBackground`. A task-returning method is started with `Task.Run`, so the code before its first `await` no longer runs on the calling thread; the command parameter and `CancellationToken` are passed through. Observable-returning methods are unaffected.
+
+`BackgroundScheduler` chooses the scheduler a synchronous method runs on, from a scheduler member of the class or a built-in ReactiveUI scheduler, and implies `RunInBackground`. A task-returning method always starts on the thread pool.
 
 ```csharp
 using ReactiveUI.SourceGenerators;
@@ -343,6 +346,12 @@ public partial class MyReactiveClass
 {
     [ReactiveCommand(RunInBackground = true)]
     private void ExecuteExpensiveWork() { }
+
+    [ReactiveCommand(RunInBackground = true)]
+    private async Task<int> LoadAsync(int id, CancellationToken token) => await _repository.LoadAsync(id, token);
+
+    [ReactiveCommand(BackgroundScheduler = nameof(_workScheduler))]
+    private void Crunch() { }
 }
 ```
 
