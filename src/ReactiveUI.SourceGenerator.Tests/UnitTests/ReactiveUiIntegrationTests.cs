@@ -522,6 +522,54 @@ public sealed class ReactiveUiIntegrationTests
         await Assert.That(GetErrors(compilation)).IsEmpty();
     }
 
+    /// <summary>
+    /// Verifies that a <c>[BindableDerivedList]</c> property compiles in a project that references neither DynamicData
+    /// nor System.Reactive, since the generated property only exposes the field.
+    /// </summary>
+    /// <returns>A task representing the asynchronous assertion work.</returns>
+    [Test]
+    public async Task BindableDerivedListCompilesWithoutDynamicData()
+    {
+        const string source = """
+            using System.Collections.ObjectModel;
+            using ReactiveUI;
+            using ReactiveUI.SourceGenerators;
+
+            namespace Consumer;
+
+            public partial class ViewModel : ReactiveObject
+            {
+                [BindableDerivedList]
+                private ReadOnlyObservableCollection<int>? _items;
+            }
+            """;
+        var references = TestCompilationReferences.CreateForAssemblies(
+            typeof(object).Assembly,
+            typeof(System.ComponentModel.INotifyPropertyChanged).Assembly,
+            typeof(System.Collections.ObjectModel.ReadOnlyObservableCollection<>).Assembly,
+            typeof(ReactiveObject).Assembly,
+            typeof(BindableDerivedListAttribute).Assembly);
+        var compilation = CSharpCompilation.Create(
+            "Consumer",
+            [CSharpSyntaxTree.ParseText(source, CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp13))],
+            references,
+            new(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable));
+        _ = CSharpGeneratorDriver
+            .Create(new BindableDerivedListGenerator())
+            .WithUpdatedParseOptions((CSharpParseOptions)compilation.SyntaxTrees.First().Options)
+            .RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
+        var referenceNames = new List<string>();
+        foreach (var reference in references)
+        {
+            referenceNames.Add(Path.GetFileNameWithoutExtension(reference.Display ?? string.Empty));
+        }
+
+        await Assert.That(referenceNames).DoesNotContain("DynamicData");
+        await Assert.That(referenceNames).DoesNotContain("System.Reactive");
+        await Assert.That(outputCompilation.GetTypeByMetadataName("Consumer.ViewModel")!.GetMembers("Items")).IsNotEmpty();
+        await Assert.That(GetErrors(outputCompilation)).IsEmpty();
+    }
+
     /// <summary>Exercises package detection when the command API is absent, referenced, or exposes primitive void.</summary>
     /// <returns>A task representing the asynchronous assertion work.</returns>
     [Test]
