@@ -13,7 +13,7 @@
     <IsPackable>false</IsPackable>
 
     <PackageDescription>A MVVM framework that integrates with the Reactive Extensions for .NET to create elegant, testable User Interfaces that run on any mobile or desktop platform. This is the Source Generators package for ReactiveUI</PackageDescription>
-    <AssemblyName>ReactiveUI.SourceGenerators</AssemblyName>
+    <AssemblyName>ReactiveUI.SourceGenerators.Roslyn</AssemblyName>
     <!-- Roslyn 4.8 baseline band (VS 2022 17.8, .NET 8.0.1xx SDK). No ROSYLN_412 — the
          4.12+ API surface is compiled out, so this band compiles against the 4.8 API only. -->
   </PropertyGroup>

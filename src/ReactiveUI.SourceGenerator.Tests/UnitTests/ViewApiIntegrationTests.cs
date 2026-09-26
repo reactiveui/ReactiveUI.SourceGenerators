@@ -179,7 +179,8 @@ public sealed class ViewApiIntegrationTests
                 typeof(object).Assembly,
                 typeof(Component).Assembly,
                 typeof(System.ComponentModel.CategoryAttribute).Assembly,
-                typeof(BindableAttribute).Assembly),
+                typeof(BindableAttribute).Assembly,
+                typeof(ViewModelControlHostAttribute).Assembly),
             new(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable));
     }
 }

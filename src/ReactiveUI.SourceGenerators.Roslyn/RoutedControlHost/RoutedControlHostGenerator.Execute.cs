@@ -105,13 +105,9 @@ public partial class RoutedControlHostGenerator
         WriteFileHeader(writer, integration);
 
         // The namespace is written as-is, even when empty, to keep the historical output.
-        _ = writer.Append("namespace ").Line(info.TargetNamespace).OpenBlock();
-        foreach (var attribute in AttributeDefinitions.ExcludeFromCodeCoverage)
-        {
-            _ = writer.Line(attribute);
-        }
-
-        _ = writer.Line("[DefaultProperty(\"ViewModel\")]")
+        _ = writer.Append("namespace ").Line(info.TargetNamespace).OpenBlock()
+            .Line(AttributeDefinitions.ExcludeFromCodeCoverage)
+            .Line("[DefaultProperty(\"ViewModel\")]")
             .Line(GeneratedCodeAttribute)
             .Append(info.TargetVisibility).Append(" partial ").Append(info.TargetType).Append(' ').Append(info.TargetName)
             .Append(" : ").Append(info.BaseTypeName).Line(", IReactiveObject")

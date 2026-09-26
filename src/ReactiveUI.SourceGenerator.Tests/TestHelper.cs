@@ -17,24 +17,6 @@ namespace ReactiveUI.SourceGenerator.Tests;
 public sealed partial class TestHelper<T> : IDisposable
         where T : IIncrementalGenerator, new()
 {
-    /// <summary>The Reactive attribute definition property name.</summary>
-    private const string ReactiveAttributeName = "ReactiveAttribute";
-
-    /// <summary>The generated hint name for the Reactive attribute.</summary>
-    private const string ReactiveAttributeHintName = "ReactiveAttribute.g.cs";
-
-    /// <summary>The fully qualified type name containing attribute definitions.</summary>
-    private const string AttributeDefinitionsTypeName = "ReactiveUI.SourceGenerators.Helpers.AttributeDefinitions";
-
-    /// <summary>
-    /// Cache support references per generator type T.  The support assembly compiles attribute
-    /// definitions that are NOT injected by T via RegisterPostInitializationOutput — an expensive
-    /// Roslyn compilation + Emit step that produces an identical result for every test in the same
-    /// generator class.  Compute it once and reuse it for all subsequent tests.
-    /// </summary>
-    private static readonly Lazy<ImmutableArray<MetadataReference>> supportReferences =
-        new(CreateSupportReferences, LazyThreadSafetyMode.ExecutionAndPublication);
-
     /// <summary>The concrete generator type name used for snapshots and support assemblies.</summary>
     private static readonly string generatorTypeName = new T().GetType().Name;
 
@@ -138,6 +120,7 @@ public sealed partial class TestHelper<T> : IDisposable
     /// <param name="code">The test code to compile.</param>
     /// <param name="parseOptions">The language version settings.</param>
     /// <returns>The prepared Roslyn compilation.</returns>
+    /// <remarks>The attributes come from the ReactiveUI.SourceGenerators reference, as they do for a consumer.</remarks>
     private static CSharpCompilation CreateTestCompilation(string code, CSharpParseOptions parseOptions)
     {
         var syntaxTrees = new List<SyntaxTree>
@@ -146,32 +129,8 @@ public sealed partial class TestHelper<T> : IDisposable
             CSharpSyntaxTree.ParseText(code, parseOptions),
         };
 
-        AddGeneratorSpecificSyntaxTrees(syntaxTrees, parseOptions);
         AddWindowsDesktopStubsWhenNeeded(syntaxTrees, parseOptions);
-        return CSharpCompilation.Create("TestProject", syntaxTrees, CreateAssemblyReferences(), new(OutputKind.DynamicallyLinkedLibrary, deterministic: true));
-    }
-
-    /// <summary>Adds source trees required by the active generator.</summary>
-    /// <param name="syntaxTrees">The source-tree collection to extend.</param>
-    /// <param name="parseOptions">The language version settings.</param>
-    private static void AddGeneratorSpecificSyntaxTrees(List<SyntaxTree> syntaxTrees, CSharpParseOptions parseOptions)
-    {
-        if (typeof(T) != typeof(ReactiveGenerator))
-        {
-            AddSyntaxTree(syntaxTrees, GetAttributeDefinitionsMethodResult("GetAccessModifierEnum"), parseOptions, "AccessModifierEnum.g.cs");
-        }
-
-        if (typeof(T) == typeof(ReactiveObjectGenerator))
-        {
-            AddSyntaxTree(syntaxTrees, GetAttributeDefinitionsPropertyResult(ReactiveAttributeName), parseOptions, ReactiveAttributeHintName);
-        }
-
-        if (typeof(T) != typeof(BindableDerivedListGenerator) && typeof(T) != typeof(ReactiveCollectionGenerator))
-        {
-            return;
-        }
-
-        AddSyntaxTree(syntaxTrees, GetAttributeDefinitionsPropertyResult(ReactiveAttributeName), parseOptions, ReactiveAttributeHintName);
+        return CSharpCompilation.Create("TestProject", syntaxTrees, TestCompilationReferences.CreateDefault(), new(OutputKind.DynamicallyLinkedLibrary, deterministic: true));
     }
 
     /// <summary>Adds Windows desktop stubs when the operating system does not provide them.</summary>
@@ -226,161 +185,6 @@ public sealed partial class TestHelper<T> : IDisposable
         }
 
         throw new InvalidOperationException($"{failureMessage}{Environment.NewLine}{CreateDiagnosticMessage(diagnostics)}");
-    }
-
-    /// <summary>Returns attribute and enum source strings not injected by generator <typeparamref name="T"/>.</summary>
-    /// <returns>The source strings required by the support assembly.</returns>
-    private static List<string> GetGeneratedSupportSources()
-    {
-        var supportSources = new List<string> { GetAttributeDefinitionsMethodResult("GetAccessModifierEnum") };
-
-        AddRequiredAttributeDefinitions(supportSources);
-        return supportSources;
-    }
-
-    /// <summary>Adds attribute definitions required before the common definitions.</summary>
-    /// <param name="supportSources">The support-source collection to extend.</param>
-    private static void AddRequiredAttributeDefinitions(List<string> supportSources)
-    {
-        // Yield each attribute definition only if generator T does NOT inject it.
-        if (typeof(T) != typeof(ReactiveCommandGenerator))
-        {
-            supportSources.Add(GetAttributeDefinitionsPropertyResult("ReactiveCommandAttribute"));
-        }
-
-        AddReactiveAttributeDefinitionIfNeeded(supportSources);
-
-        AddRemainingAttributeDefinitions(supportSources);
-    }
-
-    /// <summary>Adds the Reactive attribute definition when the active generator does not provide it.</summary>
-    /// <param name="supportSources">The support-source collection to extend.</param>
-    private static void AddReactiveAttributeDefinitionIfNeeded(List<string> supportSources)
-    {
-        if (typeof(T) == typeof(ReactiveGenerator) || typeof(T) == typeof(ReactiveObjectGenerator)
-            || typeof(T) == typeof(BindableDerivedListGenerator) || typeof(T) == typeof(ReactiveCollectionGenerator))
-        {
-            return;
-        }
-
-        supportSources.Add(GetAttributeDefinitionsPropertyResult(ReactiveAttributeName));
-    }
-
-    /// <summary>Adds the remaining conditional attribute definitions.</summary>
-    /// <param name="supportSources">The support-source collection to extend.</param>
-    private static void AddRemainingAttributeDefinitions(List<string> supportSources)
-    {
-        if (typeof(T) != typeof(BindableDerivedListGenerator))
-        {
-            supportSources.Add(GetAttributeDefinitionsPropertyResult("BindableDerivedListAttribute"));
-        }
-
-        if (typeof(T) != typeof(ReactiveCollectionGenerator))
-        {
-            supportSources.Add(GetAttributeDefinitionsPropertyResult("ReactiveCollectionAttribute"));
-        }
-
-        if (typeof(T) != typeof(ReactiveObjectGenerator))
-        {
-            supportSources.Add(GetAttributeDefinitionsPropertyResult("ReactiveObjectAttribute"));
-        }
-
-        if (typeof(T) != typeof(RoutedControlHostGenerator))
-        {
-            supportSources.Add(GetAttributeDefinitionsMethodResult("GetRoutedControlHostAttribute"));
-        }
-
-        if (typeof(T) == typeof(ViewModelControlHostGenerator))
-        {
-            return;
-        }
-
-        supportSources.Add(GetAttributeDefinitionsPropertyResult("ViewModelControlHostAttribute"));
-    }
-
-    /// <summary>Creates metadata references for the support source assembly.</summary>
-    /// <returns>The references that provide support attributes and enums.</returns>
-    private static ImmutableArray<MetadataReference> CreateSupportReferences()
-    {
-        var supportSources = GetGeneratedSupportSources();
-
-        if (supportSources.Count == 0)
-        {
-            return [];
-        }
-
-        var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp13);
-        var supportCompilation = CSharpCompilation.Create(
-            $"{generatorTypeName}.Support",
-            CreateSupportSyntaxTrees(supportSources, parseOptions),
-            TestCompilationReferences.CreateDefault(),
-            new(OutputKind.DynamicallyLinkedLibrary, deterministic: true));
-
-        using var stream = new MemoryStream();
-        var emitResult = supportCompilation.Emit(stream);
-
-        if (!emitResult.Success)
-        {
-            var diagnostics = CreateDiagnosticMessage(emitResult.Diagnostics);
-            throw new InvalidOperationException($"Support assembly compilation failed for {generatorTypeName}.{Environment.NewLine}{diagnostics}");
-        }
-
-        return [MetadataReference.CreateFromImage(stream.ToArray())];
-    }
-
-    /// <summary>Creates the metadata references used by an in-memory test compilation.</summary>
-    /// <returns>The default and generator support metadata references.</returns>
-    private static HashSet<MetadataReference> CreateAssemblyReferences()
-    {
-        var references = new HashSet<MetadataReference>(TestCompilationReferences.CreateDefault());
-        references.UnionWith(supportReferences.Value);
-        return references;
-    }
-
-    /// <summary>Creates syntax trees for the supplied support source strings.</summary>
-    /// <param name="supportSources">The support source strings.</param>
-    /// <param name="parseOptions">The language version settings.</param>
-    /// <returns>The parsed support syntax trees.</returns>
-    private static List<SyntaxTree> CreateSupportSyntaxTrees(List<string> supportSources, CSharpParseOptions parseOptions)
-    {
-        var syntaxTrees = new List<SyntaxTree>(supportSources.Count);
-        for (var index = 0; index < supportSources.Count; index++)
-        {
-            syntaxTrees.Add(CSharpSyntaxTree.ParseText(supportSources[index], parseOptions, path: $"Support{index}.g.cs"));
-        }
-
-        return syntaxTrees;
-    }
-
-    /// <summary>Gets a public attribute-definition method result.</summary>
-    /// <param name="methodName">The public static method name.</param>
-    /// <returns>The generated source returned by the method.</returns>
-    private static string GetAttributeDefinitionsMethodResult(string methodName)
-    {
-        var attributeDefinitionsType = typeof(ReactiveGenerator).Assembly.GetType(AttributeDefinitionsTypeName, throwOnError: false, ignoreCase: false)
-            ?? throw new InvalidOperationException("Could not locate AttributeDefinitions type.");
-
-        var method = attributeDefinitionsType.GetMethod(methodName)
-            ?? throw new InvalidOperationException($"Could not locate AttributeDefinitions.{methodName}.");
-
-        var result = method.Invoke(null, null);
-        return (string?)result
-            ?? throw new InvalidOperationException($"AttributeDefinitions.{methodName} returned null.");
-    }
-
-    /// <summary>Gets a public attribute-definition property result.</summary>
-    /// <param name="propertyName">The public static property name.</param>
-    /// <returns>The generated source returned by the property.</returns>
-    private static string GetAttributeDefinitionsPropertyResult(string propertyName)
-    {
-        var attributeDefinitionsType = typeof(ReactiveGenerator).Assembly.GetType(AttributeDefinitionsTypeName, throwOnError: false, ignoreCase: false)
-            ?? throw new InvalidOperationException("Could not locate AttributeDefinitions type.");
-
-        var property = attributeDefinitionsType.GetProperty(propertyName)
-            ?? throw new InvalidOperationException($"Could not locate AttributeDefinitions.{propertyName}.");
-
-        return (string?)property.GetValue(null)
-            ?? throw new InvalidOperationException($"AttributeDefinitions.{propertyName} returned null.");
     }
 
     /// <summary>Determines whether a diagnostic is an accepted generated-output diagnostic.</summary>

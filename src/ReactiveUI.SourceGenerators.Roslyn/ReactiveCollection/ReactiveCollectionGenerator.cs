@@ -4,8 +4,6 @@
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
-using ReactiveUI.SourceGenerators.CodeGeneration;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 
@@ -16,16 +14,7 @@ namespace ReactiveUI.SourceGenerators;
 public sealed partial class ReactiveCollectionGenerator : IIncrementalGenerator
 {
     /// <inheritdoc/>
-    public void Initialize(IncrementalGeneratorInitializationContext context)
-    {
-        context.RegisterPostInitializationOutput(static ctx =>
-        {
-            // Add the ReactiveAttribute to the compilation
-            ctx.AddSource($"{AttributeDefinitions.ReactiveCollectionAttributeType}.g.cs", SourceText.From(AttributeDefinitions.ReactiveCollectionAttribute, SourceWriterExtensions.Utf8WithoutBom));
-        });
-
-        RunReactiveCollectionFromField(in context);
-    }
+    public void Initialize(IncrementalGeneratorInitializationContext context) => RunReactiveCollectionFromField(in context);
 
     /// <summary>Registers the pipeline that generates properties from reactive collection fields.</summary>
     /// <param name="context">The incremental generator initialization context.</param>

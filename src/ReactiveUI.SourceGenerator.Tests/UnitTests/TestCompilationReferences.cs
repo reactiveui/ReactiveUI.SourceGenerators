@@ -154,7 +154,8 @@ internal static class TestCompilationReferences
             typeof(ReactiveObject).Assembly, // ReactiveUI
             typeof(System.Reactive.Unit).Assembly, // System.Reactive test inputs
             typeof(DynamicData.SourceList<>).Assembly, // Bindable derived list test inputs
-            typeof(ReactiveGenerator).Assembly, // ReactiveUI.SourceGenerators
+            typeof(ReactiveGenerator).Assembly, // ReactiveUI.SourceGenerators.Roslyn
+            typeof(ReactiveAttribute).Assembly, // ReactiveUI.SourceGenerators, the attributes
             typeof(PropertyToReactiveFieldAnalyzer).Assembly, // analyzer assembly
             typeof(Splat.Locator).Assembly, // Splat
         };

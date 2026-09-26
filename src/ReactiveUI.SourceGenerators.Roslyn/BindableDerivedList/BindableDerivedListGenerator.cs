@@ -4,8 +4,6 @@
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
-using ReactiveUI.SourceGenerators.CodeGeneration;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 
@@ -18,12 +16,6 @@ public sealed partial class BindableDerivedListGenerator : IIncrementalGenerator
     /// <inheritdoc/>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        context.RegisterPostInitializationOutput(static ctx =>
-        {
-            // Add the BindableDerivedListAttribute to the compilation
-            ctx.AddSource($"{AttributeDefinitions.BindableDerivedListAttributeType}.g.cs", SourceText.From(AttributeDefinitions.BindableDerivedListAttribute, SourceWriterExtensions.Utf8WithoutBom));
-        });
-
         // Gather info for all annotated variable with at least one attribute.
         var results =
             context.SyntaxProvider

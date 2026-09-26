@@ -5,8 +5,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
-using ReactiveUI.SourceGenerators.CodeGeneration;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Models;
@@ -20,9 +18,6 @@ public sealed partial class ReactiveObjectGenerator : IIncrementalGenerator
     /// <inheritdoc/>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        context.RegisterPostInitializationOutput(static ctx =>
-            ctx.AddSource($"{AttributeDefinitions.ReactiveObjectAttributeType}.g.cs", SourceText.From(AttributeDefinitions.ReactiveObjectAttribute, SourceWriterExtensions.Utf8WithoutBom)));
-
         // Gather info for all annotated IReactiveObject Classes, one output per type.
         var types =
             context.SyntaxProvider

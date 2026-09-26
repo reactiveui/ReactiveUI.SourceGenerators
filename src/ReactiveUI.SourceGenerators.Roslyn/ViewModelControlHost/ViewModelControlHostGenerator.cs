@@ -4,8 +4,6 @@
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
-using ReactiveUI.SourceGenerators.CodeGeneration;
 using ReactiveUI.SourceGenerators.Extensions;
 using ReactiveUI.SourceGenerators.Helpers;
 
@@ -18,11 +16,6 @@ public sealed partial class ViewModelControlHostGenerator : IIncrementalGenerato
     /// <inheritdoc/>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        context.RegisterPostInitializationOutput(static ctx =>
-            ctx.AddSource(
-                $"{AttributeDefinitions.ViewModelControlHostAttributeType}.g.cs",
-                SourceText.From(AttributeDefinitions.ViewModelControlHostAttribute, SourceWriterExtensions.Utf8WithoutBom)));
-
         // One model per annotated class, each written by its own output so it caches on its own.
         var hosts =
             context.SyntaxProvider
