@@ -12,12 +12,46 @@ internal static class DiagnosticDescriptors
     /// <summary>The property to field rule.</summary>
     internal static readonly DiagnosticDescriptor PropertyToReactiveFieldRule = new(
         id: "RXUISG0016",
-        title: "Property To Reactive Field, change to `[Reactive]` private type _fieldName;",
+        title: "Property can be a `[Reactive]` property",
         messageFormat: "Replace the property with a INPC Reactive Property for ReactiveUI",
         category: typeof(PropertyToReactiveFieldAnalyzer).FullName,
         defaultSeverity: DiagnosticSeverity.Info,
         isEnabledByDefault: true,
         description: "Used to create a Read Write INPC Reactive Property for ReactiveUI, annotated with `[Reactive]`.",
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
+
+    /// <summary>A <c>[ReactiveCommand]</c> method takes more parameters than a command can pass it.</summary>
+    internal static readonly DiagnosticDescriptor InvalidReactiveCommandMethodSignatureRule = new(
+        id: "RXUISG0002",
+        title: "Invalid [ReactiveCommand] method signature",
+        messageFormat: "`{0}` takes more than one parameter besides a CancellationToken, so no command is generated for it",
+        category: typeof(ReactiveCommandAnalyzer).FullName,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "A command passes at most one parameter to its method; a task-returning method may also take a CancellationToken.",
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
+
+    /// <summary>A <c>[ReactiveCommand]</c> method is <c>async void</c>.</summary>
+    internal static readonly DiagnosticDescriptor AsyncVoidReactiveCommandMethodRule = new(
+        id: "RXUISG0008",
+        title: "[ReactiveCommand] method is async void",
+        messageFormat: "`{0}` is async void, so the command cannot await it or observe its exceptions; return Task instead",
+        category: typeof(ReactiveCommandAnalyzer).FullName,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "A command generated from an async void method completes before the method does, and its exceptions escape the command.",
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
+
+    /// <summary>A <c>[ReactiveCommand]</c> scheduler name does not resolve to a scheduler.</summary>
+    internal static readonly DiagnosticDescriptor UnresolvedReactiveCommandSchedulerRule = new(
+        id: "RXUISG0021",
+        title: "[ReactiveCommand] scheduler does not resolve",
+        messageFormat: "`{0}` = \"{1}\" does not name a scheduler the command can use, so the command is generated without it",
+        category: typeof(ReactiveCommandAnalyzer).FullName,
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "A scheduler is a field, property or parameterless method of the command's type, or a static one elsewhere "
+            + "such as RxSchedulers.MainThreadScheduler, whose type is the scheduler type ReactiveUI's commands take.",
         helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>The `[Reactive]` attribute was used on a property, but required `partial` modifiers are missing.</summary>

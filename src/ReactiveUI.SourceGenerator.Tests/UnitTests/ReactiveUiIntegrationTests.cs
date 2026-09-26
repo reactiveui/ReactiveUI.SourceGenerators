@@ -177,6 +177,15 @@ public sealed class ReactiveUiIntegrationTests
             [ReactiveCommand(OutputScheduler = null)]
             private void NullScheduler() { }
 
+            [ReactiveCommand(OutputScheduler = "RxSchedulers.MainThreadScheduler")]
+            private void ShortScheduler() { }
+
+            [ReactiveCommand(BackgroundScheduler = "RxSchedulers.TaskpoolScheduler")]
+            private void ShortBackground() { }
+
+            [ReactiveCommand(OutputScheduler = "MethodScheduler()")]
+            private void CalledScheduler() { }
+
             [ReactiveCommand(AccessModifier = PropertyAccessModifier.InternalProtected)]
             private void ProtectedInternal() { }
 
@@ -410,10 +419,14 @@ public sealed class ReactiveUiIntegrationTests
         await Assert.That(generatedSource.Contains("ReactiveCommand.Create(FieldCanExecute, _fieldCanRun)", StringComparison.Ordinal)).IsTrue();
         await Assert.That(generatedSource.Contains("ReactiveCommand.Create(PropertyCanExecute, PropertyCanRun)", StringComparison.Ordinal)).IsTrue();
         await Assert.That(generatedSource.Contains("ReactiveCommand.Create(MethodCanExecute, MethodCanRun())", StringComparison.Ordinal)).IsTrue();
-        await Assert.That(generatedSource.Contains("outputScheduler: _fieldSequencer", StringComparison.Ordinal)).IsTrue();
-        await Assert.That(generatedSource.Contains("outputScheduler: PropertySequencer", StringComparison.Ordinal)).IsTrue();
-        await Assert.That(generatedSource.Contains("outputScheduler: MethodScheduler()", StringComparison.Ordinal)).IsTrue();
-        await Assert.That(generatedSource.Contains("outputScheduler: global::ReactiveUI.RxSchedulers.MainThreadScheduler", StringComparison.Ordinal)).IsTrue();
+        await Assert.That(generatedSource).Contains("outputScheduler: _fieldSequencer");
+        await Assert.That(generatedSource).Contains("outputScheduler: PropertySequencer");
+        await Assert.That(generatedSource).Contains("outputScheduler: MethodScheduler()");
+        await Assert.That(generatedSource).Contains("outputScheduler: global::ReactiveUI.RxSchedulers.MainThreadScheduler");
+        await Assert.That(generatedSource).Contains("Create(ShortScheduler, outputScheduler: global::ReactiveUI.RxSchedulers.MainThreadScheduler)");
+        await Assert.That(generatedSource).Contains(
+            "CreateRunInBackground(ShortBackground, canExecute: null, backgroundScheduler: global::ReactiveUI.RxSchedulers.TaskpoolScheduler)");
+        await Assert.That(generatedSource).Contains("Create(CalledScheduler, outputScheduler: MethodScheduler())");
         await Assert.That(generatedSource.Contains("protected internal global::ReactiveUI.ReactiveCommand", StringComparison.Ordinal)).IsTrue();
         await Assert.That(generatedSource.Contains("private protected global::ReactiveUI.ReactiveCommand", StringComparison.Ordinal)).IsTrue();
         await Assert.That(generatedSource.Contains("SaveCommand", StringComparison.Ordinal)).IsTrue();

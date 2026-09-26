@@ -11,7 +11,7 @@ namespace TestNs
         private global::ReactiveUI.ReactiveCommand<global::ReactiveUI.Primitives.RxVoid, int>? _test1Command;
 
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        public global::ReactiveUI.ReactiveCommand<global::ReactiveUI.Primitives.RxVoid, int> Test1Command { get => _test1Command ??= global::ReactiveUI.ReactiveCommand.Create(Test1); }
+        public global::ReactiveUI.ReactiveCommand<global::ReactiveUI.Primitives.RxVoid, int> Test1Command { get => _test1Command ??= global::ReactiveUI.ReactiveCommand.Create(Test1, outputScheduler: global::ReactiveUI.RxSchedulers.MainThreadScheduler); }
     }
 }
 #nullable restore
