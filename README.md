@@ -469,7 +469,13 @@ public partial class MyReactiveClass
 ```
 
 ### Usage ReactiveCommand with ReactiveUI OutputScheduler
+
+`OutputScheduler` and `BackgroundScheduler` name a scheduler as you would write it in the class: a field, property or
+parameterless method of the class, or a static one elsewhere, such as `RxSchedulers.MainThreadScheduler` with
+`using ReactiveUI;`. A name that does not resolve to a scheduler is reported as RXUISG0021.
+
 ```csharp
+using ReactiveUI;
 using ReactiveUI.SourceGenerators;
 
 public partial class MyReactiveClass

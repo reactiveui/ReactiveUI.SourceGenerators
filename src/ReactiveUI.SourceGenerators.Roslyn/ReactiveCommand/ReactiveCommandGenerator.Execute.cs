@@ -45,14 +45,8 @@ public partial class ReactiveCommandGenerator
     /// <summary>The attribute property used to specify the can-execute member.</summary>
     private const string CanExecute = "CanExecute";
 
-    /// <summary>The attribute property used to specify the output scheduler.</summary>
-    private const string OutputScheduler = "OutputScheduler";
-
     /// <summary>The attribute property used to request background execution.</summary>
     private const string RunInBackground = "RunInBackground";
-
-    /// <summary>The attribute property used to specify the background scheduler.</summary>
-    private const string BackgroundScheduler = "BackgroundScheduler";
 
     /// <summary>The method that starts a task-returning command on the thread pool.</summary>
     private const string TaskRun = "global::System.Threading.Tasks.Task.Run";
@@ -115,10 +109,9 @@ public partial class ReactiveCommandGenerator
         token.ThrowIfCancellationRequested();
         TryGetCanExecuteExpressionType(methodSymbol, attributeData, out var canExecuteObservableName, out var canExecuteTypeInfo);
         token.ThrowIfCancellationRequested();
-        var integration = context.SemanticModel.Compilation.GetReactiveUiIntegration();
-        TryGetScheduler(methodSymbol, attributeData, OutputScheduler, integration, out var outputScheduler);
+        var outputScheduler = GetScheduler(context, methodSymbol, attributeData, ReactiveCommandRules.OutputSchedulerArgument);
         token.ThrowIfCancellationRequested();
-        TryGetScheduler(methodSymbol, attributeData, BackgroundScheduler, integration, out var backgroundScheduler);
+        var backgroundScheduler = GetScheduler(context, methodSymbol, attributeData, ReactiveCommandRules.BackgroundSchedulerArgument);
         var runInBackground = backgroundScheduler is not null || attributeData.GetNamedArgument<bool>(RunInBackground);
         token.ThrowIfCancellationRequested();
         var accessModifier = GetAccessModifier(attributeData);
@@ -532,106 +525,28 @@ public partial class ReactiveCommandGenerator
         canExecuteTypeInfo = null;
     }
 
-    /// <summary>Gets a configured scheduler, when its member is valid.</summary>
+    /// <summary>Gets the scheduler an attribute property names, as an expression generated code can use.</summary>
+    /// <param name="context">The generator attribute context.</param>
     /// <param name="methodSymbol">The attributed command method.</param>
     /// <param name="attributeData">The command attribute.</param>
     /// <param name="argumentName">The attribute property naming the scheduler.</param>
-    /// <param name="integration">The selected ReactiveUI API surface.</param>
-    /// <param name="schedulerExpression">The scheduler expression, when valid.</param>
-    private static void TryGetScheduler(
+    /// <returns>The scheduler expression, or <see langword="null"/> when none is named or the name does not resolve.</returns>
+    /// <remarks>A name that does not resolve is reported by the command analyzer, which applies the same rules.</remarks>
+    private static string? GetScheduler(
+        in GeneratorAttributeSyntaxContext context,
         IMethodSymbol methodSymbol,
         AttributeData attributeData,
-        string argumentName,
-        ReactiveUiIntegration integration,
-        out string? schedulerExpression)
-    {
-        if (!attributeData.TryGetNamedArgument(argumentName, out string? scheduler) || scheduler is null)
-        {
-            schedulerExpression = null;
-            return;
-        }
-
-        if (IsReactiveUiScheduler(scheduler))
-        {
-            schedulerExpression = scheduler;
-            return;
-        }
-
-        if (!TryGetSingleMember(methodSymbol.ContainingType!.GetAllMembers(scheduler), out var schedulerSymbol))
-        {
-            schedulerExpression = null;
-            return;
-        }
-
-        _ = TryGetSchedulerFromSymbol(schedulerSymbol, integration.Api, out schedulerExpression);
-    }
-
-    /// <summary>Determines whether a scheduler expression names a built-in ReactiveUI scheduler.</summary>
-    /// <param name="scheduler">The scheduler expression.</param>
-    /// <returns><see langword="true"/> when the expression is a built-in scheduler.</returns>
-    private static bool IsReactiveUiScheduler(string scheduler) =>
-        scheduler is "global::ReactiveUI.RxSchedulers.MainThreadScheduler"
-            or "global::ReactiveUI.RxSchedulers.TaskpoolScheduler"
-            or "global::ReactiveUI.Reactive.RxSchedulers.MainThreadScheduler"
-            or "global::ReactiveUI.Reactive.RxSchedulers.TaskpoolScheduler";
-
-    /// <summary>Gets the only symbol from a candidate sequence.</summary>
-    /// <param name="symbols">The candidate symbols.</param>
-    /// <param name="symbol">The only symbol, when present.</param>
-    /// <returns><see langword="true"/> when exactly one symbol exists.</returns>
-    private static bool TryGetSingleMember(IEnumerable<ISymbol> symbols, [NotNullWhen(true)] out ISymbol? symbol)
-    {
-        symbol = null;
-        foreach (var candidate in symbols)
-        {
-            if (symbol is not null)
-            {
-                return false;
-            }
-
-            symbol = candidate;
-        }
-
-        return symbol is not null;
-    }
-
-    /// <summary>Validates a candidate scheduler symbol and gets its expression.</summary>
-    /// <param name="schedulerSymbol">The candidate scheduler symbol.</param>
-    /// <param name="api">The selected ReactiveUI API.</param>
-    /// <param name="schedulerExpression">The scheduler expression, when valid.</param>
-    /// <returns><see langword="true"/> when the symbol is a supported scheduler.</returns>
-    private static bool TryGetSchedulerFromSymbol(
-        ISymbol schedulerSymbol,
-        ReactiveUiApi api,
-        [NotNullWhen(true)] out string? schedulerExpression)
-    {
-        switch (schedulerSymbol)
-        {
-            case IFieldSymbol fieldSymbol when fieldSymbol.Type.IsSchedulerType(api):
-            {
-                schedulerExpression = fieldSymbol.Name;
-                return true;
-            }
-
-            case IPropertySymbol { GetMethod: not null } propertySymbol when propertySymbol.Type.IsSchedulerType(api):
-            {
-                schedulerExpression = propertySymbol.Name;
-                return true;
-            }
-
-            case IMethodSymbol methodSymbol when methodSymbol.ReturnType.IsSchedulerType(api):
-            {
-                schedulerExpression = $"{methodSymbol.Name}()";
-                return true;
-            }
-
-            default:
-            {
-                schedulerExpression = null;
-                return false;
-            }
-        }
-    }
+        string argumentName) =>
+        attributeData.TryGetNamedArgument(argumentName, out string? name)
+        && name is not null
+        && ReactiveCommandRules.TryResolveScheduler(
+            context.SemanticModel,
+            attributeData.ApplicationSyntaxReference?.Span.Start ?? context.TargetNode.SpanStart,
+            methodSymbol.ContainingType,
+            name,
+            out var expression)
+            ? expression
+            : null;
 
     /// <summary>Gets the expression type for the can execute logic, if possible.</summary>
     /// <param name="canExecuteSymbol">The can execute member symbol (either a method or a property).</param>

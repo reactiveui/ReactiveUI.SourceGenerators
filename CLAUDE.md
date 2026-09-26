@@ -170,9 +170,10 @@ All diagnostics use the `RXUISG` prefix. All suppressions use the `RXUISPR` pref
 
 | Class | ID range | Purpose |
 |-------|----------|---------|
-| `PropertyToReactiveFieldAnalyzer` | RXUISG0016 | Suggests converting auto-properties to `[Reactive]` fields |
+| `PropertyToReactiveFieldAnalyzer` | RXUISG0016 | Suggests converting auto-properties to `[Reactive]` properties |
 | `ReactiveAttributeMisuseAnalyzer` | RXUISG0020 | Detects `[Reactive]` on non-partial or non-partial-type members |
-| `PropertyToReactiveFieldCodeFixProvider` | — | Converts auto-property → `[Reactive]` field |
+| `ReactiveCommandAnalyzer` | RXUISG0002, RXUISG0008, RXUISG0021 | Reports `[ReactiveCommand]` methods and schedulers the generator skips |
+| `PropertyToReactiveFieldCodeFixProvider` | — | Converts auto-property → `[Reactive]` partial property (C# 13+; C# 14+ with an initializer), else a `[Reactive]` field |
 | `ReactiveAttributeMisuseCodeFixProvider` | — | Fixes misuse of `[Reactive]` attribute |
 
 Suppressors silence noisy Roslyn/Roslynator diagnostics that are expected for generator-backed patterns (e.g. fields never read, methods that don't need to be static).
@@ -187,6 +188,8 @@ Suppressors silence noisy Roslyn/Roslynator diagnostics that are expected for ge
 - The `ReactiveUI.SourceGenerators.Analyzers.CodeFixes` project owns every other `RXUISG*` diagnostic (such as
   RXUISG0016 and RXUISG0020) and all code fixers.
 - `DiagnosticDescriptors.cs` and related files are compiled from the shared Roslyn source via the linked `<Compile>` items.
+- When an analyzer reports what a generator skips, both compile the same rules file (for commands,
+  `ReactiveCommand/ReactiveCommandRules.cs`, linked into the code-fix project), so the two cannot disagree.
 
 ## Testing
 
@@ -244,7 +247,9 @@ Analyzer and helper tests use direct `CSharpCompilation` / `CompilationWithAnaly
 ### Adding a New Analyzer Diagnostic
 
 1. Add a `DiagnosticDescriptor` to `DiagnosticDescriptors.cs`.
-2. Update `AnalyzerReleases.Unshipped.md`.
+2. Record the rule in `AnalyzerReleases.Shipped.md`, under the release section for the current major version. Never use
+   `AnalyzerReleases.Unshipped.md`: it stays empty apart from its header, and every new, changed or removed rule is
+   recorded as released.
 3. Implement the analyzer in `ReactiveUI.SourceGenerators.Analyzers.CodeFixes/`.
 4. Add unit tests in `ReactiveUI.SourceGenerator.Tests/UnitTests/`.
 
