@@ -12,6 +12,7 @@ namespace ReactiveUI.SourceGenerators.Models;
 /// <param name="TargetVisibility">The target type visibility.</param>
 /// <param name="TargetType">The target type keyword.</param>
 /// <param name="BaseTypeName">The routed control host base type name.</param>
+/// <param name="ParentInfo">The type containing a nested host, or <see langword="null"/> for a top-level host.</param>
 internal sealed record RoutedControlHostInfo(
     string FileHintName,
     string TargetName,
@@ -19,4 +20,5 @@ internal sealed record RoutedControlHostInfo(
     string TargetNamespaceWithNamespace,
     string TargetVisibility,
     string TargetType,
-    string BaseTypeName);
+    string BaseTypeName,
+    TargetInfo? ParentInfo);

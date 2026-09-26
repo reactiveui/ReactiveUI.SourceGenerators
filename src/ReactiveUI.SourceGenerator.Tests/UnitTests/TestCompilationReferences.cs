@@ -73,7 +73,8 @@ internal static class TestCompilationReferences
                     }
                 }
 
-                public global::System.Collections.Generic.IEnumerator<Control> GetEnumerator() => controls.GetEnumerator();
+                // Enumerates a copy: like the real collection, it can be changed while it is enumerated.
+                public global::System.Collections.Generic.IEnumerator<Control> GetEnumerator() => ((global::System.Collections.Generic.IEnumerable<Control>)controls.ToArray()).GetEnumerator();
                 global::System.Collections.IEnumerator global::System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
             }
 

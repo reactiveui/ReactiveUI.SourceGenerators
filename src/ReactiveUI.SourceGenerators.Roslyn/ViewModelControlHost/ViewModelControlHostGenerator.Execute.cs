@@ -65,7 +65,8 @@ public partial class ViewModelControlHostGenerator
             targetInfo.TargetNamespaceWithNamespace,
             targetInfo.TargetVisibility,
             targetInfo.TargetType,
-            viewModelTypeName!);
+            viewModelTypeName!,
+            targetInfo.ParentInfo);
     };
 
     /// <summary>Gets view-model control host metadata from a generator attribute context.</summary>
@@ -98,9 +99,8 @@ public partial class ViewModelControlHostGenerator
         var writer = SourceWriter.Rent();
         WriteFileHeader(writer, integration);
 
-        // The namespace is written as-is, even when empty, to keep the historical output.
-        _ = writer.Append("namespace ").Line(info.TargetNamespace).OpenBlock()
-            .Line(AttributeDefinitions.ExcludeFromCodeCoverage)
+        var depth = writer.OpenNamespace(info.TargetNamespace) + writer.OpenContainingTypes(info.ParentInfo);
+        _ = writer.Line(AttributeDefinitions.ExcludeFromCodeCoverage)
             .Line("[DefaultProperty(\"ViewModel\")]")
             .Line(GeneratedCodeAttribute)
             .Append(info.TargetVisibility).Append(" partial ").Append(info.TargetType).Append(' ').Append(info.TargetName)
@@ -113,6 +113,7 @@ public partial class ViewModelControlHostGenerator
         WriteDispose(writer.BlankLine());
         WriteSetupBindings(writer.BlankLine(), exceptionHandler);
         WriteUpdateContent(writer.BlankLine(), integration);
+        ControlHostWriter.WritePropertyObservable(writer.BlankLine());
         WriteObservableHelpers(writer.BlankLine());
         WriteCombineLatestSubscription(writer.BlankLine());
         WriteDisposableCollection(writer.BlankLine());
@@ -120,7 +121,7 @@ public partial class ViewModelControlHostGenerator
         WriteEmptyDisposable(writer.BlankLine());
 
         return writer.CloseBlock()
-            .CloseBlock()
+            .CloseBlocks(depth)
             .RestoreNullableAndWarnings()
             .ToStringAndReturn();
     }
@@ -175,14 +176,10 @@ public partial class ViewModelControlHostGenerator
     /// <summary>Writes the host's events and its content and view-location properties.</summary>
     /// <param name="writer">The writer, at the level of the host's members.</param>
     /// <param name="integration">The detected ReactiveUI integration, which names the view locator's interface.</param>
-    private static void WriteProperties(SourceWriter writer, ReactiveUiIntegration integration) =>
-        _ = writer.Lines("""
-            /// <inheritdoc/>
-            public event PropertyChangingEventHandler? PropertyChanging;
-
-            /// <inheritdoc/>
-            public event PropertyChangedEventHandler? PropertyChanged;
-
+    private static void WriteProperties(SourceWriter writer, ReactiveUiIntegration integration)
+    {
+        ControlHostWriter.WritePropertyChangeEvents(writer);
+        _ = writer.BlankLine().Lines("""
             /// <summary>
             /// Gets or sets a value indicating whether [default cache views enabled].
             /// </summary>
@@ -215,6 +212,7 @@ public partial class ViewModelControlHostGenerator
             [Browsable(false)]
             """)
             .Append("public ").Append(integration.ViewNamespace).Line(".IViewLocator? ViewLocator { get; set; }");
+    }
 
     /// <summary>Writes the host's bindable view-model properties and its <c>IReactiveObject</c> implementation.</summary>
     /// <param name="writer">The writer, at the level of the host's members.</param>
@@ -242,12 +240,6 @@ public partial class ViewModelControlHostGenerator
             [Bindable(true)]
             [DefaultValue(true)]
             public bool CacheViews { get => _cacheViews; set => this.RaiseAndSetIfChanged(ref _cacheViews, value); }
-
-            /// <inheritdoc/>
-            void IReactiveObject.RaisePropertyChanging(PropertyChangingEventArgs args) => PropertyChanging?.Invoke(this, args);
-
-            /// <inheritdoc/>
-            void IReactiveObject.RaisePropertyChanged(PropertyChangedEventArgs args) => PropertyChanged?.Invoke(this, args);
             """);
 
     /// <summary>Writes the host's disposal.</summary>
@@ -277,7 +269,7 @@ public partial class ViewModelControlHostGenerator
         _ = writer.Line("private void SetupBindings()")
             .OpenBlock()
             .Lines("""
-                AddSubscription(this.WhenAnyValue(x => x!.Content), new ValueObserver<object?>(x =>
+                AddSubscription(new PropertyObservable<object?>(this, nameof(Content), () => new ReturnObservable<object?>(Content)), new ValueObserver<object?>(x =>
                 {
                     if (x is not Control control)
                     {
@@ -299,7 +291,7 @@ public partial class ViewModelControlHostGenerator
                 """)
             .Append("}, ").Append(exceptionHandler).Line("));")
             .Lines("""
-                AddSubscription(this.WhenAnyValue(x => x.DefaultContent), new ValueObserver<Control?>(x =>
+                AddSubscription(new PropertyObservable<Control?>(this, nameof(DefaultContent), () => new ReturnObservable<Control?>(DefaultContent)), new ValueObserver<Control?>(x =>
                 {
                     if (x is not null)
                     {
@@ -316,8 +308,8 @@ public partial class ViewModelControlHostGenerator
             .Lines("""
                 _disposables.Add(viewModelSubscription);
                 viewModelSubscription.Connect(
-                    this.WhenAnyValue(x => x.ViewModel),
-                    this.WhenAnyObservable(x => x.ViewContractObservable!));
+                    new PropertyObservable<object?>(this, nameof(ViewModel), () => new ReturnObservable<object?>(ViewModel)),
+                    new PropertyObservable<string>(this, nameof(ViewContractObservable), () => ViewContractObservable));
                 """)
             .CloseBlock();
 
