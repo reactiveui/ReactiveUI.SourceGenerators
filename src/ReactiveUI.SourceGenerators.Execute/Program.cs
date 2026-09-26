@@ -16,8 +16,8 @@ public static class Program
     [System.STAThread]
     public static void Main()
     {
-        // The generated RegisterViewsForViewModelsSourceGenerated() is gone: ReactiveUI.Binding's view locator registers
-        // every IViewFor<T> at compile time. Without ReactiveUI.Binding, register the views with Splat yourself.
+        // ReactiveUI.Binding's view locator registers every IViewFor<T> view at compile time. Without it, register the
+        // views with Splat yourself.
         AppLocator.CurrentMutable.Register<IViewFor<TestViewModel>>(static () => new TestViewWinForms());
         AppLocator.CurrentMutable.Register<IViewFor<TestViewModel2<int>>>(static () => new TestViewWpf2());
         Application.Run(new TestViewWinForms());

@@ -102,23 +102,6 @@ public class IncrementalCachingTests
         "partial class First",
         "partial class Third");
 
-    /// <summary>An unrelated edit leaves every <c>[IViewFor]</c> type cached; editing one type reruns only that type.</summary>
-    /// <returns>A task to monitor the async.</returns>
-    [Test]
-    public Task ViewForCachesPerType() => AssertCachesPerType(
-        new IViewForGenerator(),
-        TrackingNames.ViewForTypes,
-        """
-        using ReactiveUI.SourceGenerators;
-        namespace TestNs;
-        public sealed class FirstViewModel { }
-        public sealed class SecondViewModel { }
-        [IViewFor<FirstViewModel>] public partial class FirstView : System.Windows.Window { }
-        [IViewFor<SecondViewModel>] public partial class SecondView : System.Windows.Window { }
-        """,
-        "partial class FirstView",
-        "partial class ThirdView");
-
     /// <summary>An unrelated edit leaves every <c>[RoutedControlHost]</c> host cached.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]

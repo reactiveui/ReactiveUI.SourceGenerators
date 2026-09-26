@@ -379,8 +379,6 @@ public sealed class SymbolExtensionTests
         await Assert.That(derived.ImplementsFullyQualifiedMetadataName("System.ICloneable")).IsFalse();
         await Assert.That(derived.HasOrInheritsFromFullyQualifiedMetadataNameStartingWith(TypeMetadataNamePrefix)).IsTrue();
         await Assert.That(derived.HasOrInheritsFromFullyQualifiedMetadataNameStartingWith("Missing.Prefix")).IsFalse();
-        await Assert.That(derived.InheritsFromFullyQualifiedMetadataNameStartingWith(TypeMetadataNamePrefix)).IsTrue();
-        await Assert.That(unrelated.InheritsFromFullyQualifiedMetadataNameStartingWith(TypeMetadataNamePrefix)).IsFalse();
         await Assert.That(derived.HasOrInheritsAttributeWithFullyQualifiedMetadataName(ObsoleteAttributeMetadataName)).IsTrue();
         await Assert.That(unrelated.HasOrInheritsAttributeWithFullyQualifiedMetadataName(ObsoleteAttributeMetadataName)).IsFalse();
     }

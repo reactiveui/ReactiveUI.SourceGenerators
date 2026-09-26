@@ -125,7 +125,6 @@ public sealed partial class TestHelper<T> : IDisposable
         {
             nameof(ReactiveGenerator) => "REACTIVE",
             nameof(ReactiveCommandGenerator) => "REACTIVECMD",
-            nameof(IViewForGenerator) => "IVIEWFOR",
             nameof(RoutedControlHostGenerator) => "ROUTEDHOST",
             nameof(ViewModelControlHostGenerator) => "CONTROLHOST",
             nameof(BindableDerivedListGenerator) => "DERIVEDLIST",
@@ -160,12 +159,6 @@ public sealed partial class TestHelper<T> : IDisposable
         if (typeof(T) != typeof(ReactiveGenerator))
         {
             AddSyntaxTree(syntaxTrees, GetAttributeDefinitionsMethodResult("GetAccessModifierEnum"), parseOptions, "AccessModifierEnum.g.cs");
-        }
-
-        if (typeof(T) == typeof(IViewForGenerator))
-        {
-            AddSyntaxTree(syntaxTrees, GetAttributeDefinitionsPropertyResult(ReactiveAttributeName), parseOptions, ReactiveAttributeHintName);
-            AddSyntaxTree(syntaxTrees, GetAttributeDefinitionsPropertyResult("ReactiveCommandAttribute"), parseOptions, "ReactiveCommandAttribute.g.cs");
         }
 
         if (typeof(T) == typeof(ReactiveObjectGenerator))
@@ -250,20 +243,12 @@ public sealed partial class TestHelper<T> : IDisposable
     private static void AddRequiredAttributeDefinitions(List<string> supportSources)
     {
         // Yield each attribute definition only if generator T does NOT inject it.
-        // Note: for IViewForGenerator, ReactiveAttribute and ReactiveCommandAttribute are
-        // added as inline SyntaxTrees below (not in the support DLL) so they are accessible
-        // in the test source compilation without CS0122 internal-visibility errors.
-        if (typeof(T) != typeof(ReactiveCommandGenerator) && typeof(T) != typeof(IViewForGenerator))
+        if (typeof(T) != typeof(ReactiveCommandGenerator))
         {
             supportSources.Add(GetAttributeDefinitionsPropertyResult("ReactiveCommandAttribute"));
         }
 
         AddReactiveAttributeDefinitionIfNeeded(supportSources);
-
-        if (typeof(T) != typeof(IViewForGenerator))
-        {
-            supportSources.Add(GetAttributeDefinitionsPropertyResult("IViewForAttribute"));
-        }
 
         AddRemainingAttributeDefinitions(supportSources);
     }
@@ -272,7 +257,7 @@ public sealed partial class TestHelper<T> : IDisposable
     /// <param name="supportSources">The support-source collection to extend.</param>
     private static void AddReactiveAttributeDefinitionIfNeeded(List<string> supportSources)
     {
-        if (typeof(T) == typeof(ReactiveGenerator) || typeof(T) == typeof(IViewForGenerator) || typeof(T) == typeof(ReactiveObjectGenerator)
+        if (typeof(T) == typeof(ReactiveGenerator) || typeof(T) == typeof(ReactiveObjectGenerator)
             || typeof(T) == typeof(BindableDerivedListGenerator) || typeof(T) == typeof(ReactiveCollectionGenerator))
         {
             return;

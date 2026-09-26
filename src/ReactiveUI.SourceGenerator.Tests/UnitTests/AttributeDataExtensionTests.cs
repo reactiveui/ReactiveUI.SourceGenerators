@@ -7,7 +7,7 @@ using ReactiveUI.SourceGenerators.Extensions;
 
 namespace ReactiveUI.SourceGenerator.Tests;
 
-/// <summary>Unit tests for <see cref="AttributeDataExtensions"/> covering <c>TryGetNamedArgument</c>, <c>GetNamedArgument</c>, <c>GetConstructorArguments</c>, and <c>GetGenericType</c>.</summary>
+/// <summary>Unit tests for <see cref="AttributeDataExtensions"/> covering <c>TryGetNamedArgument</c>, <c>GetNamedArgument</c>, and <c>GetConstructorArguments</c>.</summary>
 public sealed class AttributeDataExtensionTests
 {
     /// <summary>TryGetNamedArgument returns true and the correct value when the argument exists.</summary>
@@ -299,66 +299,6 @@ public sealed class AttributeDataExtensionTests
         List<string?> arguments = [.. attribute.GetConstructorArguments<string>()];
 
         await Assert.That(arguments).IsEquivalentTo(["first", null, "last"]);
-    }
-
-    /// <summary>GetGenericType returns the type argument name for a generic attribute.</summary>
-    /// <returns>A task to monitor the async.</returns>
-    [Test]
-    public async Task WhenGenericAttributeThenGetGenericTypeReturnsTypeName()
-    {
-        const string source = """
-            using System;
-            namespace T;
-            [AttributeUsage(AttributeTargets.Class)]
-            public class AttributeTen<T> : Attribute { }
-            [AttributeTen<int>]
-            public class C { }
-            """;
-        var attribute = GetAttribute(source, "T.C", "AttributeTen");
-
-        var type = attribute.GetGenericType();
-
-        await Assert.That(type).IsEqualTo("int");
-    }
-
-    /// <summary>GetGenericType returns null for a non-generic attribute.</summary>
-    /// <returns>A task to monitor the async.</returns>
-    [Test]
-    public async Task WhenNonGenericAttributeThenGetGenericTypeReturnsNull()
-    {
-        const string source = """
-            using System;
-            namespace T;
-            [AttributeUsage(AttributeTargets.Class)]
-            public class AttributeEleven : Attribute { }
-            [AttributeEleven]
-            public class C { }
-            """;
-        var attribute = GetAttribute(source, "T.C", "AttributeEleven");
-
-        var type = attribute.GetGenericType();
-
-        await Assert.That(type).IsNull();
-    }
-
-    /// <summary>GetGenericType returns the type keyword for a generic argument using a built-in type.</summary>
-    /// <returns>A task to monitor the async.</returns>
-    [Test]
-    public async Task WhenGenericAttributeWithClassTypeThenGetGenericTypeReturnsClassName()
-    {
-        const string source = """
-            using System;
-            namespace T;
-            [AttributeUsage(AttributeTargets.Class)]
-            public class WrapAttr<T> : Attribute { }
-            [WrapAttr<string>]
-            public class C { }
-            """;
-        var attribute = GetAttribute(source, "T.C", "WrapAttr");
-
-        var type = attribute.GetGenericType();
-
-        await Assert.That(type).IsEqualTo("string");
     }
 
     /// <summary>GatherForwardedAttributesFromClass collects non-trigger attributes from the class declaration.</summary>

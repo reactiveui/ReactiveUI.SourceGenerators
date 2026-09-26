@@ -12,7 +12,7 @@ using ReactiveUI.SourceGenerators.WinForms;
 namespace ReactiveUI.SourceGenerator.Tests;
 
 /// <summary>
-/// Tests that the view generators name <c>IViewFor</c> and the view locator from the assembly the compilation uses:
+/// Tests that the Windows Forms host generators name <c>IViewFor</c> and the view locator from the assembly the compilation uses:
 /// ReactiveUI itself, ReactiveUI.Binding, or ReactiveUI.Binding.Reactive.
 /// </summary>
 public sealed class ViewApiIntegrationTests
@@ -37,22 +37,6 @@ public sealed class ViewApiIntegrationTests
         namespace ReactiveUI.Reactive
         {
             public static class ReactiveCommand { }
-        }
-        """;
-
-    /// <summary>A Windows Forms view and a WPF view, each declared only through <c>[IViewFor]</c>.</summary>
-    private const string ViewsSource = """
-        using ReactiveUI.SourceGenerators;
-
-        namespace Views
-        {
-            public sealed class LoginViewModel { }
-
-            [IViewFor<LoginViewModel>]
-            public partial class FormsLoginView : System.Windows.Forms.UserControl { }
-
-            [IViewFor("Views.LoginViewModel")]
-            public partial class WpfLoginView : System.Windows.Controls.UserControl { }
         }
         """;
 
@@ -99,26 +83,6 @@ public sealed class ViewApiIntegrationTests
         await Assert.That(binding.CurrentViewLocator).IsEqualTo("global::ReactiveUI.Binding.ViewLocator.GetCurrent()");
         await Assert.That(bindingReactive.ViewNamespace).IsEqualTo("global::ReactiveUI.Binding.Reactive");
         await Assert.That(bindingReactive.CurrentViewLocator).IsEqualTo("global::ReactiveUI.Binding.Reactive.ViewLocator.GetCurrent()");
-    }
-
-    /// <summary>
-    /// Verifies <c>[IViewFor]</c> views implement ReactiveUI.Binding's interface and compile with no using for its
-    /// namespace, in each flavour.
-    /// </summary>
-    /// <param name="bindingNamespace">The ReactiveUI.Binding flavour's namespace.</param>
-    /// <returns>A task representing the asynchronous assertion work.</returns>
-    [Test]
-    [Arguments(BindingNamespace)]
-    [Arguments(BindingReactiveNamespace)]
-    public async Task ViewsImplementTheBindingInterface(string bindingNamespace)
-    {
-        var (compilation, generated) = Run<IViewForGenerator>(ViewsSource, ".IViewFor.g.cs", BindingStub(bindingNamespace));
-
-        await Assert.That(GetErrors(compilation)).IsEmpty();
-        await Assert.That(generated.Contains($": global::{bindingNamespace}.IViewFor<Views.LoginViewModel>", StringComparison.Ordinal)).IsTrue();
-        await Assert.That(generated.Contains($"object? global::{bindingNamespace}.IViewFor.ViewModel", StringComparison.Ordinal)).IsTrue();
-        await Assert.That(ImplementsViewFor(compilation, "Views.FormsLoginView", bindingNamespace)).IsTrue();
-        await Assert.That(ImplementsViewFor(compilation, "Views.WpfLoginView", bindingNamespace)).IsTrue();
     }
 
     /// <summary>Verifies the Windows Forms hosts resolve views through ReactiveUI.Binding's view locator, in each flavour.</summary>
@@ -217,41 +181,5 @@ public sealed class ViewApiIntegrationTests
                 typeof(System.ComponentModel.CategoryAttribute).Assembly,
                 typeof(BindableAttribute).Assembly),
             new(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable));
-    }
-
-    /// <summary>Checks that a view implements a flavour's <c>IViewFor&lt;T&gt;</c>.</summary>
-    /// <param name="compilation">The compilation after generation.</param>
-    /// <param name="viewName">The view's metadata name.</param>
-    /// <param name="bindingNamespace">The flavour's namespace.</param>
-    /// <returns><see langword="true"/> when the view implements the flavour's interface.</returns>
-    private static bool ImplementsViewFor(Compilation compilation, string viewName, string bindingNamespace)
-    {
-        var viewFor = compilation.GetTypeByMetadataName($"{bindingNamespace}.IViewFor`1");
-        foreach (var implemented in compilation.GetTypeByMetadataName(viewName)!.AllInterfaces)
-        {
-            if (SymbolEqualityComparer.Default.Equals(implemented.OriginalDefinition, viewFor))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /// <summary>Formats all compilation errors for assertion output.</summary>
-    /// <param name="compilation">The compilation to inspect.</param>
-    /// <returns>The formatted compilation errors.</returns>
-    private static string GetErrors(Compilation compilation)
-    {
-        var errors = new List<string>();
-        foreach (var diagnostic in compilation.GetDiagnostics())
-        {
-            if (diagnostic.Severity == DiagnosticSeverity.Error)
-            {
-                errors.Add(diagnostic.ToString());
-            }
-        }
-
-        return string.Join(Environment.NewLine, errors);
     }
 }
