@@ -38,7 +38,7 @@
     <PackageVersion Include="ReactiveUI.Reactive" Version="24.3.0" />
     <PackageVersion Include="ReactiveUI.Maui" Version="24.3.0" />
     <PackageVersion Include="System.Reactive" Version="7.0.0" />
-    <PackageVersion Include="TUnit" Version="1.72.10" />
+    <PackageVersion Include="TUnit" Version="1.73.0" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.16.0-preview.2" />
     <PackageVersion Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.2.6" />
   </ItemGroup>
