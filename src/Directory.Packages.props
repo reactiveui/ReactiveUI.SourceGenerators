@@ -72,8 +72,8 @@
     <PackageVersion Include="ReactiveUI.Primitives.Uno.Reactive" Version="$(ReactiveUIPrimitivesVersion)"/>
 
     <!-- Test App Dependencies-->
-    <PackageVersion Include="ReactiveUI" Version="25.1.1"/>
-    <PackageVersion Include="ReactiveUI.Reactive" Version="25.1.1"/>
+    <PackageVersion Include="ReactiveUI" Version="26.0.1"/>
+    <PackageVersion Include="ReactiveUI.Reactive" Version="26.0.1"/>
     <PackageVersion Include="ReactiveUI.SourceGenerators" Version="4.2.0"/>
   </ItemGroup>
 </Project>
