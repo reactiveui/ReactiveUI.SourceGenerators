@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <RoslynCommonAnalyzersVersion>5.1.2</RoslynCommonAnalyzersVersion>
+    <RoslynCommonAnalyzersVersion>5.1.3</RoslynCommonAnalyzersVersion>
     <ReactiveUIPrimitivesVersion>9.0.0</ReactiveUIPrimitivesVersion>
   </PropertyGroup>
 

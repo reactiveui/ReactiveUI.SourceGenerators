@@ -19,7 +19,7 @@ failures += Run("Deferred subscription + explicit scheduler, protected raise-met
 
 failures += Run("Deferred+scheduler combo, and out combined with initial value / initial-value factory", CombinedOverloadsScenario);
 
-failures += Run("ReactiveObject (IReactiveObject raise mechanism), selector + out overloads", ReactiveObjectScenario);
+failures += Run("ReactiveObject (IReactiveObject raise mechanism), generated + unsafe overloads", ReactiveObjectScenario);
 
 failures += Run("[ObservableAsProperty] partial properties", AttributeScenario);
 
@@ -194,7 +194,7 @@ static void ReactiveObjectScenario()
     const string InitialLabel = "x";
     const int UpdatedCount = 2;
     const string UpdatedLabel = "y";
-    const int ExpectedNotificationCount = 2;
+    const int ExpectedNotificationCount = 3;
 
     SourceItem item = new() { Count = InitialCount, Label = InitialLabel };
     ReactiveObjectViewModel vm = new(item);
@@ -202,12 +202,14 @@ static void ReactiveObjectScenario()
     var changes = TrackChanges(vm);
 
     AssertEqual(InitialCount, vm.Count, "initial Count");
+    AssertEqual(InitialCount, vm.UnsafeCount, "initial UnsafeCount");
 
     // WhenChanged delivers the item's current label as soon as the helper subscribes, replacing the initial value.
     AssertEqual(InitialLabel, vm.Label, "initial Label from the item's current value");
 
     item.Count = UpdatedCount;
     AssertEqual(UpdatedCount, vm.Count, "updated Count");
+    AssertEqual(UpdatedCount, vm.UnsafeCount, "updated UnsafeCount");
 
     item.Label = UpdatedLabel;
     AssertEqual(UpdatedLabel, vm.Label, "updated Label");

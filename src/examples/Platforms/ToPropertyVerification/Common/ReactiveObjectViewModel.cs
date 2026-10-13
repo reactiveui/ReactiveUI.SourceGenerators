@@ -23,6 +23,9 @@ public sealed class ReactiveObjectViewModel : global::ReactiveUI.ReactiveObject
     /// <summary>Backs <see cref="Label"/>.</summary>
     private readonly ObservableAsPropertyHelper<string> _labelHelper;
 
+    /// <summary>Backs the reflection-based property.</summary>
+    private readonly ObservableAsPropertyHelper<int> _unsafeCountHelper;
+
     /// <summary>Initializes a new instance of the <see cref="ReactiveObjectViewModel"/> class.</summary>
     /// <param name="item">The item the view model follows.</param>
     public ReactiveObjectViewModel(SourceItem item)
@@ -30,6 +33,8 @@ public sealed class ReactiveObjectViewModel : global::ReactiveUI.ReactiveObject
         _countHelper = item.WhenChanged(static x => x.Count).ToProperty(this, static x => x.Count);
 
         _ = item.WhenChanged(static x => x.Label).ToProperty(this, static x => x.Label, out _labelHelper, InitialLabel);
+
+        _unsafeCountHelper = item.WhenChanged(static x => x.Count).ToPropertyUnsafe(this, static x => x.UnsafeCount);
     }
 
     /// <summary>Gets the followed item's count.</summary>
@@ -37,4 +42,7 @@ public sealed class ReactiveObjectViewModel : global::ReactiveUI.ReactiveObject
 
     /// <summary>Gets the followed item's label.</summary>
     public string Label => _labelHelper.Value;
+
+    /// <summary>Gets the followed count through the reflection-based overload.</summary>
+    public int UnsafeCount => _unsafeCountHelper.Value;
 }

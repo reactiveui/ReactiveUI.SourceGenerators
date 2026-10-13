@@ -150,7 +150,12 @@ internal sealed class RuntimePropertyRaiser
     private static RaiseMember? FindReactiveObjectExtension(Type type, bool changing)
     {
         var reactiveObject = type.GetInterface("ReactiveUI.IReactiveObject");
-        var extensions = reactiveObject?.Assembly.GetType("ReactiveUI.IReactiveObjectExtensions");
+        if (reactiveObject is null)
+        {
+            return null;
+        }
+
+        var extensions = FindReactiveObjectExtensions(type, reactiveObject);
         if (extensions is null)
         {
             return null;
@@ -167,11 +172,38 @@ internal sealed class RuntimePropertyRaiser
             }
 
             // A static method closed over its first argument binds to Action<string> like an instance method.
-            return ByName(method.MakeGenericMethod(reactiveObject!));
+            return ByName(method.MakeGenericMethod(reactiveObject));
         }
 
         return null;
     }
+
+    /// <summary>Finds the extension class that owns the object's ReactiveUI notification state.</summary>
+    /// <param name="type">The object's type.</param>
+    /// <param name="reactiveObject">The ReactiveUI interface it implements.</param>
+    /// <returns>The extension class, or null when the object's assemblies declare neither flavour.</returns>
+    [RequiresUnreferencedCode(RequiresUnreferencedCodeMessage)]
+    private static Type? FindReactiveObjectExtensions(Type type, Type reactiveObject)
+    {
+        // The interface can live in ReactiveUI.Core; the base class identifies the flavour holding the state.
+        for (var current = type; current is not null; current = current.BaseType)
+        {
+            if (FindReactiveObjectExtensions(current.Assembly) is { } extensions)
+            {
+                return extensions;
+            }
+        }
+
+        return FindReactiveObjectExtensions(reactiveObject.Assembly);
+    }
+
+    /// <summary>Finds either ReactiveUI flavour's raise extensions in an assembly.</summary>
+    /// <param name="assembly">The assembly to inspect.</param>
+    /// <returns>The extension class, or null when the assembly declares neither flavour.</returns>
+    [RequiresUnreferencedCode(RequiresUnreferencedCodeMessage)]
+    private static Type? FindReactiveObjectExtensions(Assembly assembly) =>
+        assembly.GetType("ReactiveUI.IReactiveObjectExtensions")
+        ?? assembly.GetType("ReactiveUI.Reactive.IReactiveObjectExtensions");
 
     /// <summary>Finds a raise method, preferring an overload that takes event args over one that takes a name.</summary>
     /// <param name="type">The type.</param>
