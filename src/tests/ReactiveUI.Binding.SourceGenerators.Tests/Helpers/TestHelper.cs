@@ -381,13 +381,14 @@ public static class TestHelper
     /// <summary>Loads generated bindings with optionally isolated converter registrations.</summary>
     /// <param name="result">The generated consumer compilation.</param>
     /// <param name="isolateBindingRuntime">Whether the binding runtime has private static state.</param>
+    /// <param name="dependencies">Referenced compilations to emit into the consumer's context.</param>
     /// <returns>The consumer assembly and its collectible context.</returns>
     /// <exception cref="InvalidOperationException">The consumer could not be emitted.</exception>
     [SuppressMessage(
         "Security",
         "SES1402:Assembly loaded from an unverifiable source",
         Justification = "loads the compilation this test just emitted, in-process, into a collectible context")]
-    public static LoadedAssembly EmitAndLoad(GeneratorTestResult result, bool isolateBindingRuntime)
+    public static LoadedAssembly EmitAndLoad(GeneratorTestResult result, bool isolateBindingRuntime, params CompilationReference[] dependencies)
     {
         ArgumentNullException.ThrowIfNull(result);
 
@@ -408,6 +409,19 @@ public static class TestHelper
 
         assemblyStream.Position = 0;
         var context = new CollectibleAssemblyLoadContext { IsolateBindingRuntime = isolateBindingRuntime };
+        foreach (var dependency in dependencies)
+        {
+            using var dependencyStream = new MemoryStream();
+            var dependencyResult = dependency.Compilation.Emit(dependencyStream);
+            if (!dependencyResult.Success)
+            {
+                throw new InvalidOperationException(string.Join(Environment.NewLine, dependencyResult.Diagnostics));
+            }
+
+            dependencyStream.Position = 0;
+            _ = context.LoadFromStream(dependencyStream);
+        }
+
         var assembly = context.LoadFromStream(assemblyStream);
         return new(assembly, context);
     }

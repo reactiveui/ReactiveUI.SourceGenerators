@@ -172,6 +172,12 @@ internal static class TypeDetectionExtractor
                 true));
         }
 
+        // View model replacement must also follow a view model declared by a referenced view base.
+        if (!seen.Contains(ViewModelPropertyName) && FindViewModelProperty(typeSymbol) is { } viewModel)
+        {
+            properties.Add(ExtractProperty(typeSymbol, viewModel));
+        }
+
         return new([.. properties]);
     }
 

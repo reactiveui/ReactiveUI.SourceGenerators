@@ -31,6 +31,41 @@ public static class BindInteractionExamples
     /// <summary>The answer of the handler registered last.</summary>
     private const string LatestAnswer = "latest";
 
+    /// <summary>Binds before the view has a view model and moves the handler when the selected board changes.</summary>
+    /// <returns>A task that completes when both boards have answered.</returns>
+    public static async Task FollowTheSelectedIssueBoard()
+    {
+        IssueBoardView view = new();
+        using IDisposable binding = view.BindInteraction(view.ViewModel, x => x.ConfirmClose, static context =>
+        {
+            context.SetOutput(true);
+            return Task.CompletedTask;
+        });
+
+        Issue issue = new() { Number = CheckoutIssueNumber };
+        IssueBoardViewModel first = new(InMemoryGitHubServer.CreateSeeded());
+        view.ViewModel = first;
+        Console.WriteLine(await first.ConfirmClose.Handle(issue));
+
+        IssueBoardViewModel second = new(InMemoryGitHubServer.CreateSeeded());
+        view.ViewModel = second;
+        Console.WriteLine(await second.ConfirmClose.Handle(issue));
+
+        try
+        {
+            _ = await first.ConfirmClose.Handle(issue);
+        }
+        catch (UnhandledInteractionException<Issue, bool>)
+        {
+            Console.WriteLine("The previous board has no handler.");
+        }
+
+        // Output:
+        // True
+        // True
+        // The previous board has no handler.
+    }
+
     /// <summary>Answers the close confirmation through a task-based handler that waits for the user, so the close stays pending until the dialog is answered.</summary>
     /// <returns>A task that completes when the issue is closed.</returns>
     public static async Task ConfirmCloseWithTaskHandler()

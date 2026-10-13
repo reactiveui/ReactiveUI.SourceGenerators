@@ -163,6 +163,8 @@ await InvokeCommandExamples.LoadOnceAtStartUp();
 
 await BindInteractionExamples.ConfirmCloseWithTaskHandler();
 
+await BindInteractionExamples.FollowTheSelectedIssueBoard();
+
 await BindInteractionExamples.ConfirmDropWithObservableHandler();
 
 await BindInteractionExamples.ConfirmCloseThroughInterfaceProperty();

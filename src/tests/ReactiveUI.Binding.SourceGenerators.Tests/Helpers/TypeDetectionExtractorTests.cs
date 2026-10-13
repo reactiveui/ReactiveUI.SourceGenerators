@@ -231,6 +231,122 @@ public class TypeDetectionExtractorTests
         await Assert.That(info.InheritsWinUIDependencyObject).IsEqualTo(expected);
     }
 
+    /// <summary>Captures only the inherited view model needed to follow a view across assembly boundaries.</summary>
+    /// <param name="baseMember">The view model declaration in the referenced base.</param>
+    /// <param name="ownMember">The declaration that may hide the base member.</param>
+    /// <param name="expectedType">The captured property type, or null when there is no readable property.</param>
+    /// <param name="expectedPublic">Whether its getter is public.</param>
+    /// <param name="expectedDeclared">Whether the consumer declares the property.</param>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    [Arguments("public Model ViewModel { get; set; }", "", "global::External.Model", true, false)]
+    [Arguments("public object ViewModel { get; set; }", "", "object", true, false)]
+    [Arguments("public static Model ViewModel { get; set; }", "", null, false, false)]
+    [Arguments("public Model ViewModel { private get; set; }", "", null, false, false)]
+    [Arguments("public Model ViewModel { set { } }", "", null, false, false)]
+    [Arguments("public Model ViewModel;", "", null, false, false)]
+    [Arguments("", "", null, false, false)]
+    [Arguments("public Model ViewModel { get; set; }", "public new object ViewModel { get; set; }", "object", true, true)]
+    [Arguments("public Model ViewModel { get; set; }", "private new object ViewModel { get; set; }", "object", false, true)]
+    [Arguments("public Model ViewModel { get; set; }", "public new static object ViewModel { get; set; }", null, false, false)]
+    [Arguments("public Model ViewModel { get; set; }", "public new object ViewModel { set { } }", null, false, false)]
+    [Arguments("public Model ViewModel { get; set; }", "public new object ViewModel;", null, false, false)]
+    public async Task ExtractProperties_ReferencedViewModel_PreservesVisibleDeclaration(
+        string baseMember,
+        string ownMember,
+        string? expectedType,
+        bool expectedPublic,
+        bool expectedDeclared)
+    {
+        var reference = TestHelper.CompileToReference(
+            $$"""
+              namespace External
+              {
+                  public class Model { }
+                  public class ViewBase
+                  {
+                      {{baseMember}}
+                      public string Unrelated { get; set; }
+                  }
+              }
+              """,
+            "ReferencedViews",
+            null);
+        var compilation = TestHelper.CreateCompilation(
+            $$"""
+              public class View : External.ViewBase
+              {
+                  {{ownMember}}
+              }
+              """,
+            languageVersion: null,
+            useReactiveRuntime: false,
+            assemblyName: "Consumer",
+            additionalReferences: [reference]);
+        var typeSymbol = GetNamedTypeSymbol(compilation, "View");
+
+        var properties = TypeDetectionExtractor.ExtractProperties(typeSymbol, default);
+
+        await Assert.That(properties.Length).IsEqualTo(expectedType is null ? 0 : 1);
+        if (expectedType is null)
+        {
+            return;
+        }
+
+        await Assert.That(properties[0].PropertyName).IsEqualTo("ViewModel");
+        await Assert.That(properties[0].PropertyTypeFullName).IsEqualTo(expectedType);
+        await Assert.That(properties[0].HasPublicGetter).IsEqualTo(expectedPublic);
+        await Assert.That(properties[0].IsDeclaredByType).IsEqualTo(expectedDeclared);
+    }
+
+    /// <summary>Preserves the inherited view model's notification companion metadata.</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task ExtractProperties_ReferencedViewModel_InspectsInheritedCompanions()
+    {
+        var reference = TestHelper.CompileToReference(
+            """
+            public class ViewBase : System.ComponentModel.Component
+            {
+                public object ViewModel { get; set; }
+                public static readonly object ViewModelProperty = new object();
+                public event System.EventHandler ViewModelChanged;
+            }
+            """,
+            "ReferencedViewCompanions",
+            null);
+        var compilation = TestHelper.CreateCompilation(
+            "public class View : ViewBase { }",
+            languageVersion: null,
+            useReactiveRuntime: false,
+            assemblyName: "Consumer",
+            additionalReferences: [reference]);
+        var typeSymbol = GetNamedTypeSymbol(compilation, "View");
+
+        var properties = TypeDetectionExtractor.ExtractProperties(typeSymbol, default);
+
+        await Assert.That(properties.Length).IsEqualTo(1);
+        await Assert.That(properties[0].IsDependencyProperty).IsTrue();
+        await Assert.That(properties[0].HasChangeEvent).IsTrue();
+        await Assert.That(properties[0].SymbolsInspected).IsTrue();
+        await Assert.That(properties[0].PlatformObservations.Length).IsEqualTo(1);
+    }
+
+    /// <summary>Describes a write-only property without requiring a getter symbol.</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task ExtractProperty_WriteOnlyMember_HasNoPublicGetter()
+    {
+        var compilation = TestHelper.CreateCompilation("public class Model { public string Value { set { } } }");
+        var typeSymbol = GetNamedTypeSymbol(compilation, "Model");
+        var property = (IPropertySymbol)typeSymbol.GetMembers("Value").Single();
+
+        var metadata = TypeDetectionExtractor.ExtractProperty(typeSymbol, property);
+
+        await Assert.That(metadata.HasPublicGetter).IsFalse();
+        await Assert.That(metadata.SymbolsInspected).IsTrue();
+    }
+
     /// <summary>Gets a named type symbol from a compilation.</summary>
     /// <param name="compilation">The compilation.</param>
     /// <param name="typeName">The type name.</param>
