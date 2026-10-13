@@ -24,7 +24,7 @@ internal sealed class NumericStringConversionPlugin : IConversionPlugin
             : null;
     }
 
-    /// <summary>Preserves width, precision, custom format and the Single converter's invariant default.</summary>
+    /// <summary>Preserves width, precision and custom format using the current culture.</summary>
     /// <param name="type">The unwrapped numeric type.</param>
     /// <param name="nullable">Whether the input has a nullable wrapper.</param>
     /// <returns>The concrete ToString operation.</returns>
@@ -32,8 +32,7 @@ internal sealed class NumericStringConversionPlugin : IConversionPlugin
     {
         var value = nullable ? "__value.Value" : "__value";
         var prefix = type.SpecialType is SpecialType.System_Single or SpecialType.System_Double or SpecialType.System_Decimal ? "F" : "D";
-        var culture = type.SpecialType == SpecialType.System_Single && !nullable ? "global::System.Globalization.CultureInfo.InvariantCulture" : string.Empty;
         return $"__hint is int __precision ? {value}.ToString(\"{prefix}\" + __precision.ToString())"
-            + $" : __hint is string __format ? {value}.ToString(__format) : {value}.ToString({culture})";
+            + $" : __hint is string __format ? {value}.ToString(__format) : {value}.ToString()";
     }
 }

@@ -119,6 +119,10 @@
 
   <!-- MTP Native JSON Configuration -->
   <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+    <!-- Keep ordinary tests independent of the host locale; culture regressions override this per test. -->
+    <AssemblyAttribute Include="TUnit.Core.Executors.CultureAttribute">
+      <_Parameter1>en-US</_Parameter1>
+    </AssemblyAttribute>
     <None Include="$(MSBuildThisFileDirectory)testconfig.json">
       <Link>$(AssemblyName).testconfig.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

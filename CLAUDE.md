@@ -115,6 +115,7 @@ dotnet clean ReactiveUI.Binding.SourceGenerators.slnf
 The working folder must be `./src` folder.
 
 **IMPORTANT:**
+- All TUnit test projects use `en-US` for the current culture and UI culture, configured by an assembly attribute in `Directory.Build.props`. Culture-specific regression tests use TUnit's `Culture` attribute to override it for that test.
 - Do NOT use `--no-build` flag when running tests. Always build before testing to ensure all code changes are compiled.
 - Use `--output Detailed` to see Console.WriteLine output from tests (place BEFORE any `--` separator).
 

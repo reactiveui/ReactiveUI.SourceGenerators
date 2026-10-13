@@ -52,7 +52,7 @@ public class StringToNullableDecimalTypeConverterTests
     {
         var converter = new StringToNullableDecimalTypeConverter();
 
-        var result = converter.TryConvert("123.456", null, out var output);
+        var result = converter.TryConvert(ParsedDecimal.ToString(System.Globalization.CultureInfo.CurrentCulture), null, out var output);
 
         await Assert.That(result).IsTrue();
         await Assert.That(output).IsEqualTo(ParsedDecimal);

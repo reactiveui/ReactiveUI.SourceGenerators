@@ -40,6 +40,8 @@ NumberExamples.ParseScientificConstant();
 
 NumberExamples.FormatStudentScore();
 
+CultureExamples.FormatSingleWithCurrentCulture();
+
 NumberExamples.ParseEulersNumber();
 
 NumberExamples.FormatEulersNumber();

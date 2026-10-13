@@ -67,7 +67,7 @@ public class StringToSingleTypeConverterTests
     {
         var converter = new StringToSingleTypeConverter();
 
-        var result = converter.TryConvert("123.456", null, out var output);
+        var result = converter.TryConvert(ParsedSingle.ToString(System.Globalization.CultureInfo.CurrentCulture), null, out var output);
 
         await Assert.That(result).IsTrue();
         await Assert.That(output).IsEqualTo(ParsedSingle).Within(SingleTolerance);
@@ -106,7 +106,7 @@ public class StringToSingleTypeConverterTests
     {
         var converter = new StringToSingleTypeConverter();
 
-        var result = converter.TryConvert("-123.456", null, out var output);
+        var result = converter.TryConvert(NegativeSingle.ToString(System.Globalization.CultureInfo.CurrentCulture), null, out var output);
 
         await Assert.That(result).IsTrue();
         await Assert.That(output).IsEqualTo(NegativeSingle).Within(SingleTolerance);
@@ -119,7 +119,7 @@ public class StringToSingleTypeConverterTests
     {
         var converter = new StringToSingleTypeConverter();
 
-        var result = converter.TryConvert("1.23E+5", null, out var output);
+        var result = converter.TryConvert(ScientificSingle.ToString("E2", System.Globalization.CultureInfo.CurrentCulture), null, out var output);
 
         await Assert.That(result).IsTrue();
         await Assert.That(output).IsEqualTo(ScientificSingle).Within(ScientificTolerance);
@@ -132,7 +132,7 @@ public class StringToSingleTypeConverterTests
     {
         var converter = new StringToSingleTypeConverter();
 
-        var result = converter.TryConvertTyped("456.789", null, out var output);
+        var result = converter.TryConvertTyped(TypedSingle.ToString(System.Globalization.CultureInfo.CurrentCulture), null, out var output);
 
         await Assert.That(result).IsTrue();
         await Assert.That(output).IsTypeOf<float>();

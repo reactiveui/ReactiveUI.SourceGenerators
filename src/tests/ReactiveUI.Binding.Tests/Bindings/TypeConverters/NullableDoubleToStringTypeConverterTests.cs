@@ -99,7 +99,7 @@ public class NullableDoubleToStringTypeConverterTests
         var result = converter.TryConvert(FormattedDouble, ExpectedAffinity, out var output);
 
         await Assert.That(result).IsTrue();
-        await Assert.That(output).IsEqualTo("42.50");
+        await Assert.That(output).IsEqualTo(FormattedDouble.ToString("F2", System.Globalization.CultureInfo.CurrentCulture));
     }
 
     /// <summary>Verifies TryConvert with a string format hint formats correctly.</summary>

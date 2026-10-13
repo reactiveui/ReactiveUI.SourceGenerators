@@ -55,7 +55,7 @@ public class StringToNullableSingleTypeConverterTests
     {
         var converter = new StringToNullableSingleTypeConverter();
 
-        var result = converter.TryConvert("123.456", null, out var output);
+        var result = converter.TryConvert(ParsedSingle.ToString(System.Globalization.CultureInfo.CurrentCulture), null, out var output);
 
         await Assert.That(result).IsTrue();
         await Assert.That(output).IsNotNull();

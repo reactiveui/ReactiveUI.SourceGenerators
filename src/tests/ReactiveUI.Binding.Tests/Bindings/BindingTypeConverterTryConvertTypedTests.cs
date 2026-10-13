@@ -172,7 +172,7 @@ public class BindingTypeConverterTryConvertTypedTests
     [Test]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task SingleToString_Success() =>
-        AssertConverterSuccess(new SingleToStringTypeConverter(), SingleValue, SingleValue.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        AssertConverterSuccess(new SingleToStringTypeConverter(), SingleValue, SingleValue.ToString(System.Globalization.CultureInfo.CurrentCulture));
 
     /// <summary>Verifies SingleToStringTypeConverter fails when given a wrong type.</summary>
     /// <returns>A task representing the asynchronous test operation.</returns>

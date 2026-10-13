@@ -31,7 +31,7 @@ public class DecimalToStringTypeConverterTests
         var result = converter.TryConvert(value, null, out var output);
 
         await Assert.That(result).IsTrue();
-        await Assert.That(output).IsEqualTo("123.456");
+        await Assert.That(output).IsEqualTo(value.ToString(System.Globalization.CultureInfo.CurrentCulture));
     }
 
     /// <summary>Verifies TryConvert MaxValue Succeeds.</summary>
@@ -73,7 +73,7 @@ public class DecimalToStringTypeConverterTests
         var result = converter.TryConvert(value, null, out var output);
 
         await Assert.That(result).IsTrue();
-        await Assert.That(output).IsEqualTo("-123.456");
+        await Assert.That(output).IsEqualTo(value.ToString(System.Globalization.CultureInfo.CurrentCulture));
     }
 
     /// <summary>Verifies TryConvert WithConversionHint FormatsCorrectly.</summary>
@@ -87,7 +87,7 @@ public class DecimalToStringTypeConverterTests
         var result = converter.TryConvert(value, ExpectedAffinity, out var output);
 
         await Assert.That(result).IsTrue();
-        await Assert.That(output).IsEqualTo("42.50");
+        await Assert.That(output).IsEqualTo(value.ToString("F2", System.Globalization.CultureInfo.CurrentCulture));
     }
 
     /// <summary>Verifies TryConvert WithStringFormatHint CurrencyFormat.</summary>

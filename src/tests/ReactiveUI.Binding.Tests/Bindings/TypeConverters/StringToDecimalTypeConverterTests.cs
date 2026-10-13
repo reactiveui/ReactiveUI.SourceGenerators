@@ -58,7 +58,7 @@ public class StringToDecimalTypeConverterTests
     {
         var converter = new StringToDecimalTypeConverter();
 
-        var result = converter.TryConvert("123.456", null, out var output);
+        var result = converter.TryConvert(ParsedDecimal.ToString(System.Globalization.CultureInfo.CurrentCulture), null, out var output);
 
         await Assert.That(result).IsTrue();
         await Assert.That(output).IsEqualTo(ParsedDecimal);
@@ -97,7 +97,7 @@ public class StringToDecimalTypeConverterTests
     {
         var converter = new StringToDecimalTypeConverter();
 
-        var result = converter.TryConvert("-123.456", null, out var output);
+        var result = converter.TryConvert(NegativeDecimal.ToString(System.Globalization.CultureInfo.CurrentCulture), null, out var output);
 
         await Assert.That(result).IsTrue();
         await Assert.That(output).IsEqualTo(NegativeDecimal);
@@ -110,7 +110,7 @@ public class StringToDecimalTypeConverterTests
     {
         var converter = new StringToDecimalTypeConverter();
 
-        var result = converter.TryConvertTyped("456.789", null, out var output);
+        var result = converter.TryConvertTyped(TypedDecimal.ToString(System.Globalization.CultureInfo.CurrentCulture), null, out var output);
 
         await Assert.That(result).IsTrue();
         await Assert.That(output).IsEqualTo(TypedDecimal);

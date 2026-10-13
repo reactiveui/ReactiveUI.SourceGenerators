@@ -87,7 +87,7 @@ public class DoubleToStringTypeConverterTests
         var result = converter.TryConvert(value, ExpectedAffinity, out var output);
 
         await Assert.That(result).IsTrue();
-        await Assert.That(output).IsEqualTo("42.50");
+        await Assert.That(output).IsEqualTo(value.ToString("F2", System.Globalization.CultureInfo.CurrentCulture));
     }
 
     /// <summary>Verifies TryConvert WithStringFormatHint CustomPrecision.</summary>

@@ -99,7 +99,7 @@ public class NullableSingleToStringTypeConverterTests
         var result = converter.TryConvert(FormattedSingle, ExpectedAffinity, out var output);
 
         await Assert.That(result).IsTrue();
-        await Assert.That(output).IsEqualTo("42.50");
+        await Assert.That(output).IsEqualTo(FormattedSingle.ToString("F2", System.Globalization.CultureInfo.CurrentCulture));
     }
 
     /// <summary>Verifies TryConvert with a string format hint formats correctly.</summary>

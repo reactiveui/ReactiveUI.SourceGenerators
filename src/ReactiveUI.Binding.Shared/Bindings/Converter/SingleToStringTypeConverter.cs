@@ -9,9 +9,9 @@ namespace ReactiveUI.Binding;
 #endif
 
 /// <summary>
-/// Converts a <see cref="float"/> to a <see cref="string"/> using the invariant culture, as generated bindings do. An
+/// Converts a <see cref="float"/> to a <see cref="string"/> using the current culture. An
 /// <see cref="int"/> hint gives the number of decimal places (the <c>F</c> format) and a <see cref="string"/> hint gives
-/// the format string; both use the current culture, and a malformed format throws <see cref="FormatException"/>.
+/// the format string; a malformed format throws <see cref="FormatException"/>.
 /// </summary>
 public sealed class SingleToStringTypeConverter : BindingTypeConverter<float, string>
 {
@@ -40,7 +40,7 @@ public sealed class SingleToStringTypeConverter : BindingTypeConverter<float, st
 
             default:
                 {
-                    result = from.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    result = from.ToString(System.Globalization.CultureInfo.CurrentCulture);
                     return true;
                 }
         }

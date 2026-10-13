@@ -61,7 +61,7 @@ public class StringToDoubleTypeConverterTests
     {
         var converter = new StringToDoubleTypeConverter();
 
-        var result = converter.TryConvert("1.23E+10", null, out var output);
+        var result = converter.TryConvert(ScientificDouble.ToString("E2", System.Globalization.CultureInfo.CurrentCulture), null, out var output);
 
         await Assert.That(result).IsTrue();
         await Assert.That(output).IsEqualTo(ScientificDouble);
@@ -74,7 +74,7 @@ public class StringToDoubleTypeConverterTests
     {
         var converter = new StringToDoubleTypeConverter();
 
-        var result = converter.TryConvert("123.456", null, out var output);
+        var result = converter.TryConvert(ParsedDouble.ToString(System.Globalization.CultureInfo.CurrentCulture), null, out var output);
 
         await Assert.That(result).IsTrue();
         await Assert.That(output).IsEqualTo(ParsedDouble);
@@ -113,7 +113,7 @@ public class StringToDoubleTypeConverterTests
     {
         var converter = new StringToDoubleTypeConverter();
 
-        var result = converter.TryConvert("-123.456", null, out var output);
+        var result = converter.TryConvert(NegativeDouble.ToString(System.Globalization.CultureInfo.CurrentCulture), null, out var output);
 
         await Assert.That(result).IsTrue();
         await Assert.That(output).IsEqualTo(NegativeDouble);
@@ -126,7 +126,7 @@ public class StringToDoubleTypeConverterTests
     {
         var converter = new StringToDoubleTypeConverter();
 
-        var result = converter.TryConvertTyped("456.789", null, out var output);
+        var result = converter.TryConvertTyped(TypedDouble.ToString(System.Globalization.CultureInfo.CurrentCulture), null, out var output);
 
         await Assert.That(result).IsTrue();
         await Assert.That(output).IsEqualTo(TypedDouble);

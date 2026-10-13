@@ -38,7 +38,7 @@ public class NullableDecimalToStringTypeConverterTests
         var result = converter.TryConvert(SampleDecimal, null, out var output);
 
         await Assert.That(result).IsTrue();
-        await Assert.That(output).IsEqualTo("123.456");
+        await Assert.That(output).IsEqualTo(SampleDecimal.ToString(System.Globalization.CultureInfo.CurrentCulture));
     }
 
     /// <summary>Verifies TryConvert MaxValue Succeeds.</summary>
@@ -78,7 +78,7 @@ public class NullableDecimalToStringTypeConverterTests
         var result = converter.TryConvert(NegativeDecimal, null, out var output);
 
         await Assert.That(result).IsTrue();
-        await Assert.That(output).IsEqualTo("-123.456");
+        await Assert.That(output).IsEqualTo(NegativeDecimal.ToString(System.Globalization.CultureInfo.CurrentCulture));
     }
 
     /// <summary>Verifies TryConvert NullValue ReturnsTrue.</summary>
@@ -101,7 +101,7 @@ public class NullableDecimalToStringTypeConverterTests
         var result = converter.TryConvert(FormattedDecimal, ExpectedAffinity, out var output);
 
         await Assert.That(result).IsTrue();
-        await Assert.That(output).IsEqualTo("42.50");
+        await Assert.That(output).IsEqualTo(FormattedDecimal.ToString("F2", System.Globalization.CultureInfo.CurrentCulture));
     }
 
     /// <summary>Verifies TryConvert Zero Succeeds.</summary>
