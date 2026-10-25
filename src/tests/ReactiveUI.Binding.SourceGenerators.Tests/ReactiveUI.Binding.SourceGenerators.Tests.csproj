@@ -19,14 +19,13 @@
     <!-- The System.Reactive runtime compiles against ReactiveUI.Reactive, as its consumers do: lean ReactiveUI brings
          the lean runtime with it. -->
     <PackageReference Include="ReactiveUI.Reactive"/>
-    <!-- ReactiveUI.SourceGenerators runs beside this generator in the contract tests: its attributes are referenced,
-         and its generators are loaded from the package rather than run over this project. This project pins the first
-         release the contract follows; the Roslyn 4.13 project runs the same tests against the current release. -->
-    <PackageReference Include="ReactiveUI.SourceGenerators" GeneratePathProperty="true" ExcludeAssets="analyzers" VersionOverride="4.2.0"/>
-    <Reference Include="$(PkgReactiveUI_SourceGenerators)/analyzers/dotnet/roslyn5.0/cs/ReactiveUI.SourceGenerators.Roslyn.dll"/>
   </ItemGroup>
 
   <ItemGroup>
+    <!-- ReactiveUI.SourceGenerators runs beside this generator in the contract tests: its attributes are referenced,
+         and its generators are built from this repository rather than run over this project. -->
+    <ProjectReference Include="..\..\ReactiveUI.SourceGenerators\ReactiveUI.SourceGenerators.csproj"/>
+    <ProjectReference Include="..\..\ReactiveUI.SourceGenerators.Roslyn5000\ReactiveUI.SourceGenerators.Roslyn5000.csproj"/>
     <ProjectReference Include="..\..\ReactiveUI.Binding\ReactiveUI.Binding.csproj"/>
     <ProjectReference Include="..\..\ReactiveUI.Binding.Reactive\ReactiveUI.Binding.Reactive.csproj"/>
     <ProjectReference Include="..\..\ReactiveUI.Binding.SourceGenerators\ReactiveUI.Binding.SourceGenerators.csproj"/>

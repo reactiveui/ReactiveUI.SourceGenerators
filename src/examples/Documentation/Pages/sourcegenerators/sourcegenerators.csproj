@@ -10,9 +10,11 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ReactiveUI" />
-    <PackageReference Include="ReactiveUI.SourceGenerators" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../../../ReactiveUI.SourceGenerators/ReactiveUI.SourceGenerators.csproj" />
+    <ProjectReference Include="../../../../ReactiveUI.SourceGenerators.Roslyn5000/ReactiveUI.SourceGenerators.Roslyn5000.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="../../../../ReactiveUI.SourceGenerators.Analyzers.CodeFixes/ReactiveUI.SourceGenerators.Analyzers.CodeFixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="../../../../ReactiveUI.Binding/ReactiveUI.Binding.csproj" />
     <ProjectReference Include="../../../../ReactiveUI.Binding.SourceGenerators/ReactiveUI.Binding.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="../../../../ReactiveUI.Binding.Analyzer/ReactiveUI.Binding.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />

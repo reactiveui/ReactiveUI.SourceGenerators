@@ -1,0 +1,81 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>$(BindingTestTargets)</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>13.0</LangVersion>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <NoWarn>$(NoWarn);CA1812;CA1001</NoWarn>
+    <ExcludeFromCodeCoverage>true</ExcludeFromCodeCoverage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The generator snapshots live beside the tests; recorded here because CI maps source paths to /_/. -->
+    <AssemblyMetadata Include="GeneratorSnapshotDirectory" Value="$(MSBuildProjectDirectory)" />
+    <!-- Snapshots are generated source for comparison, not part of the test assembly. -->
+    <Compile Remove="**\*.verified.cs;**\*.received.cs" />
+    <None Include="**\*.verified.cs" Exclude="bin\**;obj\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="TUnit" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" VersionOverride="4.14.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" PrivateAssets="all" VersionOverride="4.14.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" PrivateAssets="all" VersionOverride="4.14.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis" PrivateAssets="all" VersionOverride="4.14.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="all" VersionOverride="4.14.0" />
+    <PackageReference Include="DynamicData" PrivateAssets="all" />
+    <PackageReference Include="ReactiveUI" />
+    <PackageReference Include="ReactiveUI.Reactive" PrivateAssets="all" />
+    <PackageReference Include="Splat" />
+    <PackageReference Include="System.Reactive" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="TUnit.Assertions" />
+    <Using Include="TUnit.Core" />
+    <Using Include="ReactiveUI.SourceGenerators" />
+    <Using Include="System.Text.RegularExpressions" />
+    <Using Include="Microsoft.CodeAnalysis" />
+    <Using Include="Microsoft.CodeAnalysis.CSharp" />
+    <Using Include="System.Collections.Immutable" />
+    <Using Include="Microsoft.CodeAnalysis.Diagnostics" />
+    <Using Include="ReactiveUI.SourceGenerators.CodeFixers" />
+    <Using Include="TUnit.Assertions" />
+    <Using Include="TUnit.Core" />
+    <Using Include="ReactiveUI.SourceGenerators" />
+    <Using Include="System.Text.RegularExpressions" />
+    <Using Include="Microsoft.CodeAnalysis" />
+    <Using Include="Microsoft.CodeAnalysis.CSharp" />
+    <Using Include="System.Collections.Immutable" />
+    <Using Include="Microsoft.CodeAnalysis.Diagnostics" />
+    <Using Include="ReactiveUI.SourceGenerators.CodeFixers" />
+    <Using Include="System.Runtime.CompilerServices" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="DERIVEDLIST\" />
+    <Folder Include="OAPH\" />
+    <Folder Include="REACTIVECMD\" />
+    <Folder Include="REACTIVE\" />
+    <Folder Include="REACTIVEOBJ\" />
+    <Folder Include="REACTIVECOLL\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The hosts' ObservedProperty, in both flavours. The projects are referenced for their runtime types only: Binding's
+         generator and analyzer reach a consumer through the packed analyzers folder, which a project reference skips. -->
+    <ProjectReference Include="..\..\ReactiveUI.Binding\ReactiveUI.Binding.csproj" />
+    <ProjectReference Include="..\..\ReactiveUI.Binding.Reactive\ReactiveUI.Binding.Reactive.csproj" />
+    <ProjectReference Include="..\..\ReactiveUI.SourceGenerators.Analyzers.CodeFixes\ReactiveUI.SourceGenerators.Analyzers.CodeFixes.csproj" />
+    <ProjectReference Include="..\..\ReactiveUI.SourceGenerators\ReactiveUI.SourceGenerators.csproj" />
+    <ProjectReference Include="..\..\ReactiveUI.SourceGenerators.Roslyn4140\ReactiveUI.SourceGenerators.Roslyn4140.csproj">
+      <Aliases>global,RoslynSourceGenerator</Aliases>
+    </ProjectReference>
+  </ItemGroup>
+
+</Project>

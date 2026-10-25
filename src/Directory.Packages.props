@@ -71,9 +71,22 @@
     <PackageVersion Include="ReactiveUI.Primitives.Uno" Version="$(ReactiveUIPrimitivesVersion)"/>
     <PackageVersion Include="ReactiveUI.Primitives.Uno.Reactive" Version="$(ReactiveUIPrimitivesVersion)"/>
 
+    <!-- Test Infrastructure for the attribute generators -->
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.1"/>
+    <PackageVersion Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.2.8"/>
+    <PackageVersion Include="DynamicData" Version="9.4.33"/>
+
+    <!-- Avalonia sample app -->
+    <PackageVersion Include="Avalonia.Themes.Fluent" Version="12.1.3"/>
+    <PackageVersion Include="Avalonia.Fonts.Inter" Version="12.1.3"/>
+    <PackageVersion Include="Avalonia.Diagnostics" Version="11.3.22"/>
+    <PackageVersion Include="Avalonia.Desktop" Version="12.1.3"/>
+    <PackageVersion Include="ReactiveUI.Avalonia" Version="12.1.6"/>
+    <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.12"/>
+
     <!-- Test App Dependencies-->
     <PackageVersion Include="ReactiveUI" Version="26.0.1"/>
     <PackageVersion Include="ReactiveUI.Reactive" Version="26.0.1"/>
-    <PackageVersion Include="ReactiveUI.SourceGenerators" Version="4.2.0"/>
+    <PackageVersion Include="ReactiveUI.Maui" Version="26.0.1"/>
   </ItemGroup>
 </Project>

@@ -15,7 +15,6 @@
     <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" />
     <Compile Include="..\Shared\*.cs" Link="Shared\%(Filename)%(Extension)" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" />
     <PackageReference Include="DynamicData" />
     <PackageReference Include="ReactiveUI.Reactive" />
     <PackageReference Include="Splat" />
