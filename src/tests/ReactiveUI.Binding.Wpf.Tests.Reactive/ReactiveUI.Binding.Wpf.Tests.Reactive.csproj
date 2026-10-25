@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- The same tests, recompiled against ReactiveUI.Binding.Reactive.Wpf. REACTIVE_SHIM comes from
+         ReactiveShim.props via the '.Reactive' name suffix, which is why the suffix goes last. -->
+    <TargetFrameworks>$(BindingTestPlatformTargets)</TargetFrameworks>
+    <UseWpf>true</UseWpf>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <!-- No test source of its own: it recompiles the lean project's files under the shifted namespaces. -->
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.Binding.Wpf.Tests\**\*.cs"
+             Exclude="..\ReactiveUI.Binding.Wpf.Tests\obj\**\*.cs;..\ReactiveUI.Binding.Wpf.Tests\bin\**\*.cs"
+             Link="%(RecursiveDir)%(Filename)%(Extension)"/>
+    <Page Include="..\ReactiveUI.Binding.Wpf.Tests\**\*.xaml"
+          Exclude="..\ReactiveUI.Binding.Wpf.Tests\obj\**;..\ReactiveUI.Binding.Wpf.Tests\bin\**"
+          Link="%(RecursiveDir)%(Filename)%(Extension)"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="ReactiveUI.Binding.Reactive"/>
+    <Using Include="ReactiveUI.Binding.Reactive.Observables"/>
+    <Using Include="ReactiveUI.Binding.Reactive.Wpf"/>
+    <Using Include="TUnit.Core"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TUnit"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.Wpf.Reactive\ReactiveUI.Binding.Wpf.Reactive.csproj"/>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.SourceGenerators\ReactiveUI.Binding.SourceGenerators.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"/>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.Analyzer\ReactiveUI.Binding.Analyzer.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"/>
+  </ItemGroup>
+</Project>

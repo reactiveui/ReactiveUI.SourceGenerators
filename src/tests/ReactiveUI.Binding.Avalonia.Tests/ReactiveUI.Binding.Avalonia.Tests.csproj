@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- Avalonia runs on the plain TFMs, so these tests run on every CI leg. -->
+    <TargetFrameworks>$(BindingTestTargets)</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="ReactiveUI.Binding"/>
+    <Using Include="ReactiveUI.Binding.Builder"/>
+    <Using Include="ReactiveUI.Binding.Avalonia"/>
+    <Using Include="ReactiveUI.Binding.Avalonia.Builder"/>
+    <Using Include="Splat"/>
+    <Using Include="Splat.Builder"/>
+    <Using Include="TUnit.Core"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TUnit"/>
+    <PackageReference Include="Avalonia.Headless"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.Avalonia\ReactiveUI.Binding.Avalonia.csproj"/>
+  </ItemGroup>
+</Project>

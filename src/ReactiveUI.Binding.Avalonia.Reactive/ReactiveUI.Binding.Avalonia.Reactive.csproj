@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- System.Reactive-flavoured Avalonia leaf: recompiles the shared Avalonia source against
+         ReactiveUI.Binding.Reactive, shifting its types to ReactiveUI.Binding.Reactive.Avalonia.
+         REACTIVE_SHIM comes from ReactiveShim.props via the '.Reactive' name suffix. -->
+    <TargetFrameworks>$(BindingCoreTargets)</TargetFrameworks>
+    <RootNamespace>ReactiveUI.Binding.Reactive.Avalonia</RootNamespace>
+    <PackageDescription>Avalonia platform support for ReactiveUI.Binding.Reactive, for consumers on System.Reactive.</PackageDescription>
+    <PackageTags>reactiveui;binding;avalonia;system.reactive</PackageTags>
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.Binding.Avalonia.Shared\**\*.cs" Link="ReactiveUI.Binding.Avalonia.Shared\%(RecursiveDir)%(Filename)%(Extension)"/>
+    <Compile Include="..\ReactiveUI.Binding.Platform.Shared\**\*.cs" Link="ReactiveUI.Binding.Platform.Shared\%(RecursiveDir)%(Filename)%(Extension)"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="ReactiveUI.Primitives.Disposables"/>
+    <Using Include="System"/>
+    <Using Include="System.Diagnostics"/>
+    <Using Include="System.Runtime.CompilerServices"/>
+    <Using Include="System.Runtime.ExceptionServices"/>
+    <Using Include="Splat"/>
+    <Using Include="ReactiveUI.Primitives.Reactive.Concurrency.AvaloniaScheduler" Alias="AvaloniaScheduler"/>
+  </ItemGroup>
+
+  <!-- The shifted counterparts of the lean leaf's imports. -->
+  <ItemGroup>
+    <Using Include="ReactiveUI.Binding.Reactive.Builder"/>
+    <Using Include="ReactiveUI.Binding.Reactive.Helpers"/>
+    <Using Include="ReactiveUI.Binding.Reactive.ObservableForProperty"/>
+    <Using Include="ReactiveUI.Binding.Reactive.Observables"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ReactiveUI.Binding.Reactive\ReactiveUI.Binding.Reactive.csproj"/>
+    <PackageReference Include="Avalonia"/>
+    <PackageReference Include="ReactiveUI.Primitives.Avalonia.Reactive"/>
+  </ItemGroup>
+
+  <!-- The mirror test project recompiles the lean project's test source, which reaches the platform
+       primitives, so it needs the same grant the lean leaf gives its own tests. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="ReactiveUI.Binding.Avalonia.Tests.Reactive"/>
+  </ItemGroup>
+
+  <!-- A recompilation of ReactiveUI.Binding.Avalonia.Shared, which ReactiveUI.Binding.Avalonia already covers.
+       See the note on ReactiveUI.Binding.Reactive for why this is an attribute and not a module path. -->
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage"/>
+  </ItemGroup>
+</Project>

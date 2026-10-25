@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>$(BindingCoreTargets)</TargetFrameworks>
+    <PackageDescription>Avalonia platform support for ReactiveUI.Binding. Provides Avalonia property observation, command binding and view thread routing.</PackageDescription>
+    <PackageTags>reactiveui;binding;avalonia</PackageTags>
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+
+  <!-- The seam source, compiled here against the lean ReactiveUI.Binding. ReactiveUI.Binding.Avalonia.Reactive
+       links the same files under REACTIVE_SHIM. -->
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.Binding.Avalonia.Shared\**\*.cs" Link="ReactiveUI.Binding.Avalonia.Shared\%(RecursiveDir)%(Filename)%(Extension)"/>
+    <Compile Include="..\ReactiveUI.Binding.Platform.Shared\**\*.cs" Link="ReactiveUI.Binding.Platform.Shared\%(RecursiveDir)%(Filename)%(Extension)"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="ReactiveUI.Primitives.Disposables"/>
+    <Using Include="System"/>
+    <Using Include="System.Diagnostics"/>
+    <Using Include="System.Runtime.CompilerServices"/>
+    <Using Include="System.Runtime.ExceptionServices"/>
+    <Using Include="Splat"/>
+    <Using Include="ReactiveUI.Primitives.Concurrency.AvaloniaScheduler" Alias="AvaloniaScheduler"/>
+  </ItemGroup>
+
+  <!-- The shared source carries no per-file usings for the namespaces that shift between the two
+       leaves, so this leaf imports the unshifted forms. -->
+  <ItemGroup>
+    <Using Include="ReactiveUI.Binding.Builder"/>
+    <Using Include="ReactiveUI.Binding.Helpers"/>
+    <Using Include="ReactiveUI.Binding.ObservableForProperty"/>
+    <Using Include="ReactiveUI.Binding.Observables"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ReactiveUI.Binding\ReactiveUI.Binding.csproj"/>
+    <PackageReference Include="Avalonia"/>
+    <PackageReference Include="ReactiveUI.Primitives.Avalonia"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ReactiveUI.Binding.Avalonia.Tests"/>
+  </ItemGroup>
+</Project>

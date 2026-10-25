@@ -1,0 +1,53 @@
+<Project Sdk="Uno.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>$(BindingUnoTargets)</TargetFrameworks>
+    <OutputType>Library</OutputType>
+    <!-- Uno.Sdk does not pack a library unless asked. -->
+    <IsPackable>true</IsPackable>
+    <!-- The implicit packages include Uno.Resizetizer, which adds window-icon helpers to a library's public API.
+         The invoker needs only the dispatcher queue, so it references Uno.WinUI or the Windows App SDK itself. -->
+    <DisableImplicitUnoPackages>true</DisableImplicitUnoPackages>
+    <!-- The Windows head references the Windows App SDK, which has no Uno namespaces to import. -->
+    <DisableImplicitUnoNamespaces>true</DisableImplicitUnoNamespaces>
+    <!-- The library ships no Android resources, so it needs no public Resource designer class. -->
+    <AndroidGenerateResourceDesigner>false</AndroidGenerateResourceDesigner>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+    <PackageDescription>Uno Platform support for ReactiveUI.Binding. Routes view writes onto the dispatcher queue that owns each control.</PackageDescription>
+    <PackageTags>reactiveui;binding;uno;winui</PackageTags>
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+
+  <!-- The seam source, compiled here against the lean ReactiveUI.Binding. ReactiveUI.Binding.Uno.Reactive
+       links the same files under REACTIVE_SHIM. -->
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.Binding.Uno.Shared\**\*.cs" Link="ReactiveUI.Binding.Uno.Shared\%(RecursiveDir)%(Filename)%(Extension)"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="System"/>
+    <Using Include="System.Runtime.CompilerServices"/>
+    <Using Include="Splat"/>
+    <Using Include="ReactiveUI.Primitives.Concurrency.DispatcherQueueSequencer" Alias="DispatcherQueueSequencer"/>
+  </ItemGroup>
+
+  <!-- The shared source carries no per-file usings for the namespaces that shift between the two
+       leaves, so this leaf imports the unshifted forms. -->
+  <ItemGroup>
+    <Using Include="ReactiveUI.Binding.Builder"/>
+    <Using Include="ReactiveUI.Binding.Helpers"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ReactiveUI.Binding\ReactiveUI.Binding.csproj"/>
+    <PackageReference Include="ReactiveUI.Primitives.Uno"/>
+  </ItemGroup>
+
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'windows'">
+    <PackageReference Include="Uno.WinUI"/>
+  </ItemGroup>
+
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+    <PackageReference Include="Microsoft.WindowsAppSDK"/>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- The same tests, run against the generator built for Roslyn 4.13. That build is the one that can
+         describe a call site, so it is the only one where the interceptor tier is reachable at all. -->
+    <TargetFrameworks>$(BindingTestTargets)</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TUnit"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces"/>
+    <PackageReference Include="Basic.Reference.Assemblies.Net110"/>
+    <PackageReference Include="Basic.Reference.Assemblies.Net100"/>
+    <PackageReference Include="Basic.Reference.Assemblies.Net90"/>
+    <PackageReference Include="Basic.Reference.Assemblies.Net80"/>
+    <PackageReference Include="Basic.Reference.Assemblies.Net472"/>
+    <PackageReference Include="ReactiveUI"/>
+    <PackageReference Include="ReactiveUI.Reactive"/>
+    <PackageReference Include="ReactiveUI.SourceGenerators" GeneratePathProperty="true" ExcludeAssets="analyzers"/>
+    <Reference Include="$(PkgReactiveUI_SourceGenerators)/analyzers/dotnet/roslyn5.0/cs/ReactiveUI.SourceGenerators.Roslyn.dll"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\ReactiveUI.Binding\ReactiveUI.Binding.csproj"/>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.Reactive\ReactiveUI.Binding.Reactive.csproj"/>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.SourceGenerators.Roslyn413\ReactiveUI.Binding.SourceGenerators.Roslyn413.csproj"/>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.Analyzer.Roslyn413\ReactiveUI.Binding.Analyzer.Roslyn413.csproj" Aliases="analyzer"/>
+  </ItemGroup>
+
+  <!-- No test source of its own: it recompiles the baseline project's files against the other generator. -->
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.Binding.SourceGenerators.Tests\**\*.cs"
+             Exclude="..\ReactiveUI.Binding.SourceGenerators.Tests\obj\**\*.cs;..\ReactiveUI.Binding.SourceGenerators.Tests\bin\**\*.cs;..\ReactiveUI.Binding.SourceGenerators.Tests\**\*.verified.cs;..\ReactiveUI.Binding.SourceGenerators.Tests\**\*.received.cs"
+             Link="%(RecursiveDir)%(Filename)%(Extension)"/>
+    <Compile Include="..\Shared\TransitiveAssemblyResolver.cs" Link="Shared\TransitiveAssemblyResolver.cs"/>
+    <Compile Include="..\Shared\RoslynSymbolProbe.cs" Link="Shared\RoslynSymbolProbe.cs"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyMetadata Include="GeneratorSnapshotDirectory" Value="$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../ReactiveUI.Binding.SourceGenerators.Tests'))"/>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <SharedScenariosPath>$(MSBuildProjectDirectory)\..\SharedScenarios\</SharedScenariosPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Copy shared scenario files to output (read as text, NOT compiled) -->
+    <None Include="$(SharedScenariosPath)**\*.cs"
+          CopyToOutputDirectory="PreserveNewest"
+          LinkBase="SharedScenarios"/>
+  </ItemGroup>
+
+</Project>

@@ -1,7 +1,7 @@
 {
     "platform": {
         "execution": {
-            "parallel": true
+            "parallel": false
         }
     },
     "extensions": [
@@ -12,7 +12,7 @@
                 "skipAutoProperties": true,
                 "modulePaths": {
                     "include": [
-                        "ReactiveUI\\.SourceGenerators(\\..+)?"
+                        "ReactiveUI\\.(Binding|SourceGenerators)(\\..+)?"
                     ],
                     "exclude": [
                         ".*Tests.*",

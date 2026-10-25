@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- The same tests, run against the analyzer built for Roslyn 4.13. That build knows the generator
+         travelling with it claims call sites outright, which changes what it has to report. -->
+    <TargetFrameworks>$(BindingTestTargets)</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TUnit"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces"/>
+    <PackageReference Include="Basic.Reference.Assemblies.Net100"/>
+    <PackageReference Include="Basic.Reference.Assemblies.Net90"/>
+    <PackageReference Include="Basic.Reference.Assemblies.Net80"/>
+    <PackageReference Include="ReactiveUI"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.Analyzer.Roslyn413\ReactiveUI.Binding.Analyzer.Roslyn413.csproj"/>
+    <ProjectReference Include="..\..\ReactiveUI.Binding\ReactiveUI.Binding.csproj"/>
+  </ItemGroup>
+
+  <!-- No test source of its own: it recompiles the baseline project's files against the other analyzer. -->
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.Binding.Analyzer.Tests\**\*.cs"
+             Exclude="..\ReactiveUI.Binding.Analyzer.Tests\obj\**\*.cs;..\ReactiveUI.Binding.Analyzer.Tests\bin\**\*.cs"
+             Link="%(RecursiveDir)%(Filename)%(Extension)"/>
+    <Compile Include="..\Shared\TransitiveAssemblyResolver.cs" Link="Shared\TransitiveAssemblyResolver.cs"/>
+    <Compile Include="..\Shared\RoslynSymbolProbe.cs" Link="Shared\RoslynSymbolProbe.cs"/>
+  </ItemGroup>
+
+</Project>

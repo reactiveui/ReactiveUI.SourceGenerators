@@ -1,0 +1,36 @@
+namespace ReactiveUI.Binding.Reactive.WinForms
+{
+    public sealed class ControlViewThreadInvoker : ReactiveUI.Binding.Reactive.SequencerViewThreadInvoker<System.Windows.Forms.Control, ReactiveUI.Primitives.Reactive.Concurrency.ControlSequencer>
+    {
+        public ControlViewThreadInvoker() { }
+        public static ReactiveUI.Binding.Reactive.WinForms.ControlViewThreadInvoker Instance { get; }
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        protected override ReactiveUI.Primitives.Reactive.Concurrency.ControlSequencer? SequencerFor(System.Windows.Forms.Control target) { }
+    }
+    public sealed class WinFormsBindingModule : Splat.Builder.IModule
+    {
+        public WinFormsBindingModule() { }
+        public void Configure(Splat.IMutableDependencyResolver resolver) { }
+    }
+    public class WinFormsCreatesObservableForProperty : ReactiveUI.Binding.Reactive.ICreatesObservableForProperty
+    {
+        public WinFormsCreatesObservableForProperty() { }
+        public int GetAffinityForObject(System.Type type, string propertyName, bool beforeChanged) { }
+        public System.IObservable<ReactiveUI.Binding.Reactive.IObservedChange<object, object?>> GetNotificationForProperty(object sender, System.Linq.Expressions.Expression expression, string propertyName, bool beforeChanged, bool suppressWarnings) { }
+    }
+}
+namespace ReactiveUI.Binding.Reactive.WinForms.Builder
+{
+    public static class WinFormsBindingBuilderExtensions
+    {
+        extension(ReactiveUI.Binding.Reactive.Builder.IReactiveUIBindingBuilder builder)
+        {
+            public ReactiveUI.Binding.Reactive.Builder.IReactiveUIBindingBuilder WithWinForms() { }
+        }
+        extension(Splat.Builder.IAppBuilder builder)
+        {
+            [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            public ReactiveUI.Binding.Reactive.Builder.IReactiveUIBindingBuilder WithWinForms() { }
+        }
+    }
+}

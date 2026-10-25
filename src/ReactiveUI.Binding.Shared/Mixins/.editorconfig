@@ -1,0 +1,24 @@
+[*.cs]
+
+###################
+# Runtime dispatch stubs
+#
+# The generator emits a concrete typed overload of each of these methods as a classic static
+# extension method, because generated output has to compile as C# 7.3. A binding only reaches its
+# generated implementation if that concrete overload wins extension lookup against the stub here.
+#
+# Rewriting a stub as an extension block member changes that outcome: the stub starts winning, and
+# every generated binding falls through to the runtime path and throws "No generated binding found"
+# (measured - 78 runtime-execution tests fail with the block form and pass with the classic form).
+# These stubs therefore stay classic extension methods.
+###################
+dotnet_diagnostic.SST1703.severity = none # an extension block member outranks the generated overload
+dotnet_diagnostic.SST1705.severity = none # an extension block member outranks the generated overload
+dotnet_diagnostic.SST1708.severity = none # an extension block member outranks the generated overload
+
+# The selector overloads declare their signature once per #if arm and share one expression body
+# after the #endif. SST1527 wants the arrow at the end of the preceding line - which is the #endif -
+# and moving it would push the body inside a single arm. Rewriting them as block bodies instead
+# trades the rule for SST2275, which asks for the expression body back, so the two cannot both be
+# satisfied for this shape.
+dotnet_diagnostic.SST1527.severity = none # the arrow follows an #endif shared by both arms

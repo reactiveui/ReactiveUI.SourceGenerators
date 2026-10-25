@@ -1,0 +1,56 @@
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("ReactiveUI.Binding.Wpf.Tests.Reactive")]
+namespace ReactiveUI.Binding.Reactive.Wpf
+{
+    [System.Flags]
+    public enum BooleanToVisibilityHints
+    {
+        None = 0,
+        Inverse = 2,
+        UseHidden = 4,
+    }
+    public sealed class BooleanToVisibilityTypeConverter : ReactiveUI.Binding.Reactive.BindingTypeConverter<bool, System.Windows.Visibility>
+    {
+        public BooleanToVisibilityTypeConverter() { }
+        public override int GetAffinityForObjects() { }
+        public override bool TryConvert(bool from, object? conversionHint, out System.Windows.Visibility result) { }
+    }
+    public class DependencyObjectObservableForProperty : ReactiveUI.Binding.Reactive.ICreatesObservableForProperty
+    {
+        public DependencyObjectObservableForProperty() { }
+        public int GetAffinityForObject(System.Type type, string propertyName, bool beforeChanged) { }
+        public System.IObservable<ReactiveUI.Binding.Reactive.IObservedChange<object, object?>> GetNotificationForProperty(object sender, System.Linq.Expressions.Expression expression, string propertyName, bool beforeChanged, bool suppressWarnings) { }
+    }
+    public sealed class DispatcherViewThreadInvoker : ReactiveUI.Binding.Reactive.SequencerViewThreadInvoker<System.Windows.Threading.DispatcherObject, ReactiveUI.Primitives.Reactive.Concurrency.DispatcherSequencer>
+    {
+        public DispatcherViewThreadInvoker() { }
+        public static ReactiveUI.Binding.Reactive.Wpf.DispatcherViewThreadInvoker Instance { get; }
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        protected override ReactiveUI.Primitives.Reactive.Concurrency.DispatcherSequencer? SequencerFor(System.Windows.Threading.DispatcherObject target) { }
+    }
+    public sealed class VisibilityToBooleanTypeConverter : ReactiveUI.Binding.Reactive.BindingTypeConverter<System.Windows.Visibility, bool>
+    {
+        public VisibilityToBooleanTypeConverter() { }
+        public override int GetAffinityForObjects() { }
+        public override bool TryConvert(System.Windows.Visibility from, object? conversionHint, out bool result) { }
+    }
+    public sealed class WpfBindingModule : Splat.Builder.IModule
+    {
+        public WpfBindingModule() { }
+        public void Configure(Splat.IMutableDependencyResolver resolver) { }
+    }
+}
+namespace ReactiveUI.Binding.Reactive.Wpf.Builder
+{
+    public static class WpfBindingBuilderExtensions
+    {
+        extension(ReactiveUI.Binding.Reactive.Builder.IReactiveUIBindingBuilder builder)
+        {
+            public ReactiveUI.Binding.Reactive.Builder.IReactiveUIBindingBuilder WithWpf() { }
+        }
+        extension(Splat.Builder.IAppBuilder builder)
+        {
+            [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            public ReactiveUI.Binding.Reactive.Builder.IReactiveUIBindingBuilder WithWpf() { }
+        }
+    }
+}

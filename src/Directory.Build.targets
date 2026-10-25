@@ -1,0 +1,44 @@
+<Project>
+  <PropertyGroup>
+    <Product>$(AssemblyName) ($(TargetFramework))</Product>
+  </PropertyGroup>
+
+  <!-- WPF, WinForms and MAUI tests target the windows TFMs and need the Windows Desktop runtime to execute.
+       Off Windows they still compile - that is the validation the Linux and macOS legs give us - but they must
+       not be launched, or the run reports "Zero tests ran" and fails despite every real test passing.
+       IsWindowsDesktopTestProject is computed in Directory.Build.props; the demotion has to happen here
+       because the testing-platform props set these back to true after that file is evaluated. -->
+  <PropertyGroup Condition="'$(IsWindowsDesktopTestProject)' == 'true' and !$([MSBuild]::IsOsPlatform('Windows'))">
+    <IsTestProject>false</IsTestProject>
+    <IsTestingPlatformApplication>false</IsTestingPlatformApplication>
+    <TestingPlatformDotnetTestSupport>false</TestingPlatformDotnetTestSupport>
+    <!-- With the testing platform switched off, TUnit stops generating the entry point, so the project has
+         to build as a library rather than the executable a test app would normally be. -->
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(TargetFramework.StartsWith('net4'))">
+    <DefineConstants>$(DefineConstants);NET_45;XAML</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(TargetFramework.StartsWith('uap'))">
+    <DefineConstants>$(DefineConstants);NETFX_CORE;XAML;WINDOWS_UWP</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(TargetFramework.StartsWith('Xamarin.iOS'))">
+    <DefineConstants>$(DefineConstants);MONO;UIKIT;COCOA</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(TargetFramework.StartsWith('Xamarin.Mac'))">
+    <DefineConstants>$(DefineConstants);MONO;COCOA</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(TargetFramework.StartsWith('Xamarin.TVOS'))">
+    <DefineConstants>$(DefineConstants);MONO;UIKIT;COCOA</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(TargetFramework.StartsWith('Xamarin.WatchOS'))">
+    <DefineConstants>$(DefineConstants);MONO;UIKIT;COCOA</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(TargetFramework.StartsWith('MonoAndroid'))">
+    <DefineConstants>$(DefineConstants);MONO;ANDROID</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(TargetFramework.StartsWith('tizen'))">
+    <DefineConstants>$(DefineConstants);TIZEN</DefineConstants>
+  </PropertyGroup>
+</Project>

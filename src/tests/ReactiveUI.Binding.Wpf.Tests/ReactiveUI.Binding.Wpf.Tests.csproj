@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- WPF only exists on the windows TFMs, so these target them everywhere. They compile off Windows
+         (EnableWindowsTargeting) but can only execute on the Windows CI leg, which is why IsTestProject
+         is switched off elsewhere - see Directory.Build.props. -->
+    <TargetFrameworks>$(BindingTestPlatformTargets)</TargetFrameworks>
+    <UseWpf>true</UseWpf>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="ReactiveUI.Binding"/>
+    <Using Include="ReactiveUI.Binding.Observables"/>
+    <Using Include="ReactiveUI.Binding.Wpf"/>
+    <Using Include="TUnit.Core"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TUnit"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.Wpf\ReactiveUI.Binding.Wpf.csproj"/>
+    <!-- XamlPage binds controls WPF's markup compiler declares, so the binding generator runs over this project. -->
+    <ProjectReference Include="..\..\ReactiveUI.Binding.SourceGenerators\ReactiveUI.Binding.SourceGenerators.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"/>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.Analyzer\ReactiveUI.Binding.Analyzer.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"/>
+  </ItemGroup>
+</Project>

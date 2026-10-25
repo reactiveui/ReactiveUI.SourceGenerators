@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net10.0;net11.0;net462</TargetFrameworks>
+    <IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net7.0'))">true</IsAotCompatible>
+  </PropertyGroup>
+
+  <!-- The baselines measure ReactiveUI's own reflection engine. ReactiveUI 25 replaced it with this library, so the
+       benchmarks stay on the last release that has it. -->
+  <ItemGroup>
+    <PackageReference Include="ReactiveUI" VersionOverride="26.0.1"/>
+    <PackageReference Include="System.Reactive"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\ReactiveUI.Binding\ReactiveUI.Binding.csproj"/>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.Reactive\ReactiveUI.Binding.Reactive.csproj"/>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.SourceGenerators\ReactiveUI.Binding.SourceGenerators.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"/>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.Analyzer\ReactiveUI.Binding.Analyzer.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"/>
+  </ItemGroup>
+
+  <!-- Microsoft.Identity.Client, which BenchmarkDotNet brings in, adds System.Windows.Forms on .NET Framework. The
+       benchmarks declare their own WinForms stand-ins, so the real assembly would clash with them (CS0436). -->
+  <Target Name="RemoveFrameworkWinForms" BeforeTargets="ResolveAssemblyReferences" Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
+    <ItemGroup>
+      <Reference Remove="System.Windows.Forms"/>
+    </ItemGroup>
+  </Target>
+
+</Project>

@@ -1,0 +1,19 @@
+name: Trimmed
+
+# The shared smoke workflow keys its concurrency group on github.workflow, so the trimmed harness runs from
+# its own file. Both in one file share a group, and whichever starts second cancels the other.
+
+on:
+    push:
+        branches: [ main ]
+    pull_request:
+        branches: [ main ]
+
+permissions:
+    contents: read
+
+jobs:
+    trimmed-smoke:
+        uses: reactiveui/actions-common/.github/workflows/workflow-common-aot-smoke.yml@main
+        with:
+            projectFile: src/tests/ReactiveUI.Binding.TrimValidation/ReactiveUI.Binding.TrimValidation.csproj

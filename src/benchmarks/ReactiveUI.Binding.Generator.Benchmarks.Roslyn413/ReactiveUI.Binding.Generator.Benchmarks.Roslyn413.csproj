@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- The same measurements, taken against the generator built for Roslyn 4.13. That build is the one that
+         claims a call site outright, so it is the only one where the interceptor tier can be measured. -->
+    <TargetFrameworks>net10.0;net11.0</TargetFrameworks>
+    <AssemblyName>ReactiveUI.Binding.Generator.Benchmarks.Roslyn413</AssemblyName>
+    <RootNamespace>ReactiveUI.Binding.Generator.Benchmarks</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp"/>
+    <PackageReference Include="Basic.Reference.Assemblies.Net100"/>
+    <PackageReference Include="Basic.Reference.Assemblies.Net110"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.SourceGenerators.Roslyn413\ReactiveUI.Binding.SourceGenerators.Roslyn413.csproj"/>
+    <ProjectReference Include="..\..\ReactiveUI.Binding\ReactiveUI.Binding.csproj"/>
+  </ItemGroup>
+
+  <!-- No source of its own: it recompiles the baseline project's files against the other generator. -->
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.Binding.Generator.Benchmarks\**\*.cs"
+             Exclude="..\ReactiveUI.Binding.Generator.Benchmarks\obj\**\*.cs;..\ReactiveUI.Binding.Generator.Benchmarks\bin\**\*.cs"
+             Link="%(RecursiveDir)%(Filename)%(Extension)"/>
+    <Content Include="..\ReactiveUI.Binding.Generator.Benchmarks\Mocks\*.cs"
+             Link="Mocks\%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest"/>
+  </ItemGroup>
+
+</Project>

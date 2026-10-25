@@ -1,0 +1,30 @@
+namespace ReactiveUI.Binding.Uno
+{
+    public sealed class UnoBindingModule : Splat.Builder.IModule
+    {
+        public UnoBindingModule() { }
+        public void Configure(Splat.IMutableDependencyResolver resolver) { }
+    }
+    public sealed class UnoViewThreadInvoker : ReactiveUI.Binding.SequencerViewThreadInvoker<Microsoft.UI.Xaml.DependencyObject, ReactiveUI.Primitives.Concurrency.DispatcherQueueSequencer>
+    {
+        public UnoViewThreadInvoker() { }
+        public static ReactiveUI.Binding.Uno.UnoViewThreadInvoker Instance { get; }
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        protected override ReactiveUI.Primitives.Concurrency.DispatcherQueueSequencer SequencerFor(Microsoft.UI.Xaml.DependencyObject target) { }
+    }
+}
+namespace ReactiveUI.Binding.Uno.Builder
+{
+    public static class UnoBindingBuilderExtensions
+    {
+        extension(ReactiveUI.Binding.Builder.IReactiveUIBindingBuilder builder)
+        {
+            public ReactiveUI.Binding.Builder.IReactiveUIBindingBuilder WithUno() { }
+        }
+        extension(Splat.Builder.IAppBuilder builder)
+        {
+            [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            public ReactiveUI.Binding.Builder.IReactiveUIBindingBuilder WithUno() { }
+        }
+    }
+}

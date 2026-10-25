@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>14.0</LangVersion>
+    <RootNamespace>ReactiveUI.Binding.Documentation</RootNamespace>
+    <PublishAot>true</PublishAot>
+    <IsAotCompatible>true</IsAotCompatible>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <IlcDisableReflection>true</IlcDisableReflection>
+  </PropertyGroup>
+  <ItemGroup>
+    <Using Include="ReactiveUI.Binding" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../../../ReactiveUI.Binding/ReactiveUI.Binding.csproj" />
+    <ProjectReference Include="../../../../../ReactiveUI.Binding.SourceGenerators/ReactiveUI.Binding.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="../../../../../ReactiveUI.Binding.Analyzer/ReactiveUI.Binding.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <Compile Include="../../../Common/Infrastructure/ObservableObject.cs" Link="Common/Infrastructure/ObservableObject.cs" />
+    <Compile Include="../../../Common/Todo/TodoItem.cs" Link="Common/Todo/TodoItem.cs" />
+    <Compile Include="../../../Common/Todo/TodoPriority.cs" Link="Common/Todo/TodoPriority.cs" />
+  </ItemGroup>
+</Project>

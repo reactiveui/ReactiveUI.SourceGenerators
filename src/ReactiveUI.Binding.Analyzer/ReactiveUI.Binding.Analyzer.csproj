@@ -1,0 +1,62 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <IsRoslynComponent>true</IsRoslynComponent>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <PackageDescription>Diagnostic analyzers and code fix providers for ReactiveUI binding source generator.</PackageDescription>
+    <!-- RS1038: Workspaces reference is required for code fix providers in this assembly -->
+    <NoWarn>$(NoWarn);RS1038</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ReactiveUI.Binding.Analyzer.Tests"/>
+    <InternalsVisibleTo Include="ReactiveUI.Binding.Analyzer.Tests.Roslyn413"/>
+  </ItemGroup>
+
+  <!-- Roslyn 4.8.0 baseline (VS 2022 17.8, .NET 8.0.1xx SDK). Ships alongside the generator in the
+       version-less analyzers/dotnet/cs folder, so it must build against the same floor: a compiler
+       will not load an analyzer built against a newer Roslyn than itself. -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" VersionOverride="4.8.0"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="all" VersionOverride="4.8.0"/>
+  </ItemGroup>
+
+  <!-- Link shared diagnostic descriptors and constants from generator project. The interception reader comes
+       with them because a diagnostic about the reach of a dispatch overload only applies where dispatch
+       overloads are what this slot's generator emits, and both answer that from the same source. -->
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.Binding.SourceGenerators\DiagnosticWarnings.cs" Link="DiagnosticWarnings.cs"/>
+    <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Constants.cs" Link="Constants.cs"/>
+    <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Models\InterceptorLocation.cs" Link="Models\InterceptorLocation.cs"/>
+    <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Helpers\InterceptableLocationReader.cs" Link="Helpers\InterceptableLocationReader.cs"/>
+    <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Helpers\ExtractorValidation.cs" Link="Helpers\ExtractorValidation.cs"/>
+    <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Helpers\NativeCommandMembers.cs" Link="Helpers\NativeCommandMembers.cs"/>
+    <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Helpers\NativeTypeIdentity.cs" Link="Helpers\NativeTypeIdentity.cs"/>
+    <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Plugins\CommandBinding\AppKitCommandSymbols.cs" Link="Helpers\AppKitCommandSymbols.cs"/>
+    <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Plugins\CommandBinding\UIKitCommandSymbols.cs" Link="Helpers\UIKitCommandSymbols.cs"/>
+    <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Plugins\PropertyRaise\*.cs" Link="Plugins\PropertyRaise\%(Filename)%(Extension)"/>
+    <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Plugins\ViewThread\*.cs" Link="Plugins\ViewThread\%(Filename)%(Extension)"/>
+    <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Models\PropertyRaiseInfo.cs" Link="Models\PropertyRaiseInfo.cs"/>
+    <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Models\PropertyRaiseCall.cs" Link="Models\PropertyRaiseCall.cs"/>
+    <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Models\PropertyRaiseCallKind.cs" Link="Models\PropertyRaiseCallKind.cs"/>
+    <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Models\PropertyRaiseArgumentKind.cs" Link="Models\PropertyRaiseArgumentKind.cs"/>
+    <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Models\PartialTypeDeclaration.cs" Link="Models\PartialTypeDeclaration.cs"/>
+    <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Models\EquatableArray.cs" Link="Models\EquatableArray.cs"/>
+    <Compile Include="..\ReactiveUI.Binding.Shared\Bindings\BindingAffinity.cs" Link="Bindings\BindingAffinity.cs"/>
+    <Compile Include="..\ReactiveUI.Binding.SourceGenerators\CodeGeneration\PooledStringBuilder.cs" Link="CodeGeneration\PooledStringBuilder.cs"/>
+  </ItemGroup>
+
+  <!-- Link polyfills and helpers from runtime library for netstandard2.0 compatibility -->
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.Binding.Shared\Polyfills\*.cs" LinkBase="Polyfills"/>
+    <Compile Include="..\ReactiveUI.Binding.Shared\Helpers\ArgumentExceptionHelper.cs" Link="Helpers\ArgumentExceptionHelper.cs"/>
+  </ItemGroup>
+
+  <!-- Include analyzer release tracking files -->
+  <ItemGroup>
+    <None Include="AnalyzerReleases.Shipped.md"/>
+    <None Include="AnalyzerReleases.Unshipped.md"/>
+  </ItemGroup>
+</Project>

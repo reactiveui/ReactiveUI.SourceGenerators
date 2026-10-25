@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net10.0;net10.0-windows10.0.19041.0</TargetFrameworks>
+    <RootNamespace>PlatformBindingsVerification</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <UseMaui>true</UseMaui>
+    <DefineConstants>$(DefineConstants);PLATFORM_MAUI</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-windows10.0.19041.0'">
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <DefineConstants>$(DefineConstants);PLATFORM_WINDOWS</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="ReactiveUI.Binding" />
+    <Using Include="ReactiveUI.Primitives.Concurrency" />
+    <Using Include="Splat.Builder" />
+    <Using Include="ReactiveUI.Primitives" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../../ReactiveUI.Binding.SourceGenerators/ReactiveUI.Binding.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="../../../ReactiveUI.Binding.Analyzer/ReactiveUI.Binding.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <ProjectReference Include="../../../ReactiveUI.Binding.Maui/ReactiveUI.Binding.Maui.csproj" />
+    <Compile Remove="Wpf/**;WinForms/**" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows10.0.19041.0'">
+    <ProjectReference Include="../../../ReactiveUI.Binding.Wpf/ReactiveUI.Binding.Wpf.csproj" />
+    <ProjectReference Include="../../../ReactiveUI.Binding.WinForms/ReactiveUI.Binding.WinForms.csproj" />
+    <Compile Remove="Maui/**" />
+  </ItemGroup>
+</Project>

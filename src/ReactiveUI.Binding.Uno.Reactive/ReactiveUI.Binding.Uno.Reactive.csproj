@@ -1,0 +1,59 @@
+<Project Sdk="Uno.Sdk">
+  <PropertyGroup>
+    <!-- System.Reactive-flavoured Uno leaf: recompiles the shared Uno source against
+         ReactiveUI.Binding.Reactive, shifting its types to ReactiveUI.Binding.Reactive.Uno.
+         REACTIVE_SHIM comes from ReactiveShim.props via the '.Reactive' name suffix. -->
+    <TargetFrameworks>$(BindingUnoTargets)</TargetFrameworks>
+    <OutputType>Library</OutputType>
+    <!-- Uno.Sdk does not pack a library unless asked. -->
+    <IsPackable>true</IsPackable>
+    <RootNamespace>ReactiveUI.Binding.Reactive.Uno</RootNamespace>
+    <!-- The implicit packages include Uno.Resizetizer, which adds window-icon helpers to a library's public API.
+         The invoker needs only the dispatcher queue, so it references Uno.WinUI or the Windows App SDK itself. -->
+    <DisableImplicitUnoPackages>true</DisableImplicitUnoPackages>
+    <!-- The Windows head references the Windows App SDK, which has no Uno namespaces to import. -->
+    <DisableImplicitUnoNamespaces>true</DisableImplicitUnoNamespaces>
+    <!-- The library ships no Android resources, so it needs no public Resource designer class. -->
+    <AndroidGenerateResourceDesigner>false</AndroidGenerateResourceDesigner>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+    <PackageDescription>Uno Platform support for ReactiveUI.Binding.Reactive, for consumers on System.Reactive.</PackageDescription>
+    <PackageTags>reactiveui;binding;uno;winui;system.reactive</PackageTags>
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.Binding.Uno.Shared\**\*.cs" Link="ReactiveUI.Binding.Uno.Shared\%(RecursiveDir)%(Filename)%(Extension)"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="System"/>
+    <Using Include="System.Runtime.CompilerServices"/>
+    <Using Include="Splat"/>
+    <Using Include="ReactiveUI.Primitives.Reactive.Concurrency.DispatcherQueueSequencer" Alias="DispatcherQueueSequencer"/>
+  </ItemGroup>
+
+  <!-- The shifted counterparts of the lean leaf's imports. -->
+  <ItemGroup>
+    <Using Include="ReactiveUI.Binding.Reactive.Builder"/>
+    <Using Include="ReactiveUI.Binding.Reactive.Helpers"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ReactiveUI.Binding.Reactive\ReactiveUI.Binding.Reactive.csproj"/>
+    <PackageReference Include="ReactiveUI.Primitives.Uno.Reactive"/>
+  </ItemGroup>
+
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'windows'">
+    <PackageReference Include="Uno.WinUI"/>
+  </ItemGroup>
+
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+    <PackageReference Include="Microsoft.WindowsAppSDK"/>
+  </ItemGroup>
+
+  <!-- A recompilation of ReactiveUI.Binding.Uno.Shared, which ReactiveUI.Binding.Uno already covers. -->
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage"/>
+  </ItemGroup>
+</Project>

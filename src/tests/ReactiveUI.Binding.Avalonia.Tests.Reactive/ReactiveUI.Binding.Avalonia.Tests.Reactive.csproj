@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- The same tests, recompiled against ReactiveUI.Binding.Reactive.Avalonia. REACTIVE_SHIM comes from
+         ReactiveShim.props via the '.Reactive' name suffix, which is why the suffix goes last. -->
+    <TargetFrameworks>$(BindingTestTargets)</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <!-- No test source of its own: it recompiles the lean project's files under the shifted namespaces. -->
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.Binding.Avalonia.Tests\**\*.cs"
+             Exclude="..\ReactiveUI.Binding.Avalonia.Tests\obj\**\*.cs;..\ReactiveUI.Binding.Avalonia.Tests\bin\**\*.cs"
+             Link="%(RecursiveDir)%(Filename)%(Extension)"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="ReactiveUI.Binding.Reactive"/>
+    <Using Include="ReactiveUI.Binding.Reactive.Builder"/>
+    <Using Include="ReactiveUI.Binding.Reactive.Avalonia"/>
+    <Using Include="ReactiveUI.Binding.Reactive.Avalonia.Builder"/>
+    <Using Include="Splat"/>
+    <Using Include="Splat.Builder"/>
+    <Using Include="TUnit.Core"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TUnit"/>
+    <PackageReference Include="Avalonia.Headless"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.Avalonia.Reactive\ReactiveUI.Binding.Avalonia.Reactive.csproj"/>
+  </ItemGroup>
+</Project>

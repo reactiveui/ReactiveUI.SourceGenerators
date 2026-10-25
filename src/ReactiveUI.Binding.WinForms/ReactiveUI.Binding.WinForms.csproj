@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>$(BindingWindowsOnlyTargets)</TargetFrameworks>
+    <UseWindowsForms>true</UseWindowsForms>
+    <PackageDescription>WinForms platform support for ReactiveUI.Binding. Provides event-based property observation for WinForms components.</PackageDescription>
+    <PackageTags>reactiveui;binding;winforms</PackageTags>
+    <IsAotCompatible>false</IsAotCompatible>
+    <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
+    <EnableSingleFileAnalyzer>false</EnableSingleFileAnalyzer>
+  </PropertyGroup>
+
+  <!-- The seam source, compiled here against the lean ReactiveUI.Binding. ReactiveUI.Binding.WinForms.Reactive
+       links the same files under REACTIVE_SHIM. -->
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.Binding.WinForms.Shared\**\*.cs" Link="ReactiveUI.Binding.WinForms.Shared\%(RecursiveDir)%(Filename)%(Extension)"/>
+    <Compile Include="..\ReactiveUI.Binding.Platform.Shared\**\*.cs" Link="ReactiveUI.Binding.Platform.Shared\%(RecursiveDir)%(Filename)%(Extension)"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="ReactiveUI.Primitives.Disposables"/>
+    <Using Include="System"/>
+    <Using Include="System.ComponentModel"/>
+    <Using Include="System.Diagnostics"/>
+    <Using Include="System.Diagnostics.CodeAnalysis"/>
+    <Using Include="System.Runtime.CompilerServices"/>
+    <Using Include="Splat"/>
+    <Using Include="ReactiveUI.Primitives.Concurrency.ControlSequencer" Alias="ControlSequencer"/>
+  </ItemGroup>
+
+  <!-- The shared source carries no per-file usings for the namespaces that shift between the two
+       leaves, so this leaf imports the unshifted forms. -->
+  <ItemGroup>
+    <Using Include="ReactiveUI.Binding.Builder"/>
+    <Using Include="ReactiveUI.Binding.Helpers"/>
+    <Using Include="ReactiveUI.Binding.ObservableForProperty"/>
+    <Using Include="ReactiveUI.Binding.Observables"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ReactiveUI.Binding\ReactiveUI.Binding.csproj"/>
+    <PackageReference Include="ReactiveUI.Primitives.WinForms"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ReactiveUI.Binding.WinForms.Tests"/>
+  </ItemGroup>
+</Project>

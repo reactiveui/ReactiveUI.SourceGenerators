@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- WinForms only exists on the windows TFMs, so these target them everywhere. They compile off Windows
+         (EnableWindowsTargeting) but can only execute on the Windows CI leg - see Directory.Build.targets. -->
+    <TargetFrameworks>$(BindingTestPlatformTargets)</TargetFrameworks>
+    <UseWindowsForms>true</UseWindowsForms>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="ReactiveUI.Binding"/>
+    <Using Include="ReactiveUI.Binding.WinForms"/>
+    <Using Include="TUnit.Core"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TUnit"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.WinForms\ReactiveUI.Binding.WinForms.csproj"/>
+  </ItemGroup>
+</Project>

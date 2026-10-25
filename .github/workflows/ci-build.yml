@@ -6,20 +6,23 @@ on:
   pull_request:
     branches: [ main ]
 
-env:
-  productNamespacePrefix: "ReactiveUI.SourceGenerators"
-  
 # Needed so the reusable workflow can optionally delete the temp per-OS artifacts it creates.
 permissions:
   contents: read
   actions: write
 
+env:
+  productNamespacePrefix: "ReactiveUI.Binding"
+
 jobs:
   build:
     uses: reactiveui/actions-common/.github/workflows/workflow-common-setup-and-build.yml@main
     with:
-      productNamespacePrefix: ReactiveUI.SourceGenerators
+      configuration: Release
+      productNamespacePrefix: "ReactiveUI.Binding"
+      # The Uno.Sdk projects need MSBuild, so they build and test in their own Windows job.
+      solutionFile: ReactiveUI.Binding.SourceGenerators.slnf
+      msbuildSolutionFile: ReactiveUI.Binding.SourceGenerators.Uno.slnf
       installWorkloads: true
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-

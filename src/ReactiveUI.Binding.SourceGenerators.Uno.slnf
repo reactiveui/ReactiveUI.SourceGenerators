@@ -1,0 +1,10 @@
+{
+  "solution": {
+    "path": "ReactiveUI.Binding.SourceGenerators.slnx",
+    "projects": [
+      "ReactiveUI.Binding.Uno\\ReactiveUI.Binding.Uno.csproj",
+      "ReactiveUI.Binding.Uno.Reactive\\ReactiveUI.Binding.Uno.Reactive.csproj",
+      "tests\\ReactiveUI.Binding.Uno.Tests\\ReactiveUI.Binding.Uno.Tests.csproj"
+    ]
+  }
+}

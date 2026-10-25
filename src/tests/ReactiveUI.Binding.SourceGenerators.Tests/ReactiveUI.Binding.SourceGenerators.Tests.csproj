@@ -1,0 +1,75 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>$(BindingTestTargets)</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TUnit"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces"/>
+    <PackageReference Include="Basic.Reference.Assemblies.Net110"/>
+    <PackageReference Include="Basic.Reference.Assemblies.Net100"/>
+    <PackageReference Include="Basic.Reference.Assemblies.Net90"/>
+    <PackageReference Include="Basic.Reference.Assemblies.Net80"/>
+    <PackageReference Include="Basic.Reference.Assemblies.Net472"/>
+    <PackageReference Include="ReactiveUI"/>
+    <!-- The System.Reactive runtime compiles against ReactiveUI.Reactive, as its consumers do: lean ReactiveUI brings
+         the lean runtime with it. -->
+    <PackageReference Include="ReactiveUI.Reactive"/>
+    <!-- ReactiveUI.SourceGenerators runs beside this generator in the contract tests: its attributes are referenced,
+         and its generators are loaded from the package rather than run over this project. This project pins the first
+         release the contract follows; the Roslyn 4.13 project runs the same tests against the current release. -->
+    <PackageReference Include="ReactiveUI.SourceGenerators" GeneratePathProperty="true" ExcludeAssets="analyzers" VersionOverride="4.2.0"/>
+    <Reference Include="$(PkgReactiveUI_SourceGenerators)/analyzers/dotnet/roslyn5.0/cs/ReactiveUI.SourceGenerators.Roslyn.dll"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\ReactiveUI.Binding\ReactiveUI.Binding.csproj"/>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.Reactive\ReactiveUI.Binding.Reactive.csproj"/>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.SourceGenerators\ReactiveUI.Binding.SourceGenerators.csproj"/>
+    <!-- The [ObservableAsProperty] code fix is checked by generating from its output. The alias keeps the analyzer's
+         copies of the generator's shared internal types out of the global namespace. -->
+    <ProjectReference Include="..\..\ReactiveUI.Binding.Analyzer\ReactiveUI.Binding.Analyzer.csproj" Aliases="analyzer"/>
+  </ItemGroup>
+  <ItemGroup>
+    <AssemblyMetadata Include="GeneratorSnapshotDirectory" Value="$(MSBuildProjectDirectory)"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\TransitiveAssemblyResolver.cs" Link="Shared\TransitiveAssemblyResolver.cs"/>
+    <Compile Include="..\Shared\RoslynSymbolProbe.cs" Link="Shared\RoslynSymbolProbe.cs"/>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <SharedScenariosPath>$(MSBuildProjectDirectory)\..\SharedScenarios\</SharedScenariosPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Copy shared scenario files to output (read as text, NOT compiled) -->
+    <None Include="$(SharedScenariosPath)**\*.cs"
+          CopyToOutputDirectory="PreserveNewest"
+          LinkBase="SharedScenarios"/>
+  </ItemGroup>
+
+  <!-- Verified snapshot files: don't compile, nest under test classes -->
+  <ItemGroup>
+    <Compile Remove="**/*.verified.cs;**/*.received.cs"/>
+    <None Include="**/*.verified.cs;**/*.received.cs"/>
+    <None Update="BG.*.verified.cs" DependentUpon="BindGeneratorTests.cs"/>
+    <None Update="BOG.*.verified.cs" DependentUpon="BindOneWayGeneratorTests.cs"/>
+    <None Update="BTG.*.verified.cs" DependentUpon="BindTwoWayGeneratorTests.cs"/>
+    <None Update="OBG.*.verified.cs" DependentUpon="OneWayBindGeneratorTests.cs"/>
+    <None Update="WAG.*.verified.cs" DependentUpon="WhenAnyGeneratorTests.cs"/>
+    <None Update="WAOG.*.verified.cs" DependentUpon="WhenAnyObservableGeneratorTests.cs"/>
+    <None Update="WAVG.*.verified.cs" DependentUpon="WhenAnyValueGeneratorTests.cs"/>
+    <None Update="WCG.*.verified.cs" DependentUpon="WhenChangedGeneratorTests.cs"/>
+    <None Update="WCnG.*.verified.cs" DependentUpon="WhenChangingGeneratorTests.cs"/>
+    <None Update="BToG.*.verified.cs" DependentUpon="BindToGeneratorTests.cs"/>
+    <None Update="ICG.*.verified.cs" DependentUpon="InvokeCommandGeneratorTests.cs"/>
+    <None Update="PDS.*.verified.cs" DependentUpon="PlatformDetectionSnapshotTests.cs"/>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,33 @@
+<Project>
+  <!--
+    ReactiveShim.props - the seam that lets one set of source files compile twice.
+
+    ReactiveUI.Binding.Shared is compiled by two leaves:
+
+      - ReactiveUI.Binding          the lean leaf. ISequencer and the Schedule(...) extensions come
+                                    from ReactiveUI.Primitives.Concurrency, imported by that csproj.
+      - ReactiveUI.Binding.Reactive the System.Reactive leaf. The same source is recompiled with
+                                    ISequencer bound to System.Reactive's IScheduler, and every
+                                    shared namespace shifted to ReactiveUI.Binding.Reactive.* by the
+                                    REACTIVE_SHIM define the shared files switch on.
+
+    The shared source only ever names ISequencer, so nothing in it has to know which leaf it is being
+    compiled into. Keyed on the project-name suffix, so a future platform leaf (for example
+    ReactiveUI.Binding.Wpf.Reactive) picks the seam up with no further wiring.
+  -->
+
+  <PropertyGroup>
+    <RxReactiveSeam Condition="$(MSBuildProjectName.EndsWith('.Reactive'))">true</RxReactiveSeam>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(RxReactiveSeam)' == 'true'">
+    <DefineConstants>$(DefineConstants);REACTIVE_SHIM</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(RxReactiveSeam)' == 'true'">
+    <!-- The namespace import supplies the Schedule(...) extension overloads the shared source calls;
+         the alias binds the type name it declares its parameters and fields with. -->
+    <Using Include="System.Reactive.Concurrency"/>
+    <Using Include="System.Reactive.Concurrency.IScheduler" Alias="ISequencer"/>
+  </ItemGroup>
+</Project>

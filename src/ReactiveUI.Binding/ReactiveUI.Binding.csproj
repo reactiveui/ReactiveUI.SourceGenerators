@@ -1,0 +1,115 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>$(BindingCoreRuntimeTargets)</TargetFrameworks>
+    <PackageDescription>Runtime library for ReactiveUI property observation and binding. Provides ICreatesObservableForProperty, expression chain decomposition, and converter infrastructure.</PackageDescription>
+    <PackageTags>reactiveui;binding;observableforproperty</PackageTags>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
+  </PropertyGroup>
+
+  <!-- The .editorconfig sets every IL20xx/IL30xx rule to error; the analysers that raise them only run when
+       these are set, so without this the policy never reaches the source that ships. Only the frameworks that
+       have a linker - net4x has neither a trimmer nor an AOT compiler. -->
+  <PropertyGroup Condition="!$(TargetFramework.StartsWith('net4'))">
+    <IsTrimmable>true</IsTrimmable>
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+
+  <!-- The seam source, compiled here with the lean identity: ISequencer resolves to
+       ReactiveUI.Primitives.Concurrency and the namespaces stay unshifted. ReactiveUI.Binding.Reactive
+       links these same files under REACTIVE_SHIM. -->
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.Binding.Shared\**\*.cs" Link="ReactiveUI.Binding.Shared\%(RecursiveDir)%(Filename)%(Extension)"/>
+  </ItemGroup>
+
+  <Import Project="..\ReactiveUI.Binding.Shared\Platforms\Platforms.targets"/>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ReactiveUI.Binding.Tests"/>
+    <InternalsVisibleTo Include="ReactiveUI.Binding.GeneratedCode.Tests"/>
+    <InternalsVisibleTo Include="ReactiveUI.Binding.Wpf"/>
+    <InternalsVisibleTo Include="ReactiveUI.Binding.WinForms"/>
+    <InternalsVisibleTo Include="ReactiveUI.Binding.Maui"/>
+    <InternalsVisibleTo Include="ReactiveUI.Binding.Avalonia"/>
+    <InternalsVisibleTo Include="ReactiveUI.Binding.Uno"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="System.Diagnostics"/>
+    <Using Include="System.Diagnostics.CodeAnalysis"/>
+    <Using Include="System.Linq.Expressions"/>
+    <Using Include="System.Runtime.CompilerServices"/>
+    <Using Include="Splat"/>
+  </ItemGroup>
+
+  <!-- The shared source carries no per-file usings for the namespaces that shift between the two
+       leaves, so this leaf imports the unshifted forms. ReactiveUI.Primitives.Concurrency supplies
+       ISequencer itself along with the Schedule(...) extensions the shared source calls on it. -->
+  <ItemGroup>
+    <Using Include="ReactiveUI.Primitives"/>
+    <Using Include="ReactiveUI.Primitives.Advanced"/>
+    <Using Include="ReactiveUI.Primitives.Concurrency"/>
+    <Using Include="ReactiveUI.Primitives.Disposables"/>
+    <Using Include="ReactiveUI.Primitives.Extensions"/>
+    <Using Include="ReactiveUI.Primitives.Signals"/>
+    <Using Include="ReactiveUI.Binding.Builder"/>
+    <Using Include="ReactiveUI.Binding.Expressions"/>
+    <Using Include="ReactiveUI.Binding.Fallback"/>
+    <Using Include="ReactiveUI.Binding.Helpers"/>
+    <Using Include="ReactiveUI.Binding.ObservableForProperty"/>
+    <Using Include="ReactiveUI.Binding.Observables"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Splat"/>
+    <PackageReference Include="ReactiveUI.Primitives"/>
+  </ItemGroup>
+
+  <!-- The runtime library is useless on its own: every API it exposes is a stub that throws unless the
+       generator has replaced the call site, so the generator and its analyzer ship in this package rather
+       than being something the consumer has to remember to add. Referenced only to order the build - the
+       generator is not run over this project's own source. -->
+  <ItemGroup>
+    <ProjectReference Include="..\ReactiveUI.Binding.SourceGenerators\ReactiveUI.Binding.SourceGenerators.csproj" PrivateAssets="all" ReferenceOutputAssembly="false"/>
+    <ProjectReference Include="..\ReactiveUI.Binding.SourceGenerators.Roslyn413\ReactiveUI.Binding.SourceGenerators.Roslyn413.csproj" PrivateAssets="all" ReferenceOutputAssembly="false"/>
+    <ProjectReference Include="..\ReactiveUI.Binding.Analyzer.Roslyn413\ReactiveUI.Binding.Analyzer.Roslyn413.csproj" PrivateAssets="all" ReferenceOutputAssembly="false"/>
+  </ItemGroup>
+
+  <!-- Packed as plain files rather than through TargetsForTfmSpecificContentInPackage: that hook runs once
+       per target framework, and the analyzer folder is framework-agnostic, so it would offer the same path
+       six times over.
+
+       One slot per compiler generation, because what the generator can do differs between them: the 4.13
+       build claims each call site with an interceptor, the 4.8 build offers an overload that has to win
+       extension-method lookup. The accompanying .targets is what keeps a consumer whose build does not
+       narrow the slots itself from loading both. -->
+  <ItemGroup>
+    <None Include="..\ReactiveUI.Binding.SourceGenerators\bin\$(Configuration)\netstandard2.0\ReactiveUI.Binding.SourceGenerators.dll" Pack="true" PackagePath="analyzers/dotnet/roslyn4.8/cs" Visible="false"/>
+    <None Include="..\ReactiveUI.Binding.Analyzer\bin\$(Configuration)\netstandard2.0\ReactiveUI.Binding.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/roslyn4.8/cs" Visible="false"/>
+    <None Include="..\ReactiveUI.Binding.SourceGenerators.Roslyn413\bin\$(Configuration)\netstandard2.0\ReactiveUI.Binding.SourceGenerators.dll" Pack="true" PackagePath="analyzers/dotnet/roslyn4.13/cs" Visible="false"/>
+    <None Include="..\ReactiveUI.Binding.Analyzer.Roslyn413\bin\$(Configuration)\netstandard2.0\ReactiveUI.Binding.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/roslyn4.13/cs" Visible="false"/>
+    <None Include="..\ReactiveUI.Binding.SourceGenerators\build\ReactiveUI.Binding.SourceGenerators.props" Pack="true" PackagePath="build\$(MSBuildProjectName).props;buildTransitive\$(MSBuildProjectName).props" Visible="false"/>
+    <None Include="..\ReactiveUI.Binding.SourceGenerators\build\ReactiveUI.Binding.SourceGenerators.targets" Pack="true" PackagePath="build\$(MSBuildProjectName).targets;buildTransitive\$(MSBuildProjectName).targets" Visible="false"/>
+  </ItemGroup>
+
+  <!-- DateOnly and TimeOnly only exist on .NET 6+. Their converters are guarded with
+       #if NET6_0_OR_GREATER, so exclude the sources outright on the older targets rather than
+       compiling files that declare nothing there. -->
+  <ItemGroup Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">
+    <Compile Remove="..\ReactiveUI.Binding.Shared\Bindings\Converter\*DateOnly*.cs"/>
+    <Compile Remove="..\ReactiveUI.Binding.Shared\Bindings\Converter\*TimeOnly*.cs"/>
+  </ItemGroup>
+
+  <!-- NotNullAttribute ships in the framework from netcoreapp3.0/netstandard2.1 onwards; the
+       polyfill is only needed below that. -->
+  <ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'netcoreapp3.0'))">
+    <Compile Remove="..\ReactiveUI.Binding.Shared\Polyfills\NotNullAttribute.cs"/>
+  </ItemGroup>
+
+  <!-- Index and Range back the ^ and .. operators on the targets that predate them; .NET 5+ ships
+       both, where these sources are guarded out entirely. -->
+  <ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net5.0'))">
+    <Compile Remove="..\ReactiveUI.Binding.Shared\Polyfills\Index.cs"/>
+    <Compile Remove="..\ReactiveUI.Binding.Shared\Polyfills\Range.cs"/>
+  </ItemGroup>
+</Project>

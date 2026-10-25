@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ReactiveUI.Binding.Documentation.Xaml.MauiSignInPage">
+    <VerticalStackLayout>
+        <Entry x:Name="UserNameEntry" x:FieldModifier="internal" />
+        <Button x:Name="SignInButton" x:FieldModifier="internal" Text="Sign in" />
+        <Label x:Name="StatusLabel" x:FieldModifier="internal" />
+    </VerticalStackLayout>
+</ContentPage>

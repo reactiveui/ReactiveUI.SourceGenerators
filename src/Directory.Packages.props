@@ -2,44 +2,78 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
-    <CodeAnalysisVersion>4.14.0</CodeAnalysisVersion>
-    <RoslynCommonAnalyzersVersion>5.1.2</RoslynCommonAnalyzersVersion>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <MauiVersion Condition="$(TargetFramework.StartsWith('net10'))">10.0.110</MauiVersion>
+    <MauiVersion Condition="$(TargetFramework.StartsWith('net11'))">11.0.0-rc.1.26451.6</MauiVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <RoslynCommonAnalyzersVersion>5.1.3</RoslynCommonAnalyzersVersion>
+    <ReactiveUIPrimitivesVersion>9.0.0</ReactiveUIPrimitivesVersion>
+  </PropertyGroup>
+
   <ItemGroup>
-    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.401" />
-    <PackageVersion Include="MinVer" Version="8.0.0" />
-    <PackageVersion Include="StyleSharp.Analyzers" Version="$(RoslynCommonAnalyzersVersion)" />
-    <PackageVersion Include="PerformanceSharp.Analyzers" Version="$(RoslynCommonAnalyzersVersion)" />
-    <PackageVersion Include="SecuritySharp.Analyzers" Version="$(RoslynCommonAnalyzersVersion)" />
-    <PackageVersion Include="Roslynator.Analyzers" Version="5.0.1" />
-    <PackageVersion Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
-    <PackageVersion Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="5.9.0" />
-    <PackageVersion Include="Microsoft.CodeAnalysis" Version="$(CodeAnalysisVersion)" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="$(CodeAnalysisVersion)" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.Common" Version="$(CodeAnalysisVersion)" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(CodeAnalysisVersion)" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="$(CodeAnalysisVersion)" />
-    <PackageVersion Include="Avalonia" Version="12.1.3" />
-    <PackageVersion Include="Avalonia.Themes.Fluent" Version="12.1.3" />
-    <PackageVersion Include="Avalonia.Fonts.Inter" Version="12.1.3" />
-    <PackageVersion Include="ReactiveUI.Avalonia" Version="12.1.6" />
-    <PackageVersion Include="ReactiveUI.Binding" Version="8.8.1" />
-    <PackageVersion Include="ReactiveUI.Binding.Reactive" Version="8.8.1" />
-    <PackageVersion Include="Avalonia.Diagnostics" Version="11.3.22" />
-    <PackageVersion Include="Avalonia.Desktop" Version="12.1.3" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.12" />
-    <PackageVersion Include="DynamicData" Version="9.4.33" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
-    <PackageVersion Include="System.Formats.Asn1" Version="10.0.12" />
-    <PackageVersion Include="PublicApiGenerator" Version="11.5.4" />
-    <PackageVersion Include="Splat" Version="21.0.0" />
-    <PackageVersion Include="ReactiveUI" Version="24.3.0" />
-    <PackageVersion Include="ReactiveUI.Reactive" Version="24.3.0" />
-    <PackageVersion Include="ReactiveUI.Maui" Version="24.3.0" />
-    <PackageVersion Include="System.Reactive" Version="7.0.0" />
-    <PackageVersion Include="TUnit" Version="1.73.19" />
-    <PackageVersion Include="BenchmarkDotNet" Version="0.16.0-preview.2" />
-    <PackageVersion Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.2.8" />
+    <!-- Testing Framework -->
+    <PackageVersion Include="TUnit" Version="1.73.19"/>
+
+    <!-- Roslyn Framework -->
+    <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="5.9.0"/>
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0"/>
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.9.0"/>
+
+    <!-- Test Infrastructure -->
+    <PackageVersion Include="Basic.Reference.Assemblies.Net110" Version="1.8.12"/>
+    <PackageVersion Include="Basic.Reference.Assemblies.Net100" Version="1.8.12"/>
+    <PackageVersion Include="Basic.Reference.Assemblies.Net90" Version="1.8.12"/>
+    <PackageVersion Include="Basic.Reference.Assemblies.Net80" Version="1.8.12"/>
+    <PackageVersion Include="Basic.Reference.Assemblies.Net472" Version="1.8.12"/>
+
+    <!-- Dependencies -->
+    <PackageVersion Include="Splat" Version="21.0.0"/>
+    <PackageVersion Include="ReactiveUI.Primitives" Version="$(ReactiveUIPrimitivesVersion)"/>
+    <PackageVersion Include="ReactiveUI.Primitives.Reactive" Version="$(ReactiveUIPrimitivesVersion)"/>
+    <PackageVersion Include="ReactiveUI.Primitives.Wpf" Version="$(ReactiveUIPrimitivesVersion)"/>
+    <PackageVersion Include="ReactiveUI.Primitives.Wpf.Reactive" Version="$(ReactiveUIPrimitivesVersion)"/>
+    <PackageVersion Include="ReactiveUI.Primitives.WinForms" Version="$(ReactiveUIPrimitivesVersion)"/>
+    <PackageVersion Include="ReactiveUI.Primitives.WinForms.Reactive" Version="$(ReactiveUIPrimitivesVersion)"/>
+    <PackageVersion Include="ReactiveUI.Primitives.Maui" Version="$(ReactiveUIPrimitivesVersion)"/>
+    <PackageVersion Include="ReactiveUI.Primitives.Maui.Reactive" Version="$(ReactiveUIPrimitivesVersion)"/>
+    <PackageVersion Include="System.Reactive" Version="7.0.0"/>
+
+    <!-- Build Tools -->
+    <PackageVersion Include="MinVer" Version="8.0.0"/>
+    <PackageVersion Include="StyleSharp.Analyzers" Version="$(RoslynCommonAnalyzersVersion)"/>
+    <PackageVersion Include="PerformanceSharp.Analyzers" Version="$(RoslynCommonAnalyzersVersion)"/>
+    <PackageVersion Include="SecuritySharp.Analyzers" Version="$(RoslynCommonAnalyzersVersion)"/>
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.401"/>
+    <PackageVersion Include="PublicApiSharp.Analyzers" Version="2.1.0"/>
+
+    <!-- MAUI -->
+    <PackageVersion Include="Microsoft.Maui.Controls" Version="$(MauiVersion)"/>
+    <!-- Deprecated from net11 onwards, and no net11 build ships, so it is pinned to the net10 heads. -->
+    <PackageVersion Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" Condition="$(TargetFramework.StartsWith('net10'))"/>
+
+    <!-- Benchmarking -->
+    <PackageVersion Include="BenchmarkDotNet" Version="0.16.0-preview.2"/>
+    <PackageVersion Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.16.0-preview.2"/>
+
+    <!-- Avalonia -->
+    <PackageVersion Include="Avalonia" Version="12.1.3"/>
+    <PackageVersion Include="Avalonia.Headless" Version="12.1.3"/>
+    <PackageVersion Include="ReactiveUI.Primitives.Avalonia" Version="$(ReactiveUIPrimitivesVersion)"/>
+    <PackageVersion Include="ReactiveUI.Primitives.Avalonia.Reactive" Version="$(ReactiveUIPrimitivesVersion)"/>
+
+    <!-- Uno Platform. Uno.WinUI is the release Uno.Sdk in global.json pins; the Windows head uses the App SDK. -->
+    <PackageVersion Include="Uno.WinUI" Version="6.7.135"/>
+    <PackageVersion Include="Microsoft.WindowsAppSDK" Version="2.5.1"/>
+    <PackageVersion Include="ReactiveUI.Primitives.Uno" Version="$(ReactiveUIPrimitivesVersion)"/>
+    <PackageVersion Include="ReactiveUI.Primitives.Uno.Reactive" Version="$(ReactiveUIPrimitivesVersion)"/>
+
+    <!-- Test App Dependencies-->
+    <PackageVersion Include="ReactiveUI" Version="26.0.1"/>
+    <PackageVersion Include="ReactiveUI.Reactive" Version="26.0.1"/>
+    <PackageVersion Include="ReactiveUI.SourceGenerators" Version="4.2.0"/>
   </ItemGroup>
 </Project>

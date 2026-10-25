@@ -27,9 +27,10 @@ jobs:
   release:
     uses: reactiveui/actions-common/.github/workflows/workflow-common-release.yml@main
     with:
-      solutionFile: ReactiveUI.SourceGenerators.slnx
+      solutionFile: ReactiveUI.Binding.SourceGenerators.slnf
+      msbuildSolutionFile: ReactiveUI.Binding.SourceGenerators.Uno.slnf
       installWorkloads: true
-      minverMinimumMajorMinor: '2.7'
+      minverMinimumMajorMinor: '3.3'
       bump: ${{ inputs.bump }}
       sourceRef: ${{ inputs.sourceRef }}
     secrets:
@@ -46,7 +47,7 @@ jobs:
       id-token: write
     steps:
       - name: Download signed packages
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: signed-nuget
 
