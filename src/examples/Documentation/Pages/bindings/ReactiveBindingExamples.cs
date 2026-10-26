@@ -166,8 +166,7 @@ public static class ReactiveBindingExamples
         Console.WriteLine(binding.ViewModelExpression is null);
         Console.WriteLine(string.Join(", ", seen));
 
-        binding.Dispose();
-        binding.Dispose();
+        DisposeTwice(binding);
 
         // Output:
         // AsyncOneWay
@@ -331,6 +330,14 @@ public static class ReactiveBindingExamples
         // Output:
         // 1200.00
         // 85.50
+    }
+
+    /// <summary>Disposes a resource twice, to show the second call does nothing.</summary>
+    /// <param name="resource">The resource to dispose.</param>
+    private static void DisposeTwice(IDisposable resource)
+    {
+        resource.Dispose();
+        resource.Dispose();
     }
 
     /// <summary>Shows the amount of money with two decimal places.</summary>
