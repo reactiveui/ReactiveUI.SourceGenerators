@@ -103,6 +103,7 @@ internal abstract partial record TypedConstantInfo
     /// <param name="operation">The operation to inspect.</param>
     /// <param name="info">The resulting constant information, when successful.</param>
     /// <returns><see langword="true"/> when the operation has a supported constant value.</returns>
+    /// <exception cref="ArgumentException">Thrown if the constant is a primitive of an unsupported type.</exception>
     private static bool TryCreateConstant(
         IOperation operation,
         [NotNullWhen(true)] out TypedConstantInfo? info)

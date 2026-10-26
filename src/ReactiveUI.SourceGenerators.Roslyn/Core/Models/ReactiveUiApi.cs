@@ -8,11 +8,11 @@ namespace ReactiveUI.SourceGenerators.Models;
 internal enum ReactiveUiApi
 {
     /// <summary>ReactiveUI releases before the package split.</summary>
-    Legacy,
+    Legacy = 0,
 
     /// <summary>The ReactiveUI 24 or later Primitives-based package.</summary>
-    Primitives,
+    Primitives = 1,
 
     /// <summary>The ReactiveUI 24 or later System.Reactive-based package.</summary>
-    SystemReactive,
+    SystemReactive = 2,
 }

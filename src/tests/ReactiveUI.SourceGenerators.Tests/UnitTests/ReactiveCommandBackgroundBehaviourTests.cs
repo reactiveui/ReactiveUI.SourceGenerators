@@ -102,6 +102,7 @@ public class ReactiveCommandBackgroundBehaviourTests
     /// <param name="commandName">The generated command property.</param>
     /// <param name="parameter">The command parameter.</param>
     /// <returns>The thread that executed the command, and the thread the method ran on.</returns>
+    /// <exception cref="TimeoutException">Thrown when the method does not report in time.</exception>
     /// <remarks>
     /// The executing thread stays alive until the method reports, so no other thread can share its id. A thread pool
     /// thread would not do: the pool could run the background work on the very thread that queued it.
@@ -133,6 +134,7 @@ public class ReactiveCommandBackgroundBehaviourTests
 
     /// <summary>Generates, compiles and loads the view model.</summary>
     /// <returns>An instance of the view model.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when <c>!emit.Success</c>.</exception>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "SES1402", Justification = "The test loads the assembly it has just compiled from its own source.")]
     private static object CreateViewModel()
     {

@@ -2,6 +2,7 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using ReactiveUI.SourceGenerators.WinForms;
@@ -24,10 +25,12 @@ public sealed partial class TestHelper<T> : IDisposable
     /// <returns>
     /// A string.
     /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string VerifiedFilePath() => GetVerifiedFilePath();
 
     /// <summary>Asynchronously initializes the source generator helper.</summary>
     /// <returns>A task representing the completed initialization operation.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task InitializeAsync() => Task.CompletedTask;
 
     /// <summary>Tests a generator expecting it to fail by throwing an <see cref="InvalidOperationException"/>.</summary>
@@ -43,6 +46,7 @@ public sealed partial class TestHelper<T> : IDisposable
     /// <param name="methodName">The calling test, which names the snapshots.</param>
     /// <param name="filePath">The calling test's file, whose name is its class name.</param>
     /// <returns>A task representing the asynchronous verification operation.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task TestPass(string source, [CallerMemberName] string methodName = "", [CallerFilePath] string filePath = "") =>
         RunGeneratorAndCheck(source, withPreDiagnosics: false, methodName, filePath);
 
@@ -52,6 +56,7 @@ public sealed partial class TestHelper<T> : IDisposable
     /// <param name="methodName">The calling test, which names the snapshots.</param>
     /// <param name="filePath">The calling test's file, whose name is its class name.</param>
     /// <returns>A task representing the asynchronous verification operation.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task TestPass(string source, bool withPreDiagnosics, [CallerMemberName] string methodName = "", [CallerFilePath] string filePath = "") =>
         RunGeneratorAndCheck(source, withPreDiagnosics, methodName, filePath);
 
@@ -151,6 +156,7 @@ public sealed partial class TestHelper<T> : IDisposable
     /// <param name="source">The source code to parse.</param>
     /// <param name="parseOptions">The language version settings.</param>
     /// <param name="path">The generated source path.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void AddSyntaxTree(List<SyntaxTree> syntaxTrees, string source, CSharpParseOptions parseOptions, string path) =>
         syntaxTrees.Add(CSharpSyntaxTree.ParseText(source, parseOptions, path: path));
 
@@ -172,6 +178,7 @@ public sealed partial class TestHelper<T> : IDisposable
     /// <param name="diagnostics">The diagnostics to evaluate.</param>
     /// <param name="prefix">The output prefix.</param>
     /// <param name="failureMessage">The exception message prefix.</param>
+    /// <exception cref="InvalidOperationException">Thrown when the input is not valid.</exception>
     private static void ThrowIfDiagnosticsExist(List<Diagnostic> diagnostics, string prefix, string failureMessage)
     {
         if (diagnostics.Count == 0)
@@ -309,6 +316,7 @@ public sealed partial class TestHelper<T> : IDisposable
 
     /// <summary>Ensures the command generator emits its command source.</summary>
     /// <param name="generatedSources">The generated sources to inspect.</param>
+    /// <exception cref="InvalidOperationException">Thrown when the input is not valid.</exception>
     private static void ValidateReactiveCommandOutput(List<GeneratedSourceResult> generatedSources)
     {
         if (typeof(T) != typeof(ReactiveCommandGenerator))
@@ -364,6 +372,7 @@ public sealed partial class TestHelper<T> : IDisposable
     /// <param name="propertyToNotify">The requested property name.</param>
     /// <param name="sourceAttribute">The source attribute that requested it.</param>
     /// <param name="allGeneratedCode">The combined generated code.</param>
+    /// <exception cref="InvalidOperationException">Thrown when the input is not valid.</exception>
     private static void ValidatePropertyNotification(string propertyToNotify, string sourceAttribute, string allGeneratedCode)
     {
         if (ContainsPropertyNotification(allGeneratedCode, propertyToNotify))
@@ -396,5 +405,6 @@ public sealed partial class TestHelper<T> : IDisposable
 
     /// <summary>Writes a validation message to the current test output.</summary>
     /// <param name="message">The message to write.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void WriteTestOutput(string message) => TestContext.Current?.OutputWriter.WriteLine(message);
 }

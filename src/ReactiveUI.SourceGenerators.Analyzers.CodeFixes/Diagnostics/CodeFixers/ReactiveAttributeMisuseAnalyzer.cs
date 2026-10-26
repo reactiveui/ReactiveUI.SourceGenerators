@@ -23,14 +23,8 @@ public sealed class ReactiveAttributeMisuseAnalyzer : DiagnosticAnalyzer
 
     /// <summary>Called once at session start to register actions in the analysis context.</summary>
     /// <param name="context">The analysis context.</param>
-    /// <exception cref="ArgumentNullException">context.</exception>
     public override void Initialize(AnalysisContext context)
     {
-        if (context is null)
-        {
-            throw new ArgumentNullException(nameof(context));
-        }
-
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
         context.RegisterSyntaxNodeAction(static nodeContext => AnalyzeProperty(in nodeContext), SyntaxKind.PropertyDeclaration);

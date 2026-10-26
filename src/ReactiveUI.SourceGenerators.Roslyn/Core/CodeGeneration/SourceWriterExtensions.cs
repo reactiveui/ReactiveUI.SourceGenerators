@@ -141,10 +141,15 @@ internal static class SourceWriterExtensions
         internal SourceWriter ExcludeFromCodeCoverage() => writer.Line(ExcludeFromCodeCoverageAttribute);
     }
 
-    /// <summary>Builds the <c>GeneratedCode</c> attribute line a generator stamps on its members.</summary>
-    /// <param name="generatorName">The generator's full type name.</param>
-    /// <param name="generatorVersion">The generator assembly's version.</param>
-    /// <returns>The attribute, built once per generator rather than once per member.</returns>
-    internal static string GeneratedCodeAttribute(string generatorName, string generatorVersion) =>
-        $"[global::System.CodeDom.Compiler.GeneratedCode(\"{generatorName}\", \"{generatorVersion}\")]";
+    /// <summary>Extension members for <c>string</c>.</summary>
+    /// <param name="generatorName"></param>
+    extension(string generatorName)
+    {
+
+        /// <summary>Builds the <c>GeneratedCode</c> attribute line a generator stamps on its members.</summary>
+        /// <param name="generatorVersion">The generator assembly's version.</param>
+        /// <returns>The attribute, built once per generator rather than once per member.</returns>
+        internal string GeneratedCodeAttribute(string generatorVersion) =>
+            $"[global::System.CodeDom.Compiler.GeneratedCode(\"{generatorName}\", \"{generatorVersion}\")]";
+    }
 }

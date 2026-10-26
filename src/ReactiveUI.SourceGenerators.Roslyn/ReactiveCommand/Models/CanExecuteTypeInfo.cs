@@ -8,11 +8,11 @@ namespace ReactiveUI.SourceGenerators.Models;
 internal enum CanExecuteTypeInfo
 {
     /// <summary>A property that provides an observable Boolean value.</summary>
-    PropertyObservable,
+    PropertyObservable = 0,
 
     /// <summary>A method that returns an observable Boolean value.</summary>
-    MethodObservable,
+    MethodObservable = 1,
 
     /// <summary>A field that provides an observable Boolean value.</summary>
-    FieldObservable,
+    FieldObservable = 2,
 }

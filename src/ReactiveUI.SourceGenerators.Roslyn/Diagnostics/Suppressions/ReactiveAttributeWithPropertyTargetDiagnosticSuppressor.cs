@@ -25,20 +25,22 @@ public sealed class ReactiveAttributeWithPropertyTargetDiagnosticSuppressor : Di
         public override void ReportSuppressions(SuppressionAnalysisContext context)
         {
             foreach (var diagnostic in context.ReportedDiagnostics)
+        {
+            var syntaxNode = diagnostic.Location.SourceTree?.GetRoot(context.CancellationToken).FindNode(diagnostic.Location.SourceSpan);
+
+            // Check that the target is effectively [property:] over a method declaration, which is the case we're looking for
+            if (syntaxNode is not AttributeTargetSpecifierSyntax { Parent.Parent: FieldDeclarationSyntax, Identifier: SyntaxToken(SyntaxKind.PropertyKeyword) })
             {
-                var syntaxNode = diagnostic.Location.SourceTree?.GetRoot(context.CancellationToken).FindNode(diagnostic.Location.SourceSpan);
+                continue;
+            }
 
-                // Check that the target is effectively [property:] over a method declaration, which is the case we're looking for
-                if (syntaxNode is AttributeTargetSpecifierSyntax { Parent.Parent: FieldDeclarationSyntax, Identifier: SyntaxToken(SyntaxKind.PropertyKeyword) })
-                {
-                    var semanticModel = context.GetSemanticModel(syntaxNode.SyntaxTree);
+            var semanticModel = context.GetSemanticModel(syntaxNode.SyntaxTree);
 
-                    // Check if the method is using [Reactive], in which case we should suppress the warning
-                    if (semanticModel.Compilation.GetTypeByMetadataName(AttributeDefinitions.ReactiveAttributeType) is not null)
-                    {
-                        context.ReportSuppression(Suppression.Create(FieldOrPropertyAttributeListForReactiveProperty, diagnostic));
-                    }
-                }
+            // Check if the method is using [Reactive], in which case we should suppress the warning
+            if (semanticModel.Compilation.GetTypeByMetadataName(AttributeDefinitions.ReactiveAttributeType) is not null)
+            {
+                context.ReportSuppression(Suppression.Create(FieldOrPropertyAttributeListForReactiveProperty, diagnostic));
             }
         }
+    }
 }

@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Models;
@@ -26,6 +27,7 @@ internal static class IncrementalPipelineExtensions
         /// <summary>Reports each result's diagnostics as their own output, apart from the sources.</summary>
         /// <typeparam name="T">The result's value type.</typeparam>
         /// <param name="results">The extraction results.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RegisterDiagnostics<T>(IncrementalValuesProvider<Result<T>> results)
             where T : IEquatable<T>? =>
             context.RegisterSourceOutput(
@@ -48,6 +50,7 @@ internal static class IncrementalPipelineExtensions
         /// <summary>Groups the models by the type they belong to, one value-equatable array per type.</summary>
         /// <param name="target">Reads a model's type.</param>
         /// <returns>One array per type, in the order the types were first seen.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal IncrementalValuesProvider<EquatableArray<T>> GroupByTarget(Func<T, TargetInfo> target) =>
             models.Collect().SelectMany((all, _) => Group(all, target));
     }

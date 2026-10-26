@@ -170,6 +170,7 @@ public sealed class FieldSyntaxExtensionTests
     /// <param name="source">The source text containing the field.</param>
     /// <param name="fieldName">The field name to find.</param>
     /// <returns>The matching field symbol.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the input is not valid.</exception>
     private static IFieldSymbol GetFieldSymbol(string source, string fieldName)
     {
         var compilation = CreateCompilation(source);
@@ -188,6 +189,7 @@ public sealed class FieldSyntaxExtensionTests
     /// <param name="source">The source text containing the property.</param>
     /// <param name="propertyName">The property name to find.</param>
     /// <returns>The matching property symbol.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the input is not valid.</exception>
     private static IPropertySymbol GetPropertySymbol(string source, string propertyName)
     {
         var compilation = CreateCompilation(source);

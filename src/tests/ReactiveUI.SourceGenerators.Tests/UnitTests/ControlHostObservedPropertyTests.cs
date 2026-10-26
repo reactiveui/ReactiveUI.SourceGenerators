@@ -4,6 +4,7 @@
 
 using System.Collections;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using ReactiveUI.SourceGenerators.WinForms;
 
@@ -250,6 +251,7 @@ public class ControlHostObservedPropertyTests
     /// <summary>Gets the source of the hosts, a view and view locator, for a flavour.</summary>
     /// <param name="bindingNamespace">The ReactiveUI.Binding flavour.</param>
     /// <returns>The source.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string GetHostsSource(string bindingNamespace) =>
         HostsSource.Replace("BINDING_NAMESPACE", bindingNamespace, StringComparison.Ordinal);
 
@@ -296,6 +298,7 @@ public class ControlHostObservedPropertyTests
     /// <summary>Generates, compiles and loads a flavour's hosts.</summary>
     /// <param name="bindingNamespace">The ReactiveUI.Binding flavour.</param>
     /// <returns>The loaded assembly.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when <c>!emit.Success</c>.</exception>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "SES1402", Justification = "The test loads the assembly it has just compiled from its own source.")]
     private static Assembly Compile(string bindingNamespace)
     {
@@ -327,6 +330,7 @@ public class ControlHostObservedPropertyTests
     /// <param name="target">The object.</param>
     /// <param name="name">The property name.</param>
     /// <param name="value">The value.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void Set(object target, string name, object? value) => target.GetType().GetProperty(name)!.SetValue(target, value);
 
     /// <summary>Lists the controls a host shows.</summary>

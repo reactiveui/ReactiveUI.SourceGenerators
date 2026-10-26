@@ -38,6 +38,7 @@ internal sealed record TargetInfo(
     /// <summary>Gets the target information for a named type symbol, building it once per symbol.</summary>
     /// <param name="namedTypeSymbol">The target type symbol.</param>
     /// <returns>The generated target information.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static TargetInfo From(INamedTypeSymbol namedTypeSymbol) => Cache.GetValue(namedTypeSymbol, Create);
 
     /// <summary>Creates target information from a named type symbol.</summary>

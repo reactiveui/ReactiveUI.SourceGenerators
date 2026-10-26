@@ -63,6 +63,7 @@ public class ReactiveCollectionBehaviourTests
 
     /// <summary>Generates, compiles and loads the view model.</summary>
     /// <returns>An instance, its generated collection property, and the collection type.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when <c>!emit.Success</c>.</exception>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "SES1402", Justification = "The test loads the assembly it has just compiled from its own source.")]
     private static (object ViewModel, PropertyInfo Property, Type CollectionType) CreateViewModel()
     {

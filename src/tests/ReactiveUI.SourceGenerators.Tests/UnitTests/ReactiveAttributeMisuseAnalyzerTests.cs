@@ -10,22 +10,6 @@ public sealed class ReactiveAttributeMisuseAnalyzerTests
     /// <summary>Identifies the diagnostic validated by this test class.</summary>
     private const string ReactivePartialDiagnosticId = "RXUISG0020";
 
-    /// <summary>Validates the analyzer rejects a null analysis context.</summary>
-    [Test]
-    public void InitializeWithNullContextThrows()
-    {
-        var analyzer = new ReactiveAttributeMisuseAnalyzer();
-
-        try
-        {
-            analyzer.Initialize(null!);
-            throw new InvalidOperationException("Expected ArgumentNullException was not thrown.");
-        }
-        catch (ArgumentNullException ex) when (ex.ParamName == "context")
-        {
-        }
-    }
-
     /// <summary>Verifies a non-partial property annotated with <c>[Reactive]</c> produces a warning.</summary>
     /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
@@ -172,11 +156,13 @@ public sealed class ReactiveAttributeMisuseAnalyzerTests
         var found = false;
         foreach (var diagnostic in diagnostics)
         {
-            if (diagnostic.Id == diagnosticId)
+            if (diagnostic.Id != diagnosticId)
             {
-                found = true;
-                break;
+                continue;
             }
+
+            found = true;
+            break;
         }
 
         await Assert.That(found).IsTrue();
@@ -191,11 +177,13 @@ public sealed class ReactiveAttributeMisuseAnalyzerTests
         var found = false;
         foreach (var diagnostic in diagnostics)
         {
-            if (diagnostic.Id == diagnosticId)
+            if (diagnostic.Id != diagnosticId)
             {
-                found = true;
-                break;
+                continue;
             }
+
+            found = true;
+            break;
         }
 
         await Assert.That(found).IsFalse();

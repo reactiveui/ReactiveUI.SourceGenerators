@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace ReactiveUI.SourceGenerator.Tests;
@@ -111,6 +112,7 @@ internal static class TestCompilationReferences
     /// ReactiveUI 24 base application without accidentally importing System.Reactive.
     /// </summary>
     /// <returns>The cached default metadata-reference closure.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static ImmutableArray<MetadataReference> CreateDefault() => defaultReferences.Value;
 
     /// <summary>
@@ -118,6 +120,7 @@ internal static class TestCompilationReferences
     /// desktop assemblies so source stubs can be used consistently on every operating system.
     /// </summary>
     /// <returns>The cached platform-neutral metadata-reference closure.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static ImmutableArray<MetadataReference> CreatePortableDefault() => portableDefaultReferences.Value;
 
     /// <summary>Creates an isolated transitive metadata-reference closure from the supplied assembly roots.</summary>
@@ -348,11 +351,13 @@ internal static class TestCompilationReferences
         foreach (var directory in dirs)
         {
             var version = Path.GetFileName(directory);
-            if (version.StartsWith($"{majorMinor}.", StringComparison.Ordinal) || version.Equals(majorMinor, StringComparison.Ordinal))
+            if (!version.StartsWith($"{majorMinor}.", StringComparison.Ordinal) && !version.Equals(majorMinor, StringComparison.Ordinal))
             {
-                best = directory;
-                break;
+                continue;
             }
+
+            best = directory;
+            break;
         }
 
         // Validate it actually contains PresentationFramework.dll

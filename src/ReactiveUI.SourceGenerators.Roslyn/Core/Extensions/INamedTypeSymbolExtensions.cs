@@ -19,13 +19,13 @@ internal static class INamedTypeSymbolExtensions
         /// <returns>A sequence of all member symbols.</returns>
         internal IEnumerable<ISymbol> GetAllMembers()
         {
-        for (var currentSymbol = symbol; currentSymbol is { SpecialType: not SpecialType.System_Object }; currentSymbol = currentSymbol.BaseType)
-        {
-            foreach (var memberSymbol in currentSymbol.GetMembers())
+            for (var currentSymbol = symbol; currentSymbol is { SpecialType: not SpecialType.System_Object }; currentSymbol = currentSymbol.BaseType)
             {
-                yield return memberSymbol;
+                foreach (var memberSymbol in currentSymbol.GetMembers())
+                {
+                    yield return memberSymbol;
+                }
             }
-        }
         }
 
         /// <summary>Gets all member symbols with a given name from this instance, including inherited ones.</summary>
@@ -33,35 +33,36 @@ internal static class INamedTypeSymbolExtensions
         /// <returns>A sequence of all matching member symbols.</returns>
         internal IEnumerable<ISymbol> GetAllMembers(string name)
         {
-        for (var currentSymbol = symbol; currentSymbol is { SpecialType: not SpecialType.System_Object }; currentSymbol = currentSymbol.BaseType)
-        {
-            foreach (var memberSymbol in currentSymbol.GetMembers(name))
+            for (var currentSymbol = symbol; currentSymbol is { SpecialType: not SpecialType.System_Object }; currentSymbol = currentSymbol.BaseType)
             {
-                yield return memberSymbol;
+                foreach (var memberSymbol in currentSymbol.GetMembers(name))
+                {
+                    yield return memberSymbol;
+                }
             }
-        }
         }
 
         /// <summary>Returns a string representation of this type, such as "class", "struct", or "interface".</summary>
         /// <returns>A string representing the type kind.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if the type is not an interface, struct or class.</exception>
         internal string GetTypeString()
         {
-        if (symbol.TypeKind == TypeKind.Interface)
-        {
-            return "interface";
-        }
+            if (symbol.TypeKind == TypeKind.Interface)
+            {
+                return "interface";
+            }
 
-        if (symbol.TypeKind == TypeKind.Struct)
-        {
-            return symbol.IsRecord ? "record struct" : "struct";
-        }
+            if (symbol.TypeKind == TypeKind.Struct)
+            {
+                return symbol.IsRecord ? "record struct" : "struct";
+            }
 
-        if (symbol.TypeKind == TypeKind.Class)
-        {
-            return symbol.IsRecord ? "record" : "class";
-        }
+            if (symbol.TypeKind == TypeKind.Class)
+            {
+                return symbol.IsRecord ? "record" : "class";
+            }
 
-        throw new InvalidOperationException("Unknown type kind.");
+            throw new InvalidOperationException("Unknown type kind.");
         }
     }
 }

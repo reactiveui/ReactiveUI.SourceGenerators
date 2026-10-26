@@ -8,11 +8,11 @@ namespace ReactiveUI.SourceGenerators.Models;
 internal enum ReactiveUiViewApi
 {
     /// <summary>ReactiveUI declares them in <c>ReactiveUI</c>: every release not built on ReactiveUI.Binding.</summary>
-    ReactiveUI,
+    ReactiveUI = 0,
 
     /// <summary>ReactiveUI.Binding declares them in <c>ReactiveUI.Binding</c>, used by the Primitives-based ReactiveUI.</summary>
-    Binding,
+    Binding = 1,
 
     /// <summary>ReactiveUI.Binding.Reactive declares them in <c>ReactiveUI.Binding.Reactive</c>, used by ReactiveUI.Reactive.</summary>
-    BindingReactive,
+    BindingReactive = 2,
 }

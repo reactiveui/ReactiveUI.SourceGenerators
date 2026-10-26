@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -34,6 +35,7 @@ public sealed class ReactiveCollectionGenerator : IIncrementalGenerator
     private static readonly string GeneratedCodeAttribute = SourceWriterExtensions.GeneratedCodeAttribute(GeneratorName, GeneratorVersion);
 
     /// <inheritdoc/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Initialize(IncrementalGeneratorInitializationContext context) => RunReactiveCollectionFromField(in context);
 
     /// <summary>Registers the pipeline that generates properties from reactive collection fields.</summary>

@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.CodeAnalysis.Text;
 using ReactiveUI.SourceGenerators.Extensions;
@@ -128,6 +129,7 @@ public sealed class ViewApiIntegrationTests
     /// <summary>Detects the view API of a compilation made of the given sources.</summary>
     /// <param name="sources">The sources declaring the referenced API surface.</param>
     /// <returns>The detected view API.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static ReactiveUiViewApi Detect(params string[] sources) =>
         CreateCompilation(sources).GetReactiveUiIntegration().ViewApi;
 

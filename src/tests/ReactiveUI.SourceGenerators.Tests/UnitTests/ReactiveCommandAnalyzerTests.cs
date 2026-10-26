@@ -2,6 +2,8 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System.Runtime.CompilerServices;
+
 namespace ReactiveUI.SourceGenerator.Tests;
 
 /// <summary>Unit tests for <see cref="ReactiveCommandAnalyzer" />.</summary>
@@ -161,12 +163,6 @@ public sealed class ReactiveCommandAnalyzerTests
         await Assert.That(reported).IsEmpty();
     }
 
-    /// <summary>A null analysis context is rejected.</summary>
-    /// <returns>A task that represents the asynchronous test operation.</returns>
-    [Test]
-    public async Task InitializeRejectsANullContext() =>
-        await Assert.That(static () => new ReactiveCommandAnalyzer().Initialize(null!)).Throws<ArgumentNullException>();
-
     /// <summary>The analyzer reports its three rules.</summary>
     /// <returns>A task that represents the asynchronous test operation.</returns>
     [Test]
@@ -184,6 +180,7 @@ public sealed class ReactiveCommandAnalyzerTests
     /// <summary>Analyzes <see cref="Source"/> and gets the text each diagnostic with an ID is reported at.</summary>
     /// <param name="id">The diagnostic ID.</param>
     /// <returns>The source text at each reported location.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static Task<List<string>> GetReported(string id) => GetReported(id, Source, TestCompilationReferences.CreateDefault());
 
     /// <summary>Analyzes a source and gets the text each diagnostic with an ID is reported at.</summary>

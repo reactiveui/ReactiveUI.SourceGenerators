@@ -13,6 +13,7 @@ public sealed class DiagnosticInfoTests
 {
     /// <summary>Diagnostics support source and source-free locations plus null argument text.</summary>
     /// <returns>A task representing the asynchronous assertion work.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when <c>compilation.GetTypeByMetadataName("Coverage.Target")</c> is <see langword="null"/>.</exception>
     [Test]
     public async Task ToDiagnosticCoversSourceFreeAndNullArgumentRepresentations()
     {

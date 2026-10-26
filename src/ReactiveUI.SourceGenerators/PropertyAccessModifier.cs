@@ -8,20 +8,20 @@ namespace ReactiveUI.SourceGenerators;
 public enum PropertyAccessModifier
 {
     /// <summary>A <c>public</c> property.</summary>
-    Public,
+    Public = 0,
 
     /// <summary>A <c>protected</c> property.</summary>
-    Protected,
+    Protected = 1,
 
     /// <summary>An <c>internal</c> property.</summary>
-    Internal,
+    Internal = 2,
 
     /// <summary>A <c>private</c> property.</summary>
-    Private,
+    Private = 3,
 
     /// <summary>A <c>protected internal</c> property.</summary>
-    InternalProtected,
+    InternalProtected = 4,
 
     /// <summary>A <c>private protected</c> property.</summary>
-    PrivateProtected,
+    PrivateProtected = 5,
 }

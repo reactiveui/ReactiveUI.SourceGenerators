@@ -2,6 +2,7 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Models;
@@ -19,12 +20,14 @@ internal static class DiagnosticsExtensions
         /// <param name="descriptor">The input <see cref="DiagnosticDescriptor"/> for the diagnostic to create.</param>
         /// <param name="symbol">The source <see cref="ISymbol"/> to attach the diagnostic to.</param>
         /// <param name="args">The optional arguments for the formatted message to include.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Add(DiagnosticDescriptor descriptor, ISymbol symbol, params object[] args) => diagnostics.Add(DiagnosticInfo.Create(descriptor, symbol, args));
 
         /// <summary>Adds a diagnostic associated with a syntax node to this builder.</summary>
         /// <param name="descriptor">The input <see cref="DiagnosticDescriptor"/> for the diagnostic to create.</param>
         /// <param name="node">The source <see cref="SyntaxNode"/> to attach the diagnostic to.</param>
         /// <param name="args">The optional arguments for the formatted message to include.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Add(DiagnosticDescriptor descriptor, SyntaxNode node, params object[] args) => diagnostics.Add(DiagnosticInfo.Create(descriptor, node, args));
     }
 }

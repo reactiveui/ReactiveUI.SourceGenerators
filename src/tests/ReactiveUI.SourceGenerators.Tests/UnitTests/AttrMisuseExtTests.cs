@@ -458,11 +458,13 @@ public sealed class AttrMisuseExtTests
         var found = false;
         foreach (var diagnostic in diagnostics)
         {
-            if (diagnostic.Id == diagnosticId)
+            if (diagnostic.Id != diagnosticId)
             {
-                found = true;
-                break;
+                continue;
             }
+
+            found = true;
+            break;
         }
 
         await Assert.That(found).IsTrue();
@@ -477,11 +479,13 @@ public sealed class AttrMisuseExtTests
         var found = false;
         foreach (var diagnostic in diagnostics)
         {
-            if (diagnostic.Id == diagnosticId)
+            if (diagnostic.Id != diagnosticId)
             {
-                found = true;
-                break;
+                continue;
             }
+
+            found = true;
+            break;
         }
 
         await Assert.That(found).IsFalse();

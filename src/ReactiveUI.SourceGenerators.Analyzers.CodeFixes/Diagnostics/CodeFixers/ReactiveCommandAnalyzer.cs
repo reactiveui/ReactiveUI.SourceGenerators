@@ -33,11 +33,6 @@ public sealed class ReactiveCommandAnalyzer : DiagnosticAnalyzer
     /// <param name="context">The analysis context.</param>
     public override void Initialize(AnalysisContext context)
     {
-        if (context is null)
-        {
-            throw new ArgumentNullException(nameof(context));
-        }
-
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
         context.RegisterSyntaxNodeAction(static nodeContext => AnalyzeMethod(in nodeContext), SyntaxKind.MethodDeclaration);

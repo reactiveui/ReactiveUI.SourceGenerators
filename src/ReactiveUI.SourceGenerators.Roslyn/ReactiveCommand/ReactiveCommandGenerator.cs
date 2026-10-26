@@ -196,11 +196,13 @@ public sealed class ReactiveCommandGenerator : IIncrementalGenerator
         var hasCancellationToken = false;
         foreach (var parameter in methodSymbol.Parameters)
         {
-            if (parameter.Type.ToDisplayString() == "System.Threading.CancellationToken")
+            if (parameter.Type.ToDisplayString() != "System.Threading.CancellationToken")
             {
-                hasCancellationToken = true;
-                break;
+                continue;
             }
+
+            hasCancellationToken = true;
+            break;
         }
 
         if (isTask && hasCancellationToken && methodSymbol.Parameters.Length == 2)
@@ -632,12 +634,14 @@ public sealed class ReactiveCommandGenerator : IIncrementalGenerator
             var propertyName = fieldSymbol.GetGeneratedPropertyName();
 
             // If the generated property name matches, get the right expression type
-            if (memberName == propertyName)
+            if (memberName != propertyName)
             {
-                canExecuteTypeInfo = CanExecuteTypeInfo.PropertyObservable;
-
-                return true;
+                continue;
             }
+
+            canExecuteTypeInfo = CanExecuteTypeInfo.PropertyObservable;
+
+            return true;
         }
 
         canExecuteTypeInfo = null;

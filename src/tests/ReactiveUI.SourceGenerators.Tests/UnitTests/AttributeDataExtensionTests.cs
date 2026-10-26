@@ -303,6 +303,7 @@ public sealed class AttributeDataExtensionTests
 
     /// <summary>GatherForwardedAttributesFromClass collects non-trigger attributes from the class declaration.</summary>
     /// <returns>A task to monitor the async.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when <c>triggerAttr</c> is <see langword="null"/>.</exception>
     [Test]
     public async Task WhenClassHasAttributesThenForwardedAttributesCollected()
     {
@@ -324,11 +325,13 @@ public sealed class AttributeDataExtensionTests
         AttributeData? triggerAttr = null;
         foreach (var candidate in typeSymbol.GetAttributes())
         {
-            if (candidate.AttributeClass?.Name == "TriggerAttr")
+            if (candidate.AttributeClass?.Name != "TriggerAttr")
             {
-                triggerAttr = candidate;
-                break;
+                continue;
             }
+
+            triggerAttr = candidate;
+            break;
         }
 
         (triggerAttr ?? throw new InvalidOperationException("The trigger attribute was not found.")).GatherForwardedAttributesFromClass(
@@ -341,11 +344,13 @@ public sealed class AttributeDataExtensionTests
         var containsTriggerAttribute = false;
         foreach (var forwardedAttribute in forwarded)
         {
-            if (forwardedAttribute.TypeName.Contains("TriggerAttr", StringComparison.Ordinal))
+            if (!forwardedAttribute.TypeName.Contains("TriggerAttr", StringComparison.Ordinal))
             {
-                containsTriggerAttribute = true;
-                break;
+                continue;
             }
+
+            containsTriggerAttribute = true;
+            break;
         }
 
         await Assert.That(containsTriggerAttribute).IsFalse();
@@ -354,6 +359,7 @@ public sealed class AttributeDataExtensionTests
     /// <summary>Finds the class declaration used by the forwarded-attribute test.</summary>
     /// <param name="compilation">The compilation containing the class declaration.</param>
     /// <returns>A task that resolves to the class declaration.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the input is not valid.</exception>
     private static async Task<ClassDeclarationSyntax> GetClassDeclaration(CSharpCompilation compilation)
     {
         foreach (var syntaxTree in compilation.SyntaxTrees)
@@ -375,6 +381,7 @@ public sealed class AttributeDataExtensionTests
     /// <param name="typeName">The metadata name of the target type.</param>
     /// <param name="attributeSimpleName">The simple name of the attribute to retrieve.</param>
     /// <returns>The requested attribute data.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when <c>compilation.GetTypeByMetadataName(typeName)</c> is <see langword="null"/>.</exception>
     private static AttributeData GetAttribute(string source, string typeName, string attributeSimpleName)
     {
         var compilation = CreateCompilation(source);

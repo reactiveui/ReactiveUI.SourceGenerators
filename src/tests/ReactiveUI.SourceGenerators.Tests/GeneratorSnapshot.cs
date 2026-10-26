@@ -4,6 +4,7 @@
 
 using System.Collections.Concurrent;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace ReactiveUI.SourceGenerator.Tests;
@@ -106,6 +107,7 @@ internal static class GeneratorSnapshot
     /// <param name="typeName">The snapshot name's type segment.</param>
     /// <param name="methodName">The snapshot name's method segment.</param>
     /// <returns>A task that completes once every file has been compared.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when <c>!string.Equals(owner, test, StringComparison.Ordinal)</c>.</exception>
     internal static async Task VerifyAsync(GeneratorDriver driver, string folder, string typeName, string methodName)
     {
         ArgumentNullException.ThrowIfNull(driver);
@@ -237,6 +239,7 @@ internal static class GeneratorSnapshot
     /// <summary>Shortens a generated file's hint name: no <c>.g.cs</c> suffix, and the common words abbreviated.</summary>
     /// <param name="hintName">The hint name.</param>
     /// <returns>The abbreviated name.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string AbbreviateHintName(string hintName) =>
         Abbreviate(hintName.EndsWith(HintSuffix, StringComparison.Ordinal) ? hintName[..^HintSuffix.Length] : Path.GetFileNameWithoutExtension(hintName));
 
@@ -280,5 +283,6 @@ internal static class GeneratorSnapshot
     /// <summary>Normalises line endings so a snapshot compares the same on every checkout.</summary>
     /// <param name="text">The text to normalise.</param>
     /// <returns>The text with LF line endings.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string Normalize(string text) => text.Replace("\r\n", "\n", StringComparison.Ordinal);
 }

@@ -49,14 +49,17 @@ internal ref struct ArrayBuilder<T>
 
     /// <summary>Adds an item to the builder.</summary>
     /// <param name="item">The item to add.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal readonly void Add(T item) => _writer!.Add(item);
 
     /// <summary>Adds the specified items to the end of the array.</summary>
     /// <param name="items">The items to add at the end of the array.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal readonly void AddRange(scoped in ReadOnlySpan<T> items) => _writer!.AddRange(items);
 
     /// <summary>Creates an array from the written items.</summary>
     /// <returns>An array containing the written items.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal readonly T[] ToArray() => _writer!.WrittenSpan.ToArray();
 
     /// <summary>Gets an <see cref="IEnumerable{T}"/> instance for the current builder.</summary>
@@ -155,21 +158,22 @@ internal ref struct ArrayBuilder<T>
         bool ICollection<T>.Contains(T item) => throw new NotSupportedException();
 
         /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void ICollection<T>.CopyTo(T[] array, int arrayIndex) => Array.Copy(_array!, 0, array, arrayIndex, Count);
 
         /// <inheritdoc/>
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
             var array = _array!;
-            var length = Count;
 
-            for (var i = 0; i < length; i++)
+            for (var i = 0; i < Count; i++)
             {
                 yield return array[i]!;
             }
         }
 
         /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<T>)this).GetEnumerator();
 
         /// <inheritdoc/>

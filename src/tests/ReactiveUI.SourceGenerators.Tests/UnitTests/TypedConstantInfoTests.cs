@@ -158,6 +158,7 @@ public sealed class TypedConstantInfoTests
 
     /// <summary>The attribute-data factory supports every legal attribute constant kind.</summary>
     /// <returns>A task to monitor the async.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when <c>compilation.GetTypeByMetadataName("Test.Target")</c> is <see langword="null"/>.</exception>
     [Test]
     public async Task Create_WithAttributeConstructorConstants_MapsEverySupportedKind()
     {
@@ -243,6 +244,7 @@ public sealed class TypedConstantInfoTests
     /// <summary>Creates an operation and asks the typed-constant factory to represent it.</summary>
     /// <param name="expressionText">The expression to compile.</param>
     /// <returns>The factory result.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when <c>semanticModel.GetOperation(expression)</c> is <see langword="null"/>.</exception>
     private static (bool Success, TypedConstantInfo? Info) TryCreateExpression(string expressionText)
     {
         var source = $$"""
@@ -268,6 +270,7 @@ public sealed class TypedConstantInfoTests
     /// <summary>Finds the value initializer in a test syntax tree.</summary>
     /// <param name="root">The syntax root to search.</param>
     /// <returns>The value initializer expression.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the input is not valid.</exception>
     private static ExpressionSyntax GetValueExpression(SyntaxNode root)
     {
         foreach (var node in root.DescendantNodes())

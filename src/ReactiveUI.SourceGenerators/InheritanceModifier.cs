@@ -8,14 +8,14 @@ namespace ReactiveUI.SourceGenerators;
 public enum InheritanceModifier
 {
     /// <summary>No modifier.</summary>
-    None,
+    None = 0,
 
     /// <summary>A <c>virtual</c> property.</summary>
-    Virtual,
+    Virtual = 1,
 
     /// <summary>An <c>override</c> property.</summary>
-    Override,
+    Override = 2,
 
     /// <summary>A <c>new</c> property.</summary>
-    New,
+    New = 3,
 }

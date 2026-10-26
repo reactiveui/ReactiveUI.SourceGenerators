@@ -601,6 +601,7 @@ public sealed class SymbolExtensionTests
 
     /// <summary>SymbolInfo falls back to a single candidate constructor for an incomplete attribute invocation.</summary>
     /// <returns>A task to monitor the async.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when <c>syntaxTree is null</c>.</exception>
     [Test]
     public async Task SingleAttributeCandidateResolvesItsContainingType()
     {
@@ -681,6 +682,7 @@ public sealed class SymbolExtensionTests
     /// <param name="source">The source text containing the type.</param>
     /// <param name="typeName">The type name to find.</param>
     /// <returns>The matching type symbol.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the input is not valid.</exception>
     private static ITypeSymbol GetTypeSymbol(string source, string typeName)
     {
         var compilation = CreateCompilation(source);
@@ -699,6 +701,7 @@ public sealed class SymbolExtensionTests
     /// <param name="source">The source text containing the field.</param>
     /// <param name="fieldName">The field name to find.</param>
     /// <returns>The matching field symbol.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the input is not valid.</exception>
     private static IFieldSymbol GetFieldSymbol(string source, string fieldName)
     {
         var compilation = CreateCompilation(source);
@@ -717,6 +720,7 @@ public sealed class SymbolExtensionTests
     /// <param name="containingType">The containing type.</param>
     /// <param name="fieldName">The field name.</param>
     /// <returns>The field type.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the input is not valid.</exception>
     private static ITypeSymbol GetFieldType(INamedTypeSymbol containingType, string fieldName)
     {
         foreach (var member in containingType.GetMembers(fieldName))
@@ -751,6 +755,7 @@ public sealed class SymbolExtensionTests
     /// <param name="assemblyName">The reference assembly name.</param>
     /// <param name="source">The reference source.</param>
     /// <returns>The compiled metadata reference.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when <c>!result.Success</c>.</exception>
     private static PortableExecutableReference CreateMetadataReference(string assemblyName, string source)
     {
         var compilation = CSharpCompilation.Create(

@@ -4,6 +4,7 @@
 
 using System.Collections;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using ReactiveUI.SourceGenerators.WinForms;
 
@@ -195,6 +196,7 @@ public class ControlHostBehaviourTests
     /// <summary>Finds a type in the compiled assembly's load context.</summary>
     /// <param name="typeName">The type's full name.</param>
     /// <returns>The type.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the input is not valid.</exception>
     private static Type FindType(string typeName)
     {
         foreach (var assembly in AssemblyLoadContext.GetLoadContext(HostAssembly.Value)!.Assemblies)
@@ -218,6 +220,7 @@ public class ControlHostBehaviourTests
     /// <param name="target">The object.</param>
     /// <param name="name">The property name.</param>
     /// <param name="value">The value.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void Set(object target, string name, object? value) => target.GetType().GetProperty(name)!.SetValue(target, value);
 
     /// <summary>Lists the controls a host shows.</summary>
@@ -294,6 +297,7 @@ public class ControlHostBehaviourTests
 
     /// <summary>Generates, compiles and loads the hosts.</summary>
     /// <returns>The loaded assembly.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when <c>!emit.Success</c>.</exception>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "SES1402", Justification = "The test loads the assembly it has just compiled from its own source.")]
     private static Assembly Compile()
     {

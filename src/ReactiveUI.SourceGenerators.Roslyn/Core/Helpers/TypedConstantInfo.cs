@@ -37,6 +37,7 @@ internal abstract partial record TypedConstantInfo
     /// <typeparam name="T">The primitive value type.</typeparam>
     /// <param name="value">The primitive value.</param>
     /// <returns>The matching numeric literal token.</returns>
+    /// <exception cref="ArgumentException">Thrown if the value is not a supported primitive type.</exception>
     private static SyntaxToken GetNumericLiteral<T>(T value)
         where T : unmanaged, IEquatable<T> => value switch
         {

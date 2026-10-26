@@ -2,6 +2,7 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System.Runtime.CompilerServices;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.WinForms;
 
@@ -23,6 +24,7 @@ public class IncrementalCachingTests
 
     /// <summary>An unrelated edit leaves every <c>[Reactive]</c> type cached; editing one type reruns only that type.</summary>
     /// <returns>A task to monitor the async.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [Test]
     public Task ReactiveCachesPerType() => AssertCachesPerType(
         new ReactiveGenerator(),
@@ -39,6 +41,7 @@ public class IncrementalCachingTests
 
     /// <summary>An unrelated edit leaves every <c>[ReactiveCommand]</c> type cached; editing one type reruns only that type.</summary>
     /// <returns>A task to monitor the async.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [Test]
     public Task ReactiveCommandCachesPerType() => AssertCachesPerType(
         new ReactiveCommandGenerator(),
@@ -55,6 +58,7 @@ public class IncrementalCachingTests
 
     /// <summary>An unrelated edit leaves every <c>[ReactiveCollection]</c> type cached; editing one type reruns only that type.</summary>
     /// <returns>A task to monitor the async.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [Test]
     public Task ReactiveCollectionCachesPerType() => AssertCachesPerType(
         new ReactiveCollectionGenerator(),
@@ -72,6 +76,7 @@ public class IncrementalCachingTests
 
     /// <summary>An unrelated edit leaves every <c>[BindableDerivedList]</c> type cached; editing one type reruns only that type.</summary>
     /// <returns>A task to monitor the async.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [Test]
     public Task BindableDerivedListCachesPerType() => AssertCachesPerType(
         new BindableDerivedListGenerator(),
@@ -89,6 +94,7 @@ public class IncrementalCachingTests
 
     /// <summary>An unrelated edit leaves every <c>[IReactiveObject]</c> type cached; editing one type reruns only that type.</summary>
     /// <returns>A task to monitor the async.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [Test]
     public Task ReactiveObjectCachesPerType() => AssertCachesPerType(
         new ReactiveObjectGenerator(),
@@ -104,6 +110,7 @@ public class IncrementalCachingTests
 
     /// <summary>An unrelated edit leaves every <c>[RoutedControlHost]</c> host cached.</summary>
     /// <returns>A task to monitor the async.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [Test]
     public Task RoutedControlHostCachesPerType() => AssertCachesPerType(
         new RoutedControlHostGenerator(),

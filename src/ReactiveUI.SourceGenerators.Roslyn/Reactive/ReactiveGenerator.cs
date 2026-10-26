@@ -27,8 +27,11 @@ public sealed class ReactiveGenerator : IIncrementalGenerator
     /// <summary>Gets the generator assembly version emitted in generated-code attributes.</summary>
     internal static readonly string GeneratorVersion = typeof(ReactiveGenerator).Assembly.GetName().Version.ToString();
 
+#if ROSYLN_412 || ROSYLN_500
     /// <summary>The number of accessors required for a partial property.</summary>
     private const int RequiredAccessorCount = 2;
+
+#endif
 
     /// <summary>The access-modifier value for an internal setter.</summary>
     private const int InternalSetModifier = 2;

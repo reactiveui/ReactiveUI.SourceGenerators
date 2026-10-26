@@ -2,6 +2,7 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
@@ -292,6 +293,7 @@ public sealed class ReactiveUiIntegrationTests
 
     /// <summary>Verifies this test project is executing against a real ReactiveUI 24-or-newer package.</summary>
     /// <returns>A task representing the asynchronous assertion work.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when <c>typeof(ReactiveObject).Assembly.GetName().Version</c> is <see langword="null"/>.</exception>
     [Test]
     public async Task CurrentTestsUseRealReactiveUiV24OrNewerPackage()
     {
@@ -846,6 +848,7 @@ public sealed class ReactiveUiIntegrationTests
     /// <param name="source">The consumer source text.</param>
     /// <param name="generatedHintSuffix">The suffix identifying the generated host source.</param>
     /// <returns>The output compilation and generated host source.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the input is not valid.</exception>
     private static (Compilation Compilation, string GeneratedSource) RunWinFormsHostGenerator<TGenerator>(
         string source,
         string generatedHintSuffix)
@@ -926,6 +929,7 @@ public sealed class ReactiveUiIntegrationTests
     /// <param name="source">The consumer source text.</param>
     /// <param name="references">The metadata references for the consumer compilation.</param>
     /// <returns>The output compilation and generated command source.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when <c>generatedSource</c> is <see langword="null"/>.</exception>
     private static (Compilation Compilation, string GeneratedSource) RunCommandGenerator(
         string source,
         ImmutableArray<MetadataReference> references)
@@ -944,11 +948,13 @@ public sealed class ReactiveUiIntegrationTests
         {
             foreach (var generatedSourceResult in generatorResult.GeneratedSources)
             {
-                if (generatedSourceResult.HintName.EndsWith(".ReactiveCommands.g.cs", StringComparison.Ordinal))
+                if (!generatedSourceResult.HintName.EndsWith(".ReactiveCommands.g.cs", StringComparison.Ordinal))
                 {
-                    generatedSource = generatedSourceResult.SourceText.ToString();
-                    break;
+                    continue;
                 }
+
+                generatedSource = generatedSourceResult.SourceText.ToString();
+                break;
             }
 
             if (generatedSource is not null)
@@ -964,6 +970,7 @@ public sealed class ReactiveUiIntegrationTests
     /// <param name="source">The consumer source text.</param>
     /// <param name="languageVersion">The language version used for the consumer compilation.</param>
     /// <returns>The output compilation, generated property source, and generator diagnostics.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static (Compilation Compilation, string GeneratedSource, ImmutableArray<Diagnostic> Diagnostics) RunReactiveGenerator(
         string source,
         LanguageVersion languageVersion) =>
@@ -1041,6 +1048,7 @@ public sealed class ReactiveUiIntegrationTests
     /// <param name="source">The source declaring any command API surface.</param>
     /// <param name="references">The references visible to the compilation.</param>
     /// <returns>The created compilation.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static CSharpCompilation CreateIntegrationCompilation(
         string source,
         ImmutableArray<MetadataReference> references) =>
@@ -1053,6 +1061,7 @@ public sealed class ReactiveUiIntegrationTests
     /// <summary>Creates a ReactiveUI-named reference with no command type and a specified assembly version.</summary>
     /// <param name="version">The assembly version to emit.</param>
     /// <returns>The portable executable metadata reference.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when <c>!result.Success</c>.</exception>
     private static PortableExecutableReference CreateReactiveUiMarkerReference(string version)
     {
         var source = $$"""
@@ -1080,6 +1089,7 @@ public sealed class ReactiveUiIntegrationTests
 
     /// <summary>Creates an in-memory metadata reference implementing the pre-v24 ReactiveUI API.</summary>
     /// <returns>The portable executable metadata reference.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when <c>!result.Success</c>.</exception>
     private static PortableExecutableReference CreateLegacyReactiveUiReference()
     {
         const string source = """

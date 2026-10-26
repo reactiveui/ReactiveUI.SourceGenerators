@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -66,6 +67,7 @@ internal static class ContextExtensions
     {
         /// <summary>Gets a provider for the ReactiveUI API integration used by the compilation.</summary>
         /// <returns>A provider that produces the ReactiveUI integration details.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal IncrementalValueProvider<ReactiveUiIntegration> ReactiveUiIntegration() =>
             context.CompilationProvider.Select(static (compilation, token) =>
             {

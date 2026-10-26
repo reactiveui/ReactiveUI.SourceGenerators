@@ -25,29 +25,31 @@ public sealed class ReactiveCommandAttributeWithFieldOrPropertyTargetDiagnosticS
         public override void ReportSuppressions(SuppressionAnalysisContext context)
         {
             foreach (var diagnostic in context.ReportedDiagnostics)
-            {
-                var syntaxNode = diagnostic.Location.SourceTree?.GetRoot(context.CancellationToken).FindNode(diagnostic.Location.SourceSpan);
+        {
+            var syntaxNode = diagnostic.Location.SourceTree?.GetRoot(context.CancellationToken).FindNode(diagnostic.Location.SourceSpan);
 
-                // Check that the target is effectively [field:] or [property:] over a method declaration, which is the case we're looking for
-                if (syntaxNode is AttributeTargetSpecifierSyntax
-                    {
-                        Parent.Parent: MethodDeclarationSyntax methodDeclaration,
-                        Identifier: SyntaxToken(SyntaxKind.FieldKeyword or SyntaxKind.PropertyKeyword),
-                    })
+            // Check that the target is effectively [field:] or [property:] over a method declaration, which is the case we're looking for
+            if (syntaxNode is not AttributeTargetSpecifierSyntax
                 {
-                    var semanticModel = context.GetSemanticModel(syntaxNode.SyntaxTree);
+                    Parent.Parent: MethodDeclarationSyntax methodDeclaration,
+                    Identifier: SyntaxToken(SyntaxKind.FieldKeyword or SyntaxKind.PropertyKeyword),
+                })
+            {
+                continue;
+            }
 
-                    // Get the method symbol from the first variable declaration
-                    ISymbol? declaredSymbol = semanticModel.GetDeclaredSymbol(methodDeclaration, context.CancellationToken);
+            var semanticModel = context.GetSemanticModel(syntaxNode.SyntaxTree);
 
-                    // Check if the method is using [ReactiveCommand], in which case we should suppress the warning
-                    if (declaredSymbol is IMethodSymbol methodSymbol
-                        && semanticModel.Compilation.GetTypeByMetadataName(AttributeDefinitions.ReactiveCommandAttributeType) is INamedTypeSymbol reactiveCommandSymbol
-                        && methodSymbol.HasAttributeWithType(reactiveCommandSymbol))
-                    {
-                        context.ReportSuppression(Suppression.Create(FieldOrPropertyAttributeListForReactiveCommandMethod, diagnostic));
-                    }
-                }
+            // Get the method symbol from the first variable declaration
+            ISymbol? declaredSymbol = semanticModel.GetDeclaredSymbol(methodDeclaration, context.CancellationToken);
+
+            // Check if the method is using [ReactiveCommand], in which case we should suppress the warning
+            if (declaredSymbol is IMethodSymbol methodSymbol
+                && semanticModel.Compilation.GetTypeByMetadataName(AttributeDefinitions.ReactiveCommandAttributeType) is INamedTypeSymbol reactiveCommandSymbol
+                && methodSymbol.HasAttributeWithType(reactiveCommandSymbol))
+            {
+                context.ReportSuppression(Suppression.Create(FieldOrPropertyAttributeListForReactiveCommandMethod, diagnostic));
             }
         }
+    }
 }

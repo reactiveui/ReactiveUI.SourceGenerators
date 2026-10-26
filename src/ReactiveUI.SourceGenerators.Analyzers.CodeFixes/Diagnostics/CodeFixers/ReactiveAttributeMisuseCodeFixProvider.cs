@@ -77,6 +77,7 @@ public sealed class ReactiveAttributeMisuseCodeFixProvider : CodeFixProvider
     /// <typeparam name="T">The declaration type.</typeparam>
     /// <param name="declaration">The declaration to update.</param>
     /// <returns>The declaration with a partial modifier.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the declaration is neither a type nor a property.</exception>
     private static T AddPartialModifier<T>(T declaration)
         where T : MemberDeclarationSyntax
     {

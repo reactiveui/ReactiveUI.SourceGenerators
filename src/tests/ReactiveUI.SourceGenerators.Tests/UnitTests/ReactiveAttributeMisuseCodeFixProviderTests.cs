@@ -82,11 +82,13 @@ public sealed class ReactiveAttributeMisuseCodeFixProviderTests
         Microsoft.CodeAnalysis.CSharp.Syntax.ClassDeclarationSyntax? classDeclaration = null;
         foreach (var node in root.DescendantNodes())
         {
-            if (node is Microsoft.CodeAnalysis.CSharp.Syntax.ClassDeclarationSyntax declaration)
+            if (node is not Microsoft.CodeAnalysis.CSharp.Syntax.ClassDeclarationSyntax declaration)
             {
-                classDeclaration = declaration;
-                break;
+                continue;
             }
+
+            classDeclaration = declaration;
+            break;
         }
 
         await Assert.That(classDeclaration).IsNotNull();
@@ -94,11 +96,13 @@ public sealed class ReactiveAttributeMisuseCodeFixProviderTests
         DiagnosticDescriptor? diagnosticDescriptor = null;
         foreach (var descriptor in new ReactiveAttributeMisuseAnalyzer().SupportedDiagnostics)
         {
-            if (descriptor.Id == ReactivePartialDiagnosticId)
+            if (descriptor.Id != ReactivePartialDiagnosticId)
             {
-                diagnosticDescriptor = descriptor;
-                break;
+                continue;
             }
+
+            diagnosticDescriptor = descriptor;
+            break;
         }
 
         await Assert.That(diagnosticDescriptor).IsNotNull();

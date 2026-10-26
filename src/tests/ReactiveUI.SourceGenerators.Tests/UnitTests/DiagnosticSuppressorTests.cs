@@ -293,6 +293,7 @@ public sealed class DiagnosticSuppressorTests
 
     /// <summary>Compiles and creates the deterministic analyzer used by the suppression test.</summary>
     /// <returns>The synthetic analyzer.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when <c>!emitResult.Success</c>.</exception>
     private static DiagnosticAnalyzer CreateMemberCoverageDiagnosticAnalyzer()
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(

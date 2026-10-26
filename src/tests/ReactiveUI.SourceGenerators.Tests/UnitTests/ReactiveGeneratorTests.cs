@@ -2,6 +2,8 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System.Runtime.CompilerServices;
+
 namespace ReactiveUI.SourceGenerator.Tests;
 
 /// <summary>Unit tests for the Reactive generator.</summary>
@@ -245,6 +247,7 @@ public class ReactiveGeneratorTests : TestBase<ReactiveGenerator>
 
     /// <summary>Froms the reactive properties with nested class.</summary>
     /// <returns>A task to monitor the async.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [Test]
     public Task WithNestedClass() => TestHelper.TestPass(NestedClassSource);
 
