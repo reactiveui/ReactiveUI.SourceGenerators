@@ -23,7 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\ReactiveUI.SourceGenerators\ReactiveUI.SourceGenerators.csproj"/>
-    <ProjectReference Include="..\..\ReactiveUI.SourceGenerators.Roslyn5000\ReactiveUI.SourceGenerators.Roslyn5000.csproj"/>
+    <ProjectReference Include="..\..\ReactiveUI.SourceGenerators.Roslyn5000\ReactiveUI.SourceGenerators.Roslyn5000.csproj" Aliases="sg"/>
     <ProjectReference Include="..\..\ReactiveUI.Binding\ReactiveUI.Binding.csproj"/>
     <ProjectReference Include="..\..\ReactiveUI.Binding.Reactive\ReactiveUI.Binding.Reactive.csproj"/>
     <ProjectReference Include="..\..\ReactiveUI.Binding.SourceGenerators.Roslyn413\ReactiveUI.Binding.SourceGenerators.Roslyn413.csproj"/>

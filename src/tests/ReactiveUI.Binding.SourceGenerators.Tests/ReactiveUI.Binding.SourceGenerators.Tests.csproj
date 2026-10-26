@@ -25,7 +25,7 @@
     <!-- ReactiveUI.SourceGenerators runs beside this generator in the contract tests: its attributes are referenced,
          and its generators are built from this repository rather than run over this project. -->
     <ProjectReference Include="..\..\ReactiveUI.SourceGenerators\ReactiveUI.SourceGenerators.csproj"/>
-    <ProjectReference Include="..\..\ReactiveUI.SourceGenerators.Roslyn5000\ReactiveUI.SourceGenerators.Roslyn5000.csproj"/>
+    <ProjectReference Include="..\..\ReactiveUI.SourceGenerators.Roslyn5000\ReactiveUI.SourceGenerators.Roslyn5000.csproj" Aliases="sg"/>
     <ProjectReference Include="..\..\ReactiveUI.Binding\ReactiveUI.Binding.csproj"/>
     <ProjectReference Include="..\..\ReactiveUI.Binding.Reactive\ReactiveUI.Binding.Reactive.csproj"/>
     <ProjectReference Include="..\..\ReactiveUI.Binding.SourceGenerators\ReactiveUI.Binding.SourceGenerators.csproj"/>

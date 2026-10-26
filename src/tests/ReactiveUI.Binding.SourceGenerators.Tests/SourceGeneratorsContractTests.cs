@@ -2,6 +2,8 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+extern alias sg;
+
 using System.Collections.Immutable;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
@@ -233,10 +235,10 @@ public class SourceGeneratorsContractTests
     /// <returns>The generators.</returns>
     private static ImmutableArray<ISourceGenerator> SourceGeneratorsGenerators() =>
     [
-        new ReactiveUI.SourceGenerators.ReactiveGenerator().AsSourceGenerator(),
-        new ReactiveUI.SourceGenerators.ReactiveCollectionGenerator().AsSourceGenerator(),
-        new ReactiveUI.SourceGenerators.BindableDerivedListGenerator().AsSourceGenerator(),
-        new ReactiveUI.SourceGenerators.ReactiveCommandGenerator().AsSourceGenerator(),
-        new ReactiveUI.SourceGenerators.ReactiveObjectGenerator().AsSourceGenerator(),
+        new sg::ReactiveUI.SourceGenerators.ReactiveGenerator().AsSourceGenerator(),
+        new sg::ReactiveUI.SourceGenerators.ReactiveCollectionGenerator().AsSourceGenerator(),
+        new sg::ReactiveUI.SourceGenerators.BindableDerivedListGenerator().AsSourceGenerator(),
+        new sg::ReactiveUI.SourceGenerators.ReactiveCommandGenerator().AsSourceGenerator(),
+        new sg::ReactiveUI.SourceGenerators.ReactiveObjectGenerator().AsSourceGenerator(),
     ];
 }
