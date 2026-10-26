@@ -1394,7 +1394,10 @@ build keeps working right up until Wine starts. Each copy chains to the reposito
 - **Test and benchmark runtimes:** .NET 10.0 and 11.0
 - **Generator + Analyzer targets:** netstandard2.0 (Roslyn requirement)
 - **Runtime library targets:** net8.0;net9.0;net10.0;net11.0;net462;net47;net471;net472;net48;net481
-- **No shallow clones:** Repository requires full clone for Nerdbank.GitVersioning
+- **Two version lines:** The attribute packages (`ReactiveUI.SourceGenerators`) continue their `v4.x` tags. Every
+  `ReactiveUI.Binding*` project continues from 9.1.0 with its own `binding-v` tag stream and a 9.2 floor
+  (`src/Directory.Build.props`), so tagging one family never moves the other. Release each family by tagging with its prefix.
+- **No shallow clones:** Repository requires full clone for MinVer
 - **Where the analyzers ship:** `ReactiveUI.Binding` and `ReactiveUI.Binding.Reactive` each pack the generator
   and analyzer DLLs into `analyzers/dotnet/roslyn4.8/cs` and `analyzers/dotnet/roslyn4.13/cs`, so referencing a
   runtime package is all a consumer needs. `ReactiveUI.Binding.SourceGenerators` is a compatibility package that

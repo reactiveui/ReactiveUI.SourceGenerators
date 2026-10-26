@@ -19,7 +19,6 @@ jobs:
             productNamespacePrefix: ReactiveUI
             solutionFile: ReactiveUI.SourceGenerators.slnf
             installWorkloads: true
-            minverMinimumMajorMinor: '10.0'
             sonarProjectKey: reactiveui_ReactiveUI.SourceGenerators
             sonarOrganization: reactiveui
             sonarExclusions: '**/tests/**,**/benchmarks/**,**/TestResults/**'
