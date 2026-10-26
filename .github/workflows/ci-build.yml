@@ -24,12 +24,5 @@ jobs:
       solutionFile: ReactiveUI.SourceGenerators.slnf
       msbuildSolutionFile: ReactiveUI.SourceGenerators.Uno.slnf
       installWorkloads: true
-      # The 11.0.100-rc.3 SDK makes `dotnet test` ask for a device to run the MAUI and WinUI test projects on, and
-      # fails before any test runs. Build and test with rc.2, which src/global.json also pins, until it is fixed.
-      dotnetVersions: |
-        8.0.x
-        9.0.x
-        10.0.x
-        11.0.100-rc.2.26504.105
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
