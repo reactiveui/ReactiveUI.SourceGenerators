@@ -85,7 +85,7 @@
     <IsTestingPlatformApplication Condition="'$(IsWindowsDesktopTestProject)' == 'true' and !$([MSBuild]::IsOsPlatform('Windows'))">false</IsTestingPlatformApplication>
     <DebugType>embedded</DebugType>
     <Authors>Glenn Watson</Authors>
-    <Copyright>Copyright (c) $([System.DateTime]::Now.ToString(yyyy)) ReactiveUI Association Inc</Copyright>
+    <Copyright>Copyright (c) $([System.DateTime]::Now.ToString(yyyy)) ReactiveUI and Contributors</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageDescription>Source generator for ReactiveUI property observation and binding. Generates compile-time WhenChanged, WhenChanging, BindOneWay, and BindTwoWay implementations.</PackageDescription>
     <Owners>glennawatson</Owners>
