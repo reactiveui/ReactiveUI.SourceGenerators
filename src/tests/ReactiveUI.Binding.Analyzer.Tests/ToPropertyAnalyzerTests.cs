@@ -289,6 +289,27 @@ public class ToPropertyAnalyzerTests
         await Assert.That(diagnostics.IsEmpty).IsTrue();
     }
 
+    /// <summary>The source type is raised rather than observed, so the observable-mechanism check does not report it.</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task PlainSource_NoObservableMechanismDiagnostic()
+    {
+        const string Source = Preamble + """
+                                         namespace TestApp
+                                         {
+                                             public class MyViewModel
+                                             {
+                                                 public MyViewModel(IObservable<string> names) => names.ToProperty(this, x => x.Name);
+
+                                                 public string Name => "";
+                                             }
+                                         }
+                                         """;
+
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync<TypeAnalyzer>(Source);
+        await Assert.That(diagnostics.IsEmpty).IsTrue();
+    }
+
     /// <summary>Runs the analyzer with ReactiveUI's own assembly referenced, where its raise extensions live.</summary>
     /// <param name="source">The source to analyze.</param>
     /// <returns>The analyzer's diagnostics.</returns>

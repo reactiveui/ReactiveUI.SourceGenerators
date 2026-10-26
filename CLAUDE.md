@@ -122,18 +122,13 @@ the same way, with a Roslyn 4.8 band and a Roslyn 4.13 band.
 - **Snapshot tests everywhere.** Both test families compare every generated file with a `*.verified.cs` snapshot and
   accept changes with `ACCEPT_SNAPSHOTS=1`. When the two families differ, follow the binding family's approach.
 
-### Which analyzers stay
+### Analyzers and diagnostics
 
-An analyzer stays only when it reports something the developer cannot learn another way and can act on: a member the
-generator skipped, input that makes generated code fail, a call with no generated binding, or a compiler error that
-only this library's overloads cause and that names no fix (RXUIBIND014 turns CS0121 into the argument to write).
-The five attribute suppressors stay because they silence warnings the generated members would otherwise raise in a
-build that treats warnings as errors. Advice about style is
-removed, along with its code fix. Four rules were removed for that reason: RXUIBIND002, RXUIBIND005 and RXUIBIND020
-from the binding family, and RXUISG0016 and RXUISG0022 from the attribute family. The attribute family records a
-removed rule in the `Removed Rules` table of its `AnalyzerReleases.Shipped.md`, under the current major version, and
-leaves `AnalyzerReleases.Unshipped.md` empty. The binding family has not shipped its rules yet, so they sit in its
-`AnalyzerReleases.Unshipped.md`.
+Every shipped diagnostic stays: RXUIBIND002, RXUIBIND005 and RXUIBIND020 in the binding family, and RXUISG0016
+(`PropertyToReactiveFieldAnalyzer` and its code fix) and RXUISG0022 (`ControlHostAnalyzer`) in the attribute family.
+Never remove a rule or its code fix without the maintainer's explicit request. Each rule has tests and a benchmark.
+The attribute family records its rules in `AnalyzerReleases.Shipped.md`. The binding family has not shipped its rules
+yet, so they sit in its `AnalyzerReleases.Unshipped.md`.
 
 ### The attribute family
 
@@ -153,7 +148,8 @@ leaves `AnalyzerReleases.Unshipped.md` empty. The binding family has not shipped
   generators read them from source.
 - A generator reports a diagnostic only when its input cannot be generated from (`RXUISG0009`, `RXUISG0012`,
   `RXUISG0013`, `RXUISG0018`, `RXUISG0019`). Other `RXUISG*` rules live in `ReactiveUI.SourceGenerators.Analyzers.CodeFixes`:
-  `ReactiveAttributeMisuseAnalyzer` (RXUISG0020), `ReactiveCommandAnalyzer` (RXUISG0002, RXUISG0008, RXUISG0021) and their code fixes.
+  `PropertyToReactiveFieldAnalyzer` (RXUISG0016), `ReactiveAttributeMisuseAnalyzer` (RXUISG0020),
+  `ReactiveCommandAnalyzer` (RXUISG0002, RXUISG0008, RXUISG0021), `ControlHostAnalyzer` (RXUISG0022) and their code fixes.
 - Generated code never calls an API the binding generator has to intercept (`WhenAny*`, `Bind`, `OneWayBind`,
   `BindCommand`), because one generator cannot see another's output.
 - Generated output compiles at C# 12 and uses block-scoped namespaces.
@@ -408,8 +404,10 @@ src/
 │
 ├── ReactiveUI.Binding.Analyzer/                 # Roslyn analyzer (netstandard2.0)
 │   ├── Analyzers/
-│   │   ├── BindingInvocationAnalyzer.cs          # RXUIBIND001, 003, 004, 006, 007, 008
+│   │   ├── BindingInvocationAnalyzer.cs          # RXUIBIND001, 003, 004, 005, 006, 007, 008
 │   │   ├── DispatchReachAnalyzer.cs              # RXUIBIND009
+│   │   ├── ServiceLocatorViewAnalyzer.cs         # RXUIBIND020
+│   │   ├── TypeAnalyzer.cs                       # RXUIBIND002
 │   │   ├── MixinShadowAnalyzer.cs                # RXUIBIND011
 │   │   ├── NoGeneratedBindingAnalyzer.cs         # RXUIBIND021
 │   │   ├── ObservableAsPropertyAnalyzer.cs       # RXUIBIND018, 019
@@ -1081,8 +1079,10 @@ Not all platforms support before-change notifications (WPF DP, WinUI DP, WinForm
 | ID | Severity | Description |
 |----|----------|-------------|
 | RXUIBIND001 | Info | Expression must be inline lambda for compile-time optimization |
+| RXUIBIND002 | Warning | Type has no observable properties |
 | RXUIBIND003 | Warning | Expression contains private/protected member |
 | RXUIBIND004 | Warning | Type does not support before-change notifications |
+| RXUIBIND005 | Info | Source type implements INotifyDataErrorInfo; validation binding requires the runtime engine |
 | RXUIBIND006 | Warning | Expression contains an unsupported path segment (indexer, static field, read-only leaf field, or method call) |
 | RXUIBIND007 | Warning | BindCommand control has no bindable event |
 | RXUIBIND008 | Warning | Property does not implement IInteraction |
@@ -1097,6 +1097,7 @@ Not all platforms support before-change notifications (WPF DP, WinUI DP, WinForm
 | RXUIBIND017 | Warning | Binding writes to a UI object without its platform package |
 | RXUIBIND018 | Warning | ObservableAsProperty needs a partial get-only property |
 | RXUIBIND019 | Warning | ObservableAsProperty method takes parameters |
+| RXUIBIND020 | Info | View is registered only in the service locator |
 | RXUIBIND021 | Warning | Binding call has no generated binding |
 
 ## Code Style & Quality Requirements

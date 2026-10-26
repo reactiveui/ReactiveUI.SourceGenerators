@@ -30,6 +30,12 @@ public class AnalyzerBenchmarks
     /// <summary>The analyzer for <c>[ReactiveCommand]</c> methods the generator skips.</summary>
     private readonly ReactiveCommandAnalyzer _commandAnalyzer = new();
 
+    /// <summary>The analyzer for properties that could be <c>[Reactive]</c> fields.</summary>
+    private readonly PropertyToReactiveFieldAnalyzer _propertyAnalyzer = new();
+
+    /// <summary>The analyzer for WinForms hosts written without <c>ObservedProperty</c>.</summary>
+    private readonly ControlHostAnalyzer _controlHostAnalyzer = new();
+
     /// <summary>Reports the diagnostics the suppressors silence.</summary>
     private readonly SuppressibleDiagnosticSource _source = new();
 
@@ -37,7 +43,7 @@ public class AnalyzerBenchmarks
     private Compilation _compilation = null!;
 
     /// <summary>Gets the corpus names.</summary>
-    public static IEnumerable<string> Corpora => ["Reactive", "ReactiveCommand", GeneratorHarness.AllCorpus];
+    public static IEnumerable<string> Corpora => ["Reactive", "ReactiveCommand", "RoutedControlHost", GeneratorHarness.AllCorpus];
 
     /// <summary>Gets or sets the corpus: one generator's mock file, or every mock file.</summary>
     [ParamsSource(nameof(Corpora))]
@@ -58,6 +64,18 @@ public class AnalyzerBenchmarks
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [Benchmark]
     public Task<int> AnalyzeReactiveCommand() => CountAsync(_commandAnalyzer);
+
+    /// <summary>Runs the analyzer for properties that could be <c>[Reactive]</c> fields.</summary>
+    /// <returns>The number of diagnostics reported.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [Benchmark]
+    public Task<int> AnalyzePropertyToReactiveField() => CountAsync(_propertyAnalyzer);
+
+    /// <summary>Runs the analyzer for WinForms hosts written without <c>ObservedProperty</c>.</summary>
+    /// <returns>The number of diagnostics reported.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [Benchmark]
+    public Task<int> AnalyzeControlHost() => CountAsync(_controlHostAnalyzer);
 
     /// <summary>Runs the suppressor for CS0657 on <c>[Reactive]</c> fields.</summary>
     /// <returns>The number of diagnostics suppressed.</returns>

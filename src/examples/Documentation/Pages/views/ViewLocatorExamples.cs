@@ -183,7 +183,7 @@ public static class ViewLocatorExamples
     /// <summary>
     /// Resolves a screen registered only in the service locator, from a view model held as an object. <c>ResolveView</c>
     /// does not ask the service locator, so it finds nothing and logs a warning that names <c>ResolveViewUnsafe</c>.
-    /// <c>ResolveViewUnsafe</c> asks it, and finds the screen.
+    /// <c>ResolveViewUnsafe</c> asks it, and finds the screen. The build reports the registration as RXUIBIND020.
     /// </summary>
     public static void ResolveServiceLocatorViewFromObject()
     {
@@ -211,7 +211,7 @@ public static class ViewLocatorExamples
 
     /// <summary>
     /// Maps a screen registered in the service locator, so <c>ResolveView</c> finds it from a view model held as an object
-    /// without reflection.
+    /// without reflection. This is the fix RXUIBIND020 suggests.
     /// </summary>
     public static void MapServiceLocatorViewForObjects()
     {

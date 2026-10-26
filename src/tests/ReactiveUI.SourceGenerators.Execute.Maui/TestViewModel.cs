@@ -64,7 +64,7 @@ public partial class TestViewModel : ReactiveObject
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand(CanExecute = nameof(CanExecuteTest1))]
     [property: JsonInclude]
-    private static void Test1() => Trace.WriteLine("Test1");
+    private static void Test1() => Trace.TraceInformation("{0}", "Test1");
 
     /// <summary>Returns the default point from the second generated command.</summary>
     /// <returns>The default point value.</returns>
@@ -95,7 +95,7 @@ public partial class TestViewModel : ReactiveObject
     /// <param name="str">The value to write.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand]
-    private static void Test6ArgOnly(string str) => Trace.WriteLine($">>> {str}");
+    private static void Test6ArgOnly(string str) => Trace.TraceInformation("{0}", $">>> {str}");
 
     /// <summary>Returns a unit value through an observable command.</summary>
     /// <returns>An observable that returns a unit value.</returns>
@@ -167,26 +167,26 @@ public partial class TestViewModel : ReactiveObject
     /// <summary>Writes the generated commands so their creation is visible in the sample output.</summary>
     private void WriteGeneratedCommands()
     {
-        Trace.WriteLine(Test1Command);
-        Trace.WriteLine(Test2Command);
-        Trace.WriteLine(Test3Command);
-        Trace.WriteLine(Test4Command);
-        Trace.WriteLine(Test5StringToIntCommand);
-        Trace.WriteLine(Test6ArgOnlyCommand);
-        Trace.WriteLine(Test7ObservableCommand);
-        Trace.WriteLine(Test8ObservableCommand);
-        Trace.WriteLine(Test9Command);
-        Trace.WriteLine(Test10Command);
+        Trace.TraceInformation("{0}", Test1Command);
+        Trace.TraceInformation("{0}", Test2Command);
+        Trace.TraceInformation("{0}", Test3Command);
+        Trace.TraceInformation("{0}", Test4Command);
+        Trace.TraceInformation("{0}", Test5StringToIntCommand);
+        Trace.TraceInformation("{0}", Test6ArgOnlyCommand);
+        Trace.TraceInformation("{0}", Test7ObservableCommand);
+        Trace.TraceInformation("{0}", Test8ObservableCommand);
+        Trace.TraceInformation("{0}", Test9Command);
+        Trace.TraceInformation("{0}", Test10Command);
     }
 
     /// <summary>Executes the generated commands that do not require cancellation.</summary>
     private void ExecuteInitialCommands()
     {
         _ = Test1Command?.Execute().Subscribe();
-        _ = Test2Command?.Execute().Subscribe(static result => Trace.WriteLine(result));
+        _ = Test2Command?.Execute().Subscribe(static result => Trace.TraceInformation("{0}", result));
         _ = Test3Command?.Execute().Subscribe();
-        _ = Test4Command?.Execute().Subscribe(static result => Trace.WriteLine(result));
-        _ = Test5StringToIntCommand?.Execute("100").Subscribe(static value => Trace.WriteLine(value));
+        _ = Test4Command?.Execute().Subscribe(static result => Trace.TraceInformation("{0}", result));
+        _ = Test5StringToIntCommand?.Execute("100").Subscribe(static value => Trace.TraceInformation("{0}", value));
         _ = Test6ArgOnlyCommand?.Execute("Hello World").Subscribe();
         _ = Test7ObservableCommand?.Execute().Subscribe();
     }
@@ -195,15 +195,15 @@ public partial class TestViewModel : ReactiveObject
     private void InitializeObservableProperty()
     {
         _test2PropertyHelper = Test8ObservableCommand!.ToProperty(this, static viewModel => viewModel.Test2Property);
-        _ = Test8ObservableCommand.Execute(ObservableCommandArgument).Subscribe(static value => Trace.WriteLine(value));
-        Trace.WriteLine($"Test2Property Value: {Test2Property}");
+        _ = Test8ObservableCommand.Execute(ObservableCommandArgument).Subscribe(static value => Trace.TraceInformation("{0}", value));
+        Trace.TraceInformation("{0}", $"Test2Property Value: {Test2Property}");
     }
 
     /// <summary>Executes the cancellable and argument-taking generated commands.</summary>
     private void ExecuteRemainingCommands()
     {
-        _ = Test9Command?.ThrownExceptions.Subscribe(static value => Trace.WriteLine(value));
+        _ = Test9Command?.ThrownExceptions.Subscribe(static value => Trace.TraceInformation("{0}", value));
         ScheduleCancellation(Test9Command?.Execute().Subscribe());
-        _ = Test10Command?.Execute(PointCommandArgument).Subscribe(static result => Trace.WriteLine(result));
+        _ = Test10Command?.Execute(PointCommandArgument).Subscribe(static result => Trace.TraceInformation("{0}", result));
     }
 }

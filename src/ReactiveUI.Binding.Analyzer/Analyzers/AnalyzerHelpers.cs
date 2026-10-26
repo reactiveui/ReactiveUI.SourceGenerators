@@ -210,6 +210,40 @@ internal static class AnalyzerHelpers
     }
 
     /// <summary>
+    /// Determines whether a method's first type argument lacks any observable notification mechanism.
+    /// Returns <c>false</c> if the method has no type arguments (non-generic dispatch overload).
+    /// </summary>
+    /// <param name="methodSymbol">The method symbol.</param>
+    /// <param name="compilation">The current compilation.</param>
+    /// <param name="sourceType">The resolved source type, if the check matched.</param>
+    /// <returns><c>true</c> if the type has no observable mechanism.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static bool LacksObservableMechanism(
+        IMethodSymbol methodSymbol,
+        Compilation compilation,
+        out INamedTypeSymbol? sourceType) =>
+        LacksObservableMechanism(methodSymbol, compilation, 0, out sourceType);
+
+    /// <summary>
+    /// Determines whether the type argument naming this API's observed object lacks any observable notification
+    /// mechanism. Returns <c>false</c> when the method has no such argument (a non-generic dispatch overload).
+    /// </summary>
+    /// <param name="methodSymbol">The method symbol.</param>
+    /// <param name="compilation">The current compilation.</param>
+    /// <param name="typeArgumentIndex">Which type argument names the observed object.</param>
+    /// <param name="sourceType">The resolved source type, if the check matched.</param>
+    /// <returns><c>true</c> if the type has no observable mechanism.</returns>
+    internal static bool LacksObservableMechanism(
+        IMethodSymbol methodSymbol,
+        Compilation compilation,
+        int typeArgumentIndex,
+        out INamedTypeSymbol? sourceType)
+    {
+        sourceType = ExtractTypeArgument(methodSymbol, typeArgumentIndex);
+        return sourceType is not null && !HasObservableMechanism(sourceType, compilation);
+    }
+
+    /// <summary>
     /// Determines whether a method's first type argument lacks before-change notification support.
     /// Returns <c>false</c> if the method has no type arguments (non-generic dispatch overload).
     /// </summary>
@@ -227,6 +261,32 @@ internal static class AnalyzerHelpers
         mechanism = string.Empty;
         receiverType = ExtractFirstTypeArgument(methodSymbol);
         return receiverType is not null && !HasBeforeChangeSupport(receiverType, compilation, out mechanism);
+    }
+
+    /// <summary>
+    /// Determines whether a binding method's source type implements
+    /// <c>INotifyDataErrorInfo</c>, requiring the runtime validation engine.
+    /// Returns <c>false</c> if the method has no type arguments or the
+    /// <c>INotifyDataErrorInfo</c> type cannot be resolved in the compilation.
+    /// </summary>
+    /// <param name="methodSymbol">The binding method symbol.</param>
+    /// <param name="compilation">The current compilation.</param>
+    /// <param name="sourceType">The resolved source type, if the check passed.</param>
+    /// <returns><c>true</c> if the source type implements <c>INotifyDataErrorInfo</c>.</returns>
+    internal static bool ImplementsDataErrorInfo(
+        IMethodSymbol methodSymbol,
+        Compilation compilation,
+        out INamedTypeSymbol? sourceType)
+    {
+        sourceType = ExtractFirstTypeArgument(methodSymbol);
+        if (sourceType is null)
+        {
+            return false;
+        }
+
+        var dataErrorInfo =
+            compilation.GetTypeByMetadataName(SourceGenerators.Constants.INotifyDataErrorInfoMetadataName);
+        return dataErrorInfo is not null && ImplementsInterface(sourceType, dataErrorInfo);
     }
 
     /// <summary>

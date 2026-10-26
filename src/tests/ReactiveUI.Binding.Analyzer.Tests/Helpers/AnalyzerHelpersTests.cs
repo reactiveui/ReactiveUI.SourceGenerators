@@ -354,6 +354,75 @@ public class AnalyzerHelpersTests
         await Assert.That(result).IsTrue();
     }
 
+    /// <summary>Verifies that LacksObservableMechanism returns false for a non-generic method (no type arguments to extract).</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task LacksObservableMechanism_NonGenericMethod_ReturnsFalse()
+    {
+        var (methodSymbol, compilation) = GetNonGenericMethodSymbol();
+
+        var result = AnalyzerHelpers.LacksObservableMechanism(methodSymbol, compilation, out var sourceType);
+
+        await Assert.That(result).IsFalse();
+        await Assert.That(sourceType).IsNull();
+    }
+
+    /// <summary>Verifies that LacksObservableMechanism returns false for a generic method whose first type argument implements INPC.</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task LacksObservableMechanism_GenericWithINPC_ReturnsFalse()
+    {
+        const string Source = """
+                              using System.ComponentModel;
+                              namespace TestApp
+                              {
+                                  public class MyVm : INotifyPropertyChanged
+                                  {
+                                      public event PropertyChangedEventHandler? PropertyChanged;
+                                  }
+
+                                  public class Caller
+                                  {
+                                      public void M<T>(T obj) where T : class { }
+                                      public void Go() { M<MyVm>(new MyVm()); }
+                                  }
+                              }
+                              """;
+
+        var (methodSymbol, compilation) = GetInvocationMethodSymbol(Source);
+
+        var result = AnalyzerHelpers.LacksObservableMechanism(methodSymbol, compilation, out var sourceType);
+
+        await Assert.That(result).IsFalse();
+        await Assert.That(sourceType).IsNotNull();
+    }
+
+    /// <summary>Verifies that LacksObservableMechanism returns true when the first type argument has no observable mechanism.</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task LacksObservableMechanism_GenericWithPlainClass_ReturnsTrue()
+    {
+        const string Source = """
+                              namespace TestApp
+                              {
+                                  public class PlainVm { public string Name { get; set; } = ""; }
+
+                                  public class Caller
+                                  {
+                                      public void M<T>(T obj) where T : class { }
+                                      public void Go() { M<PlainVm>(new PlainVm()); }
+                                  }
+                              }
+                              """;
+
+        var (methodSymbol, compilation) = GetInvocationMethodSymbol(Source);
+
+        var result = AnalyzerHelpers.LacksObservableMechanism(methodSymbol, compilation, out var sourceType);
+
+        await Assert.That(result).IsTrue();
+        await Assert.That(sourceType!.Name).IsEqualTo("PlainVm");
+    }
+
     /// <summary>Verifies that LacksBeforeChangeSupport returns false for a non-generic method (no type arguments to extract).</summary>
     /// <returns>A task representing the asynchronous test operation.</returns>
     [Test]
@@ -407,6 +476,109 @@ public class AnalyzerHelpersTests
         await Assert.That(result).IsTrue();
         await Assert.That(receiverType!.Name).IsEqualTo("MyVm");
         await Assert.That(mechanism).Contains("INotifyPropertyChanged");
+    }
+
+    /// <summary>Verifies that ImplementsDataErrorInfo returns false for a non-generic method (no type arguments to extract).</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task ImplementsDataErrorInfo_NonGenericMethod_ReturnsFalse()
+    {
+        var (methodSymbol, compilation) = GetNonGenericMethodSymbol();
+
+        var result = AnalyzerHelpers.ImplementsDataErrorInfo(methodSymbol, compilation, out var sourceType);
+
+        await Assert.That(result).IsFalse();
+        await Assert.That(sourceType).IsNull();
+    }
+
+    /// <summary>Verifies that ImplementsDataErrorInfo returns true when the first type argument implements INotifyDataErrorInfo.</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task ImplementsDataErrorInfo_GenericWithDataErrorInfo_ReturnsTrue()
+    {
+        const string Source = """
+                              using System;
+                              using System.Collections;
+                              using System.ComponentModel;
+                              namespace TestApp
+                              {
+                                  public class MyVm : INotifyDataErrorInfo
+                                  {
+                                      public bool HasErrors { get { return false; } }
+                                      public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
+                                      public IEnumerable GetErrors(string propertyName) { return new object[0]; }
+                                  }
+
+                                  public class Caller
+                                  {
+                                      public void M<T>(T obj) where T : class { }
+                                      public void Go() { M<MyVm>(new MyVm()); }
+                                  }
+                              }
+                              """;
+
+        var (methodSymbol, compilation) = GetInvocationMethodSymbol(Source);
+
+        var result = AnalyzerHelpers.ImplementsDataErrorInfo(methodSymbol, compilation, out var sourceType);
+
+        await Assert.That(result).IsTrue();
+        await Assert.That(sourceType!.Name).IsEqualTo("MyVm");
+    }
+
+    /// <summary>Verifies that ImplementsDataErrorInfo returns false when the first type argument does not implement INotifyDataErrorInfo.</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task ImplementsDataErrorInfo_GenericWithoutDataErrorInfo_ReturnsFalse()
+    {
+        const string Source = """
+                              using System.ComponentModel;
+                              namespace TestApp
+                              {
+                                  public class MyVm : INotifyPropertyChanged
+                                  {
+                                      public event PropertyChangedEventHandler? PropertyChanged;
+                                  }
+
+                                  public class Caller
+                                  {
+                                      public void M<T>(T obj) where T : class { }
+                                      public void Go() { M<MyVm>(new MyVm()); }
+                                  }
+                              }
+                              """;
+
+        var (methodSymbol, compilation) = GetInvocationMethodSymbol(Source);
+
+        var result = AnalyzerHelpers.ImplementsDataErrorInfo(methodSymbol, compilation, out var sourceType);
+
+        await Assert.That(result).IsFalse();
+        await Assert.That(sourceType!.Name).IsEqualTo("MyVm");
+    }
+
+    /// <summary>Verifies that ImplementsDataErrorInfo returns false when the compilation has no INotifyDataErrorInfo type.</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task ImplementsDataErrorInfo_TypeNotInCompilation_ReturnsFalse()
+    {
+        const string Source = """
+                              namespace TestApp
+                              {
+                                  public class MyVm { public string Name { get; set; } }
+
+                                  public class Caller
+                                  {
+                                      public void M<T>(T obj) where T : class { }
+                                      public void Go() { M<MyVm>(new MyVm()); }
+                                  }
+                              }
+                              """;
+
+        var (methodSymbol, compilation) = GetInvocationMethodSymbolMinimal(Source);
+
+        var result = AnalyzerHelpers.ImplementsDataErrorInfo(methodSymbol, compilation, out var sourceType);
+
+        await Assert.That(result).IsFalse();
+        await Assert.That(sourceType!.Name).IsEqualTo("MyVm");
     }
 
     /// <summary>Verifies that HasObservableMechanism returns true when the type implements IReactiveObject.</summary>

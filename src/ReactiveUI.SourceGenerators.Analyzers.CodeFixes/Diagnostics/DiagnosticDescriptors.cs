@@ -9,6 +9,17 @@ namespace ReactiveUI.SourceGenerators.CodeFixers.Diagnostics;
 /// <summary>A container for all <see cref="DiagnosticDescriptor"/> instances for errors reported by analyzers in this project.</summary>
 internal static class DiagnosticDescriptors
 {
+    /// <summary>The property to field rule.</summary>
+    internal static readonly DiagnosticDescriptor PropertyToReactiveFieldRule = new(
+        id: "RXUISG0016",
+        title: "Property can be a `[Reactive]` property",
+        messageFormat: "Replace the property with a INPC Reactive Property for ReactiveUI",
+        category: typeof(PropertyToReactiveFieldAnalyzer).FullName,
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        description: "Used to create a Read Write INPC Reactive Property for ReactiveUI, annotated with `[Reactive]`.",
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
+
     /// <summary>A <c>[ReactiveCommand]</c> method takes more parameters than a command can pass it.</summary>
     internal static readonly DiagnosticDescriptor InvalidReactiveCommandMethodSignatureRule = new(
         id: "RXUISG0002",
@@ -41,6 +52,17 @@ internal static class DiagnosticDescriptors
         isEnabledByDefault: true,
         description: "A scheduler is a field, property or parameterless method of the command's type, or a static one elsewhere "
             + "such as RxSchedulers.MainThreadScheduler, whose type is the scheduler type ReactiveUI's commands take.",
+        helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
+
+    /// <summary>A WinForms host follows its properties without ReactiveUI.Binding's <c>ObservedProperty</c>.</summary>
+    internal static readonly DiagnosticDescriptor ControlHostWithoutObservedPropertyRule = new(
+        id: "RXUISG0022",
+        title: "WinForms host follows its properties without ObservedProperty",
+        messageFormat: "`{0}` follows its own properties through PropertyChanged; with ReactiveUI.Binding {1} or later it would follow them with WhenAnyValue semantics",
+        category: typeof(ControlHostAnalyzer).FullName,
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        description: "The [RoutedControlHost] and [ViewModelControlHost] hosts use ReactiveUI.Binding's ObservedProperty when the referenced ReactiveUI.Binding has it.",
         helpLinkUri: "https://www.reactiveui.net/docs/handbook/view-models/boilerplate-code.html");
 
     /// <summary>The `[Reactive]` attribute was used on a property, but required `partial` modifiers are missing.</summary>
