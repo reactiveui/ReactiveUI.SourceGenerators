@@ -863,7 +863,7 @@ public sealed class ReactiveUiIntegrationTests
             ],
             TestCompilationReferences.CreatePortableDefault(),
             new(OutputKind.DynamicallyLinkedLibrary));
-        GeneratorDriver driver = CSharpGeneratorDriver
+        var driver = CSharpGeneratorDriver
             .Create([new TGenerator()])
             .WithUpdatedParseOptions(parseOptions);
         driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
@@ -991,7 +991,7 @@ public sealed class ReactiveUiIntegrationTests
             [CSharpSyntaxTree.ParseText(SourceText.From(source, Encoding.UTF8), parseOptions)],
             TestCompilationReferences.CreateDefault(),
             new(OutputKind.DynamicallyLinkedLibrary));
-        GeneratorDriver driver = CSharpGeneratorDriver.Create([generator]).WithUpdatedParseOptions(parseOptions);
+        var driver = CSharpGeneratorDriver.Create([generator]).WithUpdatedParseOptions(parseOptions);
         driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
         var generatedSource = new StringBuilder();
         foreach (var result in driver.GetRunResult().Results)

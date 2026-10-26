@@ -167,7 +167,7 @@ public sealed class GeneratedOutputCoverageTests
             [CSharpSyntaxTree.ParseText(SourceText.From(source, Encoding.UTF8), parseOptions)],
             TestCompilationReferences.CreateDefault(),
             new(OutputKind.DynamicallyLinkedLibrary));
-        GeneratorDriver driver = CSharpGeneratorDriver.Create(generators).WithUpdatedParseOptions(parseOptions);
+        var driver = CSharpGeneratorDriver.Create(generators).WithUpdatedParseOptions(parseOptions);
         driver = driver.RunGenerators(compilation);
         var generatedSource = new StringBuilder();
         foreach (var result in driver.GetRunResult().Results)

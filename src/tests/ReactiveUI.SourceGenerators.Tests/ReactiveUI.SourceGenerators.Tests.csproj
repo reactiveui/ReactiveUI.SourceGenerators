@@ -29,8 +29,11 @@
     <PackageReference Include="Microsoft.CodeAnalysis" PrivateAssets="all" VersionOverride="4.14.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="all" VersionOverride="4.14.0" />
     <PackageReference Include="DynamicData" PrivateAssets="all" />
-    <PackageReference Include="ReactiveUI" />
-    <PackageReference Include="ReactiveUI.Reactive" PrivateAssets="all" />
+    <!-- These tests model an application on ReactiveUI 24, which declares its own IViewFor in the ReactiveUI namespace.
+         ReactiveUI 26 moved the view API to ReactiveUI.Binding; the generators pick either, and the ReactiveUI.Binding
+         project references below cover that side. -->
+    <PackageReference Include="ReactiveUI" VersionOverride="24.3.0" />
+    <PackageReference Include="ReactiveUI.Reactive" PrivateAssets="all" VersionOverride="24.3.0" />
     <PackageReference Include="Splat" />
     <PackageReference Include="System.Reactive" PrivateAssets="all" />
   </ItemGroup>

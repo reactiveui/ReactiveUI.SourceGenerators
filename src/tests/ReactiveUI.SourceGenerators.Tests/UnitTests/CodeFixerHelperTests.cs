@@ -267,7 +267,7 @@ public sealed class CodeFixerHelperTests
     private static void UnsupportedCollectionOperation()
     {
         using var builder = CodeFixerHelpers.ImmutableArrayBuilder<int>.Rent();
-        ICollection<int> collection = (ICollection<int>)builder.AsEnumerable();
+        var collection = (ICollection<int>)builder.AsEnumerable();
         _ = collection.Contains(FirstValue);
     }
 }

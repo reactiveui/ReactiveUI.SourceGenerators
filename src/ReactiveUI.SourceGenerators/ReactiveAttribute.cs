@@ -11,6 +11,7 @@ namespace ReactiveUI.SourceGenerators;
 /// <param name="alsoNotify">The names of other properties to raise change notifications for.</param>
 [Conditional(KeepAttributes.Symbol)]
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
+[DebuggerDisplay("ReactiveAttribute: SetModifier = {SetModifier}, Inheritance = {Inheritance}, UseRequired = {UseRequired}")]
 public sealed class ReactiveAttribute(params string[] alsoNotify) : Attribute
 {
     /// <summary>Gets or sets the accessibility of the generated set accessor.</summary>

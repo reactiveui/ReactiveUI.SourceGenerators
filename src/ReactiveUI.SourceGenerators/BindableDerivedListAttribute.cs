@@ -10,6 +10,7 @@ namespace ReactiveUI.SourceGenerators;
 /// <summary>Generates a property that exposes the annotated <c>ReadOnlyObservableCollection&lt;T&gt;</c> field.</summary>
 [Conditional(KeepAttributes.Symbol)]
 [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
+[DebuggerDisplay("BindableDerivedListAttribute: AccessModifier = {AccessModifier}")]
 public sealed class BindableDerivedListAttribute : Attribute
 {
     /// <summary>Gets or sets the accessibility of the generated property.</summary>

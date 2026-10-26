@@ -136,10 +136,10 @@ internal static class TestCompilationReferences
     }
 
     /// <summary>Builds the default metadata-reference closure.</summary>
-    /// <returns>The default metadata-reference closure.</returns>
     /// <param name="includeWindowsDesktop">
     /// Whether to add installed Windows desktop shared-framework assemblies on Windows.
     /// </param>
+    /// <returns>The default metadata-reference closure.</returns>
     private static ImmutableArray<MetadataReference> CreateDefaultCore(bool includeWindowsDesktop)
     {
         var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);

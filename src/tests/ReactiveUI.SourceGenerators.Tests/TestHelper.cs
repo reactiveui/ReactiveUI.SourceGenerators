@@ -341,14 +341,14 @@ public sealed partial class TestHelper<T> : IDisposable
     /// <param name="allGeneratedCode">The combined generated code.</param>
     private static void ValidateAlsoNotifyOutput(string sourceCode, string allGeneratedCode)
     {
-        foreach (object? matchValue in ReactiveRegex().Matches(sourceCode))
+        foreach (var matchValue in ReactiveRegex().Matches(sourceCode))
         {
             if (matchValue is not Match match)
             {
                 continue;
             }
 
-            foreach (object? nameofMatchValue in NameOfRegex().Matches(match.Value))
+            foreach (var nameofMatchValue in NameOfRegex().Matches(match.Value))
             {
                 if (nameofMatchValue is not Match nameofMatch)
                 {

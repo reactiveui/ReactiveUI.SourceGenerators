@@ -212,7 +212,7 @@ public class ControlHostObservedPropertyTests
         var assembly = Compile(bindingNamespace);
         var host = Create(assembly, "Hosts.RoutedHost");
         var defaultContent = Create(assembly, "System.Windows.Forms.UserControl");
-        Set(host, nameof(ViewLocator), Create(assembly, "Hosts.Locator"));
+        Set(host, nameof(ReactiveUI.Binding.ViewLocator), Create(assembly, "Hosts.Locator"));
 
         Set(host, DefaultContent, defaultContent);
         await AssertShows(host, defaultContent);
@@ -235,7 +235,7 @@ public class ControlHostObservedPropertyTests
         var assembly = Compile(bindingNamespace);
         var host = Create(assembly, "Hosts.ViewModelHost");
         var defaultContent = Create(assembly, "System.Windows.Forms.UserControl");
-        Set(host, nameof(ViewLocator), Create(assembly, "Hosts.Locator"));
+        Set(host, nameof(ReactiveUI.Binding.ViewLocator), Create(assembly, "Hosts.Locator"));
 
         Set(host, DefaultContent, defaultContent);
         await AssertShows(host, defaultContent);

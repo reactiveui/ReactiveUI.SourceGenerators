@@ -141,7 +141,7 @@ public sealed class ViewApiIntegrationTests
         where TGenerator : IIncrementalGenerator, new()
     {
         var compilation = CreateCompilation(source, TestCompilationReferences.WindowsDesktopStubs, stub);
-        GeneratorDriver driver = CSharpGeneratorDriver.Create([new TGenerator()])
+        var driver = CSharpGeneratorDriver.Create([new TGenerator()])
             .WithUpdatedParseOptions((CSharpParseOptions)compilation.SyntaxTrees[0].Options);
         driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var output, out _);
 

@@ -11,6 +11,7 @@ namespace ReactiveUI.SourceGenerators.WinForms;
 /// <param name="baseType">The fully qualified name of the control type the generated host derives from.</param>
 [Conditional(KeepAttributes.Symbol)]
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+[DebuggerDisplay("ViewModelControlHostAttribute: BaseType = {BaseType}")]
 public sealed class ViewModelControlHostAttribute(string? baseType) : Attribute
 {
     /// <summary>Gets the fully qualified name of the control type the generated host derives from.</summary>

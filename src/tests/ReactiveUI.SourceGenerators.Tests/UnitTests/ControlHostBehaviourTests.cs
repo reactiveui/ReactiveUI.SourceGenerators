@@ -96,7 +96,7 @@ public class ControlHostBehaviourTests
     {
         var host = Create("Hosts.RoutedHost");
         var defaultContent = Create("System.Windows.Forms.UserControl");
-        Set(host, nameof(ViewLocator), Create("Hosts.Locator"));
+        Set(host, nameof(ReactiveUI.Binding.ViewLocator), Create("Hosts.Locator"));
 
         Set(host, DefaultContent, defaultContent);
         await AssertShowsOnly(host, defaultContent);
@@ -119,7 +119,7 @@ public class ControlHostBehaviourTests
     {
         var host = Create("Hosts.ViewModelHost");
         var defaultContent = Create("System.Windows.Forms.UserControl");
-        Set(host, nameof(ViewLocator), Create("Hosts.Locator"));
+        Set(host, nameof(ReactiveUI.Binding.ViewLocator), Create("Hosts.Locator"));
 
         Set(host, DefaultContent, defaultContent);
         await AssertShowsOnly(host, defaultContent);

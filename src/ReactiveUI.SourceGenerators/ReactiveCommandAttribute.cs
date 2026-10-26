@@ -10,6 +10,7 @@ namespace ReactiveUI.SourceGenerators;
 /// <summary>Generates a <c>ReactiveCommand</c> property that executes the annotated method.</summary>
 [Conditional(KeepAttributes.Symbol)]
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+[DebuggerDisplay("ReactiveCommandAttribute: CanExecute = {CanExecute}, RunInBackground = {RunInBackground}, AccessModifier = {AccessModifier}")]
 public sealed class ReactiveCommandAttribute : Attribute
 {
     /// <summary>Gets or sets the name of the <c>IObservable&lt;bool&gt;</c> member that decides whether the command can execute.</summary>
