@@ -56,9 +56,6 @@ internal static class Constants
     /// <summary>Metadata name for Android's <c>View</c> base class.</summary>
     internal const string AndroidViewMetadataName = "Android.Views.View";
 
-    /// <summary>Metadata name for <see cref="System.ComponentModel.INotifyDataErrorInfo"/>.</summary>
-    internal const string INotifyDataErrorInfoMetadataName = "System.ComponentModel.INotifyDataErrorInfo";
-
     /// <summary>Class name for the runtime API stub extension class emitted as post-initialization output.</summary>
     internal const string StubExtensionClassName = "ReactiveUIBindingExtensions";
 

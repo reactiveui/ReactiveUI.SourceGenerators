@@ -36,9 +36,7 @@ public class DiagnosticSeverityTests
     /// <param name="id">The diagnostic id.</param>
     /// <returns>A task representing the asynchronous test operation.</returns>
     [Test]
-    [Arguments("RXUIBIND002")]
     [Arguments("RXUIBIND004")]
-    [Arguments("RXUIBIND005")]
     [Arguments("RXUIBIND007")]
     [Arguments("RXUIBIND008")]
     [Arguments("RXUIBIND010")]
@@ -46,7 +44,6 @@ public class DiagnosticSeverityTests
     [Arguments("RXUIBIND017")]
     [Arguments("RXUIBIND018")]
     [Arguments("RXUIBIND019")]
-    [Arguments("RXUIBIND020")]
     public async Task CallThatRuns_IsNotAnError(string id) =>
         await Assert.That(Descriptor(id).DefaultSeverity).IsNotEqualTo(DiagnosticSeverity.Error);
 

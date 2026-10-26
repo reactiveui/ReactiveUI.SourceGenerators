@@ -29,16 +29,6 @@ internal static class DiagnosticWarnings
         true,
         NoneInlineLambdaDescription);
 
-    /// <summary>RXUIBIND002: Type has no observable properties.</summary>
-    internal static readonly DiagnosticDescriptor NoObservableProperties = new(
-        "RXUIBIND002",
-        "Type has no observable properties",
-        "Type '{0}' has no observable properties and does not implement any observable notification mechanism",
-        UsageCategory,
-        DiagnosticSeverity.Warning,
-        true,
-        NoObservablePropertiesDescription);
-
     /// <summary>RXUIBIND010: A type in the middle of an observed path raises no notification.</summary>
     internal static readonly DiagnosticDescriptor SilentPathLink = new(
         "RXUIBIND010",
@@ -139,20 +129,6 @@ internal static class DiagnosticWarnings
         true,
         NoGeneratedBindingDescription);
 
-    /// <summary>
-    /// RXUIBIND020: a view is registered only in the service locator, which <c>ResolveView(object)</c> does not ask.
-    /// Reported when the compilation ends, once every registration, view and mapping is known.
-    /// </summary>
-    internal static readonly DiagnosticDescriptor ServiceLocatorOnlyView = new(
-        "RXUIBIND020",
-        "View is registered only in the service locator",
-        "IViewFor<{0}> is registered only in the service locator, so ResolveView with a view model held as an object does not find it; add it with Map, or call ResolveViewUnsafe",
-        UsageCategory,
-        DiagnosticSeverity.Info,
-        true,
-        ServiceLocatorOnlyViewDescription,
-        customTags: WellKnownDiagnosticTags.CompilationEnd);
-
     /// <summary>RXUIBIND019: a method marked <c>[ObservableAsProperty]</c> takes parameters.</summary>
     internal static readonly DiagnosticDescriptor ObservableAsPropertyMethodHasParameters = new(
         "RXUIBIND019",
@@ -182,16 +158,6 @@ internal static class DiagnosticWarnings
         DiagnosticSeverity.Warning,
         true,
         NoBeforeChangeSupportDescription);
-
-    /// <summary>RXUIBIND005: Source type implements INotifyDataErrorInfo.</summary>
-    internal static readonly DiagnosticDescriptor ValidationNotGenerated = new(
-        "RXUIBIND005",
-        "Validation binding not generated",
-        "Source type '{0}' implements INotifyDataErrorInfo; validation state propagation is not generated and requires runtime engine or manual ErrorsChanged subscription",
-        UsageCategory,
-        DiagnosticSeverity.Info,
-        true,
-        ValidationNotGeneratedDescription);
 
     /// <summary>RXUIBIND009: The generated dispatch for this call site is out of reach.</summary>
     internal static readonly DiagnosticDescriptor DispatchOutOfReach = new(
@@ -253,11 +219,6 @@ internal static class DiagnosticWarnings
         + "so the call throws. Name the Unsafe overload - WhenChangedUnsafe, BindOneWayUnsafe and so on - to walk "
         + "the chain by reflection instead, which reports the requirement at the call site under trimming.";
 
-    /// <summary>The string description of the no observable properties warning.</summary>
-    private const string NoObservablePropertiesDescription =
-        "The type used in the binding expression does not implement INotifyPropertyChanged, INotifyPropertyChanging, "
-        + "IReactiveObject, or inherit from any known observable base type.";
-
     /// <summary>The string description of the private member warning.</summary>
     private const string PrivateMemberDescription =
         "The source generator generates extension methods which cannot access private or protected members. "
@@ -268,12 +229,6 @@ internal static class DiagnosticWarnings
         "The notification mechanism for this type does not provide before-change events. "
         + "WPF DependencyObjects, WinForms Components, and Android Views only support after-change notifications, "
         + "so the observation reports the value as it stands, once, and then nothing further.";
-
-    /// <summary>The string description of the validation not generated warning.</summary>
-    private const string ValidationNotGeneratedDescription =
-        "The generated bindings handle value binding only. "
-        + "Validation state propagation from INotifyDataErrorInfo requires the runtime ReactiveUI binding engine "
-        + "or a manual ErrorsChanged subscription.";
 
     /// <summary>The string description of the unsupported path segment warning.</summary>
     private const string UnsupportedPathSegmentDescription =
@@ -323,13 +278,6 @@ internal static class DiagnosticWarnings
         + "through such a member is reported as a warning, because only the other generator could change it. Every "
         + "other cause is one you can fix, such as a selector that computes a value or a call written through the "
         + "class that declares the method, and fails the build.";
-
-    /// <summary>The string description of the service-locator-only view information.</summary>
-    private const string ServiceLocatorOnlyViewDescription =
-        "ResolveView with a view model held as an object asks the generated view lookup and then the Map registrations. It "
-        + "does not ask the service locator, because that needs a type built at run time. A view model whose view is "
-        + "registered only in the service locator, with no generated view and no Map in this project, resolves to null "
-        + "there. ResolveView<T> and ResolveViewUnsafe still ask the service locator.";
 
     /// <summary>The string description of the ObservableAsProperty method parameters warning.</summary>
     private const string ObservableAsPropertyMethodHasParametersDescription =

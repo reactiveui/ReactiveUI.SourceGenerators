@@ -18,7 +18,7 @@ namespace ReactiveUI.Binding.Analyzer.Analyzers;
 /// Analyzes binding and observation invocations (WhenChanged, WhenChanging, BindOneWay, BindTwoWay,
 /// OneWayBind, Bind, BindTo, BindCommand, BindInteraction) for common issues. The generic lambda checks
 /// (RXUIBIND001/003/006/010) apply to generated binding entry points; the remaining checks are
-/// method-specific (RXUIBIND004, RXUIBIND005, RXUIBIND007, RXUIBIND008).
+/// method-specific (RXUIBIND004, RXUIBIND007, RXUIBIND008).
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class BindingInvocationAnalyzer : DiagnosticAnalyzer
@@ -36,7 +36,6 @@ public class BindingInvocationAnalyzer : DiagnosticAnalyzer
             DiagnosticWarnings.NonInlineLambda,
             DiagnosticWarnings.PrivateMember,
             DiagnosticWarnings.NoBeforeChangeSupport,
-            DiagnosticWarnings.ValidationNotGenerated,
             DiagnosticWarnings.UnsupportedPathSegment,
             DiagnosticWarnings.NoBindableEvent,
             DiagnosticWarnings.InvalidInteractionType,
@@ -90,12 +89,6 @@ public class BindingInvocationAnalyzer : DiagnosticAnalyzer
         if (methodName == Constants.WhenChangingMethodName)
         {
             CheckBeforeChangeSupport(context, invocationOp, methodSymbol);
-        }
-
-        // Check RXUIBIND005: Validation support
-        if (methodName is Constants.BindOneWayMethodName or Constants.BindTwoWayMethodName)
-        {
-            CheckValidationSupport(context, invocationOp);
         }
 
         // Check RXUIBIND008: Invalid interaction type
@@ -211,31 +204,6 @@ public class BindingInvocationAnalyzer : DiagnosticAnalyzer
                 invocationOp.Syntax.GetLocation(),
                 receiverType!.Name,
                 mechanism));
-    }
-
-    /// <summary>
-    /// Checks for RXUIBIND005: Binding invocations where the source type implements
-    /// <see cref="System.ComponentModel.INotifyDataErrorInfo"/>, which requires the runtime engine for validation binding.
-    /// </summary>
-    /// <param name="context">The operation analysis context.</param>
-    /// <param name="invocationOp">The invocation operation being analyzed.</param>
-    internal static void CheckValidationSupport(
-        in OperationAnalysisContext context,
-        IInvocationOperation invocationOp)
-    {
-        if (!AnalyzerHelpers.ImplementsDataErrorInfo(
-                invocationOp.TargetMethod,
-                context.Compilation,
-                out var sourceType))
-        {
-            return;
-        }
-
-        context.ReportDiagnostic(
-            Diagnostic.Create(
-                DiagnosticWarnings.ValidationNotGenerated,
-                invocationOp.Syntax.GetLocation(),
-                sourceType!.Name));
     }
 
     /// <summary>
