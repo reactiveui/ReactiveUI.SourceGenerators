@@ -154,14 +154,14 @@
     <None Include="$(MSBuildThisFileDirectory)..\README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
-  <!-- MinVer (versioning) — replaces Nerdbank.GitVersioning. Floor at 3.3
-       so untagged builds produce 3.3.x-alpha.0.<height> until a v3.3.x
-       (or later) tag is reachable. -->
+  <!-- MinVer versions every package in this repository together. The floor is above the latest ReactiveUI.Binding
+       release (9.x) so a combined release never goes backwards for either package family; untagged builds
+       produce 10.0.0-alpha.0.<height> until a v10 tag is reachable. -->
   <PropertyGroup>
     <MinVerAutoIncrement>minor</MinVerAutoIncrement>
     <MinVerDefaultPreReleaseIdentifiers>alpha.0</MinVerDefaultPreReleaseIdentifiers>
     <MinVerTagPrefix>v</MinVerTagPrefix>
-    <MinVerMinimumMajorMinor>3.3</MinVerMinimumMajorMinor>
+    <MinVerMinimumMajorMinor>10.0</MinVerMinimumMajorMinor>
   </PropertyGroup>
 
   <ItemGroup>

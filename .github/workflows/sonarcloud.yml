@@ -13,10 +13,10 @@ jobs:
     sonarcloud:
         uses: reactiveui/actions-common/.github/workflows/workflow-common-sonarcloud.yml@main
         with:
-            productNamespacePrefix: ReactiveUI.Binding
-            solutionFile: ReactiveUI.Binding.SourceGenerators.slnf
+            productNamespacePrefix: ReactiveUI
+            solutionFile: ReactiveUI.SourceGenerators.slnf
             installWorkloads: true
-            minverMinimumMajorMinor: '3.3'
+            minverMinimumMajorMinor: '10.0'
             sonarProjectKey: ReactiveUI.Binding.SourceGenerators
             sonarOrganization: reactiveui
             sonarExclusions: '**/tests/**,**/benchmarks/**,**/TestResults/**'

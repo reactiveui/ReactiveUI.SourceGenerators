@@ -12,17 +12,17 @@ permissions:
   actions: write
 
 env:
-  productNamespacePrefix: "ReactiveUI.Binding"
+  productNamespacePrefix: "ReactiveUI"
 
 jobs:
   build:
     uses: reactiveui/actions-common/.github/workflows/workflow-common-setup-and-build.yml@main
     with:
       configuration: Release
-      productNamespacePrefix: "ReactiveUI.Binding"
+      productNamespacePrefix: "ReactiveUI"
       # The Uno.Sdk projects need MSBuild, so they build and test in their own Windows job.
-      solutionFile: ReactiveUI.Binding.SourceGenerators.slnf
-      msbuildSolutionFile: ReactiveUI.Binding.SourceGenerators.Uno.slnf
+      solutionFile: ReactiveUI.SourceGenerators.slnf
+      msbuildSolutionFile: ReactiveUI.SourceGenerators.Uno.slnf
       installWorkloads: true
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

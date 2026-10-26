@@ -4,6 +4,7 @@
 
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using BenchmarkDotNet.Attributes;
 
 namespace ReactiveUI.SourceGenerators.Runtime.Benchmarks;
@@ -85,6 +86,7 @@ public class GeneratedCodeBenchmarks
 
     /// <summary>Reads a generated command, which is created on first use.</summary>
     /// <returns>The command's hash code, so the read cannot be optimized away.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [Benchmark]
     public int ReadCommand() => _viewModel.IncrementCommand.GetHashCode();
 

@@ -27,10 +27,10 @@ jobs:
   release:
     uses: reactiveui/actions-common/.github/workflows/workflow-common-release.yml@main
     with:
-      solutionFile: ReactiveUI.Binding.SourceGenerators.slnf
-      msbuildSolutionFile: ReactiveUI.Binding.SourceGenerators.Uno.slnf
+      solutionFile: ReactiveUI.SourceGenerators.slnf
+      msbuildSolutionFile: ReactiveUI.SourceGenerators.Uno.slnf
       installWorkloads: true
-      minverMinimumMajorMinor: '3.3'
+      minverMinimumMajorMinor: '10.0'
       bump: ${{ inputs.bump }}
       sourceRef: ${{ inputs.sourceRef }}
     secrets:

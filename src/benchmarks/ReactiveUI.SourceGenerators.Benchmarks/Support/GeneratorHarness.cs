@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -70,6 +71,7 @@ internal static class GeneratorHarness
     /// <summary>Creates a cold generator driver for a corpus, carrying no caches from a previous run.</summary>
     /// <param name="corpus">The corpus whose generators the driver runs.</param>
     /// <returns>The generator driver.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static GeneratorDriver CreateDriver(string corpus) =>
         CSharpGeneratorDriver.Create(
             GeneratorCatalog.Create(corpus),
@@ -84,11 +86,13 @@ internal static class GeneratorHarness
         var errors = 0;
         foreach (var diagnostic in output.GetDiagnostics())
         {
-            if (diagnostic.Severity == DiagnosticSeverity.Error)
+            if (diagnostic.Severity != DiagnosticSeverity.Error)
             {
-                errors++;
-                Console.WriteLine($"  {diagnostic}");
+                continue;
             }
+
+            errors++;
+            Console.WriteLine($"  {diagnostic}");
         }
 
         return errors;
