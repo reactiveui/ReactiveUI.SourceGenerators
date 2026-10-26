@@ -334,7 +334,7 @@ public static class ReactiveBindingExamples
 
     /// <summary>Disposes a resource twice, to show the second call does nothing.</summary>
     /// <param name="resource">The resource to dispose.</param>
-    private static void DisposeTwice(IDisposable resource)
+    private static void DisposeTwice(ReactiveBinding<TodoView, int> resource)
     {
         resource.Dispose();
         resource.Dispose();
