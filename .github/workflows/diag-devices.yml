@@ -13,11 +13,6 @@ jobs:
         runs-on: windows-latest
         steps:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-              with:
-                  repository: reactiveui/ReactiveUI.Binding.SourceGenerators
-                  ref: d1e1b65bca89e7cc1c1eb7d54f325fb0f337359d
-                  path: old
             - uses: reactiveui/actions-common/.github/actions/dotnet-environment@main
               with:
                   dotnet-versions: |
@@ -28,16 +23,13 @@ jobs:
                   solution-file: ReactiveUI.SourceGenerators.Uno.slnf
                   install-workloads: 'true'
                   stamp-version: 'false'
-            - name: Old repository, Uno library only
-              shell: bash
-              working-directory: old/src
-              continue-on-error: true
-              run: |
-                  printf '{\n "solution": { "path": "ReactiveUI.Binding.SourceGenerators.slnx", "projects": [ "ReactiveUI.Binding.Uno\\\\ReactiveUI.Binding.Uno.csproj" ] }\n}\n' > diag-a.slnf
-                  cat diag-a.slnf
-                  dotnet test --solution diag-a.slnf --no-build -c Release
-            - name: This repository, Uno library only
+            - name: Per target framework
               shell: bash
               working-directory: src
               continue-on-error: true
-              run: dotnet test --solution diag-a.slnf --no-build -c Release
+              run: |
+                  for tfm in net10.0 net11.0 net10.0-android36.0 net11.0-android37 net10.0-ios net11.0-ios net10.0-maccatalyst net10.0-windows10.0.19041.0; do
+                    echo "=== $tfm"
+                    dotnet msbuild ReactiveUI.Binding.Uno/ReactiveUI.Binding.Uno.csproj -p:TargetFramework=$tfm -getProperty:AndroidApplication,OutputType,UnoSingleProject,TestingPlatformDotnetTestSupport,IsTestingPlatformApplication || true
+                    dotnet test --project ReactiveUI.Binding.Uno/ReactiveUI.Binding.Uno.csproj --framework $tfm --no-build -c Release || true
+                  done
