@@ -167,9 +167,8 @@ public static class ReactiveBindingExamples
         Console.WriteLine(string.Join(", ", seen));
 
         // A second owner holds the same binding and disposes it too; the subscription is still disposed once.
-        IDisposable otherOwner = binding;
         binding.Dispose();
-        otherOwner.Dispose();
+        ((IDisposable)binding).Dispose();
 
         // Output:
         // AsyncOneWay
