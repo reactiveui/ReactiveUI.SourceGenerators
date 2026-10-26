@@ -155,8 +155,8 @@ public class AdapterGenerationBenchmarks
     {
         string[] required = Family switch
         {
-            "Observation" => ["__UIKitValueObservable", "__UIKitObservable", "AddObserver"],
-            "Commands" => ["AddTarget", "__AppKitCommandTarget", ".Click +="],
+            "Observation" => ["CallbackPropertyObservable", "AddObserver"],
+            "Commands" => ["AddTarget", ".Click +="],
             "Collections" => ["SuspendLayout", "AddRange", ".Owner", ".Container"],
             _ => [".ToString(", ".Visible", "__value.HasValue", "global::Foundation.NSDate"],
         };

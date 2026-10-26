@@ -124,7 +124,10 @@ the same way, with a Roslyn 4.8 band and a Roslyn 4.13 band.
 ### Which analyzers stay
 
 An analyzer stays only when it reports something the developer cannot learn another way and can act on: a member the
-generator skipped, input that makes generated code fail, or a call with no generated binding. Advice about style is
+generator skipped, input that makes generated code fail, a call with no generated binding, or a compiler error that
+only this library's overloads cause and that names no fix (RXUIBIND014 turns CS0121 into the argument to write).
+The five attribute suppressors stay because they silence warnings the generated members would otherwise raise in a
+build that treats warnings as errors. Advice about style is
 removed, along with its code fix. Four rules were removed for that reason: RXUIBIND002, RXUIBIND005 and RXUIBIND020
 from the binding family, and RXUISG0016 and RXUISG0022 from the attribute family. The attribute family records a
 removed rule in the `Removed Rules` table of its `AnalyzerReleases.Shipped.md`, under the current major version, and

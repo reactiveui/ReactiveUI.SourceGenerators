@@ -45,6 +45,40 @@ public static class PersonBindings
     public static IObservable<string> ObserveNameValue(PersonViewModel viewModel) =>
         viewModel.WhenAnyValue(x => x.Name);
 
+    /// <summary>Observes the name through <c>WhenAny</c>, which delivers the whole change.</summary>
+    /// <param name="viewModel">The view model to observe.</param>
+    /// <returns>The name, now and after each change.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IObservable<string> ObserveNameChange(PersonViewModel viewModel) =>
+        viewModel.WhenAny(x => x.Name, static change => change.Value);
+
+    /// <summary>Observes the ticks the person reports.</summary>
+    /// <param name="viewModel">The view model to observe.</param>
+    /// <returns>Each tick of the current observable.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IObservable<int> ObserveTicks(PersonViewModel viewModel) =>
+        viewModel.WhenAnyObservable(x => x.Ticks);
+
+    /// <summary>Runs the save command for each value a source produces.</summary>
+    /// <param name="source">The values that trigger the command.</param>
+    /// <param name="viewModel">The view model holding the command.</param>
+    /// <returns>The subscription.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IDisposable RunSaveFor(IObservable<int> source, PersonViewModel viewModel) =>
+        source.InvokeCommand(viewModel, x => x.Save);
+
+    /// <summary>Answers the confirmation the view model asks for.</summary>
+    /// <param name="viewModel">The view model holding the interaction.</param>
+    /// <param name="view">The view that answers it.</param>
+    /// <returns>The binding.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IDisposable BindConfirm(PersonViewModel viewModel, PersonView view) =>
+        view.BindInteraction(viewModel, x => x.Confirm, static context =>
+        {
+            context.SetOutput(true);
+            return System.Threading.Tasks.Task.CompletedTask;
+        });
+
     /// <summary>Writes the name to the view.</summary>
     /// <param name="viewModel">The view model to read.</param>
     /// <param name="view">The view to write.</param>

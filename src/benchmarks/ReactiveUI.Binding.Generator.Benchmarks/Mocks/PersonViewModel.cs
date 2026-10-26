@@ -2,6 +2,7 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Input;
@@ -51,6 +52,12 @@ public class PersonViewModel : INotifyPropertyChanged, INotifyPropertyChanging
         get => field;
         set => SetField(ref field, value, nameof(Save));
     }
+
+    /// <summary>Gets an observable that ticks when something happens to the person.</summary>
+    public IObservable<int>? Ticks { get; init; }
+
+    /// <summary>Gets the interaction that asks the user to confirm a change.</summary>
+    public IInteraction<string, bool> Confirm { get; init; } = null!;
 
     /// <summary>Writes a property's value, raising the change events around the write.</summary>
     /// <typeparam name="T">The property type.</typeparam>
