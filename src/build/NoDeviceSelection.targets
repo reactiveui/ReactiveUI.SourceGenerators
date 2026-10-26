@@ -1,0 +1,10 @@
+<Project>
+  <!-- The .NET 11 iOS and tvOS SDK defines ComputeAvailableDevices for every project, a library included. dotnet test
+       asks it for a device to run each project on, and fails when the machine has none or several, before it runs a
+       test. A library has nothing to run, so it reports one placeholder device. -->
+  <Target Name="ComputeAvailableDevices" Returns="@(Devices)">
+    <ItemGroup>
+      <Devices Include="library" Description="A library has nothing to run" Type="Device" Status="Online" />
+    </ItemGroup>
+  </Target>
+</Project>

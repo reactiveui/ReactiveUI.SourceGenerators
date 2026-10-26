@@ -3,6 +3,9 @@
     <Product>$(AssemblyName) ($(TargetFramework))</Product>
   </PropertyGroup>
 
+  <Import Project="$(MSBuildThisFileDirectory)build\NoDeviceSelection.targets"
+          Condition="'$(OutputType)' == 'Library' and '$(IsTestProject)' != 'true'"/>
+
   <!-- WPF, WinForms and MAUI tests target the windows TFMs and need the Windows Desktop runtime to execute.
        Off Windows they still compile - that is the validation the Linux and macOS legs give us - but they must
        not be launched, or the run reports "Zero tests ran" and fails despite every real test passing.

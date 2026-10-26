@@ -10,7 +10,11 @@ permissions:
 
 jobs:
     diag:
-        runs-on: windows-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                os: [windows-latest, macos-latest]
+        runs-on: ${{ matrix.os }}
         steps:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
             - uses: reactiveui/actions-common/.github/actions/dotnet-environment@main
@@ -23,13 +27,18 @@ jobs:
                   solution-file: ReactiveUI.SourceGenerators.Uno.slnf
                   install-workloads: 'true'
                   stamp-version: 'false'
-            - name: Per target framework
+            - name: Uno library only
               shell: bash
               working-directory: src
               continue-on-error: true
-              run: |
-                  for tfm in net10.0 net11.0 net10.0-android36.0 net11.0-android37 net10.0-ios net11.0-ios net10.0-maccatalyst net10.0-windows10.0.19041.0; do
-                    echo "=== $tfm"
-                    dotnet msbuild ReactiveUI.Binding.Uno/ReactiveUI.Binding.Uno.csproj -p:TargetFramework=$tfm -getProperty:AndroidApplication,OutputType,UnoSingleProject,TestingPlatformDotnetTestSupport,IsTestingPlatformApplication || true
-                    dotnet test --project ReactiveUI.Binding.Uno/ReactiveUI.Binding.Uno.csproj --framework $tfm --no-build -c Release || true
-                  done
+              run: dotnet test --solution diag-a.slnf --no-build -c Release
+            - name: Uno filter
+              shell: bash
+              working-directory: src
+              continue-on-error: true
+              run: dotnet test --solution ReactiveUI.SourceGenerators.Uno.slnf --no-build -c Release
+            - name: Whole filter
+              shell: bash
+              working-directory: src
+              continue-on-error: true
+              run: dotnet test --solution ReactiveUI.SourceGenerators.slnf --no-build -c Release
