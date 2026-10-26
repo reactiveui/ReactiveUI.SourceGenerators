@@ -83,6 +83,36 @@ public class PlatformSymbolsTests
             .IsTrue();
     }
 
+    /// <summary>A read-only dependency property, whose public field is assigned from its key, is found by the field's name.</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task HasDependencyProperty_WithAReadOnlyKeyedField_ReturnsTrue()
+    {
+        const string readOnlySource = """
+                                      namespace Microsoft.UI.Xaml
+                                      {
+                                          public class DependencyProperty { }
+                                          public class DependencyPropertyKey { public DependencyProperty DependencyProperty { get; } = new DependencyProperty(); }
+                                          public interface DependencyObject { }
+                                      }
+
+                                      namespace TestApp
+                                      {
+                                          public class PowerButton : Microsoft.UI.Xaml.DependencyObject
+                                          {
+                                              public static readonly Microsoft.UI.Xaml.DependencyProperty IsButtonEnabledProperty;
+                                              internal static readonly Microsoft.UI.Xaml.DependencyPropertyKey IsButtonEnabledPropertyKey = new Microsoft.UI.Xaml.DependencyPropertyKey();
+                                              static PowerButton() => IsButtonEnabledProperty = IsButtonEnabledPropertyKey.DependencyProperty;
+                                              public bool IsButtonEnabled { get; private set; }
+                                          }
+                                      }
+                                      """;
+        var compilation = TestHelper.CreateCompilation(readOnlySource);
+
+        await Assert.That(PlatformSymbols.HasDependencyProperty(compilation.GetTypeByMetadataName("TestApp.PowerButton")!, "IsButtonEnabled", DependencyPropertyName))
+            .IsTrue();
+    }
+
     /// <summary>
     /// A type offers a mechanism when one of its properties is eligible for it, and a type none of whose properties is
     /// eligible does not.
