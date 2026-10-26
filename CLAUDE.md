@@ -65,6 +65,99 @@ changed example is updated on the website in the same series of pull requests.
 - **Cancel the running CI of a pull request before pushing to it again.** A run that the next push replaces
   wastes shared runners.
 
+## Repository Overview: Two Generator Families
+
+This repository holds two families of Roslyn incremental generators that work together. They ship as separate
+packages and share the infrastructure in `src/ReactiveUI.SourceGenerators.Shared`.
+
+| Family | Packages | What it generates |
+|--------|----------|-------------------|
+| Attribute generators | `ReactiveUI.SourceGenerators` | `[Reactive]`, `[ReactiveCommand]`, `[IReactiveObject]`, `[IViewFor]`, `[BindableDerivedList]`, `[ReactiveCollection]`, `[RoutedControlHost]` and `[ViewModelControlHost]` members |
+| Binding generators | `ReactiveUI.Binding`, `ReactiveUI.Binding.Reactive` and the platform packages | Compile-time `WhenChanged`, `Bind`, `ToProperty`, `[ObservableAsProperty]` and view dispatch (the rest of this file) |
+
+The rest of this file describes the binding family in depth. This section covers what the two share and the attribute
+family.
+
+### Layout
+
+```
+src/
+├── ReactiveUI.SourceGenerators.Shared/          # Source both families compile
+│   ├── CodeGeneration/                          # SourceWriter, PooledBuilder, PooledStringBuilder
+│   ├── Collections/                             # EquatableArray<T>, ArrayBuilder<T>
+│   └── Polyfills/
+├── ReactiveUI.SourceGenerators.Roslyn/          # The attribute generators' source, linked into the three builds below
+├── ReactiveUI.SourceGenerators.Roslyn480/       # Roslyn 4.8 build (baseline, no define)
+├── ReactiveUI.SourceGenerators.Roslyn4140/      # Roslyn 4.14 build (ROSYLN_412): partial-property [Reactive]
+├── ReactiveUI.SourceGenerators.Roslyn5000/      # Roslyn 5.0 build (ROSYLN_500)
+├── ReactiveUI.SourceGenerators.Analyzers.CodeFixes/ # The attribute family's analyzers and code fixes
+├── ReactiveUI.SourceGenerators/                 # The package: public attributes, with the Roslyn builds bundled
+├── ReactiveUI.Binding.*/                        # The binding family (see below)
+├── benchmarks/                                  # One benchmark project per generator, analyzer and runtime area
+├── examples/                                    # Runnable documentation and verification projects
+└── tests/                                       # Every test project (the SG ones are ReactiveUI.SourceGenerators.*)
+```
+
+Each `ReactiveUI.SourceGenerators.Roslyn*` project builds `ReactiveUI.SourceGenerators.Roslyn.dll` from the same source.
+`ReactiveUI.SourceGenerators` bundles the three DLLs and the code fixes under `analyzers/dotnet/roslyn4.8/cs`,
+`roslyn4.14/cs` and `roslyn5.0/cs`, and NuGet selects the one the host compiler can load. The binding generator ships
+the same way, with a Roslyn 4.8 band and a Roslyn 4.13 band.
+
+### Shared rules for both families
+
+- **One writer.** Emitters write through `SourceWriter` and never through `SyntaxFactory`, `string.Join`, a raw
+  `StringBuilder` or interpolation. The writer owns indentation.
+- **One structure per generator.** Each generator is one class and one models folder. Do not split a generator into
+  `Generator.cs` plus `Generator.Execute.cs`. Binding's layout (extractor, model, code generator) is the reference.
+- **Arrays, not immutable collections.** Pipeline models hold `EquatableArray<T>` (an array with value equality).
+  Internal code uses arrays, `List<T>` and `HashSet<T>`. `ImmutableArray<T>` and `ImmutableDictionary` appear only where
+  Roslyn requires them: the result of `Collect()`, `SupportedDiagnostics`, `SupportedSuppressions` and
+  `Diagnostic.Create` properties. Wrap a Roslyn array without copying with `EquatableArray<T>.FromRoslyn`. Never loop
+  over an `EquatableArray<T>` with `foreach`; use `AsSpan()` or `for`.
+- **No `RegisterPostInitializationOutput`, no shared generated type.** See the contribution rules above.
+- **Every generator and analyzer has a benchmark.** A new generator gets a mock in
+  `benchmarks/ReactiveUI.SourceGenerators.Benchmarks/Mocks` and an entry in `Support/GeneratorCatalog.cs`. A new
+  analyzer or suppressor is added to `AnalyzerBenchmarks.cs` in the matching benchmark project.
+- **Snapshot tests everywhere.** Both test families compare every generated file with a `*.verified.cs` snapshot and
+  accept changes with `ACCEPT_SNAPSHOTS=1`. When the two families differ, follow the binding family's approach.
+
+### Which analyzers stay
+
+An analyzer stays only when it reports something the developer cannot learn another way and can act on: a member the
+generator skipped, input that makes generated code fail, or a call with no generated binding. Advice about style is
+removed, along with its code fix. Four rules were removed for that reason: RXUIBIND002, RXUIBIND005 and RXUIBIND020
+from the binding family, and RXUISG0016 and RXUISG0022 from the attribute family. The attribute family records a
+removed rule in the `Removed Rules` table of its `AnalyzerReleases.Shipped.md`, under the current major version, and
+leaves `AnalyzerReleases.Unshipped.md` empty. The binding family has not shipped its rules yet, so they sit in its
+`AnalyzerReleases.Unshipped.md`.
+
+### The attribute family
+
+| Generator | Attribute | Input |
+|-----------|-----------|-------|
+| `ReactiveGenerator` | `[Reactive]` | Field, or partial property (ROSYLN_412 and later) |
+| `ReactiveCommandGenerator` | `[ReactiveCommand]` | Method |
+| `ReactiveObjectGenerator` | `[IReactiveObject]` | Class |
+| `IViewForGenerator` | `[IViewFor]`, `[IViewFor<T>]` | Class |
+| `BindableDerivedListGenerator` | `[BindableDerivedList]` | `ReadOnlyObservableCollection<T>` field |
+| `ReactiveCollectionGenerator` | `[ReactiveCollection]` | `ObservableCollection<T>` field |
+| `RoutedControlHostGenerator`, `ViewModelControlHostGenerator` | `[RoutedControlHost]`, `[ViewModelControlHost]` | Class |
+
+- `[IViewFor]` adds `IViewFor<T>` to the class and registers the view. The binding family reads the same attributes by
+  metadata name, so a view found both ways registers once.
+- Attributes are public types in `ReactiveUI.SourceGenerators`, marked `[Conditional(KeepAttributes.Symbol)]`. The
+  generators read them from source.
+- A generator reports a diagnostic only when its input cannot be generated from (`RXUISG0009`, `RXUISG0012`,
+  `RXUISG0013`, `RXUISG0018`, `RXUISG0019`). Other `RXUISG*` rules live in `ReactiveUI.SourceGenerators.Analyzers.CodeFixes`:
+  `ReactiveAttributeMisuseAnalyzer` (RXUISG0020), `ReactiveCommandAnalyzer` (RXUISG0002, RXUISG0008, RXUISG0021) and their code fixes.
+- Generated code never calls an API the binding generator has to intercept (`WhenAny*`, `Bind`, `OneWayBind`,
+  `BindCommand`), because one generator cannot see another's output.
+- Generated output compiles at C# 12 and uses block-scoped namespaces.
+- The attribute generators use these test projects: `tests/ReactiveUI.SourceGenerators.Tests` (snapshots, with a folder
+  per generator), `tests/ReactiveUI.SourceGenerators.V23.Tests` (the same generators against ReactiveUI 23) and
+  `tests/ReactiveUI.SourceGenerators.Execute*` (code that compiles and runs against generated output). The SG tests pin
+  ReactiveUI 24.3.0 where they need `ReactiveUI.IViewFor`.
+
 ## Build & Test Commands
 
 This project uses **Microsoft Testing Platform (MTP)** with the **TUnit** testing framework. Test commands differ significantly from traditional VSTest.
@@ -79,15 +172,15 @@ dotnet --info
 
 # Restore NuGet packages
 cd src
-dotnet restore ReactiveUI.Binding.SourceGenerators.slnf
+dotnet restore ReactiveUI.SourceGenerators.slnf
 ```
 
 **Note:** This project uses the modern `.slnx` (XML-based solution file) format instead of the legacy `.sln` format.
 
 **Build through the solution filters.** The `.slnx` holds every project, for the IDE. Two filters split it:
 
-- `ReactiveUI.Binding.SourceGenerators.slnf` holds every project except the Uno ones. `dotnet` builds it on any OS.
-- `ReactiveUI.Binding.SourceGenerators.Uno.slnf` holds the Uno.Sdk projects and their tests. Their Windows head needs
+- `ReactiveUI.SourceGenerators.slnf` holds every project except the Uno ones. `dotnet` builds it on any OS.
+- `ReactiveUI.SourceGenerators.Uno.slnf` holds the Uno.Sdk projects and their tests. Their Windows head needs
   MSBuild, so CI builds this filter in its own Windows job (`msbuildSolutionFile` in reactiveui/actions-common). On
   Linux and macOS, `dotnet build` builds the other Uno heads.
 
@@ -99,13 +192,13 @@ A new project goes in the `.slnx` and in one of the two filters.
 
 ```powershell
 # Build the solution
-dotnet build ReactiveUI.Binding.SourceGenerators.slnf -c Release
+dotnet build ReactiveUI.SourceGenerators.slnf -c Release
 
 # Build with warnings as errors (includes StyleSharp violations)
-dotnet build ReactiveUI.Binding.SourceGenerators.slnf -c Release -warnaserror
+dotnet build ReactiveUI.SourceGenerators.slnf -c Release -warnaserror
 
 # Clean the solution
-dotnet clean ReactiveUI.Binding.SourceGenerators.slnf
+dotnet clean ReactiveUI.SourceGenerators.slnf
 ```
 
 ### Test Commands (Microsoft Testing Platform)
@@ -121,7 +214,7 @@ The working folder must be `./src` folder.
 
 ```powershell
 # Run all tests in the solution
-dotnet test --solution ReactiveUI.Binding.SourceGenerators.slnf -c Release
+dotnet test --solution ReactiveUI.SourceGenerators.slnf -c Release
 
 # Run all tests in a specific project
 dotnet test --project tests/ReactiveUI.Binding.Analyzer.Tests/ReactiveUI.Binding.Analyzer.Tests.csproj -c Release
@@ -135,7 +228,7 @@ dotnet test --project tests/ReactiveUI.Binding.SourceGenerators.Tests/ReactiveUI
 dotnet test --project tests/ReactiveUI.Binding.SourceGenerators.Tests/ReactiveUI.Binding.SourceGenerators.Tests.csproj -- --treenode-filter "/*/*/WhenChangedGeneratorTests/*"
 
 # Run tests with code coverage
-dotnet test --solution ReactiveUI.Binding.SourceGenerators.slnf -- --coverage --coverage-output-format cobertura
+dotnet test --solution ReactiveUI.SourceGenerators.slnf -- --coverage --coverage-output-format cobertura
 ```
 
 ### TUnit Treenode-Filter Syntax
@@ -148,7 +241,7 @@ The `--treenode-filter` follows the pattern: `/{AssemblyName}/{Namespace}/{Class
 
 ### Key Configuration Files
 
-- `src/ReactiveUI.Binding.SourceGenerators.slnx` - Modern XML-based solution file
+- `src/ReactiveUI.SourceGenerators.slnx` - Modern XML-based solution file
 - `src/testconfig.json` - Configures test execution and code coverage
 - `src/Directory.Build.props` - Common build properties, package metadata
 - `src/Directory.Packages.props` - Central package management
@@ -182,7 +275,7 @@ Code coverage uses **Microsoft.Testing.Extensions.CodeCoverage** configured in `
 
 ```powershell
 # Run tests with code coverage (from src/ folder)
-dotnet test --solution ReactiveUI.Binding.SourceGenerators.slnf -c Release -- --coverage --coverage-output-format cobertura
+dotnet test --solution ReactiveUI.SourceGenerators.slnf -c Release -- --coverage --coverage-output-format cobertura
 
 # Generate HTML report using ReportGenerator (install if needed: dotnet tool install -g dotnet-reportgenerator-globaltool)
 # Find all cobertura files and generate report to /tmp/<folder>
@@ -311,15 +404,15 @@ src/
 │
 ├── ReactiveUI.Binding.Analyzer/                 # Roslyn analyzer (netstandard2.0)
 │   ├── Analyzers/
-│   │   ├── BindingInvocationAnalyzer.cs          # RXUIBIND001, 003, 004, 005, 006, 007, 008
+│   │   ├── BindingInvocationAnalyzer.cs          # RXUIBIND001, 003, 004, 006, 007, 008
 │   │   ├── DispatchReachAnalyzer.cs              # RXUIBIND009
+│   │   ├── MixinShadowAnalyzer.cs                # RXUIBIND011
 │   │   ├── NoGeneratedBindingAnalyzer.cs         # RXUIBIND021
 │   │   ├── ObservableAsPropertyAnalyzer.cs       # RXUIBIND018, 019
-│   │   ├── ServiceLocatorViewAnalyzer.cs         # RXUIBIND020
 │   │   ├── ToPropertyAnalyzer.cs                 # RXUIBIND012, 013
 │   │   ├── ToPropertyInitialValueAnalyzer.cs     # RXUIBIND014
 │   │   ├── UnreachableTypeAnalyzer.cs            # RXUIBIND015, 016
-│   │   └── TypeAnalyzer.cs                       # RXUIBIND002
+│   │   └── ViewThreadInvokerAnalyzer.cs          # RXUIBIND017
 │   └── CodeFixes/
 │       └── ObservableAsPropertyCodeFixProvider.cs # RXUIBIND018: older [ObservableAsProperty] forms to partial properties
 │
@@ -407,8 +500,7 @@ last. Registering the same lookup twice has no effect.
 
 `DefaultViewLocator.ResolveView` tries the generated lookups first. It then tries mappings added with `Map`. The
 generic `ResolveView<T>` and `ResolveViewUnsafe` then ask the service locator; `ResolveView(object)` does not, because
-that needs `MakeGenericType`, and it logs a warning when it finds nothing. RXUIBIND020 reports a service locator
-registration of `IViewFor<T>` that the project neither generates a view for nor maps.
+that needs `MakeGenericType`, and it logs a warning when it finds nothing.
 
 ### API Pattern
 
@@ -828,6 +920,20 @@ closes an instance method over its target and a static extension over its first 
 helper's owner, so the helper's callbacks capture nothing. A raise method that returns a value cannot bind to
 `Action<T>`, so it is called through `MethodInfo.Invoke` instead.
 
+**An owner built from the caller's type parameters stays generic.** Generated code only raises the owner's
+notifications, so `ToProperty(this, x => x.Name)` inside `ViewModel<T> : ReactiveObject` needs no name for
+`ViewModel<T>`. On a build that intercepts, the worker and the interceptor are generic over `__TOwner` and `__TValue`
+and constrain the owner to `IReactiveObject` (`ToPropertyInvocationInfo.OpenOwnerConstraint`). Any other generic owner
+goes through the call-site hosting described above. A build that cannot intercept generates nothing for it.
+
+**A property can be read while its helper starts.** A source that produces a value as it is subscribed makes the
+helper raise `PropertyChanged` before `ToProperty` returns, so before the owner assigns the helper field. The generated
+worker passes an `ObservablePropertyTarget` (the owner and the property name), the helper records itself in a
+thread-static slot while it starts, and the generated getter of an `[ObservableAsProperty]` property asks
+`ObservableAsPropertyHelper<T>.PendingValue(this, "Name", fallback)` when its field is still null. A listener that
+reads the property from the first notification sees the value, and a property that follows another one created later
+sees its first value.
+
 **The helper keeps its state in a private core.** `ObservableAsPropertyHelper<T>` is the public face. Its private
 nested `Core` holds the state and implements `IObserver<T>`, so the helper exposes no observer that others could
 push values through. The source subscribes to the core, so the helper's constructor never hands out `this`.
@@ -971,10 +1077,8 @@ Not all platforms support before-change notifications (WPF DP, WinUI DP, WinForm
 | ID | Severity | Description |
 |----|----------|-------------|
 | RXUIBIND001 | Info | Expression must be inline lambda for compile-time optimization |
-| RXUIBIND002 | Warning | Type has no observable properties |
 | RXUIBIND003 | Warning | Expression contains private/protected member |
 | RXUIBIND004 | Warning | Type does not support before-change notifications |
-| RXUIBIND005 | Info | Source type implements INotifyDataErrorInfo; validation binding requires runtime engine |
 | RXUIBIND006 | Warning | Expression contains an unsupported path segment (indexer, static field, read-only leaf field, or method call) |
 | RXUIBIND007 | Warning | BindCommand control has no bindable event |
 | RXUIBIND008 | Warning | Property does not implement IInteraction |
@@ -989,7 +1093,6 @@ Not all platforms support before-change notifications (WPF DP, WinUI DP, WinForm
 | RXUIBIND017 | Warning | Binding writes to a UI object without its platform package |
 | RXUIBIND018 | Warning | ObservableAsProperty needs a partial get-only property |
 | RXUIBIND019 | Warning | ObservableAsProperty method takes parameters |
-| RXUIBIND020 | Info | View is registered only in the service locator |
 | RXUIBIND021 | Warning | Binding call has no generated binding |
 
 ## Code Style & Quality Requirements

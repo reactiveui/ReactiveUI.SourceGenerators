@@ -13,6 +13,12 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 
+  <!-- This package documents the attribute generators; the repository README documents the whole repository. -->
+  <ItemGroup>
+    <None Remove="$(MSBuildThisFileDirectory)..\..\README.md" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
   <!-- Built before packing; bundled below rather than referenced or depended on. -->
   <ItemGroup>
     <ProjectReference Include="..\ReactiveUI.SourceGenerators.Analyzers.CodeFixes\ReactiveUI.SourceGenerators.Analyzers.CodeFixes.csproj" ReferenceOutputAssembly="false" PrivateAssets="all" />

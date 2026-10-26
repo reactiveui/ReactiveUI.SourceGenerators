@@ -147,7 +147,7 @@ public class UnreachableTypeAnalyzer : DiagnosticAnalyzer
     /// <param name="name">The method name.</param>
     /// <returns><see langword="true"/> for a generated entry point; runtime-only APIs such as WhenAnyDynamic are not.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsGeneratedMethodName(string name) => AnalyzerHelpers.GeneratedApiNames.Contains(name);
+    private static bool IsGeneratedMethodName(string name) => AnalyzerHelpers.IsGeneratedApiName(name);
 
     /// <summary>Determines whether generated code in the consumer's assembly can name a type.</summary>
     /// <param name="type">The type.</param>

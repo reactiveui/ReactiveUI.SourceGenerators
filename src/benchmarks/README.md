@@ -50,7 +50,9 @@ overload makes no measurable difference.
 | `ReactiveUI.Binding.Benchmarks.ReactiveUI` | The same scenarios on ReactiveUI's expression-tree engine, as the baseline. |
 | `ReactiveUI.Binding.Generator.Benchmarks` | A whole generation pass over a corpus of consumer code. |
 | `ReactiveUI.Binding.Generator.Benchmarks.Roslyn413` | The same generation pass against Roslyn 4.13. |
-| `ReactiveUI.Binding.Analyzer.Benchmarks` | What the analyzers cost a compilation, on startup, clean and violating source. |
+| `ReactiveUI.Binding.Analyzer.Benchmarks` | What each binding analyzer costs a compilation, on startup, clean and violating source. |
+| `ReactiveUI.SourceGenerators.Benchmarks` | A generation pass for each attribute generator (`[Reactive]`, `[ReactiveCommand]`, `[IViewFor]` and the rest), and what the attribute analyzers and suppressors cost. |
+| `ReactiveUI.SourceGenerators.Runtime.Benchmarks` | The code the attribute generators write, as an application runs it. |
 
 The baseline lives in its own project because it needs ReactiveUI's own binding surface. Keeping the two
 apart stops one engine's imports reaching the other's call sites.
@@ -131,9 +133,9 @@ The generation rows use 100 bindings per view. The rebuild rows use v2rayN.
 
 ## What the analyzer benchmark covers
 
-`AnalyzerBenchmarks` runs each analyzer over a corpus through `CompilationWithAnalyzers`. It has two cases,
-`AnalyzeInvocations` for `BindingInvocationAnalyzer` and `AnalyzeTypes` for `TypeAnalyzer`. One parameter
-varies.
+`AnalyzerBenchmarks` runs each analyzer over a corpus through `CompilationWithAnalyzers`. It has one case for
+every analyzer the package ships, such as `AnalyzeInvocations` for `BindingInvocationAnalyzer` and
+`AnalyzeToProperty` for `ToPropertyAnalyzer`. One parameter varies.
 
 | `Corpus` | Meaning |
 |----------|---------|
@@ -246,6 +248,20 @@ dotnet run -c Release -f net10.0 -- --filter '*'
 
 cd ../ReactiveUI.Binding.Generator.Benchmarks
 dotnet run -c Release -f net10.0 -- --filter '*'
+
+cd ../ReactiveUI.SourceGenerators.Benchmarks
+dotnet run -c Release -f net10.0 -- --filter '*'
+```
+
+The attribute generators' projects also take the allocation harness switches. `--smoke` checks that every scenario
+generates and compiles, and `--eventpipe <dir>` writes one `.nettrace` per scenario, with bytes per run taken from
+`GCAllocationTick`. Report allocation from those traces, not from the memory diagnoser, and compare a change with
+the previous commit using the same harness.
+
+```sh
+cd src/benchmarks/ReactiveUI.SourceGenerators.Benchmarks
+dotnet run -c Release -- --smoke
+dotnet run -c Release -- --eventpipe <dir>
 ```
 
 Release configuration is required. A Debug build measures the absence of the optimiser.

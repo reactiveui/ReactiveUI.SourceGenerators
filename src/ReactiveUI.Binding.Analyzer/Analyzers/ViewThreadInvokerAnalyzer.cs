@@ -25,15 +25,16 @@ namespace ReactiveUI.Binding.Analyzer.Analyzers;
 public class ViewThreadInvokerAnalyzer : DiagnosticAnalyzer
 {
     /// <summary>The binding APIs that write to a target, without their <c>Unsafe</c> suffix.</summary>
-    private static readonly ImmutableHashSet<string> WritingApiNames = new[]
-    {
+    private static readonly HashSet<string> WritingApiNames =
+    [
+        with(StringComparer.Ordinal),
         Constants.BindMethodName,
         Constants.OneWayBindMethodName,
         Constants.BindOneWayMethodName,
         Constants.BindTwoWayMethodName,
         Constants.BindToMethodName,
         Constants.BindCommandMethodName,
-    }.ToImmutableHashSet(StringComparer.Ordinal);
+    ];
 
     /// <summary>The diagnostics this analyzer reports.</summary>
     private static readonly ImmutableArray<DiagnosticDescriptor> ReportedDiagnostics =

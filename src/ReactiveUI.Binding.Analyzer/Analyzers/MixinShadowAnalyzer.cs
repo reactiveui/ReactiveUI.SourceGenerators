@@ -73,7 +73,7 @@ public class MixinShadowAnalyzer : DiagnosticAnalyzer
     {
         var method = ((IInvocationOperation)context.Operation).TargetMethod;
 
-        if (!AnalyzerHelpers.GeneratedApiNames.Contains(method.Name)
+        if (!AnalyzerHelpers.IsGeneratedApiName(method.Name)
             || AnalyzerHelpers.IsBindingExtensionMethod(method)
             || !TakesAnExpression(method))
         {

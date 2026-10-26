@@ -1,4 +1,4 @@
-[![NuGet Stats](https://img.shields.io/nuget/v/ReactiveUI.Binding.svg)](https://www.nuget.org/packages/ReactiveUI.Binding) [![Build](https://github.com/reactiveui/ReactiveUI.Binding.SourceGenerators/actions/workflows/ci-build.yml/badge.svg)](https://github.com/reactiveui/ReactiveUI.Binding.SourceGenerators/actions/workflows/ci-build.yml) [![Code Coverage](https://codecov.io/gh/reactiveui/ReactiveUI.Binding.SourceGenerators/branch/main/graph/badge.svg)](https://codecov.io/gh/reactiveui/ReactiveUI.Binding.SourceGenerators) [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![NuGet Stats](https://img.shields.io/nuget/v/ReactiveUI.Binding.svg)](https://www.nuget.org/packages/ReactiveUI.Binding) [![Build](https://github.com/reactiveui/ReactiveUI.SourceGenerators/actions/workflows/ci-build.yml/badge.svg)](https://github.com/reactiveui/ReactiveUI.SourceGenerators/actions/workflows/ci-build.yml) [![Code Coverage](https://codecov.io/gh/reactiveui/ReactiveUI.SourceGenerators/branch/main/graph/badge.svg)](https://codecov.io/gh/reactiveui/ReactiveUI.SourceGenerators) [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 <br>
 <a href="https://www.nuget.org/packages/ReactiveUI.Binding">
 <img src="https://img.shields.io/nuget/dt/ReactiveUI.Binding.svg">
@@ -6,16 +6,29 @@
 <a href="https://reactiveui.net/slack">
 <img src="https://img.shields.io/badge/chat-slack-blue.svg">
 </a>
-<a href="https://github.com/reactiveui/ReactiveUI.Binding.SourceGenerators/labels/good%20first%20issue">
+<a href="https://github.com/reactiveui/ReactiveUI.SourceGenerators/labels/good%20first%20issue">
 <img src="https://img.shields.io/badge/first--timers--only-friendly-blue.svg">
 </a>
-<a href="https://github.com/reactiveui/ReactiveUI.Binding.SourceGenerators/stargazers">
-<img src="https://img.shields.io/github/stars/reactiveui/ReactiveUI.Binding.SourceGenerators.svg?style=social">
+<a href="https://github.com/reactiveui/ReactiveUI.SourceGenerators/stargazers">
+<img src="https://img.shields.io/github/stars/reactiveui/ReactiveUI.SourceGenerators.svg?style=social">
 </a>
 
 <img src="images/logo.png" width="200">
 
-# ReactiveUI.Binding.SourceGenerators
+# ReactiveUI.SourceGenerators
+
+This repository holds two families of source generators for ReactiveUI. A source generator is a compiler add-on that
+writes C# code while your project builds.
+
+| Family | Package | What it does |
+|--------|---------|--------------|
+| Attribute generators | `ReactiveUI.SourceGenerators` | Writes properties, commands, views and collections from attributes such as `[Reactive]`, `[ReactiveCommand]` and `[IViewFor]`. [Read its README](src/ReactiveUI.SourceGenerators/README.md). |
+| Binding generators | `ReactiveUI.Binding` and its platform packages | Writes the code behind `WhenChanged`, `Bind`, `ToProperty` and `[ObservableAsProperty]`. The rest of this page covers it. |
+
+The families work together, so they live in one repository and share their build and test infrastructure. Both write
+reflection-free code that works with trimming and NativeAOT.
+
+## ReactiveUI.Binding
 
 You have a property. When it changes, something else needs to know. That might be a label, a validation rule
 or another property. This library lets you say that in one line. It writes the code for you when you build.
@@ -452,11 +465,12 @@ expressions at run time, and NativeAOT cannot do that.
 
 ## Packages
 
-Fourteen packages ship. Each runtime package carries the generator and the analyzer. The platform packages get them
-through the runtime package.
+Fifteen packages ship. Each binding runtime package carries the generator and the analyzer. The platform packages
+get them through the runtime package.
 
 | Package | What it is |
 |---------|------------|
+| `ReactiveUI.SourceGenerators` | The attribute generators: `[Reactive]`, `[ReactiveCommand]`, `[IViewFor]` and the rest. See [its README](src/ReactiveUI.SourceGenerators/README.md). |
 | `ReactiveUI.Binding` | The runtime library. It has lightweight observables and no System.Reactive dependency. |
 | `ReactiveUI.Binding.Reactive` | The same library, built against System.Reactive's `IScheduler`. |
 | `ReactiveUI.Binding.Wpf` | WPF dependency-property observation. |
@@ -1057,13 +1071,13 @@ Swallowing the exception would hide the failure.
 
 ## Contribute
 
-ReactiveUI.Binding.SourceGenerators uses an OSI-approved open source license. You can use and share it freely,
+ReactiveUI.SourceGenerators uses an OSI-approved open source license. You can use and share it freely,
 including for commercial work. We value everyone who takes part. We would love to have you, even if you have
 never contributed to open source before.
 
 Ways to help:
 
-* [Answer questions on GitHub Discussions](https://github.com/reactiveui/ReactiveUI.Binding.SourceGenerators/discussions)
+* [Answer questions on GitHub Discussions](https://github.com/reactiveui/ReactiveUI.SourceGenerators/discussions)
 * [Share what you know and teach other developers](http://ericsink.com/entries/dont_use_rxui.html)
 * Improve the docs where something is missing or unclear.
 * Contribute code.

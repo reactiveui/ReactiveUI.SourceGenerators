@@ -24,5 +24,7 @@ jobs:
             projects: |
                 benchmarks/ReactiveUI.Binding.Benchmarks/ReactiveUI.Binding.Benchmarks.csproj
                 benchmarks/ReactiveUI.Binding.Generator.Benchmarks/ReactiveUI.Binding.Generator.Benchmarks.csproj
+                benchmarks/ReactiveUI.Binding.Analyzer.Benchmarks/ReactiveUI.Binding.Analyzer.Benchmarks.csproj
+                benchmarks/ReactiveUI.SourceGenerators.Benchmarks/ReactiveUI.SourceGenerators.Benchmarks.csproj
             solutionFile: ReactiveUI.SourceGenerators.slnf
             installWorkloads: true

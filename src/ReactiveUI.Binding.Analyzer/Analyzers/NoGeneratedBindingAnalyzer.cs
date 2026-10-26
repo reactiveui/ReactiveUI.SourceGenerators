@@ -58,7 +58,7 @@ public class NoGeneratedBindingAnalyzer : DiagnosticAnalyzer
     {
         var invocation = (IInvocationOperation)context.Operation;
         var method = invocation.TargetMethod;
-        if (!AnalyzerHelpers.GeneratedApiNames.Contains(method.Name)
+        if (!AnalyzerHelpers.IsGeneratedApiName(method.Name)
             || !IsRuntimeStub(method.ContainingType)
             || !Throws(method)
             || AnalyzerHelpers.IsIntercepted(invocation, context.CancellationToken)

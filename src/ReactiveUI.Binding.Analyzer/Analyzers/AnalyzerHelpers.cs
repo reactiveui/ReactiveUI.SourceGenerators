@@ -20,9 +20,13 @@ internal static class AnalyzerHelpers
     /// <summary>The suffix that marks the runtime-reflection twin of an API.</summary>
     internal const string UnsafeMethodSuffix = "Unsafe";
 
+    /// <summary>The name of the argument that carries the view model of a view-first binding.</summary>
+    private const string ViewModelParameterName = "viewModel";
+
     /// <summary>The API names this package generates bindings for.</summary>
-    internal static readonly ImmutableHashSet<string> GeneratedApiNames = new[]
-    {
+    private static readonly HashSet<string> GeneratedApiNames =
+    [
+        with(StringComparer.Ordinal),
         SourceGenerators.Constants.WhenChangedMethodName,
         SourceGenerators.Constants.WhenChangingMethodName,
         SourceGenerators.Constants.WhenAnyMethodName,
@@ -37,10 +41,13 @@ internal static class AnalyzerHelpers
         SourceGenerators.Constants.BindInteractionMethodName,
         SourceGenerators.Constants.InvokeCommandMethodName,
         SourceGenerators.Constants.ToPropertyMethodName,
-    }.ToImmutableHashSet(StringComparer.Ordinal);
+    ];
 
-    /// <summary>The name of the argument that carries the view model of a view-first binding.</summary>
-    private const string ViewModelParameterName = "viewModel";
+    /// <summary>Determines whether a method name is one of the APIs this package generates bindings for.</summary>
+    /// <param name="name">The method name.</param>
+    /// <returns><see langword="true"/> when bindings are generated for it.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static bool IsGeneratedApiName(string name) => GeneratedApiNames.Contains(name);
 
     /// <summary>Checks if a method symbol belongs to our generated extension class.</summary>
     /// <param name="methodSymbol">The method symbol to check.</param>

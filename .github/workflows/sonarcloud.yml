@@ -11,13 +11,16 @@ permissions:
 
 jobs:
     sonarcloud:
+        # The scan needs the SONAR_TOKEN secret and a SonarCloud project for this repository. It runs once the
+        # repository variable SONAR_ENABLED is set to true.
+        if: ${{ vars.SONAR_ENABLED == 'true' }}
         uses: reactiveui/actions-common/.github/workflows/workflow-common-sonarcloud.yml@main
         with:
             productNamespacePrefix: ReactiveUI
             solutionFile: ReactiveUI.SourceGenerators.slnf
             installWorkloads: true
             minverMinimumMajorMinor: '10.0'
-            sonarProjectKey: ReactiveUI.Binding.SourceGenerators
+            sonarProjectKey: reactiveui_ReactiveUI.SourceGenerators
             sonarOrganization: reactiveui
             sonarExclusions: '**/tests/**,**/benchmarks/**,**/TestResults/**'
             sonarCoverageExclusions: '**/tests/**,**/benchmarks/**,**/examples/**,**/*Tests/**,**/*Tests.cs,**/*TestModels/**'

@@ -10,7 +10,7 @@ SRC_DIR="$REPO_ROOT/src"
 RESULTS_DIR="$REPO_ROOT/test_results"
 COVERAGE_DIR="$RESULTS_DIR/coverage"
 REPORT_DIR="$RESULTS_DIR/report"
-SOLUTION="ReactiveUI.Binding.SourceGenerators.slnx"
+SOLUTION="ReactiveUI.SourceGenerators.slnx"
 
 # Parse arguments
 PROJECT=""
