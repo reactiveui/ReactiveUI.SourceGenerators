@@ -39,7 +39,7 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
             // ToProperty: global::SharedScenarios.ToProperty.PublicRaiseMethod.MyViewModel.Count raised through RaiseMethod
             return global::ReactiveUI.Binding.ObservableAsPropertyHelper<int>.Create(
                 target,
-                source,
+                new global::ReactiveUI.Binding.ObservablePropertyTarget(source, "Count"),
                 (__owner, __value) => ((global::SharedScenarios.ToProperty.PublicRaiseMethod.MyViewModel)__owner).RaisePropertyChanged("Count"),
                 null,
                 initialValue,

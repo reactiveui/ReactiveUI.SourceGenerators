@@ -12,7 +12,7 @@ namespace TestApp
             /// <summary>Backs <see cref="Current"/>; assign it with <c>ToProperty</c>.</summary>
             private global::ReactiveUI.Binding.ObservableAsPropertyHelper<T>? _currentHelper;
 
-            public partial T Current => _currentHelper is null ? default! : _currentHelper.Value;
+            public partial T Current => _currentHelper is null ? global::ReactiveUI.Binding.ObservableAsPropertyHelper<T>.PendingValue(this, "Current", default!) : _currentHelper.Value;
         }
     }
 }

@@ -41,6 +41,10 @@ namespace ReactiveUI.Binding;
 [DebuggerDisplay("ObservableAsPropertyHelper: Value = {_core.LastValue}, IsSubscribed = {IsSubscribed}")]
 public sealed class ObservableAsPropertyHelper<T> : IDisposable
 {
+    /// <summary>The helper this thread is starting, so a property read from inside its first notifications can see its value.</summary>
+    [ThreadStatic]
+    private static Construction _constructing;
+
     /// <summary>The state and source subscription behind this helper.</summary>
     private readonly Core _core;
 
@@ -269,6 +273,58 @@ public sealed class ObservableAsPropertyHelper<T> : IDisposable
         return new(new Core(observable, new ChangeCallbacks(owner, onChanged, onChanging), new InitialValue(initialValue, null), scheduler), deferSubscription);
     }
 
+    /// <summary>Creates a helper that raises a named property's change notifications through static callbacks.</summary>
+    /// <param name="observable">The observable the property follows.</param>
+    /// <param name="target">The owner, which is passed to both callbacks, and the property the helper backs.</param>
+    /// <param name="onChanged">The callback run after each new value is stored.</param>
+    /// <param name="onChanging">The callback run before each new value is stored, or null for none.</param>
+    /// <param name="initialValue">The value the property holds before the source produces one.</param>
+    /// <param name="deferSubscription">Whether to wait for the first read of <see cref="Value"/> before subscribing.</param>
+    /// <param name="scheduler">The scheduler the callbacks run on, or null to run them on the producing thread.</param>
+    /// <returns>The helper.</returns>
+    /// <remarks>Generated <c>ToProperty</c> code calls this, so the property can be read from the notifications the helper raises as it starts.</remarks>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static ObservableAsPropertyHelper<T> Create(
+        IObservable<T?> observable,
+        ObservablePropertyTarget target,
+        Action<object?, T?> onChanged,
+        Action<object?, T?>? onChanging,
+        T? initialValue,
+        bool deferSubscription,
+        ISequencer? scheduler)
+    {
+        ArgumentExceptionHelper.ThrowIfNull(target.Owner);
+        ArgumentExceptionHelper.ThrowIfNull(onChanged);
+
+        return new(new Core(observable, new ChangeCallbacks(target.Owner, onChanged, onChanging), new InitialValue(initialValue, null), scheduler, target.PropertyName), deferSubscription);
+    }
+
+    /// <summary>Creates a helper that raises a named property's change notifications through static callbacks, reading its initial value from a factory.</summary>
+    /// <param name="observable">The observable the property follows.</param>
+    /// <param name="target">The owner, which is passed to both callbacks, and the property the helper backs.</param>
+    /// <param name="onChanged">The callback run after each new value is stored.</param>
+    /// <param name="onChanging">The callback run before each new value is stored, or null for none.</param>
+    /// <param name="getInitialValue">Returns the value the property holds before the source produces one; null returns the default value.</param>
+    /// <param name="deferSubscription">Whether to wait for the first read of <see cref="Value"/> before subscribing.</param>
+    /// <param name="scheduler">The scheduler the callbacks run on, or null to run them on the producing thread.</param>
+    /// <returns>The helper.</returns>
+    /// <remarks>Generated <c>ToProperty</c> code calls this for a call site that passes an initial value factory.</remarks>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static ObservableAsPropertyHelper<T> Create(
+        IObservable<T?> observable,
+        ObservablePropertyTarget target,
+        Action<object?, T?> onChanged,
+        Action<object?, T?>? onChanging,
+        Func<T?>? getInitialValue,
+        bool deferSubscription,
+        ISequencer? scheduler)
+    {
+        ArgumentExceptionHelper.ThrowIfNull(target.Owner);
+        ArgumentExceptionHelper.ThrowIfNull(onChanged);
+
+        return new(new Core(observable, new ChangeCallbacks(target.Owner, onChanged, onChanging), new InitialValue(default, getInitialValue), scheduler, target.PropertyName), deferSubscription);
+    }
+
     /// <summary>Creates a helper that raises an owner's change notifications through static callbacks, reading its initial value from a factory.</summary>
     /// <param name="observable">The observable the property follows.</param>
     /// <param name="owner">The object passed to both callbacks.</param>
@@ -293,6 +349,27 @@ public sealed class ObservableAsPropertyHelper<T> : IDisposable
         ArgumentExceptionHelper.ThrowIfNull(onChanged);
 
         return new(new Core(observable, new ChangeCallbacks(owner, onChanged, onChanging), new InitialValue(default, getInitialValue), scheduler), deferSubscription);
+    }
+
+    /// <summary>Reads a property whose helper is still being created, for the notifications that helper raises as it starts.</summary>
+    /// <param name="owner">The object that owns the property.</param>
+    /// <param name="propertyName">The property's name.</param>
+    /// <param name="fallback">The value to return when no helper for that property is starting on this thread.</param>
+    /// <returns>The starting helper's current value, or <paramref name="fallback"/>.</returns>
+    /// <remarks>
+    /// A source that produces a value as it is subscribed raises the property's change notifications before the
+    /// <c>ToProperty</c> call returns, so before the owner has assigned the helper to its field. A listener reading the
+    /// property then finds no helper. Generated property getters ask here instead of returning the fallback at once.
+    /// </remarks>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static T PendingValue(object owner, string propertyName, T fallback)
+    {
+        var constructing = _constructing;
+        return constructing.Core is { } core
+            && ReferenceEquals(constructing.Owner, owner)
+            && string.Equals(constructing.PropertyName, propertyName, StringComparison.Ordinal)
+            ? core.LastValue!
+            : fallback;
     }
 
     /// <summary>Creates a helper that holds the default value and never changes.</summary>
@@ -355,6 +432,12 @@ public sealed class ObservableAsPropertyHelper<T> : IDisposable
         }
     }
 
+    /// <summary>The helper a thread is starting.</summary>
+    /// <param name="Owner">The object that owns the property.</param>
+    /// <param name="PropertyName">The property's name.</param>
+    /// <param name="Core">The helper's state.</param>
+    private readonly record struct Construction(object? Owner, string? PropertyName, Core? Core);
+
     /// <summary>The value the property holds before the source produces one.</summary>
     /// <param name="Value">The value, used when there is no factory.</param>
     /// <param name="Factory">Returns the value; null uses <paramref name="Value"/>.</param>
@@ -388,6 +471,9 @@ public sealed class ObservableAsPropertyHelper<T> : IDisposable
 
         /// <summary>The observable the property follows.</summary>
         private readonly IObservable<T?> _source;
+
+        /// <summary>The property the helper backs, or null when the creator did not name one.</summary>
+        private readonly string? _propertyName;
 
         /// <summary>Guards the distinct gate, the delivery queue and the disposed flag; never held while a callback runs.</summary>
         /// <remarks>
@@ -427,10 +513,12 @@ public sealed class ObservableAsPropertyHelper<T> : IDisposable
         /// <param name="callbacks">The callbacks run before and after each value is stored.</param>
         /// <param name="initialValue">The value the property holds before the source produces one.</param>
         /// <param name="scheduler">The scheduler the callbacks run on, or null to run them on the producing thread.</param>
-        public Core(IObservable<T?> observable, in ChangeCallbacks callbacks, in InitialValue initialValue, ISequencer? scheduler)
+        /// <param name="propertyName">The property the helper backs, or null when the creator did not name one.</param>
+        public Core(IObservable<T?> observable, in ChangeCallbacks callbacks, in InitialValue initialValue, ISequencer? scheduler, string? propertyName = null)
         {
             ArgumentExceptionHelper.ThrowIfNull(observable);
 
+            _propertyName = propertyName;
             _source = observable;
             _callbacks = callbacks;
             _initialValue = initialValue;
@@ -450,8 +538,27 @@ public sealed class ObservableAsPropertyHelper<T> : IDisposable
             _lastValue = initial;
             _distinctPrevious = initial;
             Volatile.Write(ref _activated, 1);
-            Publish(initial);
-            _subscription = _source.Subscribe(this);
+
+            if (_propertyName is null)
+            {
+                Publish(initial);
+                _subscription = _source.Subscribe(this);
+                return;
+            }
+
+            // The owner has not assigned this helper yet, so a listener reading the property from the notifications
+            // raised below asks for the value through PendingValue.
+            var previous = _constructing;
+            _constructing = new(_callbacks.ChangedState, _propertyName, this);
+            try
+            {
+                Publish(initial);
+                _subscription = _source.Subscribe(this);
+            }
+            finally
+            {
+                _constructing = previous;
+            }
         }
 
         /// <summary>Reads the current value, subscribing first when subscription was deferred and nothing has claimed it.</summary>

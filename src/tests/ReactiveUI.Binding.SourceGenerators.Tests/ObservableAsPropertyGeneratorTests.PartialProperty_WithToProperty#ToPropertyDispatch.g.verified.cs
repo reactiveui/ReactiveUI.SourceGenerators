@@ -39,7 +39,7 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
             // ToProperty: global::TestApp.PersonViewModel.FullName raised through PartialType
             return global::ReactiveUI.Binding.ObservableAsPropertyHelper<string>.Create(
                 target,
-                source,
+                new global::ReactiveUI.Binding.ObservablePropertyTarget(source, "FullName"),
                 (__owner, __value) => ((global::TestApp.PersonViewModel)__owner).__ToPropertyRaiseChanged_FullName(),
                 null,
                 initialValue,
@@ -77,7 +77,7 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
             // ToProperty: global::TestApp.PersonViewModel.Age raised through PartialType
             return global::ReactiveUI.Binding.ObservableAsPropertyHelper<int?>.Create(
                 target,
-                source,
+                new global::ReactiveUI.Binding.ObservablePropertyTarget(source, "Age"),
                 (__owner, __value) => ((global::TestApp.PersonViewModel)__owner).__ToPropertyRaiseChanged_Age(),
                 null,
                 initialValue,

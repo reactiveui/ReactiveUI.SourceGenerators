@@ -162,6 +162,40 @@ public class ToPropertyTests
         await Assert.That(raised).IsEquivalentTo([FullName, "Age", FullName]);
     }
 
+    /// <summary>
+    /// A source that produces a value as it is subscribed raises the notification before the helper is assigned, and a
+    /// listener reading the property then sees the value (ReactiveUI #4538).
+    /// </summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task HelperAssignedAfterListenerAttaches_ListenerReadsTheValue()
+    {
+        var vm = new StartupViewModel();
+        var read = new List<bool>();
+        vm.PropertyChanged += (_, _) => read.Add(vm.Shown);
+
+        vm.Show(new BehaviorSubject<bool>(true));
+
+        await Assert.That(read[^1]).IsTrue();
+        await Assert.That(vm.Shown).IsTrue();
+    }
+
+    /// <summary>
+    /// A property created first that follows one created second sees the second's value as it starts, since reading it
+    /// from the notification finds the value (ReactiveUI #4541).
+    /// </summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task PropertyFollowingALaterHelper_SeesItsFirstValue()
+    {
+        var vm = new StartupViewModel();
+
+        vm.Follow(new BehaviorSubject<int>(PushedValue));
+
+        await Assert.That(vm.Mirrored).IsEqualTo(PushedValue);
+        await Assert.That(vm.Total).IsEqualTo(PushedValue);
+    }
+
     /// <summary>Records the property names a view model raises PropertyChanged for.</summary>
     /// <param name="source">The view model.</param>
     /// <returns>The recorded names, in order.</returns>

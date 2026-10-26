@@ -10,11 +10,11 @@ namespace TestApp
         /// <summary>Backs <see cref="FullName"/>; assign it with <c>ToProperty</c>.</summary>
         private global::ReactiveUI.Binding.ObservableAsPropertyHelper<string>? _fullNameHelper;
 
-        public partial string FullName => _fullNameHelper is null ? global::System.String.Empty : _fullNameHelper.Value;
+        public partial string FullName => _fullNameHelper is null ? global::ReactiveUI.Binding.ObservableAsPropertyHelper<string>.PendingValue(this, "FullName", global::System.String.Empty) : _fullNameHelper.Value;
 
         /// <summary>Backs <see cref="Age"/>; assign it with <c>ToProperty</c>.</summary>
         private global::ReactiveUI.Binding.ObservableAsPropertyHelper<int?>? _ageHelper;
 
-        internal partial int? Age => _ageHelper is null ? default! : _ageHelper.Value;
+        internal partial int? Age => _ageHelper is null ? global::ReactiveUI.Binding.ObservableAsPropertyHelper<int?>.PendingValue(this, "Age", default!) : _ageHelper.Value;
     }
 }

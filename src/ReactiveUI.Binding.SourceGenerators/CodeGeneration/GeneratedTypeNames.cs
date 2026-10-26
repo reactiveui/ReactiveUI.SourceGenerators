@@ -223,6 +223,9 @@ internal static class GeneratedTypeNames
     /// <summary>The fully qualified name of <c>ReactiveUI.Binding.ObservableAsPropertyHelper</c>.</summary>
     internal const string ObservableAsPropertyHelper = "global::ReactiveUI.Binding.ObservableAsPropertyHelper";
 
+    /// <summary>The fully qualified name of <c>ReactiveUI.Binding.ObservablePropertyTarget</c>.</summary>
+    internal const string ObservablePropertyTarget = "global::ReactiveUI.Binding.ObservablePropertyTarget";
+
     /// <summary>The fully qualified immediate sequencer, which a binding treats the same as no scheduler.</summary>
     internal const string ImmediateSequencer = "global::ReactiveUI.Primitives.Concurrency.Sequencer.Immediate";
 

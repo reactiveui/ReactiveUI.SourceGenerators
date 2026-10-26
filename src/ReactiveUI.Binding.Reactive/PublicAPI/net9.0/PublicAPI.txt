@@ -3,6 +3,7 @@
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("ReactiveUI.Binding.GeneratedCode.Tests")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("ReactiveUI.Binding.Maui.Reactive")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("ReactiveUI.Binding.Tests")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("ReactiveUI.Binding.Uno.Reactive")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("ReactiveUI.Binding.WinForms.Reactive")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("ReactiveUI.Binding.Wpf.Reactive")]
 [assembly: System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute))]
@@ -624,6 +625,10 @@ namespace ReactiveUI.Binding.Reactive
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void Dispose() { }
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public static ReactiveUI.Binding.Reactive.ObservableAsPropertyHelper<T> Create(System.IObservable<T?> observable, ReactiveUI.Binding.Reactive.ObservablePropertyTarget target, System.Action<object?, T?> onChanged, System.Action<object?, T?>? onChanging, System.Func<T?>? getInitialValue, bool deferSubscription, System.Reactive.Concurrency.IScheduler? scheduler) { }
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public static ReactiveUI.Binding.Reactive.ObservableAsPropertyHelper<T> Create(System.IObservable<T?> observable, ReactiveUI.Binding.Reactive.ObservablePropertyTarget target, System.Action<object?, T?> onChanged, System.Action<object?, T?>? onChanging, T? initialValue, bool deferSubscription, System.Reactive.Concurrency.IScheduler? scheduler) { }
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         public static ReactiveUI.Binding.Reactive.ObservableAsPropertyHelper<T> Create(System.IObservable<T?> observable, object owner, System.Action<object?, T?> onChanged, System.Action<object?, T?>? onChanging, System.Func<T?>? getInitialValue, bool deferSubscription, System.Reactive.Concurrency.IScheduler? scheduler) { }
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         public static ReactiveUI.Binding.Reactive.ObservableAsPropertyHelper<T> Create(System.IObservable<T?> observable, object owner, System.Action<object?, T?> onChanged, System.Action<object?, T?>? onChanging, T? initialValue, bool deferSubscription, System.Reactive.Concurrency.IScheduler? scheduler) { }
@@ -632,6 +637,8 @@ namespace ReactiveUI.Binding.Reactive
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static ReactiveUI.Binding.Reactive.ObservableAsPropertyHelper<T> Default(T? initialValue) { }
         public static ReactiveUI.Binding.Reactive.ObservableAsPropertyHelper<T> Default(T? initialValue, System.Reactive.Concurrency.IScheduler? scheduler) { }
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public static T PendingValue(object owner, string propertyName, T fallback) { }
     }
     public enum ObservableAsPropertyInheritance
     {
@@ -639,6 +646,21 @@ namespace ReactiveUI.Binding.Reactive
         Virtual = 1,
         Override = 2,
         New = 3,
+    }
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    [System.Diagnostics.DebuggerDisplay("{Owner}.{PropertyName}")]
+    public readonly struct ObservablePropertyTarget : System.IEquatable<ReactiveUI.Binding.Reactive.ObservablePropertyTarget>
+    {
+        public ObservablePropertyTarget(object owner, string propertyName) { }
+        public object Owner { get; }
+        public string PropertyName { get; }
+        public readonly bool Equals(ReactiveUI.Binding.Reactive.ObservablePropertyTarget other) { }
+        public override readonly bool Equals(object? obj) { }
+        public override readonly int GetHashCode() { }
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(ReactiveUI.Binding.Reactive.ObservablePropertyTarget left, ReactiveUI.Binding.Reactive.ObservablePropertyTarget right) { }
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(ReactiveUI.Binding.Reactive.ObservablePropertyTarget left, ReactiveUI.Binding.Reactive.ObservablePropertyTarget right) { }
     }
     [System.Diagnostics.DebuggerDisplay("ObservedChange: Expression = {Expression}, Sender = {Sender}, Value = {Value}")]
     public class ObservedChange<TSender, TValue> : ReactiveUI.Binding.Reactive.IObservedChange<TSender, TValue>

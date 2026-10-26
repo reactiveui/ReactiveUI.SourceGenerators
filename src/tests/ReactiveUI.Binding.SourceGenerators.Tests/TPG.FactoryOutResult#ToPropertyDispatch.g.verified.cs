@@ -42,7 +42,7 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
             // ToProperty: global::SharedScenarios.ToProperty.FactoryOutResult.MyViewModel.Count raised through PartialType
             return global::ReactiveUI.Binding.ObservableAsPropertyHelper<int>.Create(
                 target,
-                source,
+                new global::ReactiveUI.Binding.ObservablePropertyTarget(source, "Count"),
                 (__owner, __value) => ((global::SharedScenarios.ToProperty.FactoryOutResult.MyViewModel)__owner).__ToPropertyRaiseChanged_Count(),
                 (__owner, __value) => ((global::SharedScenarios.ToProperty.FactoryOutResult.MyViewModel)__owner).__ToPropertyRaiseChanging_Count(),
                 getInitialValue,

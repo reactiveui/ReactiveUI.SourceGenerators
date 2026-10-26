@@ -233,7 +233,7 @@ internal static class ToPropertyCodeGenerator
         _ = AppendHelperType(sb.BeginReturn(), valueType).Append(".Create(")
             .OpenContinuation()
             .Line("target,")
-            .Line("source,");
+            .Append("new ").Append(GeneratedTypeNames.ObservablePropertyTarget).Append("(source, ").AppendQuoted(inv.PropertyName).Line("),");
 
         AppendRaiseLambda(sb, inv, raise.Changed, isChanging: false, suffix);
         _ = sb.Line(",");

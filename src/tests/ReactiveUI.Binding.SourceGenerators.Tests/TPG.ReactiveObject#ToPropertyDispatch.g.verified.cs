@@ -39,7 +39,7 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
             // ToProperty: global::SharedScenarios.ToProperty.ReactiveObject.MyViewModel.FullName raised through ReactiveObject
             return global::ReactiveUI.Binding.ObservableAsPropertyHelper<string>.Create(
                 target,
-                source,
+                new global::ReactiveUI.Binding.ObservablePropertyTarget(source, "FullName"),
                 (__owner, __value) => global::ReactiveUI.IReactiveObjectExtensions.RaisePropertyChanged(((global::SharedScenarios.ToProperty.ReactiveObject.MyViewModel)__owner), "FullName"),
                 (__owner, __value) => global::ReactiveUI.IReactiveObjectExtensions.RaisePropertyChanging(((global::SharedScenarios.ToProperty.ReactiveObject.MyViewModel)__owner), "FullName"),
                 initialValue,

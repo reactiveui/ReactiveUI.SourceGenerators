@@ -13,7 +13,7 @@ namespace TestApp
         /// <summary>Backs <see cref="Code"/>; assign it with <c>ToProperty</c>.</summary>
         protected global::ReactiveUI.Binding.ObservableAsPropertyHelper<string>? _codeHelper;
 
-        public partial string Code => _codeHelper is null ? "x" : _codeHelper.Value;
+        public partial string Code => _codeHelper is null ? global::ReactiveUI.Binding.ObservableAsPropertyHelper<string>.PendingValue(this, "Code", "x") : _codeHelper.Value;
 
         /// <summary>The value <see cref="Ratio"/> returns until its helper is assigned.</summary>
         private readonly double? _ratio = 1.1d;
@@ -21,16 +21,16 @@ namespace TestApp
         /// <summary>Backs <see cref="Ratio"/>; assign it with <c>ToProperty</c>.</summary>
         private readonly global::ReactiveUI.Binding.ObservableAsPropertyHelper<double?>? _ratioHelper;
 
-        public partial double? Ratio => _ratioHelper is null ? _ratio : _ratioHelper.Value;
+        public partial double? Ratio => _ratioHelper is null ? global::ReactiveUI.Binding.ObservableAsPropertyHelper<double?>.PendingValue(this, "Ratio", _ratio) : _ratioHelper.Value;
 
         /// <summary>Backs <see cref="Label"/>; assign it with <c>ToProperty</c>.</summary>
         private global::ReactiveUI.Binding.ObservableAsPropertyHelper<string>? _labelHelper;
 
-        public partial string Label => _labelHelper is null ? global::System.String.Empty : _labelHelper.Value;
+        public partial string Label => _labelHelper is null ? global::ReactiveUI.Binding.ObservableAsPropertyHelper<string>.PendingValue(this, "Label", global::System.String.Empty) : _labelHelper.Value;
 
         /// <summary>Backs <see cref="Note"/>; assign it with <c>ToProperty</c>.</summary>
         private global::ReactiveUI.Binding.ObservableAsPropertyHelper<string?>? _noteHelper;
 
-        public partial string? Note => _noteHelper is null ? default! : _noteHelper.Value;
+        public partial string? Note => _noteHelper is null ? global::ReactiveUI.Binding.ObservableAsPropertyHelper<string?>.PendingValue(this, "Note", default!) : _noteHelper.Value;
     }
 }

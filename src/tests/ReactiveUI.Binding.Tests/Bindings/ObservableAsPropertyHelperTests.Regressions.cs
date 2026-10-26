@@ -72,6 +72,94 @@ public sealed partial class ObservableAsPropertyHelperTests
         await Assert.That(notified).IsEmpty();
     }
 
+    /// <summary>
+    /// A callback that reads the property while its helper starts finds the value the helper holds, for the owner and
+    /// property the helper backs (ReactiveUI #4538).
+    /// </summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task Starting_PendingValueReadFromCallback_ReturnsTheValueHeld()
+    {
+        var owner = new object();
+        var seen = new List<int>();
+        var wrongOwner = -1;
+        var wrongName = -1;
+
+        _ = ObservableAsPropertyHelper<int>.Create(
+            new CountingObservable<int>(static () => { }, SuppliedValue),
+            new(owner, nameof(SuppliedValue)),
+            (_, _) =>
+            {
+                seen.Add(ObservableAsPropertyHelper<int>.PendingValue(owner, nameof(SuppliedValue), -1));
+                wrongOwner = ObservableAsPropertyHelper<int>.PendingValue(new(), nameof(SuppliedValue), -1);
+                wrongName = ObservableAsPropertyHelper<int>.PendingValue(owner, nameof(seen), -1);
+            },
+            null,
+            0,
+            false,
+            null);
+
+        await Assert.That(seen).IsEquivalentTo([0, SuppliedValue]);
+        await Assert.That(wrongOwner).IsEqualTo(-1);
+        await Assert.That(wrongName).IsEqualTo(-1);
+        await Assert.That(ObservableAsPropertyHelper<int>.PendingValue(owner, nameof(SuppliedValue), -1)).IsEqualTo(-1);
+    }
+
+    /// <summary>A helper started from another helper's callback is read for its own property, and the outer one is read again afterwards.</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task Starting_NestedHelper_RestoresTheOuterOne()
+    {
+        var owner = new object();
+        const string Outer = "Outer";
+        const string Inner = "Inner";
+        var outerAfterInner = -1;
+        var started = false;
+
+        _ = ObservableAsPropertyHelper<int>.Create(
+            new CountingObservable<int>(static () => { }, SuppliedValue),
+            new(owner, Outer),
+            (_, _) =>
+            {
+                if (started)
+                {
+                    return;
+                }
+
+                started = true;
+                _ = ObservableAsPropertyHelper<int>.Create(
+                    new CountingObservable<int>(static () => { }, SuppliedValue + 1),
+                    new(owner, Inner),
+                    static (_, _) => { },
+                    null,
+                    static () => 0,
+                    false,
+                    null);
+                outerAfterInner = ObservableAsPropertyHelper<int>.PendingValue(owner, Outer, -1);
+            },
+            null,
+            0,
+            false,
+            null);
+
+        await Assert.That(outerAfterInner).IsEqualTo(0);
+    }
+
+    /// <summary>Targets are equal when they name the same owner and property.</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task PropertyTarget_ComparesOwnerAndName()
+    {
+        var owner = new object();
+        var target = new ObservablePropertyTarget(owner, "Name");
+
+        await Assert.That(target == new ObservablePropertyTarget(owner, "Name")).IsTrue();
+        await Assert.That(target != new ObservablePropertyTarget(new object(), "Name")).IsTrue();
+        await Assert.That(target.Equals((object)new ObservablePropertyTarget(owner, "Other"))).IsFalse();
+        await Assert.That(target.Equals(new object())).IsFalse();
+        await Assert.That(target.GetHashCode()).IsEqualTo(new ObservablePropertyTarget(owner, "Name").GetHashCode());
+    }
+
     /// <summary>An observable that counts its subscriptions and can emit one value while being subscribed to.</summary>
     /// <typeparam name="TValue">The value type.</typeparam>
     /// <param name="onSubscribe">Runs on every subscription.</param>

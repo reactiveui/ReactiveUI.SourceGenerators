@@ -286,11 +286,15 @@ internal static class ObservableAsPropertyGenerator
         _ = AppendFieldName(sb, name).Append("Helper").EndStatement()
             .BlankLine()
             .Append(property.Modifiers).Append(' ').Append(property.TypeFullName).Append(' ').Append(name).Append(" => ");
-        _ = AppendFieldName(sb, name).Append("Helper is null ? ");
+
+        // A source that produces a value as it is subscribed raises the property's notifications before the helper is
+        // assigned, and a listener reading the property then asks the starting helper for its value.
+        _ = AppendFieldName(sb, name).Append("Helper is null ? ").Append(HelperType).Append('<').Append(property.TypeFullName)
+            .Append(">.PendingValue(this, ").AppendQuoted(name).Append(", ");
         _ = property.StoresInitialValue
             ? AppendFieldName(sb, name)
             : sb.Append(property.InitialValue ?? "default!");
-        _ = AppendFieldName(sb.Append(" : "), name).Line("Helper.Value;");
+        _ = AppendFieldName(sb.Append(") : "), name).Line("Helper.Value;");
     }
 
     /// <summary>Appends a field name for a property, <c>_{name}</c> with the first letter lowered, without building a string for it.</summary>
