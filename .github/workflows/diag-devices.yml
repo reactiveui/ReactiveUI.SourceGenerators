@@ -1,0 +1,43 @@
+name: Diagnose devices
+
+on:
+    pull_request:
+        paths:
+            - '.github/workflows/diag-devices.yml'
+
+permissions:
+    contents: read
+
+jobs:
+    diag:
+        strategy:
+            fail-fast: false
+            matrix:
+                os: [windows-latest, macos-latest]
+        runs-on: ${{ matrix.os }}
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+            - uses: reactiveui/actions-common/.github/actions/dotnet-environment@main
+              with:
+                  dotnet-versions: |
+                      8.0.x
+                      9.0.x
+                      10.0.x
+                      11.0.x
+                  solution-file: ReactiveUI.SourceGenerators.Uno.slnf
+                  install-workloads: 'true'
+                  stamp-version: 'false'
+            - name: List devices per test project
+              shell: bash
+              working-directory: src
+              continue-on-error: true
+              run: |
+                  for p in tests/*Tests*/*.csproj; do
+                    echo "=== $p"
+                    dotnet test --project "$p" --list-devices --no-build -c Release || true
+                  done
+            - name: Test the Uno filter
+              shell: bash
+              working-directory: src
+              continue-on-error: true
+              run: dotnet test --solution ReactiveUI.SourceGenerators.Uno.slnf --no-build -c Release
