@@ -11,6 +11,9 @@ namespace ReactiveUI.Binding.SourceGenerators.Tests.Helpers;
 /// <summary>Tests for <see cref="CallSiteHosting"/>.</summary>
 public class CallSiteHostingTests
 {
+    /// <summary>The kind constraint for a reference type.</summary>
+    private const string ClassKind = "class";
+
     /// <summary>A method that uses every kind of constraint, and a type parameter that has none.</summary>
     private const string ConstrainedSource = """
                                              #nullable enable
@@ -71,7 +74,7 @@ public class CallSiteHostingTests
     [Arguments(true, false)]
     [Arguments(false, true)]
     public async Task TypeParameterConstraints_With_KeepsAConstructorConstraintFromEither(bool first, bool second) =>
-        await Assert.That(new CallSiteHosting.TypeParameterConstraints("class", [], first).With(new("class", [], second)).Format())
+        await Assert.That(new CallSiteHosting.TypeParameterConstraints(ClassKind, [], first).With(new(ClassKind, [], second)).Format())
             .IsEqualTo("class, new()");
 
     /// <summary>A constructor constraint is written last, and not at all beside a value-type kind, which C# refuses.</summary>
@@ -84,6 +87,31 @@ public class CallSiteHostingTests
     [Arguments("unmanaged", "unmanaged")]
     public async Task TypeParameterConstraints_Format_PlacesTheConstructorConstraint(string kind, string expected) =>
         await Assert.That(new CallSiteHosting.TypeParameterConstraints(kind, [], true).Format()).IsEqualTo(expected);
+
+    /// <summary>A class type constraint already makes the type parameter a reference type, so the class constraint is left out (CS0450).</summary>
+    /// <param name="stubKind">The kind constraint the called method's own type parameter declares.</param>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    [Arguments("class")]
+    [Arguments("class?")]
+    public async Task TypeParameterConstraints_Format_ClassTypeConstraintReplacesTheClassKind(string stubKind)
+    {
+        var combined = new CallSiteHosting.TypeParameterConstraints(stubKind, [], false)
+            .With(new(null, ["ViewModel"], false, HasClassType: true));
+
+        await Assert.That(combined.Format()).IsEqualTo("ViewModel");
+    }
+
+    /// <summary>An interface constraint leaves the class constraint in place.</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task TypeParameterConstraints_Format_InterfaceConstraintKeepsTheClassKind()
+    {
+        var combined = new CallSiteHosting.TypeParameterConstraints(ClassKind, [], false)
+            .With(new(null, ["IViewModel"], false));
+
+        await Assert.That(combined.Format()).IsEqualTo("class, IViewModel");
+    }
 
     /// <summary>A type parameter with no constraint at all writes nothing.</summary>
     /// <returns>A task representing the asynchronous test operation.</returns>

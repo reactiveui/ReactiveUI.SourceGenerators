@@ -684,6 +684,7 @@ internal static partial class UnnameableTypeScenarios
         nameof(UnhostablePrivateSource) => UnhostablePrivateSource,
         nameof(FileLocalSource) => FileLocalSource,
         nameof(TypeParameterReceiver) => TypeParameterReceiver,
+        nameof(TypeParameterClassConstrainedReceiver) => TypeParameterClassConstrainedReceiver,
         nameof(TypeParameterValue) => TypeParameterValue,
         nameof(TypeParameterResult) => TypeParameterResult,
         nameof(TypeParameterViewBase) => TypeParameterViewBase,

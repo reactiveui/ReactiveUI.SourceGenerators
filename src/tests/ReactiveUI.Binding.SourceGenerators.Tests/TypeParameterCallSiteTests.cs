@@ -37,6 +37,7 @@ public class TypeParameterCallSiteTests
     public static IEnumerable<Func<(string Scenario, int[] Values)>> Claimable()
     {
         yield return static () => (nameof(UnnameableTypeScenarios.TypeParameterReceiver), OnePropertyValues);
+        yield return static () => (nameof(UnnameableTypeScenarios.TypeParameterClassConstrainedReceiver), OnePropertyValues);
         yield return static () => (nameof(UnnameableTypeScenarios.TypeParameterValue), OnePropertyValues);
         yield return static () => (nameof(UnnameableTypeScenarios.TypeParameterResult), DoubledValues);
         yield return static () => (nameof(UnnameableTypeScenarios.TypeParameterViewBase), BoundValues);

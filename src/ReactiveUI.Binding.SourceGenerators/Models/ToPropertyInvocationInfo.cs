@@ -19,6 +19,11 @@ namespace ReactiveUI.Binding.SourceGenerators.Models;
 /// The class the call's generated code is declared in, when only that class can name the call's types. Null when
 /// generated code can name them from its own class.
 /// </param>
+/// <param name="OpenOwnerConstraint">
+/// The type the owner is constrained to, when the owner is built from the calling code's type parameters. The
+/// generated worker and interceptor are then generic over the owner and the value, and the source and value type names
+/// are those type parameters. Null for a call whose types generated code names.
+/// </param>
 internal sealed record ToPropertyInvocationInfo(
     string CallerFilePath,
     int CallerLineNumber,
@@ -30,4 +35,5 @@ internal sealed record ToPropertyInvocationInfo(
     ToPropertyOverloadShape Shape,
     PropertyRaiseInfo Raise,
     InterceptorLocation Interceptor = default,
-    HostedCall? Host = null) : IClaimableCallSite;
+    HostedCall? Host = null,
+    string? OpenOwnerConstraint = null) : IClaimableCallSite;

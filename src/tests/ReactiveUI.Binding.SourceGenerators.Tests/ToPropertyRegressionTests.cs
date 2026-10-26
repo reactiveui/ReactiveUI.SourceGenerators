@@ -4,6 +4,7 @@
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using ReactiveUI.Binding.SourceGenerators.Helpers;
 using ReactiveUI.Binding.SourceGenerators.Tests.Helpers;
 
 namespace ReactiveUI.Binding.SourceGenerators.Tests;
@@ -101,6 +102,45 @@ public class ToPropertyRegressionTests
                               """;
 
         var result = TestHelper.RunGenerator(source, LanguageVersion.CSharp10);
+        await result.GeneratedSourceContains(DispatchName, "IReactiveObjectExtensions.RaisePropertyChanged");
+        await result.CompilationSucceeds();
+    }
+
+    /// <summary>
+    /// A generic ReactiveObject view model backs its property with ToProperty like any other: the call generates, raises
+    /// through ReactiveUI's extension and compiles (ReactiveUI.Binding.SourceGenerators #184).
+    /// </summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task GenericReactiveObject_GeneratesToProperty()
+    {
+        const string source = """
+                              using System;
+                              using ReactiveUI;
+                              using ReactiveUI.Binding;
+
+                              namespace TestApp
+                              {
+                                  public class ViewModel<T> : ReactiveObject
+                                  {
+                                      private readonly ObservableAsPropertyHelper<string> _nameHelper;
+
+                                      public ViewModel(IObservable<string> names) => _nameHelper = names.ToProperty(this, x => x.Name);
+
+                                      public string Name => _nameHelper.Value;
+                                  }
+                              }
+                              """;
+
+        if (!InterceptableLocationReader.IsSupported)
+        {
+            Skip.Test("Only a build against Roslyn 4.13 or newer can intercept a call site.");
+        }
+
+        var parseOptions = TestHelper.InterceptingParseOptionsFor(LanguageVersion.CSharp13);
+        var compilation = TestHelper.CreateCompilation(source, parseOptions, false, "TestAssembly", []);
+        var result = TestHelper.RunGenerator(compilation, parseOptions, "TestApp", true);
+
         await result.GeneratedSourceContains(DispatchName, "IReactiveObjectExtensions.RaisePropertyChanged");
         await result.CompilationSucceeds();
     }

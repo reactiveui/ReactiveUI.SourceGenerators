@@ -387,8 +387,12 @@ internal static class CallSiteHosting
     /// <param name="Kind">The kind constraint, such as <c>class</c> or <c>struct</c>, or null.</param>
     /// <param name="Types">The constraint types, written out.</param>
     /// <param name="HasConstructor">Whether the type parameter has a constructor constraint.</param>
-    internal sealed record TypeParameterConstraints(string? Kind, List<string> Types, bool HasConstructor)
+    /// <param name="HasClassType">Whether one of the constraint types is a class, which makes the type parameter a reference type.</param>
+    internal sealed record TypeParameterConstraints(string? Kind, List<string> Types, bool HasConstructor, bool HasClassType = false)
     {
+        /// <summary>The kind constraint for a reference type that may be null.</summary>
+        private const string NullableClassKind = "class?";
+
         /// <summary>Reads a type parameter's constraints.</summary>
         /// <param name="typeParameter">The type parameter.</param>
         /// <param name="names">The names to write type parameters by.</param>
@@ -396,12 +400,14 @@ internal static class CallSiteHosting
         internal static TypeParameterConstraints Of(ITypeParameterSymbol typeParameter, Dictionary<ITypeParameterSymbol, string> names)
         {
             var types = new List<string>(typeParameter.ConstraintTypes.Length);
+            var hasClassType = false;
             foreach (var constraintType in typeParameter.ConstraintTypes)
             {
                 types.Add(Render(constraintType, names));
+                hasClassType |= constraintType.TypeKind == TypeKind.Class;
             }
 
-            return new(KindOf(typeParameter), types, typeParameter.HasConstructorConstraint);
+            return new(KindOf(typeParameter), types, typeParameter.HasConstructorConstraint, hasClassType);
         }
 
         /// <summary>Combines these constraints with another set on the same type argument.</summary>
@@ -422,7 +428,7 @@ internal static class CallSiteHosting
                 }
             }
 
-            return new(CombineKinds(Kind, other.Kind), types, HasConstructor || other.HasConstructor);
+            return new(CombineKinds(Kind, other.Kind), types, HasConstructor || other.HasConstructor, HasClassType || other.HasClassType);
         }
 
         /// <summary>Writes the constraints in the order C# requires.</summary>
@@ -430,7 +436,10 @@ internal static class CallSiteHosting
         internal string? Format()
         {
             var parts = new List<string>();
-            if (Kind is not null)
+
+            // A class type constraint already makes the type parameter a reference type, and C# refuses the class
+            // constraint beside it (CS0450).
+            if (Kind is not null && !(HasClassType && Kind is "class" or NullableClassKind))
             {
                 parts.Add(Kind);
             }
@@ -457,7 +466,7 @@ internal static class CallSiteHosting
                 return second ?? first;
             }
 
-            return second is null || first is not ("class?" or "notnull") ? first : second;
+            return second is null || first is not (NullableClassKind or "notnull") ? first : second;
         }
 
         /// <summary>Reads a type parameter's kind constraint.</summary>
@@ -466,7 +475,7 @@ internal static class CallSiteHosting
         private static string? KindOf(ITypeParameterSymbol typeParameter) =>
             typeParameter switch
             {
-                { HasReferenceTypeConstraint: true } => typeParameter.ReferenceTypeConstraintNullableAnnotation == NullableAnnotation.Annotated ? "class?" : "class",
+                { HasReferenceTypeConstraint: true } => typeParameter.ReferenceTypeConstraintNullableAnnotation == NullableAnnotation.Annotated ? NullableClassKind : "class",
                 { HasUnmanagedTypeConstraint: true } => "unmanaged",
                 { HasValueTypeConstraint: true } => "struct",
                 { HasNotNullConstraint: true } => "notnull",

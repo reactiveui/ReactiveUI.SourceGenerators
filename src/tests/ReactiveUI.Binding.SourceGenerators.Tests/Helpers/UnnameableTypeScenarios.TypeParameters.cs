@@ -46,6 +46,47 @@ internal static partial class UnnameableTypeScenarios
         }
         """;
 
+    /// <summary>
+    /// A WhenAnyValue call on a receiver typed by a type parameter constrained to a class. The class constraint already
+    /// makes the type parameter a reference type, so repeating the stub's own class constraint beside it is CS0450.
+    /// </summary>
+    internal const string TypeParameterClassConstrainedReceiver = """
+        public static class Scenario
+        {
+            public static int[] Run()
+            {
+                var vm = new DerivedViewModel { A = 1 };
+                var recorder = Watch(vm);
+                vm.A = 3;
+                return recorder.Values.ToArray();
+            }
+
+            private static Recorder<int> Watch<T>(T vm)
+                where T : ViewModelBase => Recorder.Watch(vm.WhenAnyValue(x => x.A));
+        }
+
+        public abstract class ViewModelBase : INotifyPropertyChanged
+        {
+            private int _a;
+
+            public event PropertyChangedEventHandler? PropertyChanged;
+
+            public int A
+            {
+                get => _a;
+                set
+                {
+                    _a = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(A)));
+                }
+            }
+        }
+
+        public sealed class DerivedViewModel : ViewModelBase
+        {
+        }
+        """;
+
     /// <summary>A WhenAnyValue call on a generic box whose value is typed by the calling method's type parameter.</summary>
     internal const string TypeParameterValue = """
         public static class Scenario

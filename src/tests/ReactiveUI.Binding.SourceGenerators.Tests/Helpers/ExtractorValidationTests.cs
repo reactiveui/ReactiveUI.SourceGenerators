@@ -25,6 +25,9 @@ public partial class ExtractorValidationTests
     /// <summary>A class name no recognized extension class uses.</summary>
     private const string UnknownClassName = "CustomExtensions";
 
+    /// <summary>The metadata name of the class the compiler synthesizes for a large static array initializer.</summary>
+    private const string SynthesizedClassName = "<PrivateImplementationDetails>";
+
     /// <summary>A class declaring one parameter under each name and shape these tests look for.</summary>
     private const string SelectorProbeSource = """
                                                namespace Probe
@@ -372,7 +375,7 @@ public partial class ExtractorValidationTests
                 public static readonly byte[] Data = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
             }
             """,
-            "<PrivateImplementationDetails>");
+            SynthesizedClassName);
 
         var result = ExtractorValidation.IsRecognizedExtensionClass(synthesized);
 

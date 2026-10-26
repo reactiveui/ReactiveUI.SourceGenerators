@@ -4,6 +4,7 @@
 
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
+using ReactiveUI.Binding.SourceGenerators.Helpers;
 using ReactiveUI.Binding.SourceGenerators.Models;
 
 namespace ReactiveUI.Binding.SourceGenerators.CodeGeneration;
@@ -49,6 +50,8 @@ internal static class ToPropertyCodeGenerator
     /// <returns>The generated source, or null when there are no invocations.</returns>
     internal static string? Generate(ImmutableArray<ToPropertyInvocationInfo> invocations, in LanguageFeatures features)
     {
+        // A generic owner can only be claimed by an interceptor, since an overload would have to name it.
+        invocations = features.SupportsInterceptors ? invocations : WithoutOpenOwners(invocations);
         if (invocations.IsDefaultOrEmpty)
         {
             return null;
@@ -117,7 +120,7 @@ internal static class ToPropertyCodeGenerator
         for (var i = 0; i < invocations.Length; i++)
         {
             var inv = invocations[i];
-            var key = new GroupKey(inv.SourceTypeFullName, inv.ValueTypeFullName, inv.Shape);
+            var key = new GroupKey(inv.SourceTypeFullName, inv.ValueTypeFullName, inv.Shape, inv.OpenOwnerConstraint);
             if (!groupMap.TryGetValue(key, out var list))
             {
                 list = [];
@@ -132,7 +135,7 @@ internal static class ToPropertyCodeGenerator
         for (var i = 0; i < order.Count; i++)
         {
             var key = order[i];
-            result.Add(new(key.SourceTypeFullName, key.ValueTypeFullName, key.Shape, [.. groupMap[key]]));
+            result.Add(new(key.SourceTypeFullName, key.ValueTypeFullName, key.Shape, [.. groupMap[key]], key.OpenOwnerConstraint));
         }
 
         return result;
@@ -216,14 +219,15 @@ internal static class ToPropertyCodeGenerator
             }
         }
 
-        _ = AppendHelperType(sb.Append("private static "), valueType).Append(" __ToProperty_").Append(suffix).OpenParameterList()
+        _ = AppendTypeParameters(AppendHelperType(sb.Append("private static "), valueType).Append(" __ToProperty_").Append(suffix), inv.OpenOwnerConstraint).OpenParameterList()
             .Append(GeneratedTypeNames.IObservable).Append('<').Append(valueType).Line("> target,")
             .Append(inv.SourceTypeFullName).Line(" source,");
         _ = AppendInitialValueParameter(sb, inv.Shape.InitialValue, valueType).Line(",")
             .Line("bool deferSubscription,")
             .Append(GeneratedTypeNames.ISequencer).Append(supportsNullable ? "?" : string.Empty).Line(" scheduler)")
-            .Outdent()
-            .OpenBlock()
+            .Outdent();
+        AppendOwnerConstraint(sb, inv.OpenOwnerConstraint);
+        _ = sb.OpenBlock()
             .BeginComment().Append("ToProperty: ").Append(inv.SourceTypeFullName).Append('.').Append(inv.PropertyName)
             .Append(" raised through ").Line(raise.Mechanism);
         _ = AppendHelperType(sb.BeginReturn(), valueType).Append(".Create(")
@@ -265,8 +269,10 @@ internal static class ToPropertyCodeGenerator
                 InterceptorEmitter.AppendAttribute(sb, callSite.Invocation.Interceptor);
             }
 
-            _ = AppendHelperType(sb.Append("internal static "), group.ValueTypeDisplay).Append(" __Intercept_ToProperty_").Append(entry.Key).OpenParameterList();
+            _ = AppendHelperType(sb.Append("internal static "), group.ValueTypeDisplay).Append(" __Intercept_ToProperty_").Append(entry.Key);
+            _ = AppendTypeParameters(sb, group.OpenOwnerConstraint).OpenParameterList();
             AppendParameterList(sb, group, features.SupportsCallerArgExpr, features);
+            AppendOwnerConstraint(sb, group.OpenOwnerConstraint);
 
             _ = sb.Indent().Append("=> ");
             if (group.Shape.HasResult)
@@ -592,6 +598,48 @@ internal static class ToPropertyCodeGenerator
     private static SourceWriter AppendArgsFieldName(SourceWriter sb, bool isChanging, string argsKey) =>
         sb.Append(isChanging ? "__ToPropertyChangingArgs_" : "__ToPropertyChangedArgs_").Append(argsKey);
 
+    /// <summary>Drops the call sites whose owner is built from the caller's type parameters.</summary>
+    /// <param name="invocations">The detected call sites.</param>
+    /// <returns>The call sites an overload can serve.</returns>
+    private static ImmutableArray<ToPropertyInvocationInfo> WithoutOpenOwners(ImmutableArray<ToPropertyInvocationInfo> invocations)
+    {
+        if (invocations.IsDefaultOrEmpty)
+        {
+            return invocations;
+        }
+
+        var kept = new List<ToPropertyInvocationInfo>(invocations.Length);
+        for (var i = 0; i < invocations.Length; i++)
+        {
+            if (invocations[i].OpenOwnerConstraint is null)
+            {
+                kept.Add(invocations[i]);
+            }
+        }
+
+        return ImmutableArray.CreateRange(kept);
+    }
+
+    /// <summary>Appends the type parameters of a member that is generic over an owner built from the caller's type parameters.</summary>
+    /// <param name="sb">The string builder to append to.</param>
+    /// <param name="constraint">The owner's constraint, or null when the member is not generic.</param>
+    /// <returns>The builder, for chaining.</returns>
+    private static SourceWriter AppendTypeParameters(SourceWriter sb, string? constraint) =>
+        constraint is null
+            ? sb
+            : sb.Append('<').Append(ToPropertyExtractor.OpenOwnerName).Append(", ").Append(ToPropertyExtractor.OpenValueName).Append('>');
+
+    /// <summary>Appends the constraint clause of a member that is generic over such an owner.</summary>
+    /// <param name="sb">The writer, after the closing parenthesis of the parameter list.</param>
+    /// <param name="constraint">The owner's constraint, or null when the member is not generic.</param>
+    private static void AppendOwnerConstraint(SourceWriter sb, string? constraint)
+    {
+        if (constraint is not null)
+        {
+            _ = sb.Append("where ").Append(ToPropertyExtractor.OpenOwnerName).Append(" : class, ").Line(constraint);
+        }
+    }
+
     /// <summary>Ends the previous parameter, so the next one starts on its own line.</summary>
     /// <param name="sb">The string builder to append to.</param>
     /// <returns>The builder, for chaining.</returns>
@@ -653,13 +701,15 @@ internal static class ToPropertyCodeGenerator
     /// <param name="SourceTypeFullName">The fully qualified source type.</param>
     /// <param name="ValueTypeFullName">The fully qualified value type.</param>
     /// <param name="Shape">The stub overload shape.</param>
-    private readonly record struct GroupKey(string SourceTypeFullName, string ValueTypeFullName, ToPropertyOverloadShape Shape);
+    /// <param name="OpenOwnerConstraint">The interface an owner built from the caller's type parameters is constrained to, or null.</param>
+    private readonly record struct GroupKey(string SourceTypeFullName, string ValueTypeFullName, ToPropertyOverloadShape Shape, string? OpenOwnerConstraint);
 
     /// <summary>Call sites sharing one generated overload.</summary>
     /// <param name="SourceTypeFullName">The fully qualified source type.</param>
     /// <param name="ValueTypeFullName">The fully qualified value type.</param>
     /// <param name="Shape">The stub overload shape.</param>
     /// <param name="Invocations">The call sites.</param>
+    /// <param name="OpenOwnerConstraint">The interface an owner built from the caller's type parameters is constrained to, or null.</param>
     /// <remarks>
     /// Call sites that infer <c>string</c> and <c>string?</c> share one group, since overloads differing only by a
     /// nullable annotation would collide. The group is written with the annotated name when every call site in it
@@ -669,7 +719,8 @@ internal static class ToPropertyCodeGenerator
         string SourceTypeFullName,
         string ValueTypeFullName,
         ToPropertyOverloadShape Shape,
-        ToPropertyInvocationInfo[] Invocations)
+        ToPropertyInvocationInfo[] Invocations,
+        string? OpenOwnerConstraint = null)
     {
         /// <summary>Gets the value type as the generated members declare it.</summary>
         public string ValueTypeDisplay { get; } = AgreedDisplay(ValueTypeFullName, Invocations);

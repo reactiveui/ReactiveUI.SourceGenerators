@@ -18,6 +18,12 @@ namespace ReactiveUI.Binding.SourceGenerators.Helpers;
 /// </remarks>
 internal static class ToPropertyExtractor
 {
+    /// <summary>The type parameter standing for an owner built from the caller's type parameters.</summary>
+    internal const string OpenOwnerName = "__TOwner";
+
+    /// <summary>The type parameter standing for the value type beside such an owner.</summary>
+    internal const string OpenValueName = "__TValue";
+
     /// <summary>The minimum number of arguments a ToProperty invocation has (source, property).</summary>
     private const int MinimumArgumentCount = 2;
 
@@ -59,8 +65,15 @@ internal static class ToPropertyExtractor
         var semanticModel = context.SemanticModel;
         var method = ExtractorValidation.ExtractMethodSymbol(semanticModel.GetSymbolInfo(invocation, ct));
         if (method is not { TypeArguments.Length: StubTypeArgumentCount }
-            || !ExtractorValidation.IsRecognizedExtensionClass(method.ContainingType)
-            || !CallSiteHosting.TryResolve(context, method, ct, out var scope))
+            || !ExtractorValidation.IsRecognizedExtensionClass(method.ContainingType))
+        {
+            return null;
+        }
+
+        // Generated code never reads the owner beyond raising its notifications, so an owner built from the caller's
+        // type parameters stays a type parameter of the generated code, constrained to what the raise needs.
+        var openConstraint = ReadOpenOwnerConstraint(method, semanticModel.Compilation);
+        if (!TryHost(context, method, openConstraint is not null, ct, out var hosted))
         {
             return null;
         }
@@ -69,7 +82,7 @@ internal static class ToPropertyExtractor
         var propertyName = shape.NamesPropertyByString
             ? ReadConstantName(propertyArgument, semanticModel, ct)
             : selectorName;
-        var target = ReadTarget(method, semanticModel.Compilation);
+        var target = ReadTarget(method, semanticModel.Compilation, openConstraint is not null);
 
         return string.IsNullOrWhiteSpace(propertyName) || target is not { } resolved
             ? null
@@ -84,15 +97,17 @@ internal static class ToPropertyExtractor
                 shape,
                 resolved.Raise,
                 InterceptableLocationReader.Read(semanticModel, invocation, ct),
-                scope.Call);
+                hosted,
+                openConstraint);
     }
 
     /// <summary>Names the stub's type arguments and chooses how the source type's notifications are raised.</summary>
     /// <param name="method">The resolved stub method.</param>
     /// <param name="compilation">The consumer compilation.</param>
+    /// <param name="openOwner">Whether the owner is built from the caller's type parameters, so the generated code is generic over it.</param>
     /// <returns>The target, or null when an overload could not name the types or raise the notifications.</returns>
     /// <remarks>A type whose notifications generated code cannot raise leaves nothing to generate, so the stub throws.</remarks>
-    internal static Target? ReadTarget(IMethodSymbol method, Compilation compilation)
+    internal static Target? ReadTarget(IMethodSymbol method, Compilation compilation, bool openOwner = false)
     {
         if (method.TypeArguments[0] is not INamedTypeSymbol { IsStatic: false } sourceType
             || method.TypeArguments[1] is { TypeKind: TypeKind.TypeParameter or TypeKind.Error })
@@ -107,13 +122,15 @@ internal static class ToPropertyExtractor
         }
 
         // The annotated name is only different when the call site inferred a nullable reference type; otherwise the
-        // one string serves both, so the model does not hold two copies of the same text.
+        // one string serves both, so the model does not hold two copies of the same text. An open owner is generic
+        // over its value too, so neither type is named.
         var valueType = method.TypeArguments[1];
-        var plain = valueType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-        var annotated = valueType.NullableAnnotation == NullableAnnotation.Annotated && valueType.IsReferenceType
+        var plain = openOwner ? OpenValueName : valueType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        var annotated = !openOwner && valueType.NullableAnnotation == NullableAnnotation.Annotated && valueType.IsReferenceType
             ? valueType.ToDisplayString(AnnotatedFormat)
             : plain;
-        return new Target(sourceType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), plain, annotated, raise);
+        var source = openOwner ? OpenOwnerName : sourceType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        return new Target(source, plain, annotated, raise);
     }
 
     /// <summary>Reads the property name from a selector of the form <c>x =&gt; x.Property</c>.</summary>
@@ -225,6 +242,46 @@ internal static class ToPropertyExtractor
         }
 
         return new(namesByString, hasResult, initial, hasDefer, hasScheduler);
+    }
+
+    /// <summary>Finds the constraint an owner built from the caller's type parameters is generated under.</summary>
+    /// <param name="method">The resolved stub method.</param>
+    /// <param name="compilation">The consumer compilation.</param>
+    /// <returns>The ReactiveUI interface the owner is constrained to, or null when the owner is not such a type.</returns>
+    /// <remarks>
+    /// Only a build that intercepts can take it, since a generated overload would have to name the owner. The owner
+    /// has to be a class that raises through ReactiveUI's own extension, which takes the interface; the value type has
+    /// to be nameable, as the generated code is generic over it only to match the stub's arity.
+    /// </remarks>
+    private static string? ReadOpenOwnerConstraint(IMethodSymbol method, Compilation compilation) =>
+        InterceptableLocationReader.IsSupported
+        && method.TypeArguments[0] is INamedTypeSymbol { IsReferenceType: true } owner
+        && ExtractorValidation.ContainsTypeParameter(owner)
+        && !ExtractorValidation.ContainsNamelessType(owner)
+        && ExtractorValidation.IsReachableFromGeneratedCode(method.TypeArguments[1], compilation)
+        && compilation.GetTypeByMetadataName(Constants.IReactiveObjectMetadataName) is { } reactiveObject
+        && PropertyRaisePluginRegistry.Select(owner, compilation) is { Mechanism: ReactiveObjectRaisePlugin.MechanismName }
+            ? reactiveObject.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+            : null;
+
+    /// <summary>Resolves where a call's generated code is declared.</summary>
+    /// <param name="context">The call site and its semantic model.</param>
+    /// <param name="method">The resolved stub method.</param>
+    /// <param name="open">Whether the owner stays a type parameter of the generated code, which needs no hosting.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <param name="hosted">The call, described for the class that hosts it, or null when it sits in a class of its own.</param>
+    /// <returns><see langword="true"/> when generated code can name every type argument of the call.</returns>
+    private static bool TryHost(in CallSiteContext context, IMethodSymbol method, bool open, CancellationToken ct, out HostedCall? hosted)
+    {
+        hosted = null;
+        if (open)
+        {
+            return true;
+        }
+
+        var resolved = CallSiteHosting.TryResolve(context, method, ct, out var scope);
+        hosted = scope.Call;
+        return resolved;
     }
 
     /// <summary>Finds the argument that names the property.</summary>
