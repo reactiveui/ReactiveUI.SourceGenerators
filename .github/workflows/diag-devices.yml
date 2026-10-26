@@ -10,35 +10,33 @@ permissions:
 
 jobs:
     diag:
-        strategy:
-            fail-fast: false
-            matrix:
-                sdk: ['11.0.100-rc.2.26504.105', '11.0.x']
         runs-on: windows-latest
         steps:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+              with:
+                  repository: reactiveui/ReactiveUI.Binding.SourceGenerators
+                  ref: d1e1b65bca89e7cc1c1eb7d54f325fb0f337359d
+                  path: old
             - uses: reactiveui/actions-common/.github/actions/dotnet-environment@main
               with:
                   dotnet-versions: |
                       8.0.x
                       9.0.x
                       10.0.x
-                      ${{ matrix.sdk }}
+                      11.0.x
                   solution-file: ReactiveUI.SourceGenerators.Uno.slnf
                   install-workloads: 'true'
                   stamp-version: 'false'
-            - name: Versions
+            - name: Old repository, Uno library only
               shell: bash
-              working-directory: src
-              run: dotnet --list-sdks
-            - name: Pin the SDK
-              if: matrix.sdk != '11.0.x'
-              shell: bash
-              working-directory: src
+              working-directory: old/src
+              continue-on-error: true
               run: |
-                  printf '{\n "sdk": { "version": "%s", "rollForward": "disable", "allowPrerelease": true },\n "test": { "runner": "Microsoft.Testing.Platform" },\n "msbuild-sdks": { "Uno.Sdk": "6.7.30" }\n}\n' "${{ matrix.sdk }}" > global.json
-                  dotnet --version
-            - name: Uno library only
+                  printf '{\n "solution": { "path": "ReactiveUI.Binding.SourceGenerators.slnx", "projects": [ "ReactiveUI.Binding.Uno\\\\ReactiveUI.Binding.Uno.csproj" ] }\n}\n' > diag-a.slnf
+                  cat diag-a.slnf
+                  dotnet test --solution diag-a.slnf --no-build -c Release
+            - name: This repository, Uno library only
               shell: bash
               working-directory: src
               continue-on-error: true
