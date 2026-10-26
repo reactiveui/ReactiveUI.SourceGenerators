@@ -40,6 +40,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Using Include="ReactiveUI.SourceGenerators.CodeGeneration"/>
+    <Using Include="ReactiveUI.SourceGenerators.Helpers"/>
     <AssemblyMetadata Include="GeneratorSnapshotDirectory" Value="$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../ReactiveUI.Binding.SourceGenerators.Tests'))"/>
   </ItemGroup>
 

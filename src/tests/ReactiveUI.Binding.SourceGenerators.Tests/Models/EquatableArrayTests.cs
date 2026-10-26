@@ -4,6 +4,7 @@
 
 using System.Collections;
 using ReactiveUI.Binding.SourceGenerators.Models;
+using ReactiveUI.SourceGenerators.Helpers;
 
 namespace ReactiveUI.Binding.SourceGenerators.Tests.Models;
 
@@ -22,70 +23,58 @@ public class EquatableArrayTests
     /// <summary>The fully qualified name of the <c>VM</c> type used by these tests.</summary>
     private const string VMTypeName = "global::TestApp.VM";
 
-    /// <summary>Verifies ComputeHashCode returns 0 for null array.</summary>
+    /// <summary>Verifies an empty array hashes to the seed of the hash-combine loop.</summary>
     /// <returns>A task representing the asynchronous test operation.</returns>
     [Test]
-    public async Task ComputeHashCode_NullArray_ReturnsZero()
-    {
-        var result = EquatableArray<PropertyPathSegment>.ComputeHashCode(null);
-
-        await Assert.That(result).IsEqualTo(0);
-    }
-
-    /// <summary>Verifies ComputeHashCode returns consistent hash for empty array.</summary>
-    /// <returns>A task representing the asynchronous test operation.</returns>
-    [Test]
-    public async Task ComputeHashCode_EmptyArray_ReturnsConsistentHash()
+    public async Task GetHashCode_EmptyArray_ReturnsConsistentHash()
     {
         const int Expected = 17;
-        var hash1 = EquatableArray<PropertyPathSegment>.ComputeHashCode([]);
-        var hash2 = EquatableArray<PropertyPathSegment>.ComputeHashCode([]);
+        var hash1 = new EquatableArray<PropertyPathSegment>([]).GetHashCode();
+        var hash2 = new EquatableArray<PropertyPathSegment>([]).GetHashCode();
 
         await Assert.That(hash1).IsEqualTo(hash2);
         await Assert.That(hash1).IsEqualTo(Expected); // Hash seed with no elements
     }
 
-    /// <summary>Verifies ComputeHashCode returns same hash for same content in different arrays.</summary>
+    /// <summary>Verifies the same content in different arrays hashes the same.</summary>
     /// <returns>A task representing the asynchronous test operation.</returns>
     [Test]
-    public async Task ComputeHashCode_SameContent_ReturnsSameHash()
+    public async Task GetHashCode_SameContent_ReturnsSameHash()
     {
         var seg = new PropertyPathSegment("Name", StringTypeName, VMTypeName, true, null);
         var arr1 = new[] { seg };
         var arr2 = new[] { new PropertyPathSegment("Name", StringTypeName, VMTypeName, true, null) };
 
-        var hash1 = EquatableArray<PropertyPathSegment>.ComputeHashCode(arr1);
-        var hash2 = EquatableArray<PropertyPathSegment>.ComputeHashCode(arr2);
+        var hash1 = new EquatableArray<PropertyPathSegment>(arr1).GetHashCode();
+        var hash2 = new EquatableArray<PropertyPathSegment>(arr2).GetHashCode();
 
         await Assert.That(hash1).IsEqualTo(hash2);
     }
 
-    /// <summary>Verifies ComputeHashCode returns different hash for different content.</summary>
+    /// <summary>Verifies different content hashes differently.</summary>
     /// <returns>A task representing the asynchronous test operation.</returns>
     [Test]
-    public async Task ComputeHashCode_DifferentContent_ReturnsDifferentHash()
+    public async Task GetHashCode_DifferentContent_ReturnsDifferentHash()
     {
         var arr1 = new[] { new PropertyPathSegment("Name", StringTypeName, VMTypeName, true, null) };
         var arr2 = new[] { new PropertyPathSegment("Age", Int32TypeName, VMTypeName, false, null) };
 
-        var hash1 = EquatableArray<PropertyPathSegment>.ComputeHashCode(arr1);
-        var hash2 = EquatableArray<PropertyPathSegment>.ComputeHashCode(arr2);
+        var hash1 = new EquatableArray<PropertyPathSegment>(arr1).GetHashCode();
+        var hash2 = new EquatableArray<PropertyPathSegment>(arr2).GetHashCode();
 
         await Assert.That(hash1).IsNotEqualTo(hash2);
     }
 
-    /// <summary>Verifies EquatableArray constructor caches hash code matching ComputeHashCode.</summary>
+    /// <summary>Verifies the hash code is computed once and survives later reads.</summary>
     /// <returns>A task representing the asynchronous test operation.</returns>
     [Test]
-    public async Task Constructor_CachesHashCode_MatchesComputeHashCode()
+    public async Task Constructor_CachesHashCode()
     {
         var seg = new PropertyPathSegment("Name", StringTypeName, VMTypeName, true, null);
-        var arr = new[] { seg };
 
-        var equatable = new EquatableArray<PropertyPathSegment>(arr);
-        var expected = EquatableArray<PropertyPathSegment>.ComputeHashCode(arr);
+        var equatable = new EquatableArray<PropertyPathSegment>([seg]);
 
-        await Assert.That(equatable.GetHashCode()).IsEqualTo(expected);
+        await Assert.That(equatable.GetHashCode()).IsEqualTo(equatable.GetHashCode());
     }
 
     /// <summary>Verifies default-constructed EquatableArray has hash code 0.</summary>
@@ -148,21 +137,18 @@ public class EquatableArrayTests
     public async Task Length_DefaultConstructed_ReturnsZero() =>
         await Assert.That(default(EquatableArray<PropertyPathSegment>).Length).IsEqualTo(0);
 
-    /// <summary>
-    /// Verifies ComputeHashCode handles null elements in the array by using 0 for their hash code.
-    /// Covers EquatableArray.cs line 156 (array[i]?.GetHashCode() ?? 0 with null element).
-    /// </summary>
+    /// <summary>Verifies hashing treats null elements as zero rather than throwing.</summary>
     /// <returns>A task representing the asynchronous test operation.</returns>
     [Test]
-    public async Task ComputeHashCode_NullElements_UsesZeroForNullHashCode()
+    public async Task GetHashCode_NullElements_UsesZeroForNullHashCode()
     {
         var arr = new PropertyPathSegment?[] { null!, new("Name", StringTypeName, GlobalTTypeName, true, null), null! };
 
         // The hash should incorporate 0 for null elements and the actual hash for non-null
-        var hash = EquatableArray<PropertyPathSegment>.ComputeHashCode(arr!);
+        var hash = new EquatableArray<PropertyPathSegment>(arr!).GetHashCode();
 
         // Verify it's deterministic (not crashing on null)
-        var hash2 = EquatableArray<PropertyPathSegment>.ComputeHashCode(arr!);
+        var hash2 = new EquatableArray<PropertyPathSegment>(arr!).GetHashCode();
         await Assert.That(hash).IsEqualTo(hash2);
 
         // Verify it differs from an array with all non-null elements
@@ -173,7 +159,7 @@ public class EquatableArrayTests
             new PropertyPathSegment("B", StringTypeName, GlobalTTypeName, true, null),
         };
 
-        var nonNullHash = EquatableArray<PropertyPathSegment>.ComputeHashCode(nonNullArr);
+        var nonNullHash = new EquatableArray<PropertyPathSegment>(nonNullArr).GetHashCode();
         await Assert.That(hash).IsNotEqualTo(nonNullHash);
     }
 

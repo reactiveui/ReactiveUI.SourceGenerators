@@ -34,6 +34,8 @@
     <ProjectReference Include="..\..\ReactiveUI.Binding.Analyzer\ReactiveUI.Binding.Analyzer.csproj" Aliases="analyzer"/>
   </ItemGroup>
   <ItemGroup>
+    <Using Include="ReactiveUI.SourceGenerators.CodeGeneration"/>
+    <Using Include="ReactiveUI.SourceGenerators.Helpers"/>
     <AssemblyMetadata Include="GeneratorSnapshotDirectory" Value="$(MSBuildProjectDirectory)"/>
   </ItemGroup>
 
