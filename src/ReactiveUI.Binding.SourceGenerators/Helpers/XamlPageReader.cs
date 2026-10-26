@@ -29,6 +29,9 @@ internal static class XamlPageReader
     /// <summary>The XAML language namespace, which declares <c>x:Class</c>, <c>x:Name</c> and <c>x:FieldModifier</c>.</summary>
     private const string XamlLanguageNamespace = "http://schemas.microsoft.com/winfx/2006/xaml";
 
+    /// <summary>The 2009 spelling of the XAML language namespace, which declares the same attributes.</summary>
+    private const string XamlLanguageNamespace2009 = "http://schemas.microsoft.com/winfx/2009/xaml";
+
     /// <summary>The item metadata MAUI marks its XAML files with.</summary>
     private const string MauiKindKey = "build_metadata.AdditionalFiles.GenKind";
 
@@ -102,7 +105,7 @@ internal static class XamlPageReader
             return null;
         }
 
-        if (root.Attribute(XName.Get("Class", XamlLanguageNamespace))?.Value is not { Length: > 0 } className)
+        if (LanguageAttribute(root, "Class")?.Value is not { Length: > 0 } className)
         {
             return null;
         }
@@ -155,7 +158,7 @@ internal static class XamlPageReader
         {
             elements.Add(new(
                 name,
-                Accessibility(element.Attribute(XName.Get("FieldModifier", XamlLanguageNamespace))?.Value, defaultAccessibility),
+                Accessibility(LanguageAttribute(element, "FieldModifier")?.Value, defaultAccessibility),
                 element.Name.NamespaceName,
                 localName));
         }
@@ -172,15 +175,23 @@ internal static class XamlPageReader
     /// <returns>The name, or null when the element has none or its type is generic.</returns>
     private static string? NameOf(XElement element, bool readsName)
     {
-        if (element.Attribute(XName.Get("TypeArguments", XamlLanguageNamespace)) is not null)
+        if (LanguageAttribute(element, "TypeArguments") is not null)
         {
             return null;
         }
 
-        var name = element.Attribute(XName.Get("Name", XamlLanguageNamespace))?.Value
+        var name = LanguageAttribute(element, "Name")?.Value
             ?? (readsName ? element.Attribute("Name")?.Value : null);
         return string.IsNullOrWhiteSpace(name) ? null : name;
     }
+
+    /// <summary>Reads an attribute of the XAML language namespace, under either of its spellings.</summary>
+    /// <param name="element">The element.</param>
+    /// <param name="localName">The attribute's name without its prefix.</param>
+    /// <returns>The attribute, or null when the element has none.</returns>
+    private static XAttribute? LanguageAttribute(XElement element, string localName) =>
+        element.Attribute(XName.Get(localName, XamlLanguageNamespace))
+        ?? element.Attribute(XName.Get(localName, XamlLanguageNamespace2009));
 
     /// <summary>Determines whether MAUI's generator reads a file.</summary>
     /// <param name="options">The file's item metadata.</param>

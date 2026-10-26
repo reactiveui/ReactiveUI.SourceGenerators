@@ -119,6 +119,28 @@ public class XamlDeclarationTests
         await Assert.That(declarations).DoesNotContain("InTemplate");
     }
 
+    /// <summary>The 2009 spelling of the XAML language namespace names the class, the controls and their modifiers too.</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task MauiPageIn2009Namespace_DeclaresAFieldPerNamedControl()
+    {
+        const string page = """
+            <ContentPage xmlns="urn:maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="App.LoginPage">
+                <Grid>
+                    <Entry x:Name="UserName" x:FieldModifier="public" />
+                    <Entry x:Name="Password" />
+                    <List x:Name="Generic" x:TypeArguments="x:String" />
+                </Grid>
+            </ContentPage>
+            """;
+
+        var declarations = Declarations(page, (MauiKind, "Xaml"));
+
+        await Assert.That(declarations).Contains("public global::Maui.Controls.Entry UserName;");
+        await Assert.That(declarations).Contains("private global::Maui.Controls.Entry Password;");
+        await Assert.That(declarations).DoesNotContain("Generic");
+    }
+
     /// <summary>An Avalonia view: a plain <c>Name</c> names a control too, and fields default to the build's modifier.</summary>
     /// <param name="modifier">The build's default field modifier, or null when it sets none.</param>
     /// <param name="accessibility">The accessibility the field is declared with.</param>
