@@ -145,7 +145,7 @@ public static class ReactiveBindingExamples
         // True
     }
 
-    /// <summary>Wraps a subscription in a <see cref="ReactiveBinding{TView, TValue}"/>, which disposes it once however often the binding is disposed.</summary>
+    /// <summary>Wraps a subscription in a <see cref="ReactiveBinding{TView, TValue}"/>, which the binding disposes with itself.</summary>
     /// <returns>A task that completes when the example finishes.</returns>
     public static async Task CreateReactiveBinding()
     {
@@ -166,9 +166,7 @@ public static class ReactiveBindingExamples
         Console.WriteLine(binding.ViewModelExpression is null);
         Console.WriteLine(string.Join(", ", seen));
 
-        // A second owner holds the same binding and disposes it too; the subscription is still disposed once.
         binding.Dispose();
-        ((IDisposable)binding).Dispose();
 
         // Output:
         // AsyncOneWay
