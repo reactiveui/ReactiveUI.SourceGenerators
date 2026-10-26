@@ -15,8 +15,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Testing Framework -->
-    <PackageVersion Include="TUnit" Version="1.76.28"/>
+    <!-- Testing Framework. Pinned: later releases make `dotnet test` on Windows report "No devices are available
+         for this project" for the Uno and MAUI projects (the renovate/tunit branches of Primitives and Splat fail
+         the same way). -->
+    <PackageVersion Include="TUnit" Version="1.73.19"/>
 
     <!-- Roslyn Framework -->
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="5.9.0"/>

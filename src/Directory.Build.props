@@ -165,6 +165,8 @@
   <PropertyGroup Condition="$(MSBuildProjectName.StartsWith('ReactiveUI.Binding'))">
     <MinVerTagPrefix>binding-v</MinVerTagPrefix>
     <MinVerMinimumMajorMinor>9.2</MinVerMinimumMajorMinor>
+    <!-- CI stamps one version for the whole build through MINVERVERSIONOVERRIDE; the binding packages compute their own. -->
+    <MinVerVersionOverride></MinVerVersionOverride>
   </PropertyGroup>
 
   <ItemGroup>
