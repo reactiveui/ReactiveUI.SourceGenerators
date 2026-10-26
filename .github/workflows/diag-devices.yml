@@ -31,6 +31,13 @@ jobs:
               shell: bash
               working-directory: src
               run: dotnet --list-sdks
+            - name: Pin the SDK
+              if: matrix.sdk != '11.0.x'
+              shell: bash
+              working-directory: src
+              run: |
+                  printf '{\n "sdk": { "version": "%s", "rollForward": "disable", "allowPrerelease": true },\n "test": { "runner": "Microsoft.Testing.Platform" },\n "msbuild-sdks": { "Uno.Sdk": "6.7.30" }\n}\n' "${{ matrix.sdk }}" > global.json
+                  dotnet --version
             - name: Uno library only
               shell: bash
               working-directory: src
