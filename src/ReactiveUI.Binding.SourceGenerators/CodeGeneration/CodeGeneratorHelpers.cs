@@ -2,7 +2,6 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
@@ -500,7 +499,7 @@ internal static class CodeGeneratorHelpers
     /// <param name="fullyQualifiedName">The fully qualified name to match.</param>
     /// <returns>The matching class info, or null if not found.</returns>
     internal static ClassBindingInfo? FindClassInfo(
-        ImmutableArray<ClassBindingInfo> allClasses,
+        ClassBindingInfo[] allClasses,
         string fullyQualifiedName)
     {
         for (var i = 0; i < allClasses.Length; i++)
@@ -526,7 +525,7 @@ internal static class CodeGeneratorHelpers
     /// silently reduced to a single read.
     /// </remarks>
     internal static ClassBindingInfo? ResolveObservedTypeInfo(
-        ImmutableArray<ClassBindingInfo> allClasses,
+        ClassBindingInfo[] allClasses,
         string fullyQualifiedName,
         EquatableArray<PropertyPathSegment> path) =>
         FindClassInfo(allClasses, fullyQualifiedName)
@@ -675,12 +674,12 @@ internal static class CodeGeneratorHelpers
     /// sites group and what each group emits. Both are handed in, so the outline is written once.
     /// </remarks>
     internal static string? GenerateDispatchFile<TInvocation, TGroup>(
-        ImmutableArray<TInvocation> invocations,
+        TInvocation[] invocations,
         in LanguageFeatures features,
-        Func<ImmutableArray<TInvocation>, List<TGroup>> groupByTypeSignature,
+        Func<TInvocation[], List<TGroup>> groupByTypeSignature,
         Action<SourceWriter, TGroup, LanguageFeatures> emitGroup)
     {
-        if (invocations.IsDefaultOrEmpty)
+        if (invocations.Length == 0)
         {
             return null;
         }

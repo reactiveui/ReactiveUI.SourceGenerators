@@ -2,7 +2,6 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using ReactiveUI.Binding.SourceGenerators.Models;
 
@@ -25,8 +24,8 @@ internal static class WhenAnyCodeGenerator
     /// <returns>Generated source code string, or null if no invocations.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static string? Generate(
-        ImmutableArray<InvocationInfo> invocations,
-        ImmutableArray<ClassBindingInfo> allClasses,
+        InvocationInfo[] invocations,
+        ClassBindingInfo[] allClasses,
         in LanguageFeatures features) =>
         CodeGeneratorHelpers.GenerateDispatchFile(
             InterceptorEmitter.ClaimableBy(invocations, static x => x.GenericResult, features),
@@ -239,7 +238,7 @@ internal static class WhenAnyCodeGenerator
     private static void EmitGroup(
         SourceWriter sb,
         ObservationCodeGenerator.TypeGroup group,
-        ImmutableArray<ClassBindingInfo> allClasses,
+        ClassBindingInfo[] allClasses,
         in LanguageFeatures features)
     {
         var emitted = features.CollapsesIndistinguishableCallSites

@@ -2,7 +2,6 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using ReactiveUI.Binding.SourceGenerators.CodeGeneration;
 using ReactiveUI.Binding.SourceGenerators.Models;
@@ -29,7 +28,7 @@ internal static class InvocationPipeline
         IncrementalValuesProvider<TInvocation> invocations,
         IncrementalValueProvider<LanguageFeatures> languageFeatures,
         string hintName,
-        Func<ImmutableArray<TInvocation>, ImmutableArray<ClassBindingInfo>, LanguageFeatures, string?> emit)
+        Func<TInvocation[], ClassBindingInfo[], LanguageFeatures, string?> emit)
         where TInvocation : IClaimableCallSite
     {
         var combined = invocations.Collect().Combine(languageFeatures);
@@ -39,9 +38,9 @@ internal static class InvocationPipeline
             (ctx, data) =>
             {
                 var source = HostedCallSiteEmitter.Compose(
-                    data.Left,
+                    RoslynArray.Unwrap(data.Left),
                     data.Right,
-                    (calls, features) => emit(calls, ImmutableArray<ClassBindingInfo>.Empty, features));
+                    (calls, features) => emit(calls, [], features));
                 if (source is null)
                 {
                     return;
@@ -67,7 +66,7 @@ internal static class InvocationPipeline
         IncrementalValuesProvider<TInvocation> invocations,
         IncrementalValueProvider<LanguageFeatures> languageFeatures,
         string hintName,
-        Func<ImmutableArray<TInvocation>, LanguageFeatures, string?> emit)
+        Func<TInvocation[], LanguageFeatures, string?> emit)
         where TInvocation : IClaimableCallSite
     {
         var combined = invocations.Collect().Combine(languageFeatures);
@@ -76,7 +75,7 @@ internal static class InvocationPipeline
             combined,
             (ctx, data) =>
             {
-                var source = HostedCallSiteEmitter.Compose(data.Left, data.Right, emit);
+                var source = HostedCallSiteEmitter.Compose(RoslynArray.Unwrap(data.Left), data.Right, emit);
                 if (source is null)
                 {
                     return;

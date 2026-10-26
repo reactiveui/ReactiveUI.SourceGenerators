@@ -2,7 +2,6 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using ReactiveUI.Binding.SourceGenerators.Models;
 
@@ -36,8 +35,8 @@ internal static class WhenAnyObservableCodeGenerator
     /// <returns>Generated source code string, or null if no invocations.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static string? Generate(
-        ImmutableArray<WhenAnyObservableInvocationInfo> invocations,
-        ImmutableArray<ClassBindingInfo> allClasses,
+        WhenAnyObservableInvocationInfo[] invocations,
+        ClassBindingInfo[] allClasses,
         in LanguageFeatures features) =>
         CodeGeneratorHelpers.GenerateDispatchFile(
             InterceptorEmitter.ClaimableBy(invocations, static x => x.GenericResult, features),
@@ -217,7 +216,7 @@ internal static class WhenAnyObservableCodeGenerator
     /// <param name="invocations">All detected invocations.</param>
     /// <returns>A list of type groups.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static List<TypeGroup> GroupByTypeSignature(ImmutableArray<WhenAnyObservableInvocationInfo> invocations) =>
+    internal static List<TypeGroup> GroupByTypeSignature(WhenAnyObservableInvocationInfo[] invocations) =>
         SignatureGrouping.Group(invocations, AppendSignatureKey, static (first, members) => new TypeGroup(first, members));
 
     /// <summary>Writes the parts of a call site that decide its overload: the types and each inner observable's type.</summary>
@@ -283,7 +282,7 @@ internal static class WhenAnyObservableCodeGenerator
     private static void EmitGroup(
         SourceWriter sb,
         TypeGroup group,
-        ImmutableArray<ClassBindingInfo> allClasses,
+        ClassBindingInfo[] allClasses,
         in LanguageFeatures features)
     {
         var emitted = features.CollapsesIndistinguishableCallSites

@@ -2,7 +2,6 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using ReactiveUI.Binding.SourceGenerators.CodeGeneration;
 using ReactiveUI.Binding.SourceGenerators.Models;
@@ -407,7 +406,7 @@ public class BindCommandCodeGeneratorHelperTests
         const int ExpectedInvocationCount = 2;
         var inv1 = ModelFactory.CreateBindCommandInvocationInfo(callerLineNumber: 10);
         var inv2 = ModelFactory.CreateBindCommandInvocationInfo(callerLineNumber: 20);
-        var invocations = ImmutableArray.Create(inv1, inv2);
+        var invocations = new[] { inv1, inv2 };
 
         var groups = BindCommandCodeGenerator.GroupByTypeSignature(invocations);
 
@@ -423,7 +422,7 @@ public class BindCommandCodeGeneratorHelperTests
         const int ExpectedGroupCount = 2;
         var inv1 = ModelFactory.CreateBindCommandInvocationInfo(viewTypeFullName: "global::TestApp.ViewA");
         var inv2 = ModelFactory.CreateBindCommandInvocationInfo(viewTypeFullName: "global::TestApp.ViewB");
-        var invocations = ImmutableArray.Create(inv1, inv2);
+        var invocations = new[] { inv1, inv2 };
 
         var groups = BindCommandCodeGenerator.GroupByTypeSignature(invocations);
 
@@ -756,19 +755,6 @@ public class BindCommandCodeGeneratorHelperTests
     {
         var result = BindCommandCodeGenerator.Generate(
             [],
-            [],
-            new(true, true, true));
-
-        await Assert.That(result).IsNull();
-    }
-
-    /// <summary>Verifies Generate returns null when invocations are default.</summary>
-    /// <returns>A task representing the asynchronous test operation.</returns>
-    [Test]
-    public async Task Generate_DefaultInvocations_ReturnsNull()
-    {
-        var result = BindCommandCodeGenerator.Generate(
-            default,
             [],
             new(true, true, true));
 

@@ -2,7 +2,6 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using ReactiveUI.Binding.SourceGenerators.Models;
 using ReactiveUI.Binding.SourceGenerators.Plugins.SetMethod;
@@ -25,10 +24,10 @@ internal static class BindToCodeGenerator
     /// <param name="features">The consumer compilation's C# language-feature snapshot (dispatch strategy and nullable support).</param>
     /// <returns>Generated source code string, or null if no invocations.</returns>
     internal static string? Generate(
-        ImmutableArray<BindToInvocationInfo> invocations,
+        BindToInvocationInfo[] invocations,
         in LanguageFeatures features)
     {
-        if (invocations.IsDefaultOrEmpty)
+        if (invocations.Length == 0)
         {
             return null;
         }
@@ -85,7 +84,7 @@ internal static class BindToCodeGenerator
     /// <param name="invocations">The collection of <c>BindTo</c> invocation details to be grouped.</param>
     /// <returns>A list of grouped invocations, where each group shares the same overload signature.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static List<BindToTypeGroup> GroupByTypeSignature(ImmutableArray<BindToInvocationInfo> invocations) =>
+    internal static List<BindToTypeGroup> GroupByTypeSignature(BindToInvocationInfo[] invocations) =>
         SignatureGrouping.Group(
             invocations,
             static (key, inv) => _ = key

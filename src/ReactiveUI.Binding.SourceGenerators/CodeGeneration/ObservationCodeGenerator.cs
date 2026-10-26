@@ -2,7 +2,6 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using ReactiveUI.Binding.SourceGenerators.Models;
 using ReactiveUI.Binding.SourceGenerators.Plugins;
@@ -83,8 +82,8 @@ internal static class ObservationCodeGenerator
     /// <returns>Generated source code string, or null if no invocations.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static string? Generate(
-        ImmutableArray<InvocationInfo> invocations,
-        ImmutableArray<ClassBindingInfo> allClasses,
+        InvocationInfo[] invocations,
+        ClassBindingInfo[] allClasses,
         in LanguageFeatures features,
         string methodPrefix) =>
         CodeGeneratorHelpers.GenerateDispatchFile(
@@ -420,7 +419,7 @@ internal static class ObservationCodeGenerator
     /// <param name="invocations">All detected invocations.</param>
     /// <returns>A list of type groups, each containing invocations with the same signature.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static List<TypeGroup> GroupByTypeSignature(ImmutableArray<InvocationInfo> invocations) =>
+    internal static List<TypeGroup> GroupByTypeSignature(InvocationInfo[] invocations) =>
         SignatureGrouping.Group(invocations, AppendSignatureKey, static (first, members) => new TypeGroup(first, members));
 
     /// <summary>Generates a concrete typed extension method overload with its dispatch table.</summary>
@@ -952,7 +951,7 @@ internal static class ObservationCodeGenerator
     private static void GenerateGroup(
         SourceWriter sb,
         TypeGroup group,
-        ImmutableArray<ClassBindingInfo> allClasses,
+        ClassBindingInfo[] allClasses,
         in LanguageFeatures features,
         string methodPrefix)
     {

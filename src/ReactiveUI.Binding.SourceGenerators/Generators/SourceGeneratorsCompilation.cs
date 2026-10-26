@@ -2,7 +2,6 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -59,7 +58,7 @@ internal static class SourceGeneratorsCompilation
             .Select(static (page, _) => page!)
             .Collect()
             .Combine(context.CompilationProvider)
-            .Select(static (data, ct) => XamlMemberResolver.Resolve(data.Left, data.Right, ct));
+            .Select(static (data, ct) => XamlMemberResolver.Resolve(RoslynArray.Unwrap(data.Left), data.Right, ct));
 
         var declarations = reactiveObjects
             .Combine(reactive)
@@ -90,19 +89,16 @@ internal static class SourceGeneratorsCompilation
     /// <summary>Writes the declarations of every member and interface, grouped by the type they belong to.</summary>
     /// <param name="groups">The members each attribute describes, with nulls for the ones it declined.</param>
     /// <returns>The declarations file, or an empty string when there is nothing to declare.</returns>
-    internal static string WriteDeclarations(params ImmutableArray<SourceGeneratorsMember?>[] groups)
+    internal static string WriteDeclarations(params EquatableArray<SourceGeneratorsMember>[] groups)
     {
         var order = new List<PartialTypeDeclaration>();
         var interfaces = new Dictionary<PartialTypeDeclaration, string>();
         var properties = new Dictionary<PartialTypeDeclaration, List<string>>();
         foreach (var group in groups)
         {
-            foreach (var member in group)
+            foreach (var member in group.AsSpan())
             {
-                if (member is not null)
-                {
-                    Add(member, order, interfaces, properties);
-                }
+                Add(member, order, interfaces, properties);
             }
         }
 
@@ -164,12 +160,16 @@ internal static class SourceGeneratorsCompilation
     /// <param name="extract">The description of what the attribute adds.</param>
     /// <returns>Every description, with nulls for the declarations the attribute adds nothing to.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static IncrementalValueProvider<ImmutableArray<SourceGeneratorsMember?>> Collect(
+    private static IncrementalValueProvider<EquatableArray<SourceGeneratorsMember>> Collect(
         in IncrementalGeneratorInitializationContext context,
         string metadataName,
         Func<SyntaxNode, CancellationToken, bool> predicate,
         Func<GeneratorAttributeSyntaxContext, CancellationToken, SourceGeneratorsMember?> extract) =>
-        context.SyntaxProvider.ForAttributeWithMetadataName(metadataName, predicate, extract).Collect();
+        context.SyntaxProvider.ForAttributeWithMetadataName(metadataName, predicate, extract)
+            .Where(static member => member is not null)
+            .Select(static (member, _) => member!)
+            .Collect()
+            .Select(static (members, _) => EquatableArray<SourceGeneratorsMember>.FromRoslyn(members));
 
     /// <summary>Adds an interface to the innermost type's header.</summary>
     /// <param name="headers">The headers, outermost first.</param>

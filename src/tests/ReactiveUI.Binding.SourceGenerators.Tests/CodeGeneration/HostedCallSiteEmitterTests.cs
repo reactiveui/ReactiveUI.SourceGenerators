@@ -2,7 +2,6 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using ReactiveUI.Binding.SourceGenerators.CodeGeneration;
 using ReactiveUI.Binding.SourceGenerators.Models;
@@ -62,20 +61,20 @@ public class HostedCallSiteEmitterTests
     /// <returns>A task representing the asynchronous test operation.</returns>
     [Test]
     public async Task Compose_HostedFileNotWritten_ReturnsTheUnhostedFile() =>
-        await Assert.That(Compose(static calls => calls.Any(static c => c.Host is not null) ? null : MainFile)).IsEqualTo(MainFile);
+        await Assert.That(Compose(static calls => Array.Exists(calls, static c => c.Host is not null) ? null : MainFile)).IsEqualTo(MainFile);
 
     /// <summary>A hosted file without the generated class has nothing to move, so the file is the one for the others.</summary>
     /// <returns>A task representing the asynchronous test operation.</returns>
     [Test]
     public async Task Compose_HostedFileWithoutTheClass_ReturnsTheUnhostedFile() =>
-        await Assert.That(Compose(static calls => calls.Any(static c => c.Host is not null) ? "namespace Gen\n{\n}\n" : MainFile))
+        await Assert.That(Compose(static calls => Array.Exists(calls, static c => c.Host is not null) ? "namespace Gen\n{\n}\n" : MainFile))
             .IsEqualTo(MainFile);
 
     /// <summary>A hosted file that claims no call site has nothing to intercept, so the file is the one for the others.</summary>
     /// <returns>A task representing the asynchronous test operation.</returns>
     [Test]
     public async Task Compose_HostedFileClaimingNothing_ReturnsTheUnhostedFile() =>
-        await Assert.That(Compose(static calls => calls.Any(static c => c.Host is not null) ? UnclaimedFile : MainFile))
+        await Assert.That(Compose(static calls => Array.Exists(calls, static c => c.Host is not null) ? UnclaimedFile : MainFile))
             .IsEqualTo(MainFile);
 
     /// <summary>A method with no type parameters gets an interceptor and an entry point with none either.</summary>
@@ -83,7 +82,7 @@ public class HostedCallSiteEmitterTests
     [Test]
     public async Task Compose_MethodWithoutTypeParameters_WritesNoTypeArguments()
     {
-        var file = Compose(static calls => calls.Any(static c => c.Host is not null) ? ClaimingFile : MainFile)!;
+        var file = Compose(static calls => Array.Exists(calls, static c => c.Host is not null) ? ClaimingFile : MainFile)!;
 
         await Assert.That(file).StartsWith(MainFile);
         await Assert.That(file).Contains("this object value)");
@@ -95,7 +94,7 @@ public class HostedCallSiteEmitterTests
     /// <param name="emit">The stand-in emitter.</param>
     /// <returns>The composed file.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string? Compose(Func<ImmutableArray<InvocationInfo>, string?> emit) =>
+    private static string? Compose(Func<InvocationInfo[], string?> emit) =>
         HostedCallSiteEmitter.Compose(
             [
                 ModelFactory.CreateInvocationInfo(),

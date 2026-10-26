@@ -2,7 +2,6 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -64,7 +63,10 @@ internal static class ViewLocatorDispatchGenerator
         // Views found through the interface come first, so deduplication keeps them over the attribute's.
         context.RegisterSourceOutput(
             viewRegistrations.Collect().Combine(genericAttribute).Combine(namedAttribute).Combine(languageFeatures),
-            static (ctx, data) => Generate(ctx, Concatenate(data.Left.Left.Left, data.Left.Left.Right, data.Left.Right), data.Right));
+            static (ctx, data) => Generate(
+                ctx,
+                Concatenate(RoslynArray.Unwrap(data.Left.Left.Left), RoslynArray.Unwrap(data.Left.Left.Right), RoslynArray.Unwrap(data.Left.Right)),
+                data.Right));
     }
 
     /// <summary>Joins the registrations each pipeline found, interface registrations first.</summary>
@@ -72,30 +74,30 @@ internal static class ViewLocatorDispatchGenerator
     /// <param name="fromGenericAttribute">The views found through <c>[IViewFor&lt;T&gt;]</c>, with nulls for declined ones.</param>
     /// <param name="fromNamedAttribute">The views found through <c>[IViewFor("...")]</c>, with nulls for declined ones.</param>
     /// <returns>Every registration, in that order.</returns>
-    internal static ImmutableArray<ViewRegistrationInfo> Concatenate(
-        ImmutableArray<ViewRegistrationInfo> fromInterfaces,
-        ImmutableArray<ViewRegistrationInfo?> fromGenericAttribute,
-        ImmutableArray<ViewRegistrationInfo?> fromNamedAttribute)
+    internal static ViewRegistrationInfo[] Concatenate(
+        ViewRegistrationInfo[] fromInterfaces,
+        ViewRegistrationInfo?[] fromGenericAttribute,
+        ViewRegistrationInfo?[] fromNamedAttribute)
     {
-        if (fromGenericAttribute.IsEmpty && fromNamedAttribute.IsEmpty)
+        if (fromGenericAttribute.Length == 0 && fromNamedAttribute.Length == 0)
         {
             return fromInterfaces;
         }
 
-        var all = ImmutableArray.CreateBuilder<ViewRegistrationInfo>(fromInterfaces.Length + fromGenericAttribute.Length + fromNamedAttribute.Length);
+        List<ViewRegistrationInfo> all = [with(fromInterfaces.Length + fromGenericAttribute.Length + fromNamedAttribute.Length)];
         all.AddRange(fromInterfaces);
         AddFound(all, fromGenericAttribute);
         AddFound(all, fromNamedAttribute);
-        return all.ToImmutable();
+        return all.ToArray();
     }
 
     /// <summary>Generates the ViewDispatch.g.cs source file from collected view registrations.</summary>
     /// <param name="context">The source production context.</param>
     /// <param name="registrations">All detected view registration infos.</param>
     /// <param name="features">The consumer compilation's language-feature and generation-option snapshot.</param>
-    internal static void Generate(in SourceProductionContext context, ImmutableArray<ViewRegistrationInfo> registrations, in LanguageFeatures features)
+    internal static void Generate(in SourceProductionContext context, ViewRegistrationInfo[] registrations, in LanguageFeatures features)
     {
-        if (!ExtractorValidation.HasItems(registrations))
+        if (registrations.Length == 0)
         {
             return;
         }
@@ -159,7 +161,7 @@ internal static class ViewLocatorDispatchGenerator
     /// <summary>Adds the registrations a pipeline found, skipping the ones it declined.</summary>
     /// <param name="all">The registrations so far.</param>
     /// <param name="found">The pipeline's results, with nulls for declined ones.</param>
-    private static void AddFound(ImmutableArray<ViewRegistrationInfo>.Builder all, ImmutableArray<ViewRegistrationInfo?> found)
+    private static void AddFound(List<ViewRegistrationInfo> all, ViewRegistrationInfo?[] found)
     {
         for (var i = 0; i < found.Length; i++)
         {
@@ -173,7 +175,7 @@ internal static class ViewLocatorDispatchGenerator
     /// <summary>Deduplicates view registrations by (view model fully qualified name, contract) pair.</summary>
     /// <param name="registrations">The raw registrations.</param>
     /// <returns>A deduplicated list of registrations.</returns>
-    private static List<ViewRegistrationInfo> Deduplicate(ImmutableArray<ViewRegistrationInfo> registrations)
+    private static List<ViewRegistrationInfo> Deduplicate(ViewRegistrationInfo[] registrations)
     {
         var seen = new HashSet<ViewRegistrationKey>();
         var result = new List<ViewRegistrationInfo>(registrations.Length);

@@ -136,7 +136,7 @@ public class CallSiteHostingTests
             names[typeParameter] = typeParameter.Name;
         }
 
-        var clauses = CallSiteHosting.ConstraintClauses(method.TypeParameters, names);
+        var clauses = CallSiteHosting.ConstraintClauses([.. method.TypeParameters], names);
 
         await Assert.That(clauses.ToArray()).IsEquivalentTo(ExpectedClauses);
     }

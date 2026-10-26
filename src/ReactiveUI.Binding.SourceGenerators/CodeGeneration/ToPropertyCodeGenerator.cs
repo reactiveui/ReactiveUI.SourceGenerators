@@ -2,7 +2,6 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using ReactiveUI.Binding.SourceGenerators.Helpers;
 using ReactiveUI.Binding.SourceGenerators.Models;
@@ -48,11 +47,11 @@ internal static class ToPropertyCodeGenerator
     /// <param name="invocations">All detected <c>ToProperty</c> invocations.</param>
     /// <param name="features">The consumer compilation's language-feature snapshot.</param>
     /// <returns>The generated source, or null when there are no invocations.</returns>
-    internal static string? Generate(ImmutableArray<ToPropertyInvocationInfo> invocations, in LanguageFeatures features)
+    internal static string? Generate(ToPropertyInvocationInfo[] invocations, in LanguageFeatures features)
     {
         // A generic owner can only be claimed by an interceptor, since an overload would have to name it.
         invocations = features.SupportsInterceptors ? invocations : WithoutOpenOwners(invocations);
-        if (invocations.IsDefaultOrEmpty)
+        if (invocations.Length == 0)
         {
             return null;
         }
@@ -112,7 +111,7 @@ internal static class ToPropertyCodeGenerator
     /// <summary>Groups call sites by the overload they share: source type, value type and stub shape.</summary>
     /// <param name="invocations">The detected call sites.</param>
     /// <returns>One group per generated overload.</returns>
-    internal static List<ToPropertyTypeGroup> GroupByTypeSignature(ImmutableArray<ToPropertyInvocationInfo> invocations)
+    internal static List<ToPropertyTypeGroup> GroupByTypeSignature(ToPropertyInvocationInfo[] invocations)
     {
         var groupMap = new Dictionary<GroupKey, List<ToPropertyInvocationInfo>>(invocations.Length);
         var order = new List<GroupKey>(invocations.Length);
@@ -485,7 +484,7 @@ internal static class ToPropertyCodeGenerator
     /// <summary>Appends the accessors raise calls reach when they can only run inside the type, one per type and property.</summary>
     /// <param name="sb">The string builder to append to.</param>
     /// <param name="invocations">All call sites.</param>
-    private static void AppendAccessors(SourceWriter sb, ImmutableArray<ToPropertyInvocationInfo> invocations)
+    private static void AppendAccessors(SourceWriter sb, ToPropertyInvocationInfo[] invocations)
     {
         // Most compilations raise without an accessor, so the collections below are only built when one is needed.
         if (!NeedsAccessors(invocations))
@@ -524,7 +523,7 @@ internal static class ToPropertyCodeGenerator
     /// <summary>Determines whether any call site raises through an accessor added to its type.</summary>
     /// <param name="invocations">All call sites.</param>
     /// <returns><see langword="true"/> when at least one accessor has to be written.</returns>
-    private static bool NeedsAccessors(ImmutableArray<ToPropertyInvocationInfo> invocations)
+    private static bool NeedsAccessors(ToPropertyInvocationInfo[] invocations)
     {
         for (var i = 0; i < invocations.Length; i++)
         {
@@ -601,9 +600,9 @@ internal static class ToPropertyCodeGenerator
     /// <summary>Drops the call sites whose owner is built from the caller's type parameters.</summary>
     /// <param name="invocations">The detected call sites.</param>
     /// <returns>The call sites an overload can serve.</returns>
-    private static ImmutableArray<ToPropertyInvocationInfo> WithoutOpenOwners(ImmutableArray<ToPropertyInvocationInfo> invocations)
+    private static ToPropertyInvocationInfo[] WithoutOpenOwners(ToPropertyInvocationInfo[] invocations)
     {
-        if (invocations.IsDefaultOrEmpty)
+        if (invocations.Length == 0)
         {
             return invocations;
         }
@@ -617,7 +616,7 @@ internal static class ToPropertyCodeGenerator
             }
         }
 
-        return ImmutableArray.CreateRange(kept);
+        return kept.ToArray();
     }
 
     /// <summary>Appends the type parameters of a member that is generic over an owner built from the caller's type parameters.</summary>

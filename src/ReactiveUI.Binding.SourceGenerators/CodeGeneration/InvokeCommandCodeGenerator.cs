@@ -2,7 +2,6 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using ReactiveUI.Binding.SourceGenerators.Models;
 
@@ -35,8 +34,8 @@ internal static class InvokeCommandCodeGenerator
     /// <returns>Generated source code string, or null if no invocations.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static string? Generate(
-        ImmutableArray<InvokeCommandInvocationInfo> invocations,
-        ImmutableArray<ClassBindingInfo> allClasses,
+        InvokeCommandInvocationInfo[] invocations,
+        ClassBindingInfo[] allClasses,
         in LanguageFeatures features) =>
         CodeGeneratorHelpers.GenerateDispatchFile(
             invocations,
@@ -50,7 +49,7 @@ internal static class InvokeCommandCodeGenerator
     /// <remarks>The selector is typed as the stub's ICommand whatever the property declares, so the command type is not part of the key.</remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static List<InvokeCommandTypeGroup> GroupByTypeSignature(
-        ImmutableArray<InvokeCommandInvocationInfo> invocations) =>
+        InvokeCommandInvocationInfo[] invocations) =>
         SignatureGrouping.Group(
             invocations,
             static (key, inv) => _ = key.Append(inv.SourceValueTypeFullName).Append('|').Append(inv.TargetTypeFullName),
@@ -64,7 +63,7 @@ internal static class InvokeCommandCodeGenerator
     private static void EmitGroup(
         SourceWriter sb,
         InvokeCommandTypeGroup group,
-        ImmutableArray<ClassBindingInfo> allClasses,
+        ClassBindingInfo[] allClasses,
         in LanguageFeatures features)
     {
         var collapsible = features.CollapsesIndistinguishableCallSites;
@@ -224,7 +223,7 @@ internal static class InvokeCommandCodeGenerator
     private static void GenerateWorker(
         SourceWriter sb,
         InvokeCommandInvocationInfo inv,
-        ImmutableArray<ClassBindingInfo> allClasses,
+        ClassBindingInfo[] allClasses,
         string suffix)
     {
         var classInfo = CodeGeneratorHelpers.ResolveObservedTypeInfo(

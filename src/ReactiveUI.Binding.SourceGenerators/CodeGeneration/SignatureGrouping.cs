@@ -2,8 +2,6 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
-
 namespace ReactiveUI.Binding.SourceGenerators.CodeGeneration;
 
 /// <summary>Buckets call sites that share one generated overload.</summary>
@@ -17,7 +15,7 @@ internal static class SignatureGrouping
     /// <param name="createGroup">Builds a group from its first call site and all of its call sites.</param>
     /// <returns>One group per distinct signature.</returns>
     internal static List<TGroup> Group<TInvocation, TGroup>(
-        ImmutableArray<TInvocation> invocations,
+        TInvocation[] invocations,
         Action<PooledStringBuilder, TInvocation> appendKey,
         Func<TInvocation, TInvocation[], TGroup> createGroup)
     {

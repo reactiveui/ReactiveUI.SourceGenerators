@@ -2,7 +2,6 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
 using ReactiveUI.Binding.SourceGenerators.CodeGeneration;
 using ReactiveUI.Binding.SourceGenerators.Models;
 using ReactiveUI.Binding.SourceGenerators.Tests.Helpers;
@@ -159,7 +158,7 @@ public partial class ObservationCodeGeneratorHelperTests
         const int ExpectedInvocationCount = 2;
         var inv1 = ModelFactory.CreateInvocationInfo(callerLineNumber: 10);
         var inv2 = ModelFactory.CreateInvocationInfo(callerLineNumber: 20);
-        var invocations = ImmutableArray.Create(inv1, inv2);
+        var invocations = new[] { inv1, inv2 };
 
         var groups = ObservationCodeGenerator.GroupByTypeSignature(invocations);
 
@@ -175,7 +174,7 @@ public partial class ObservationCodeGeneratorHelperTests
         const int ExpectedGroupCount = 2;
         var inv1 = ModelFactory.CreateInvocationInfo();
         var inv2 = ModelFactory.CreateInvocationInfo(returnTypeFullName: "global::System.Int32");
-        var invocations = ImmutableArray.Create(inv1, inv2);
+        var invocations = new[] { inv1, inv2 };
 
         var groups = ObservationCodeGenerator.GroupByTypeSignature(invocations);
 

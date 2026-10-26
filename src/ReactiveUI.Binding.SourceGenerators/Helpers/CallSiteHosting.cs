@@ -58,7 +58,7 @@ internal static class CallSiteHosting
     /// <param name="type">The type.</param>
     /// <param name="typeParameters">The type parameters in scope.</param>
     /// <returns><see langword="true"/> when the type names no other type parameter.</returns>
-    internal static bool UsesOnly(ITypeSymbol type, ImmutableArray<ITypeParameterSymbol> typeParameters) =>
+    internal static bool UsesOnly(ITypeSymbol type, ITypeParameterSymbol[] typeParameters) =>
         type switch
         {
             ITypeParameterSymbol parameter => IndexOf(typeParameters, parameter) >= 0,
@@ -76,7 +76,7 @@ internal static class CallSiteHosting
     /// <returns>Where the code moved to, or null when the call cannot move there.</returns>
     internal static MovedScope? TryMove(in CallSiteContext context, IMethodSymbol method, bool intoCaller, CancellationToken ct)
     {
-        if (CallerTypeParameters(method) is not { } callerTypeParameters || (!intoCaller && callerTypeParameters.IsEmpty))
+        if (CallerTypeParameters(method) is not { } callerTypeParameters || (!intoCaller && callerTypeParameters.Length == 0))
         {
             return null;
         }
@@ -107,7 +107,7 @@ internal static class CallSiteHosting
     /// that meets the same constraints, so the constraints are repeated too.
     /// </remarks>
     internal static EquatableArray<string> ConstraintClauses(
-        ImmutableArray<ITypeParameterSymbol> typeParameters,
+        ITypeParameterSymbol[] typeParameters,
         Dictionary<ITypeParameterSymbol, string> names)
     {
         var clauses = new List<string>(typeParameters.Length);
@@ -145,7 +145,7 @@ internal static class CallSiteHosting
     /// The type parameters in the order the call first names them, or null when one of them is not itself one of the
     /// method's type arguments, or when their constraints name a type parameter outside the list.
     /// </returns>
-    private static ImmutableArray<ITypeParameterSymbol>? CallerTypeParameters(IMethodSymbol method)
+    private static ITypeParameterSymbol[]? CallerTypeParameters(IMethodSymbol method)
     {
         var found = new List<ITypeParameterSymbol>();
         foreach (var argument in method.TypeArguments)
@@ -153,10 +153,10 @@ internal static class CallSiteHosting
             Collect(argument, found);
         }
 
-        var collected = found.ToImmutableArray();
+        var collected = found.ToArray();
         foreach (var parameter in collected)
         {
-            if (IndexOf(method.TypeArguments, parameter) < 0)
+            if (IndexOf(method.TypeArguments.AsSpan(), parameter) < 0)
             {
                 return null;
             }
@@ -221,7 +221,7 @@ internal static class CallSiteHosting
     /// <param name="symbols">The list.</param>
     /// <param name="symbol">The symbol.</param>
     /// <returns>Its position, or -1.</returns>
-    private static int IndexOf<T>(ImmutableArray<T> symbols, ISymbol symbol)
+    private static int IndexOf<T>(ReadOnlySpan<T> symbols, ISymbol symbol)
         where T : ISymbol
     {
         for (var i = 0; i < symbols.Length; i++)
@@ -239,7 +239,7 @@ internal static class CallSiteHosting
     /// <param name="types">The types.</param>
     /// <param name="typeParameters">The type parameters in scope.</param>
     /// <returns><see langword="true"/> when they do.</returns>
-    private static bool AllUseOnly(ImmutableArray<ITypeSymbol> types, ImmutableArray<ITypeParameterSymbol> typeParameters)
+    private static bool AllUseOnly(ImmutableArray<ITypeSymbol> types, ITypeParameterSymbol[] typeParameters)
     {
         for (var i = 0; i < types.Length; i++)
         {
@@ -288,7 +288,7 @@ internal static class CallSiteHosting
         IMethodSymbol method,
         INamedTypeSymbol? hostType,
         PartialTypeDeclaration? declaration,
-        ImmutableArray<ITypeParameterSymbol> callerTypeParameters)
+        ITypeParameterSymbol[] callerTypeParameters)
     {
         var closed = method.GetConstructedReducedFrom() ?? method;
         var definition = closed.OriginalDefinition;
@@ -314,7 +314,7 @@ internal static class CallSiteHosting
         for (var i = 0; i < callerTypeParameters.Length; i++)
         {
             wrapperParameters[i] = callerTypeParameters[i].Name;
-            wrapperArguments[i] = typeParameters[IndexOf(closed.TypeArguments, callerTypeParameters[i])];
+            wrapperArguments[i] = typeParameters[IndexOf(closed.TypeArguments.AsSpan(), callerTypeParameters[i])];
             callerNames[callerTypeParameters[i]] = wrapperParameters[i];
             handedOn[callerTypeParameters[i]] = wrapperArguments[i];
         }
@@ -381,7 +381,7 @@ internal static class CallSiteHosting
     /// <param name="Host">The caller's class, or null when the code stays in the generated class.</param>
     /// <param name="TypeParameters">The caller's type parameters the moved code is generic over.</param>
     /// <param name="Call">The call, described for the interceptor that claims it.</param>
-    internal sealed record MovedScope(INamedTypeSymbol? Host, ImmutableArray<ITypeParameterSymbol> TypeParameters, HostedCall Call);
+    internal sealed record MovedScope(INamedTypeSymbol? Host, ITypeParameterSymbol[] TypeParameters, HostedCall Call);
 
     /// <summary>The constraints on one type parameter, as written in a <c>where</c> clause.</summary>
     /// <param name="Kind">The kind constraint, such as <c>class</c> or <c>struct</c>, or null.</param>

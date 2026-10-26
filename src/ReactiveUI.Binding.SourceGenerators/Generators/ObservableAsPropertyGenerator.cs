@@ -2,7 +2,6 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -63,7 +62,7 @@ internal static class ObservableAsPropertyGenerator
 
         context.RegisterSourceOutput(
             lean.Combine(reactive).Combine(languageFeatures),
-            static (ctx, data) => Emit(in ctx, data.Left.Left, data.Left.Right, data.Right));
+            static (ctx, data) => Emit(in ctx, RoslynArray.Unwrap(data.Left.Left), RoslynArray.Unwrap(data.Left.Right), data.Right));
     }
 
     /// <summary>Accepts only a partial property whose sole accessor is a bodiless getter, from syntax alone.</summary>
@@ -169,8 +168,8 @@ internal static class ObservableAsPropertyGenerator
     /// <param name="features">The consumer compilation's language-feature snapshot.</param>
     private static void Emit(
         in SourceProductionContext context,
-        ImmutableArray<ObservableAsPropertyInfo?> lean,
-        ImmutableArray<ObservableAsPropertyInfo?> reactive,
+        ObservableAsPropertyInfo?[] lean,
+        ObservableAsPropertyInfo?[] reactive,
         in LanguageFeatures features)
     {
         var byType = new Dictionary<string, List<ObservableAsPropertyInfo>>(StringComparer.Ordinal);
@@ -190,7 +189,7 @@ internal static class ObservableAsPropertyGenerator
     /// <param name="byType">The properties per file.</param>
     /// <param name="order">The files in first-seen order, so output is deterministic.</param>
     private static void Group(
-        ImmutableArray<ObservableAsPropertyInfo?> properties,
+        ObservableAsPropertyInfo?[] properties,
         Dictionary<string, List<ObservableAsPropertyInfo>> byType,
         List<string> order)
     {

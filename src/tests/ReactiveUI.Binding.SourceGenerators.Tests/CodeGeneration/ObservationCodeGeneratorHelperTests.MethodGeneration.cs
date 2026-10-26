@@ -178,20 +178,6 @@ public partial class ObservationCodeGeneratorHelperTests
         await Assert.That(result).IsNull();
     }
 
-    /// <summary>Verifies Generate with default invocations returns null.</summary>
-    /// <returns>A task representing the asynchronous test operation.</returns>
-    [Test]
-    public async Task Generate_DefaultInvocations_ReturnsNull()
-    {
-        var result = ObservationCodeGenerator.Generate(
-            default,
-            [],
-            new(true, true, true),
-            WhenChangedName);
-
-        await Assert.That(result).IsNull();
-    }
-
     /// <summary>Verifies Generate with valid invocations returns non-null source containing method prefix.</summary>
     /// <returns>A task representing the asynchronous test operation.</returns>
     [Test]

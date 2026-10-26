@@ -2,7 +2,6 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
 using ReactiveUI.Binding.SourceGenerators.CodeGeneration;
 using ReactiveUI.Binding.SourceGenerators.Models;
 using ReactiveUI.Binding.SourceGenerators.Tests.Helpers;
@@ -180,7 +179,7 @@ public class CodeGeneratorHelpersTests
     public async Task FindClassInfo_Found_ReturnsMatchingInfo()
     {
         var classInfo = ModelFactory.CreateClassBindingInfo();
-        var allClasses = ImmutableArray.Create(classInfo);
+        var allClasses = new[] { classInfo };
 
         var result = CodeGeneratorHelpers.FindClassInfo(allClasses, MyViewModelTypeName);
 
@@ -194,7 +193,7 @@ public class CodeGeneratorHelpersTests
     public async Task FindClassInfo_NotFound_ReturnsNull()
     {
         var classInfo = ModelFactory.CreateClassBindingInfo("global::TestApp.OtherType");
-        var allClasses = ImmutableArray.Create(classInfo);
+        var allClasses = new[] { classInfo };
 
         var result = CodeGeneratorHelpers.FindClassInfo(allClasses, MyViewModelTypeName);
 
@@ -206,7 +205,7 @@ public class CodeGeneratorHelpersTests
     [Test]
     public async Task FindClassInfo_EmptyArray_ReturnsNull()
     {
-        var allClasses = ImmutableArray<ClassBindingInfo>.Empty;
+        var allClasses = Array.Empty<ClassBindingInfo>();
 
         var result = CodeGeneratorHelpers.FindClassInfo(allClasses, MyViewModelTypeName);
 

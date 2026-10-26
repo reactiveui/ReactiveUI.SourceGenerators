@@ -2,7 +2,6 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
 using ReactiveUI.Binding.SourceGenerators.CodeGeneration;
 
 namespace ReactiveUI.Binding.SourceGenerators.Tests.CodeGeneration;
@@ -18,7 +17,7 @@ public class SignatureGroupingTests
     [Test]
     public async Task Group_SharedKeys_GroupsInFirstSeenOrderAndKeepsCallSiteOrder()
     {
-        ImmutableArray<CallSite> callSites =
+        CallSite[] callSites =
         [
             new("b", "first"),
             new("a", "second"),
@@ -43,7 +42,7 @@ public class SignatureGroupingTests
     [Test]
     public async Task Group_KeyWriterAppends_StartsEachKeyEmpty()
     {
-        ImmutableArray<CallSite> callSites = [new("x", "first"), new("x", "second")];
+        CallSite[] callSites = [new("x", "first"), new("x", "second")];
 
         var groups = SignatureGrouping.Group(
             callSites,
@@ -60,7 +59,7 @@ public class SignatureGroupingTests
     public async Task Group_NoCallSites_ReturnsNoGroups()
     {
         var groups = SignatureGrouping.Group(
-            ImmutableArray<CallSite>.Empty,
+            Array.Empty<CallSite>(),
             static (key, site) => _ = key.Append(site.Key),
             static (first, members) => new Group(first.Key, members));
 

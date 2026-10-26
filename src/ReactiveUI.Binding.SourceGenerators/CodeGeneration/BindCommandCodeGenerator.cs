@@ -2,7 +2,6 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using ReactiveUI.Binding.SourceGenerators.Models;
 using ReactiveUI.Binding.SourceGenerators.Plugins;
@@ -41,8 +40,8 @@ internal static class BindCommandCodeGenerator
     /// <returns>Generated source code string, or null if no invocations.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static string? Generate(
-        ImmutableArray<BindCommandInvocationInfo> invocations,
-        ImmutableArray<ClassBindingInfo> allClasses,
+        BindCommandInvocationInfo[] invocations,
+        ClassBindingInfo[] allClasses,
         in LanguageFeatures features) =>
         CodeGeneratorHelpers.GenerateDispatchFile(
             invocations,
@@ -55,7 +54,7 @@ internal static class BindCommandCodeGenerator
     /// <returns>A list of grouped invocations sharing the same type signature.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static List<BindCommandTypeGroup> GroupByTypeSignature(
-        ImmutableArray<BindCommandInvocationInfo> invocations) =>
+        BindCommandInvocationInfo[] invocations) =>
         SignatureGrouping.Group(
             invocations,
             static (key, inv) => _ = key
@@ -423,7 +422,7 @@ internal static class BindCommandCodeGenerator
     private static void EmitGroup(
         SourceWriter sb,
         BindCommandTypeGroup group,
-        ImmutableArray<ClassBindingInfo> allClasses,
+        ClassBindingInfo[] allClasses,
         in LanguageFeatures features)
     {
         var collapsed = features.CollapsesIndistinguishableCallSites

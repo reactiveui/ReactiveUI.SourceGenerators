@@ -279,8 +279,12 @@ public class SourceGeneratorsDeclarationTests
         var second = new PartialTypeDeclaration("App", new([SecondHeader]));
 
         var text = SourceGeneratorsCompilation.WriteDeclarations(
-            [new SourceGeneratorsMember(first, null, "public int A { get { throw null; } }"), null],
-            [new SourceGeneratorsMember(second, null, "public int B { get { throw null; } }"), new SourceGeneratorsMember(first, null, "public int C { get { throw null; } }")]);
+            new EquatableArray<SourceGeneratorsMember>([new SourceGeneratorsMember(first, null, "public int A { get { throw null; } }")]),
+            new EquatableArray<SourceGeneratorsMember>(
+            [
+                new SourceGeneratorsMember(second, null, "public int B { get { throw null; } }"),
+                new SourceGeneratorsMember(first, null, "public int C { get { throw null; } }"),
+            ]));
 
         await Assert.That(text.IndexOf("partial class First", StringComparison.Ordinal))
             .IsLessThan(text.IndexOf(SecondHeader, StringComparison.Ordinal));

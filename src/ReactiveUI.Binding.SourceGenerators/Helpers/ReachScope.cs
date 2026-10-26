@@ -62,7 +62,7 @@ internal sealed class ReachScope
     internal INamedTypeSymbol? Host { get; private set; }
 
     /// <summary>Gets the caller's type parameters the generated code is generic over.</summary>
-    internal ImmutableArray<ITypeParameterSymbol> TypeParameters { get; private set; } = ImmutableArray<ITypeParameterSymbol>.Empty;
+    internal ITypeParameterSymbol[] TypeParameters { get; private set; } = Array.Empty<ITypeParameterSymbol>();
 
     /// <summary>Gets the call, described for the interceptor that claims it from the moved code, or null when it did not move.</summary>
     internal HostedCall? Call { get; private set; }

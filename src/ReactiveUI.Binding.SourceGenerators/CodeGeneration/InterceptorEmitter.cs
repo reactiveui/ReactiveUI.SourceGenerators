@@ -2,7 +2,6 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using ReactiveUI.Binding.SourceGenerators.Models;
 
@@ -202,17 +201,17 @@ internal static class InterceptorEmitter
     /// A dispatch overload has to name its result type, so a call whose result generated code cannot name gets no
     /// overload. It reaches the runtime stub instead, and RXUIBIND015 fails the build at the call.
     /// </remarks>
-    internal static ImmutableArray<T> ClaimableBy<T>(
-        ImmutableArray<T> invocations,
+    internal static T[] ClaimableBy<T>(
+        T[] invocations,
         Func<T, GenericResult> genericResultOf,
         in LanguageFeatures features)
     {
-        if (features.SupportsInterceptors || invocations.IsDefaultOrEmpty)
+        if (features.SupportsInterceptors || invocations.Length == 0)
         {
             return invocations;
         }
 
-        var builder = ImmutableArray.CreateBuilder<T>(invocations.Length);
+        var builder = new List<T>(invocations.Length);
         for (var i = 0; i < invocations.Length; i++)
         {
             if (!genericResultOf(invocations[i]).IsGeneric)
@@ -221,7 +220,7 @@ internal static class InterceptorEmitter
             }
         }
 
-        return builder.Count == invocations.Length ? invocations : builder.ToImmutable();
+        return builder.Count == invocations.Length ? invocations : builder.ToArray();
     }
 
     /// <summary>Gathers call sites under the generated method each of them reaches.</summary>

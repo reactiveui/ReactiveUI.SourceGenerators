@@ -2,7 +2,6 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using ReactiveUI.Binding.SourceGenerators.Models;
 
@@ -66,8 +65,8 @@ internal static class BindingEmitterHelpers
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static string? Generate(
-        ImmutableArray<BindingInvocationInfo> invocations,
-        ImmutableArray<ClassBindingInfo> allClasses,
+        BindingInvocationInfo[] invocations,
+        ClassBindingInfo[] allClasses,
         in LanguageFeatures features,
         BindingDispatchApi api,
         Action<SourceWriter, BindEmitContext> emitMethod) =>
@@ -89,13 +88,13 @@ internal static class BindingEmitterHelpers
     /// <param name="emitMethod">Emits the binding method for one call site.</param>
     /// <returns>The generated source, or null when there are no call sites.</returns>
     internal static string? Generate(
-        ImmutableArray<BindingInvocationInfo> invocations,
-        ImmutableArray<ClassBindingInfo> allClasses,
+        BindingInvocationInfo[] invocations,
+        ClassBindingInfo[] allClasses,
         in LanguageFeatures features,
         Action<SourceWriter, BindingTypeGroup, LanguageFeatures> emitOverload,
         Action<SourceWriter, BindEmitContext> emitMethod)
     {
-        if (invocations.IsDefaultOrEmpty)
+        if (invocations.Length == 0)
         {
             return null;
         }
@@ -251,7 +250,7 @@ internal static class BindingEmitterHelpers
     /// <param name="invocations">The detected call sites.</param>
     /// <returns>The groups, in the order their signatures were first seen.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static List<BindingTypeGroup> GroupByTypeSignature(ImmutableArray<BindingInvocationInfo> invocations) =>
+    internal static List<BindingTypeGroup> GroupByTypeSignature(BindingInvocationInfo[] invocations) =>
         SignatureGrouping.Group(
             invocations,
             static (key, inv) => _ = key

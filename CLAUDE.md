@@ -111,9 +111,10 @@ the same way, with a Roslyn 4.8 band and a Roslyn 4.13 band.
   `Generator.cs` plus `Generator.Execute.cs`. Binding's layout (extractor, model, code generator) is the reference.
 - **Arrays, not immutable collections.** Pipeline models hold `EquatableArray<T>` (an array with value equality).
   Internal code uses arrays, `List<T>` and `HashSet<T>`. `ImmutableArray<T>` and `ImmutableDictionary` appear only where
-  Roslyn requires them: the result of `Collect()`, `SupportedDiagnostics`, `SupportedSuppressions` and
-  `Diagnostic.Create` properties. Wrap a Roslyn array without copying with `EquatableArray<T>.FromRoslyn`. Never loop
-  over an `EquatableArray<T>` with `foreach`; use `AsSpan()` or `for`.
+  Roslyn requires them: `SupportedDiagnostics`, `SupportedSuppressions`, `Diagnostic.Create` properties, and the arrays
+  Roslyn's symbol APIs hand out (`TypeArguments`, `Parameters`, `AllInterfaces`). Read the result of `Collect()` as a
+  plain array with `RoslynArray.Unwrap` (no copy) where an emitter takes it, or wrap it with `EquatableArray<T>.FromRoslyn`
+  where a pipeline stage caches it. Never loop over an `EquatableArray<T>` with `foreach`; use `AsSpan()` or `for`.
 - **No `RegisterPostInitializationOutput`, no shared generated type.** See the contribution rules above.
 - **Every generator and analyzer has a benchmark.** A new generator gets a mock in
   `benchmarks/ReactiveUI.SourceGenerators.Benchmarks/Mocks` and an entry in `Support/GeneratorCatalog.cs`. A new

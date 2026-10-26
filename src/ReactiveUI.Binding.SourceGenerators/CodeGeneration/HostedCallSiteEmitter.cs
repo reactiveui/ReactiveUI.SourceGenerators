@@ -2,7 +2,6 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using ReactiveUI.Binding.SourceGenerators.Models;
 
@@ -47,9 +46,9 @@ internal static class HostedCallSiteEmitter
     /// sites are dropped and RXUIBIND015 fails the build at each of them.
     /// </remarks>
     internal static string? Compose<T>(
-        ImmutableArray<T> invocations,
+        T[] invocations,
         in LanguageFeatures features,
-        Func<ImmutableArray<T>, LanguageFeatures, string?> emit)
+        Func<T[], LanguageFeatures, string?> emit)
         where T : IClaimableCallSite
     {
         if (!AnyHosted(invocations))
@@ -57,9 +56,9 @@ internal static class HostedCallSiteEmitter
             return emit(invocations, features);
         }
 
-        var unhosted = ImmutableArray.CreateBuilder<T>(invocations.Length);
+        var unhosted = new List<T>(invocations.Length);
         var hosts = new List<string>();
-        var byHost = new Dictionary<string, ImmutableArray<T>.Builder>(StringComparer.Ordinal);
+        var byHost = new Dictionary<string, List<T>>(StringComparer.Ordinal);
         for (var i = 0; i < invocations.Length; i++)
         {
             var invocation = invocations[i];
@@ -72,7 +71,7 @@ internal static class HostedCallSiteEmitter
             var key = GroupKey(host);
             if (!byHost.TryGetValue(key, out var group))
             {
-                group = ImmutableArray.CreateBuilder<T>();
+                group = [];
                 byHost[key] = group;
                 hosts.Add(key);
             }
@@ -80,7 +79,7 @@ internal static class HostedCallSiteEmitter
             group.Add(invocation);
         }
 
-        var main = unhosted.Count == 0 ? null : emit(unhosted.ToImmutable(), features);
+        var main = unhosted.Count == 0 ? null : emit(unhosted.ToArray(), features);
         if (!features.SupportsInterceptors)
         {
             return main;
@@ -90,7 +89,7 @@ internal static class HostedCallSiteEmitter
         var claimsAny = false;
         foreach (var hostName in hosts)
         {
-            claimsAny |= AppendHost(writer, byHost[hostName].ToImmutable(), features, emit);
+            claimsAny |= AppendHost(writer, byHost[hostName].ToArray(), features, emit);
         }
 
         var hosted = writer.ToStringAndReturn();
@@ -106,10 +105,10 @@ internal static class HostedCallSiteEmitter
     /// <typeparam name="T">The per-call-site model this API extracts.</typeparam>
     /// <param name="invocations">The call sites.</param>
     /// <returns><see langword="true"/> when at least one is.</returns>
-    private static bool AnyHosted<T>(ImmutableArray<T> invocations)
+    private static bool AnyHosted<T>(T[] invocations)
         where T : IClaimableCallSite
     {
-        if (invocations.IsDefaultOrEmpty)
+        if (invocations.Length == 0)
         {
             return false;
         }
@@ -189,9 +188,9 @@ internal static class HostedCallSiteEmitter
     /// <returns><see langword="true"/> when at least one call site was claimed.</returns>
     private static bool AppendHost<T>(
         SourceWriter writer,
-        ImmutableArray<T> invocations,
+        T[] invocations,
         in LanguageFeatures features,
-        Func<ImmutableArray<T>, LanguageFeatures, string?> emit)
+        Func<T[], LanguageFeatures, string?> emit)
         where T : IClaimableCallSite
     {
         var source = emit(invocations, features);
@@ -254,7 +253,7 @@ internal static class HostedCallSiteEmitter
     /// <param name="entriesReference">The class the entry points are declared in, as the interceptors name it.</param>
     /// <returns>One entry per moved method and signature, in the order the API wrote them.</returns>
     private static List<HostedMethod> GroupByMethod<T>(
-        ImmutableArray<T> invocations,
+        T[] invocations,
         Dictionary<string, string> claims,
         string entriesReference)
         where T : IClaimableCallSite

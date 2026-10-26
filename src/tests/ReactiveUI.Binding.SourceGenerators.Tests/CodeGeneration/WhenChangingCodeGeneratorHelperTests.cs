@@ -2,7 +2,6 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
 using ReactiveUI.Binding.SourceGenerators.CodeGeneration;
 using ReactiveUI.Binding.SourceGenerators.Tests.Helpers;
 
@@ -31,7 +30,7 @@ public class WhenChangingCodeGeneratorHelperTests
             callerLineNumber: 20,
             isBeforeChange: true,
             methodName: WhenChangingName);
-        var invocations = ImmutableArray.Create(inv1, inv2);
+        var invocations = new[] { inv1, inv2 };
 
         var groups = ObservationCodeGenerator.GroupByTypeSignature(invocations);
 
@@ -51,7 +50,7 @@ public class WhenChangingCodeGeneratorHelperTests
         var inv2 = ModelFactory.CreateInvocationInfo(
             sourceTypeFullName: "global::TestApp.ViewModelB",
             isBeforeChange: true);
-        var invocations = ImmutableArray.Create(inv1, inv2);
+        var invocations = new[] { inv1, inv2 };
 
         var groups = ObservationCodeGenerator.GroupByTypeSignature(invocations);
 

@@ -2,7 +2,6 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
 using ReactiveUI.Binding.SourceGenerators.CodeGeneration;
 using ReactiveUI.Binding.SourceGenerators.Models;
 using ReactiveUI.Binding.SourceGenerators.Tests.Helpers;
@@ -38,7 +37,7 @@ public class OneWayBindCodeGeneratorHelperTests
         const int ExpectedInvocationCount = 2;
         var inv1 = ModelFactory.CreateBindingInvocationInfo(callerLineNumber: 10, methodName: OneWayBindName);
         var inv2 = ModelFactory.CreateBindingInvocationInfo(callerLineNumber: 20, methodName: OneWayBindName);
-        var invocations = ImmutableArray.Create(inv1, inv2);
+        var invocations = new[] { inv1, inv2 };
 
         var groups = BindingEmitterHelpers.GroupByTypeSignature(invocations);
 
@@ -58,7 +57,7 @@ public class OneWayBindCodeGeneratorHelperTests
         var inv2 = ModelFactory.CreateBindingInvocationInfo(
             targetTypeFullName: "global::TestApp.ViewB",
             methodName: OneWayBindName);
-        var invocations = ImmutableArray.Create(inv1, inv2);
+        var invocations = new[] { inv1, inv2 };
 
         var groups = BindingEmitterHelpers.GroupByTypeSignature(invocations);
 

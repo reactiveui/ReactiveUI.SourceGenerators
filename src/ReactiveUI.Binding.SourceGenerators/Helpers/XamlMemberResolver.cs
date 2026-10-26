@@ -2,7 +2,6 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using ReactiveUI.Binding.SourceGenerators.Models;
 using ReactiveUI.Binding.SourceGenerators.Plugins.PropertyRaise;
@@ -31,14 +30,14 @@ internal static class XamlMemberResolver
     /// <param name="compilation">The compilation.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>A field per named element whose class and type resolve and that the class does not already declare.</returns>
-    internal static ImmutableArray<SourceGeneratorsMember?> Resolve(ImmutableArray<XamlPage> pages, Compilation compilation, CancellationToken ct)
+    internal static EquatableArray<SourceGeneratorsMember> Resolve(XamlPage[] pages, Compilation compilation, CancellationToken ct)
     {
-        if (pages.IsEmpty)
+        if (pages.Length == 0)
         {
-            return ImmutableArray<SourceGeneratorsMember?>.Empty;
+            return new([]);
         }
 
-        var builder = ImmutableArray.CreateBuilder<SourceGeneratorsMember?>();
+        List<SourceGeneratorsMember> builder = [];
         Dictionary<string, List<string>>? namespaces = null;
         foreach (var page in pages)
         {
@@ -66,7 +65,7 @@ internal static class XamlMemberResolver
             }
         }
 
-        return builder.ToImmutable();
+        return new([.. builder]);
     }
 
     /// <summary>Determines whether an attribute maps an XML namespace URI to a CLR namespace.</summary>
