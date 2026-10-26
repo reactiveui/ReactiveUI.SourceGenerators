@@ -17,7 +17,7 @@
 [assembly: System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessageAttribute))]
 [assembly: System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Runtime.CompilerServices.CallerArgumentExpressionAttribute))]
 [assembly: System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Runtime.CompilerServices.IsExternalInit))]
-[assembly: System.Runtime.Versioning.SupportedOSPlatform("macOS26.5")]
+[assembly: System.Runtime.Versioning.SupportedOSPlatform("macOS27.0")]
 namespace ReactiveUI.Binding
 {
     public static class BindingAffinity

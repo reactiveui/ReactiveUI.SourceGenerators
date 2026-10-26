@@ -6,7 +6,7 @@
 [assembly: Microsoft.Maui.Controls.XmlnsDefinition("http://schemas.microsoft.com/dotnet/maui/global", "http://schemas.microsoft.com/dotnet/2021/maui")]
 [assembly: Microsoft.Maui.Controls.XmlnsPrefix("http://schemas.microsoft.com/dotnet/maui/global", "global")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("ReactiveUI.Binding.Maui.Tests")]
-[assembly: System.Runtime.Versioning.SupportedOSPlatform("tvOS26.5")]
+[assembly: System.Runtime.Versioning.SupportedOSPlatform("tvOS27.0")]
 namespace ReactiveUI.Binding.Maui
 {
     [System.Flags]

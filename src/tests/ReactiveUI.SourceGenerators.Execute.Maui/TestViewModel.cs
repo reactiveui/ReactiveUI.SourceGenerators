@@ -5,6 +5,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 using ReactiveUI.SourceGenerators;
@@ -59,50 +60,59 @@ public partial class TestViewModel : ReactiveObject
     public double Test2Property => _test2PropertyHelper?.Value ?? default;
 
     /// <summary>Writes a message when the first generated command executes.</summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand(CanExecute = nameof(CanExecuteTest1))]
     [property: JsonInclude]
     private static void Test1() => Console.Out.WriteLine("Test1");
 
     /// <summary>Returns the default point from the second generated command.</summary>
     /// <returns>The default point value.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand]
     private static Point Test2() => default;
 
     /// <summary>Returns a completed task from the third generated command.</summary>
     /// <returns>A task that completes immediately.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand]
     private static Task Test3Async() => Task.CompletedTask;
 
     /// <summary>Returns a point asynchronously from the fourth generated command.</summary>
     /// <returns>A task that produces the configured point.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand]
     private static Task<Point> Test4Async() => Task.FromResult(new Point(PointCoordinate, PointCoordinate));
 
     /// <summary>Converts a command string argument into an integer result.</summary>
     /// <param name="str">The value to convert.</param>
     /// <returns>The converted integer value.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand]
     private static int Test5StringToInt(string str) => int.Parse(str);
 
     /// <summary>Writes the command argument to the console.</summary>
     /// <param name="str">The value to write.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand]
     private static void Test6ArgOnly(string str) => Console.Out.WriteLine($">>> {str}");
 
     /// <summary>Returns a unit value through an observable command.</summary>
     /// <returns>An observable that returns a unit value.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand]
     private static IObservable<Unit> Test7Observable() => Observable.Return(Unit.Default);
 
     /// <summary>Returns an offset command value through an observable.</summary>
     /// <param name="i">The input value to offset.</param>
     /// <returns>An observable that returns the offset value.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand]
     private static IObservable<double> Test8Observable(int i) => Observable.Return(i + ObservableCommandOffset);
 
     /// <summary>Delays until cancellation is requested by the generated command.</summary>
     /// <param name="ct">The token that cancels the delay.</param>
     /// <returns>A task that represents the cancellable delay.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand]
     private static Task Test9Async(CancellationToken ct) => Task.Delay(CancellableCommandDelayMilliseconds, ct);
 
@@ -110,6 +120,7 @@ public partial class TestViewModel : ReactiveObject
     /// <param name="size">The width and height of the point.</param>
     /// <param name="ct">The cancellation token accepted by the command.</param>
     /// <returns>A task that returns the requested point.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand]
     private static Task<Point> Test10Async(int size, CancellationToken ct) => Task.FromResult(new Point(size, size));
 
