@@ -11,6 +11,9 @@
     <IsTestProject>false</IsTestProject>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
 
+    <!-- An executable has no use for its documentation file, and publishing with a runtime looks for it under bin. -->
+    <PublishDocumentationFile>false</PublishDocumentationFile>
+
     <!-- The point of this project: an IL warning is a build failure, not a note in the log. -->
     <WarningsAsErrors>$(WarningsAsErrors);IL2026;IL2055;IL2067;IL2070;IL2072;IL2075;IL2091;IL3050</WarningsAsErrors>
     <TrimmerSingleWarn>false</TrimmerSingleWarn>
