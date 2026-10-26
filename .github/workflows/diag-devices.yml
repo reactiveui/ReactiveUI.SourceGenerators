@@ -10,6 +10,10 @@ permissions:
 
 jobs:
     diag:
+        strategy:
+            fail-fast: false
+            matrix:
+                sdk: ['11.0.100-rc.2.26504.105', '11.0.x']
         runs-on: windows-latest
         steps:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -19,22 +23,16 @@ jobs:
                       8.0.x
                       9.0.x
                       10.0.x
-                      11.0.x
+                      ${{ matrix.sdk }}
                   solution-file: ReactiveUI.SourceGenerators.Uno.slnf
                   install-workloads: 'true'
                   stamp-version: 'false'
+            - name: Versions
+              shell: bash
+              working-directory: src
+              run: dotnet --list-sdks
             - name: Uno library only
               shell: bash
               working-directory: src
               continue-on-error: true
               run: dotnet test --solution diag-a.slnf --no-build -c Release
-            - name: Uno tests only
-              shell: bash
-              working-directory: src
-              continue-on-error: true
-              run: dotnet test --solution diag-c.slnf --no-build -c Release
-            - name: Core tests only
-              shell: bash
-              working-directory: src
-              continue-on-error: true
-              run: dotnet test --solution diag-d.slnf --no-build -c Release
