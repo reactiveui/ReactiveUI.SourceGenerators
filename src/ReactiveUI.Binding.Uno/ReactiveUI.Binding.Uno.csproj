@@ -2,6 +2,9 @@
   <PropertyGroup>
     <TargetFrameworks>$(BindingUnoTargets)</TargetFrameworks>
     <OutputType>Library</OutputType>
+    <!-- Uno.Sdk marks every Android head an application. dotnet test then asks the Android SDK for devices to run
+         this library on, and fails when none is available. -->
+    <AndroidApplication>false</AndroidApplication>
     <!-- Uno.Sdk does not pack a library unless asked. -->
     <IsPackable>true</IsPackable>
     <!-- The implicit packages include Uno.Resizetizer, which adds window-icon helpers to a library's public API.
