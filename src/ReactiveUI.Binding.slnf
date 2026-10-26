@@ -1,0 +1,21 @@
+{
+  "solution": {
+    "path": "ReactiveUI.SourceGenerators.slnx",
+    "projects": [
+      "ReactiveUI.Binding\\ReactiveUI.Binding.csproj",
+      "ReactiveUI.Binding.Reactive\\ReactiveUI.Binding.Reactive.csproj",
+      "ReactiveUI.Binding.SourceGenerators\\ReactiveUI.Binding.SourceGenerators.csproj",
+      "ReactiveUI.Binding.SourceGenerators.Roslyn413\\ReactiveUI.Binding.SourceGenerators.Roslyn413.csproj",
+      "ReactiveUI.Binding.Analyzer\\ReactiveUI.Binding.Analyzer.csproj",
+      "ReactiveUI.Binding.Analyzer.Roslyn413\\ReactiveUI.Binding.Analyzer.Roslyn413.csproj",
+      "ReactiveUI.Binding.Wpf\\ReactiveUI.Binding.Wpf.csproj",
+      "ReactiveUI.Binding.Wpf.Reactive\\ReactiveUI.Binding.Wpf.Reactive.csproj",
+      "ReactiveUI.Binding.WinForms\\ReactiveUI.Binding.WinForms.csproj",
+      "ReactiveUI.Binding.WinForms.Reactive\\ReactiveUI.Binding.WinForms.Reactive.csproj",
+      "ReactiveUI.Binding.Maui\\ReactiveUI.Binding.Maui.csproj",
+      "ReactiveUI.Binding.Maui.Reactive\\ReactiveUI.Binding.Maui.Reactive.csproj",
+      "ReactiveUI.Binding.Avalonia\\ReactiveUI.Binding.Avalonia.csproj",
+      "ReactiveUI.Binding.Avalonia.Reactive\\ReactiveUI.Binding.Avalonia.Reactive.csproj"
+    ]
+  }
+}

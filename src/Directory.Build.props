@@ -154,15 +154,18 @@
     <None Include="$(MSBuildThisFileDirectory)..\README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
-  <!-- Every package in the repository shares one version from one tag stream (v*), so a release tags once and
-       nothing is versioned by hand. The release workflow stamps its computed version on every project through
-       MINVERVERSIONOVERRIDE; the floor keeps untagged builds above both families' previous lines (attribute 4.x,
-       ReactiveUI.Binding 9.x). -->
+  <!-- The two families are versioned completely separately. The attribute generators continue their v4.x tags.
+       ReactiveUI.Binding continues from 9.1.0 on its own binding-v tags, and untagged builds produce
+       9.2.0-alpha.0.<height>. Each family has its own release workflow (release.yml and release-binding.yml) that
+       computes its version from its own tags and stamps it on the projects of its solution filter. -->
   <PropertyGroup>
     <MinVerAutoIncrement>minor</MinVerAutoIncrement>
     <MinVerDefaultPreReleaseIdentifiers>alpha.0</MinVerDefaultPreReleaseIdentifiers>
-    <MinVerMinimumMajorMinor>10.0</MinVerMinimumMajorMinor>
     <MinVerTagPrefix>v</MinVerTagPrefix>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(MSBuildProjectName.StartsWith('ReactiveUI.Binding'))">
+    <MinVerTagPrefix>binding-v</MinVerTagPrefix>
+    <MinVerMinimumMajorMinor>9.2</MinVerMinimumMajorMinor>
   </PropertyGroup>
 
   <PropertyGroup>

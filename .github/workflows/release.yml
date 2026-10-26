@@ -1,4 +1,4 @@
-name: Release
+name: Release ReactiveUI.SourceGenerators
 
 on:
   workflow_dispatch:
@@ -27,9 +27,8 @@ jobs:
   release:
     uses: reactiveui/actions-common/.github/workflows/workflow-common-release.yml@main
     with:
-      solutionFile: ReactiveUI.SourceGenerators.slnf
-      msbuildSolutionFile: ReactiveUI.SourceGenerators.Uno.slnf
-      installWorkloads: true
+      solutionFile: ReactiveUI.SourceGenerators.Package.slnf
+      minverTagPrefix: v
       bump: ${{ inputs.bump }}
       sourceRef: ${{ inputs.sourceRef }}
     secrets:

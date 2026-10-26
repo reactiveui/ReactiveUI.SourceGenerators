@@ -1399,10 +1399,12 @@ build keeps working right up until Wine starts. Each copy chains to the reposito
 - **Test and benchmark runtimes:** .NET 10.0 and 11.0
 - **Generator + Analyzer targets:** netstandard2.0 (Roslyn requirement)
 - **Runtime library targets:** net8.0;net9.0;net10.0;net11.0;net462;net47;net471;net472;net48;net481
-- **One version:** Every package shares one version from one `v*` tag stream, so the release workflow tags once and
-  nothing is versioned by hand. `src/Directory.Build.props` sets a 10.0 floor, above the attribute packages' 4.x and
-  ReactiveUI.Binding's 9.x lines. The release workflow's computed version reaches every project through
-  `MINVERVERSIONOVERRIDE`, which skips the floor, so the first release needs a `v10.0.0` baseline tag.
+- **Two separate version streams:** The attribute packages (`ReactiveUI.SourceGenerators`) continue their `v4.x` tags.
+  Every `ReactiveUI.Binding*` project continues from 9.1.0 on its own `binding-v` tags with a 9.2 floor
+  (`src/Directory.Build.props`). Each family has its own release workflow: `release.yml` builds
+  `ReactiveUI.SourceGenerators.Package.slnf` with the `v` prefix, and `release-binding.yml` builds
+  `ReactiveUI.Binding.slnf` and `ReactiveUI.Binding.Uno.slnf` with the `binding-v` prefix. The workflow computes the
+  next version from its family's tags, so nobody tags by hand, and a release of one family never moves the other.
 - **No shallow clones:** Repository requires full clone for MinVer
 - **Where the analyzers ship:** `ReactiveUI.Binding` and `ReactiveUI.Binding.Reactive` each pack the generator
   and analyzer DLLs into `analyzers/dotnet/roslyn4.8/cs` and `analyzers/dotnet/roslyn4.13/cs`, so referencing a
