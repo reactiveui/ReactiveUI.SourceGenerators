@@ -169,6 +169,10 @@
     <MinVerVersionOverride></MinVerVersionOverride>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <CustomBeforeMicrosoftCommonTargets>$(MSBuildThisFileDirectory)build\NoDeviceSelection.targets</CustomBeforeMicrosoftCommonTargets>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="MinVer" PrivateAssets="all"/>
     <PackageReference Include="StyleSharp.Analyzers" PrivateAssets="all"/>

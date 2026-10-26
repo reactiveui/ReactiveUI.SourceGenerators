@@ -1,10 +1,9 @@
 <Project>
-  <!-- The .NET 11 iOS and tvOS SDK defines ComputeAvailableDevices for every project, a library included. dotnet test
-       asks it for a device to run each project on, and fails when the machine has none or several, before it runs a
-       test. A library has nothing to run, so it reports one placeholder device. -->
-  <Target Name="ComputeAvailableDevices" Returns="@(Devices)">
-    <ItemGroup>
-      <Devices Include="library" Description="A library has nothing to run" Type="Device" Status="Online" />
-    </ItemGroup>
-  </Target>
+  <!-- The .NET 11 iOS and tvOS SDK imports its device selection targets, and defines ComputeAvailableDevices, for every
+       project that has SdkIsMobile set, a library included. dotnet test asks that target for a device to run each
+       project on, and fails when the machine has none or several, before it runs a test. A library has nothing to
+       run, so it does not take part. This file is imported before the workload targets, which read SdkIsMobile. -->
+  <PropertyGroup Condition="'$(OutputType)' == 'Library' and '$(IsTestProject)' != 'true'">
+    <SdkIsMobile>false</SdkIsMobile>
+  </PropertyGroup>
 </Project>
