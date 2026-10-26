@@ -153,6 +153,8 @@ public class AdapterGenerationBenchmarks
     /// <exception cref="InvalidOperationException">A native mechanism was replaced by a fallback.</exception>
     private void ValidateMechanisms(string source)
     {
+        // The Commands corpus is compiled for net10.0, which has no AppKitCommandTarget (only the macOS head declares it),
+        // so the UIKit target and the WinForms event are the mechanisms it can require.
         string[] required = Family switch
         {
             "Observation" => ["CallbackPropertyObservable", "AddObserver"],

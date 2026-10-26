@@ -4,6 +4,7 @@
 
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using BenchmarkDotNet.Loggers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -92,7 +93,7 @@ internal static class GeneratorHarness
             }
 
             errors++;
-            Console.WriteLine($"  {diagnostic}");
+            ConsoleLogger.Default.WriteLine(LogKind.Error, $"  {diagnostic}");
         }
 
         return errors;

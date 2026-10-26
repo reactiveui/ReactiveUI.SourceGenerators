@@ -21,16 +21,17 @@ internal static class Program
 
     /// <summary>Runs the benchmarks the command line selects, or <c>--eventpipe dir</c> to trace allocations.</summary>
     /// <param name="args">The command-line arguments.</param>
-    internal static void Main(string[] args)
+    /// <returns>A task representing the run.</returns>
+    internal static async Task Main(string[] args)
     {
         if (args is ["--eventpipe", var outputDirectory])
         {
             // Allocation figures: GCAllocationTick events from an EventPipe session over a fixed number of operations.
-            _ = EventPipeAllocations.Measure(RuntimeScenarios.Create(), outputDirectory);
+            _ = await EventPipeAllocations.MeasureAsync(RuntimeScenarios.Create(), outputDirectory, CancellationToken.None).ConfigureAwait(false);
             return;
         }
 
-        _ = BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, CreateConfig());
+        _ = await BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).RunAsync(args, CreateConfig(), CancellationToken.None).ConfigureAwait(false);
     }
 
     /// <summary>Creates the run configuration.</summary>

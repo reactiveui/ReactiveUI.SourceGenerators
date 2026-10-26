@@ -8,7 +8,6 @@
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-    <NoWarn>$(NoWarn);CA1812;CA1001</NoWarn>
     <ExcludeFromCodeCoverage>true</ExcludeFromCodeCoverage>
   </PropertyGroup>
 

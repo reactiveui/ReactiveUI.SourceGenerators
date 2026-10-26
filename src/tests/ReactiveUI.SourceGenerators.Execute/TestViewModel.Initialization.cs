@@ -2,6 +2,7 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using DynamicData;
@@ -102,83 +103,83 @@ public partial class TestViewModel
     private void RegisterActivation() =>
         this.WhenActivated(disposables =>
         {
-            Console.Out.WriteLine("Activated");
+            Trace.WriteLine("Activated");
             _test11PropertyHelper.Dispose();
             _test11PropertyHelper = CreateTest11PropertyHelper();
             disposables(_test11PropertyHelper);
-            disposables(GetDataCommand.Do(static _ => Console.Out.WriteLine("GetDataCommand Executed")).Subscribe());
+            disposables(GetDataCommand.Do(static _ => Trace.WriteLine("GetDataCommand Executed")).Subscribe());
             disposables(GetDataCommand.Execute().Subscribe());
         });
 
     /// <summary>Initializes observable property values before sample commands execute.</summary>
     private void InitializeObservableProperties()
     {
-        Console.Out.WriteLine("MyReadOnlyProperty before init");
-        Console.Out.WriteLine(MyReadOnlyProperty);
-        Console.Out.WriteLine("MyReadOnlyNonNullProperty before init");
-        Console.Out.WriteLine(MyReadOnlyNonNullProperty);
-        Console.Out.WriteLine(ObservableAsPropertyTest2Property);
-        Console.Out.WriteLine(ReferenceTypeObservableProperty);
-        Console.Out.WriteLine(NullableReferenceTypeObservableProperty);
+        Trace.WriteLine("MyReadOnlyProperty before init");
+        Trace.WriteLine(MyReadOnlyProperty);
+        Trace.WriteLine("MyReadOnlyNonNullProperty before init");
+        Trace.WriteLine(MyReadOnlyNonNullProperty);
+        Trace.WriteLine(ObservableAsPropertyTest2Property);
+        Trace.WriteLine(ReferenceTypeObservableProperty);
+        Trace.WriteLine(NullableReferenceTypeObservableProperty);
     }
 
     /// <summary>Exercises the initial generated command set.</summary>
     private void ExerciseInitialCommands()
     {
-        Console.Out.WriteLine(Test1Command);
-        Console.Out.WriteLine(Test2Command);
-        Console.Out.WriteLine(Test3Command);
-        Console.Out.WriteLine(Test4Command);
-        Console.Out.WriteLine(Test5StringToIntCommand);
-        Console.Out.WriteLine(Test6ArgOnlyCommand);
-        Console.Out.WriteLine(Test7ObservableCommand);
-        Console.Out.WriteLine(Test8ObservableCommand);
-        Console.Out.WriteLine(Test9Command);
-        Console.Out.WriteLine(Test10Command);
+        Trace.WriteLine(Test1Command);
+        Trace.WriteLine(Test2Command);
+        Trace.WriteLine(Test3Command);
+        Trace.WriteLine(Test4Command);
+        Trace.WriteLine(Test5StringToIntCommand);
+        Trace.WriteLine(Test6ArgOnlyCommand);
+        Trace.WriteLine(Test7ObservableCommand);
+        Trace.WriteLine(Test8ObservableCommand);
+        Trace.WriteLine(Test9Command);
+        Trace.WriteLine(Test10Command);
         Test1Command?.Execute().Subscribe();
-        Test2Command?.Execute().Subscribe(static r => Console.Out.WriteLine(r));
+        Test2Command?.Execute().Subscribe(static r => Trace.WriteLine(r));
         Test3Command?.Execute().Subscribe();
-        Test4Command?.Execute().Subscribe(static r => Console.Out.WriteLine(r));
-        Test5StringToIntCommand?.Execute("100").Subscribe(Console.Out.WriteLine);
+        Test4Command?.Execute().Subscribe(static r => Trace.WriteLine(r));
+        Test5StringToIntCommand?.Execute("100").Subscribe(static value => Trace.WriteLine(value));
         Test6ArgOnlyCommand?.Execute("Hello World").Subscribe();
         Test7ObservableCommand?.Execute().Subscribe();
-        Console.Out.WriteLine($"Test2Property default Value: {Test2Property}");
-        Test8ObservableCommand?.Execute(CommandArgumentValue).Subscribe(static d => Console.Out.WriteLine(d));
-        Console.Out.WriteLine($"Test2Property Value: {Test2Property}");
-        Console.Out.WriteLine(ObservableAsPropertyTest2Property);
+        Trace.WriteLine($"Test2Property default Value: {Test2Property}");
+        Test8ObservableCommand?.Execute(CommandArgumentValue).Subscribe(static d => Trace.WriteLine(d));
+        Trace.WriteLine($"Test2Property Value: {Test2Property}");
+        Trace.WriteLine(ObservableAsPropertyTest2Property);
     }
 
     /// <summary>Exercises the nullable and non-null observable property samples.</summary>
     private void ExerciseReadOnlyProperties()
     {
-        Console.Out.WriteLine("MyReadOnlyProperty After Init");
+        Trace.WriteLine("MyReadOnlyProperty After Init");
         _testSubject.OnNext(NegativeUpdatedReadOnlyValue);
-        Console.Out.WriteLine(MyReadOnlyProperty);
+        Trace.WriteLine(MyReadOnlyProperty);
         _testSubject.OnNext(FirstObservedDoubleValue);
-        Console.Out.WriteLine(MyReadOnlyProperty);
+        Trace.WriteLine(MyReadOnlyProperty);
         _testSubject.OnNext(null);
-        Console.Out.WriteLine(MyReadOnlyProperty);
-        Console.Out.WriteLine("MyReadOnlyNonNullProperty After Init");
+        Trace.WriteLine(MyReadOnlyProperty);
+        Trace.WriteLine("MyReadOnlyNonNullProperty After Init");
         _testNonNullSubject.OnNext(NegativeUpdatedReadOnlyValue);
-        Console.Out.WriteLine(MyReadOnlyNonNullProperty);
+        Trace.WriteLine(MyReadOnlyNonNullProperty);
         _testNonNullSubject.OnNext(SecondObservedDoubleValue);
-        Console.Out.WriteLine(MyReadOnlyNonNullProperty);
+        Trace.WriteLine(MyReadOnlyNonNullProperty);
         _testNonNullSubject.OnNext(default);
-        Console.Out.WriteLine(Test13Property);
-        Console.Out.WriteLine(MyReadOnlyNonNullProperty);
+        Trace.WriteLine(Test13Property);
+        Trace.WriteLine(MyReadOnlyNonNullProperty);
     }
 
     /// <summary>Exercises the remaining commands and observable property updates.</summary>
     private void ExerciseRemainingCommands()
     {
-        Test9Command?.ThrownExceptions.Subscribe(Console.Out.WriteLine);
+        Test9Command?.ThrownExceptions.Subscribe(static value => Trace.WriteLine(value));
         var cancel = Test9Command?.Execute().Subscribe();
         cancel?.Dispose();
-        Test10Command?.Execute(CommandResultValue).Subscribe(static r => Console.Out.WriteLine(r));
+        Test10Command?.Execute(CommandResultValue).Subscribe(static r => Trace.WriteLine(r));
         TestPrivateCanExecuteCommand?.Execute().Subscribe();
-        Console.Out.WriteLine($"Observable unset, value should be 10, value is : {ObservableAsPropertyFromProperty}");
+        Trace.WriteLine($"Observable unset, value should be 10, value is : {ObservableAsPropertyFromProperty}");
         _fromPartialTestSubject.OnNext(ObservableUpdatedValue);
-        Console.Out.WriteLine($"Observable updated, value should be 11, value is : {ObservableAsPropertyFromProperty}");
+        Trace.WriteLine($"Observable updated, value should be 11, value is : {ObservableAsPropertyFromProperty}");
         _ = Console.ReadLine();
     }
 

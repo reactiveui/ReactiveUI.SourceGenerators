@@ -5,22 +5,6 @@
 #
 # A benchmark class is a harness the runner instantiates and drives; nobody stops on one in a
 # debugger to read a summary of it. The models these benchmarks observe still carry a display
-# attribute where it earns its place. The host is a console tool: it reports to the console rather than through
-# a logging abstraction, and it measures allocations with a collect before each traced session.
+# attribute where it earns its place.
 ###################
 dotnet_diagnostic.SST2334.severity = none # Harness types are driven by the runner, not inspected
-dotnet_diagnostic.SST1449.severity = none # Console output is the harness's report
-dotnet_diagnostic.PSH1021.severity = none # The allocation harness collects before each traced session so earlier garbage is not counted
-dotnet_diagnostic.PSH1315.severity = none # The harness is a synchronous console tool; it waits for the trace copy to finish
-
-###################
-# The stand-in diagnostic source for the suppressor benchmarks
-#
-# A suppressor only decides on diagnostics other analyzers report. This analyzer reports the two ids the suppressors
-# silence so the benchmarks have input without a third-party package. It is never shipped, loaded as a compiler
-# extension, or tracked in release notes, and it must reuse the real ids.
-###################
-[SuppressibleDiagnosticSource.cs]
-dotnet_diagnostic.RS1001.severity = none # Driven directly by the benchmark, not loaded by a compiler
-dotnet_diagnostic.RS1029.severity = none # The ids are the ones the suppressors target
-dotnet_diagnostic.RS2008.severity = none # Not a shipped rule

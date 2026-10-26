@@ -5,6 +5,7 @@
 using System.Diagnostics.Tracing;
 using System.Globalization;
 using System.Text;
+using BenchmarkDotNet.Loggers;
 using Microsoft.Diagnostics.NETCore.Client;
 using Microsoft.Diagnostics.Tracing;
 using Microsoft.Diagnostics.Tracing.Parsers;
@@ -38,8 +39,9 @@ public static class EventPipeAllocations
     /// <summary>Traces each scenario and writes a markdown table of the allocations per operation.</summary>
     /// <param name="scenarios">The scenarios to measure.</param>
     /// <param name="outputDirectory">The directory the traces and the table are written to.</param>
+    /// <param name="cancellationToken">Cancels the measurement.</param>
     /// <returns>The table, also written to <c>allocations.md</c> in <paramref name="outputDirectory"/>.</returns>
-    public static string Measure(IReadOnlyList<AllocationScenario> scenarios, string outputDirectory)
+    public static async Task<string> MeasureAsync(IReadOnlyList<AllocationScenario> scenarios, string outputDirectory, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(scenarios);
         _ = Directory.CreateDirectory(outputDirectory);
@@ -50,25 +52,26 @@ public static class EventPipeAllocations
 
         foreach (var scenario in scenarios)
         {
-            var result = Measure(scenario, Path.Combine(outputDirectory, $"{scenario.Name}.nettrace"));
+            var result = await MeasureAsync(scenario, Path.Combine(outputDirectory, $"{scenario.Name}.nettrace"), cancellationToken).ConfigureAwait(false);
             _ = table.Append("| ").Append(scenario.Name)
                 .Append(" | ").Append(scenario.Operations.ToString("N0", CultureInfo.InvariantCulture))
                 .Append(" | ").Append((result.Bytes / scenario.Operations).ToString("N0", CultureInfo.InvariantCulture))
                 .Append(" | ").Append(result.Ticks.ToString("N0", CultureInfo.InvariantCulture))
                 .AppendLine(" |");
-            Console.WriteLine($"{scenario.Name}: {result.Bytes / scenario.Operations:N0} bytes/op ({result.Ticks:N0} ticks)");
+            ConsoleLogger.Default.WriteLine(LogKind.Info, $"{scenario.Name}: {result.Bytes / scenario.Operations:N0} bytes/op ({result.Ticks:N0} ticks)");
         }
 
         var text = table.ToString();
-        File.WriteAllText(Path.Combine(outputDirectory, "allocations.md"), text);
+        await File.WriteAllTextAsync(Path.Combine(outputDirectory, "allocations.md"), text, cancellationToken).ConfigureAwait(false);
         return text;
     }
 
     /// <summary>Traces one scenario.</summary>
     /// <param name="scenario">The scenario.</param>
     /// <param name="tracePath">The file the trace is written to.</param>
+    /// <param name="cancellationToken">Cancels the measurement.</param>
     /// <returns>The sampled bytes and the number of allocation ticks.</returns>
-    private static (long Bytes, long Ticks) Measure(AllocationScenario scenario, string tracePath)
+    private static async Task<(long Bytes, long Ticks)> MeasureAsync(AllocationScenario scenario, string tracePath, CancellationToken cancellationToken)
     {
         scenario.Setup();
         var sink = 0L;
@@ -77,19 +80,18 @@ public static class EventPipeAllocations
             sink += scenario.Operation();
         }
 
-        GC.Collect();
-        GC.WaitForPendingFinalizers();
-        GC.Collect();
-
+        // Allocation ticks count what the session allocates, so garbage left from the warm-up needs no collection first.
         var client = new DiagnosticsClient(Environment.ProcessId);
         EventPipeProvider[] providers = [new(ClrTraceEventParser.ProviderName, EventLevel.Verbose, (long)SessionKeywords)];
-        using (var session = client.StartEventPipeSession(providers, requestRundown: true, circularBufferMB: 1024))
+        using (var session = await client.StartEventPipeSessionAsync(providers, requestRundown: true, circularBufferMB: 1024, cancellationToken).ConfigureAwait(false))
         {
-            var copy = Task.Run(() =>
-            {
-                using var file = File.Create(tracePath);
-                session.EventStream.CopyTo(file);
-            });
+            var copy = Task.Run(
+                async () =>
+                {
+                    await using var file = File.Create(tracePath);
+                    await session.EventStream.CopyToAsync(file, cancellationToken).ConfigureAwait(false);
+                },
+                cancellationToken);
 
             for (var i = 0; i < scenario.Operations; i++)
             {
@@ -97,7 +99,7 @@ public static class EventPipeAllocations
             }
 
             session.Stop();
-            copy.Wait();
+            await copy.ConfigureAwait(false);
         }
 
         GC.KeepAlive(sink);

@@ -2,6 +2,7 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using ReactiveUI;
 using Splat;
@@ -16,6 +17,9 @@ public static class Program
     [System.STAThread]
     public static void Main()
     {
+        // The sample reports what the generated members do through Trace; this listener shows it on the console.
+        _ = Trace.Listeners.Add(new ConsoleTraceListener());
+
         // The generated RegisterViewsForViewModelsSourceGenerated() is gone: ReactiveUI.Binding's view locator registers
         // every IViewFor<T> at compile time. Without ReactiveUI.Binding, register the views with Splat yourself.
         AppLocator.CurrentMutable.Register<IViewFor<TestViewModel>>(static () => new TestViewWinForms());

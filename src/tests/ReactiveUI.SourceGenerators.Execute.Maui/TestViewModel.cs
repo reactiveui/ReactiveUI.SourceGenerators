@@ -2,6 +2,7 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -63,7 +64,7 @@ public partial class TestViewModel : ReactiveObject
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand(CanExecute = nameof(CanExecuteTest1))]
     [property: JsonInclude]
-    private static void Test1() => Console.Out.WriteLine("Test1");
+    private static void Test1() => Trace.WriteLine("Test1");
 
     /// <summary>Returns the default point from the second generated command.</summary>
     /// <returns>The default point value.</returns>
@@ -94,7 +95,7 @@ public partial class TestViewModel : ReactiveObject
     /// <param name="str">The value to write.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand]
-    private static void Test6ArgOnly(string str) => Console.Out.WriteLine($">>> {str}");
+    private static void Test6ArgOnly(string str) => Trace.WriteLine($">>> {str}");
 
     /// <summary>Returns a unit value through an observable command.</summary>
     /// <returns>An observable that returns a unit value.</returns>
@@ -166,26 +167,26 @@ public partial class TestViewModel : ReactiveObject
     /// <summary>Writes the generated commands so their creation is visible in the sample output.</summary>
     private void WriteGeneratedCommands()
     {
-        Console.Out.WriteLine(Test1Command);
-        Console.Out.WriteLine(Test2Command);
-        Console.Out.WriteLine(Test3Command);
-        Console.Out.WriteLine(Test4Command);
-        Console.Out.WriteLine(Test5StringToIntCommand);
-        Console.Out.WriteLine(Test6ArgOnlyCommand);
-        Console.Out.WriteLine(Test7ObservableCommand);
-        Console.Out.WriteLine(Test8ObservableCommand);
-        Console.Out.WriteLine(Test9Command);
-        Console.Out.WriteLine(Test10Command);
+        Trace.WriteLine(Test1Command);
+        Trace.WriteLine(Test2Command);
+        Trace.WriteLine(Test3Command);
+        Trace.WriteLine(Test4Command);
+        Trace.WriteLine(Test5StringToIntCommand);
+        Trace.WriteLine(Test6ArgOnlyCommand);
+        Trace.WriteLine(Test7ObservableCommand);
+        Trace.WriteLine(Test8ObservableCommand);
+        Trace.WriteLine(Test9Command);
+        Trace.WriteLine(Test10Command);
     }
 
     /// <summary>Executes the generated commands that do not require cancellation.</summary>
     private void ExecuteInitialCommands()
     {
         _ = Test1Command?.Execute().Subscribe();
-        _ = Test2Command?.Execute().Subscribe(static result => Console.Out.WriteLine(result));
+        _ = Test2Command?.Execute().Subscribe(static result => Trace.WriteLine(result));
         _ = Test3Command?.Execute().Subscribe();
-        _ = Test4Command?.Execute().Subscribe(static result => Console.Out.WriteLine(result));
-        _ = Test5StringToIntCommand?.Execute("100").Subscribe(Console.Out.WriteLine);
+        _ = Test4Command?.Execute().Subscribe(static result => Trace.WriteLine(result));
+        _ = Test5StringToIntCommand?.Execute("100").Subscribe(static value => Trace.WriteLine(value));
         _ = Test6ArgOnlyCommand?.Execute("Hello World").Subscribe();
         _ = Test7ObservableCommand?.Execute().Subscribe();
     }
@@ -194,15 +195,15 @@ public partial class TestViewModel : ReactiveObject
     private void InitializeObservableProperty()
     {
         _test2PropertyHelper = Test8ObservableCommand!.ToProperty(this, static viewModel => viewModel.Test2Property);
-        _ = Test8ObservableCommand.Execute(ObservableCommandArgument).Subscribe(Console.Out.WriteLine);
-        Console.Out.WriteLine($"Test2Property Value: {Test2Property}");
+        _ = Test8ObservableCommand.Execute(ObservableCommandArgument).Subscribe(static value => Trace.WriteLine(value));
+        Trace.WriteLine($"Test2Property Value: {Test2Property}");
     }
 
     /// <summary>Executes the cancellable and argument-taking generated commands.</summary>
     private void ExecuteRemainingCommands()
     {
-        _ = Test9Command?.ThrownExceptions.Subscribe(Console.Out.WriteLine);
+        _ = Test9Command?.ThrownExceptions.Subscribe(static value => Trace.WriteLine(value));
         ScheduleCancellation(Test9Command?.Execute().Subscribe());
-        _ = Test10Command?.Execute(PointCommandArgument).Subscribe(static result => Console.Out.WriteLine(result));
+        _ = Test10Command?.Execute(PointCommandArgument).Subscribe(static result => Trace.WriteLine(result));
     }
 }

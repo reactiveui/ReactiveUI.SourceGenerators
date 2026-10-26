@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
 using System.Reactive.Concurrency;
@@ -215,6 +216,18 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     /// </value>
     public static TestViewModel Instance { get; } = new();
 
+    /// <summary>Gets the can execute test1.</summary>
+    /// <value>
+    /// The can execute test1.
+    /// </value>
+    public static IObservable<bool> CanExecuteTest1 => ObservableAsPropertyTest2.Select(static x => x > 0);
+
+    /// <summary>Gets the observable as property test2.</summary>
+    /// <value>
+    /// The observable as property test2.
+    /// </value>
+    public static IObservable<int> ObservableAsPropertyTest2 => Observable.Return(DefaultObservableValue);
+
     /// <summary>Gets the test class oaph vm.</summary>
     /// <value>
     /// The test class oaph vm.
@@ -279,18 +292,6 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     /// The reactive property test property.
     /// </value>
     public ReactiveProperty<int>? ReactivePropertyTestProperty { get; set; }
-
-    /// <summary>Gets the can execute test1.</summary>
-    /// <value>
-    /// The can execute test1.
-    /// </value>
-    public IObservable<bool> CanExecuteTest1 => ObservableAsPropertyTest2.Select(static x => x > 0);
-
-    /// <summary>Gets the observable as property test2.</summary>
-    /// <value>
-    /// The observable as property test2.
-    /// </value>
-    public IObservable<int> ObservableAsPropertyTest2 => Observable.Return(DefaultObservableValue);
 
     /// <summary>Gets the latest value <see cref="ObservableAsPropertyTest2"/> produced.</summary>
     [Test(AParameter = "Test Input")]
@@ -413,7 +414,7 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     private void WriteSampleMessage(string message)
     {
         GC.KeepAlive(this);
-        Console.Out.WriteLine(message);
+        Trace.WriteLine(message);
     }
 
     /// <summary>Test1s this instance.</summary>

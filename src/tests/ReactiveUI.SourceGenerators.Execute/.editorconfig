@@ -1,5 +1,0 @@
-[*.cs]
-
-# The sample view model declares members the attribute generators bind to by name, such as CanExecute sources, and
-# they need not touch instance data to be valid inputs.
-dotnet_diagnostic.CA1822.severity = none
