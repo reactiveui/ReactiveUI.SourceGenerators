@@ -15,9 +15,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Testing Framework. Pinned: later releases make `dotnet test` on Windows report "No devices are available
-         for this project" for the Uno and MAUI projects (the renovate/tunit branches of Primitives and Splat fail
-         the same way). -->
+    <!-- Testing Framework. Held at the release the Binding generators last passed CI on: the renovate/tunit branches
+         of Primitives and Splat fail their builds on later releases. Do not add Microsoft.NET.Test.Sdk 18.11: it makes
+         `dotnet test` report "No devices are available for this project" (Akavache's renovate branch fails the same way). -->
     <PackageVersion Include="TUnit" Version="1.73.19"/>
 
     <!-- Roslyn Framework -->
@@ -74,7 +74,6 @@
     <PackageVersion Include="ReactiveUI.Primitives.Uno.Reactive" Version="$(ReactiveUIPrimitivesVersion)"/>
 
     <!-- Test Infrastructure for the attribute generators -->
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.11.0"/>
     <PackageVersion Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="4.0.0"/>
     <PackageVersion Include="DynamicData" Version="9.5.0"/>
 

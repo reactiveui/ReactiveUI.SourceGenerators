@@ -21,7 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="TUnit" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" VersionOverride="4.14.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" PrivateAssets="all" VersionOverride="4.14.0" />
