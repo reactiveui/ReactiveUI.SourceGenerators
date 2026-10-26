@@ -166,7 +166,10 @@ public static class ReactiveBindingExamples
         Console.WriteLine(binding.ViewModelExpression is null);
         Console.WriteLine(string.Join(", ", seen));
 
-        DisposeTwice(binding);
+        // A second owner holds the same binding and disposes it too; the subscription is still disposed once.
+        IDisposable otherOwner = binding;
+        binding.Dispose();
+        otherOwner.Dispose();
 
         // Output:
         // AsyncOneWay
@@ -330,14 +333,6 @@ public static class ReactiveBindingExamples
         // Output:
         // 1200.00
         // 85.50
-    }
-
-    /// <summary>Disposes a resource twice, to show the second call does nothing.</summary>
-    /// <param name="resource">The resource to dispose.</param>
-    private static void DisposeTwice(ReactiveBinding<TodoView, int> resource)
-    {
-        resource.Dispose();
-        resource.Dispose();
     }
 
     /// <summary>Shows the amount of money with two decimal places.</summary>

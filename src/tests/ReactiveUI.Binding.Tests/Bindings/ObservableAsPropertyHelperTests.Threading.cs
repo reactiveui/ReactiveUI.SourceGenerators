@@ -194,6 +194,118 @@ public sealed partial class ObservableAsPropertyHelperTests
         }
     }
 
+    /// <summary>A callback that throws with nothing queued behind it propagates the exception and leaves the helper usable.</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task Serialization_CallbackThrowsWithNothingQueued_PropagatesAndRecovers()
+    {
+        const int RecoveryValue = 3;
+        var source = new Subject<int>();
+        var received = new List<int>();
+
+        using var fixture = new ObservableAsPropertyHelper<int>(source, OnChanged, 0);
+
+        await Assert.That(() => source.OnNext(1)).Throws<InvalidOperationException>();
+
+        source.OnNext(RecoveryValue);
+        await Assert.That(received).IsEquivalentTo([0, 1, RecoveryValue]);
+        return;
+
+        void OnChanged(int value)
+        {
+            received.Add(value);
+
+            if (value == 1)
+            {
+                throw new InvalidOperationException("boom");
+            }
+        }
+    }
+
+    /// <summary>The constructor that takes every option reads the initial value from the supplied function.</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task Constructor_WithEveryOption_DeliversTheInitialValueFromTheFunction()
+    {
+        const int InitialValue = 7;
+        var source = new Subject<int>();
+        var received = new List<int>();
+
+        using var fixture = new ObservableAsPropertyHelper<int>(source, received.Add, null, static () => InitialValue, false, null);
+
+        await Assert.That(received).IsEquivalentTo([InitialValue]);
+        await Assert.That(fixture.Value).IsEqualTo(InitialValue);
+    }
+
+    /// <summary>A value produced while another thread holds the gate waits for it, then is delivered.</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task Serialization_GateHeldByAnotherThread_WaitsThenDelivers()
+    {
+        const int GateHeldDelayMilliseconds = 100;
+        const int InitialAndTwoProduced = 3;
+        var source = new Subject<BlockingValue?>();
+        var received = new List<BlockingValue?>();
+        using var first = new BlockingValue();
+        using var second = new BlockingValue();
+        using var initial = new BlockingValue();
+
+        using var fixture = new ObservableAsPropertyHelper<BlockingValue?>(source, received.Add, initial);
+
+        // The distinct check compares values while holding the gate, so a value whose comparison blocks holds it.
+        first.BlockComparison = true;
+        var holder = Task.Run(() => source.OnNext(first));
+        await Assert.That(first.ComparisonEntered.Wait(WaitTimeout)).IsTrue();
+
+        var waiter = Task.Run(() => source.OnNext(second));
+        await Task.Delay(GateHeldDelayMilliseconds);
+        await Assert.That(waiter.IsCompleted).IsFalse();
+
+        first.ReleaseComparison.Set();
+        await holder.WaitAsync(WaitTimeout);
+        await waiter.WaitAsync(WaitTimeout);
+
+        await Assert.That(received.Count).IsEqualTo(InitialAndTwoProduced);
+    }
+
+    /// <summary>A value whose comparison can block, to hold the helper's gate for as long as a test needs.</summary>
+    private sealed class BlockingValue : IEquatable<BlockingValue>, IDisposable
+    {
+        /// <summary>Gets the signal set when a blocking comparison starts.</summary>
+        public ManualResetEventSlim ComparisonEntered { get; } = new(false);
+
+        /// <summary>Gets the signal that lets a blocking comparison finish.</summary>
+        public ManualResetEventSlim ReleaseComparison { get; } = new(false);
+
+        /// <summary>Gets or sets a value indicating whether comparing this value blocks until released.</summary>
+        public bool BlockComparison { get; set; }
+
+        /// <inheritdoc/>
+        public bool Equals(BlockingValue? other)
+        {
+            if (BlockComparison)
+            {
+                ComparisonEntered.Set();
+                _ = ReleaseComparison.Wait(WaitTimeout);
+            }
+
+            return ReferenceEquals(this, other);
+        }
+
+        /// <inheritdoc/>
+        public override bool Equals(object? obj) => obj is BlockingValue other && Equals(other);
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+            ComparisonEntered.Dispose();
+            ReleaseComparison.Dispose();
+        }
+    }
+
     /// <summary>An observable that hands calls straight to the observer, with no internal locking of its own.</summary>
     /// <typeparam name="T">The element type.</typeparam>
     private sealed class DirectObservable<T> : IObservable<T>

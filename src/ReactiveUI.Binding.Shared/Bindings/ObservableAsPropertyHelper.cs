@@ -738,12 +738,11 @@ public sealed class ObservableAsPropertyHelper<T> : IDisposable
                 return;
             }
 
+            // Nothing else can be delivering yet: the source is subscribed only after the initial value, and the core is
+            // private. Claiming the delivery is enough for a value produced meanwhile to queue behind this one.
             using (EnterGate())
             {
-                if (!TryClaimDelivery(value))
-                {
-                    return;
-                }
+                _delivering = true;
             }
 
             DeliverSerialized(value);
