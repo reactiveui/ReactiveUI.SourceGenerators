@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using ReactiveUI.SourceGenerators;
 
 namespace SGReactiveUI.SourceGenerators.Test;
@@ -14,6 +15,7 @@ public partial class TestViewModel
 {
     /// <summary>Returns the secondary generated command value.</summary>
     /// <returns>The generated point.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand]
     private static Point Test2() => default;
 }

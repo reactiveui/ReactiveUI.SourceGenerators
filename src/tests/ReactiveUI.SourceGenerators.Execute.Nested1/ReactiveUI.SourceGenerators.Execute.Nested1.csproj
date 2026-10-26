@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ReactiveUI.Reactive" />
+    <PackageReference Include="ReactiveUI.Reactive" VersionOverride="24.3.0" />
   </ItemGroup>
 
   <ItemGroup>

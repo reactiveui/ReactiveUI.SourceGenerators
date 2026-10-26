@@ -8,6 +8,7 @@ using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 using ReactiveUI.SourceGenerators;
@@ -143,7 +144,7 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     private int _test1Property;
 
     /// <summary>Tracks whether the instance has disposed its resources.</summary>
-    private bool _disposedValue;
+    private int _disposedValue;
 
     /// <summary>Stores the mutable string test value.</summary>
     [Reactive]
@@ -354,10 +355,12 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     /// <returns>
     /// Observable of double.
     /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IObservable<double?> ObservableAsPropertyTest() => _testSubject;
 
     /// <summary>Observables as property test non null.</summary>
     /// <returns>Observable of double.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IObservable<double> ObservableAsPropertyTestNonNull() => _testNonNullSubject;
 
     /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
@@ -372,32 +375,27 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
     protected virtual void Dispose(bool disposing)
     {
-        if (_disposedValue)
+        if (Interlocked.Exchange(ref _disposedValue, 1) != 0 || !disposing)
         {
             return;
         }
 
-        if (disposing)
-        {
-            _testSubject.Dispose();
-            _testNonNullSubject.Dispose();
-            _fromPartialTestSubject.Dispose();
-            _test2PropertyHelper.Dispose();
-            _test11PropertyHelper.Dispose();
-            _observableAsPropertyTest2PropertyHelper.Dispose();
-            _observableAsPropertyTest3PropertyHelper.Dispose();
-            _observableAsPropertyFromPropertyHelper.Dispose();
-            _plcActiveHelper.Dispose();
-            _plcStatusHelper.Dispose();
-            _plcPortHelper.Dispose();
-            _plcInstanceHelper.Dispose();
-            _referenceTypeObservablePropertyHelper.Dispose();
-            _nullableReferenceTypeObservablePropertyHelper.Dispose();
-            _myReadOnlyPropertyHelper.Dispose();
-            _myReadOnlyNonNullPropertyHelper.Dispose();
-        }
-
-        _disposedValue = true;
+        _testSubject.Dispose();
+        _testNonNullSubject.Dispose();
+        _fromPartialTestSubject.Dispose();
+        _test2PropertyHelper.Dispose();
+        _test11PropertyHelper.Dispose();
+        _observableAsPropertyTest2PropertyHelper.Dispose();
+        _observableAsPropertyTest3PropertyHelper.Dispose();
+        _observableAsPropertyFromPropertyHelper.Dispose();
+        _plcActiveHelper.Dispose();
+        _plcStatusHelper.Dispose();
+        _plcPortHelper.Dispose();
+        _plcInstanceHelper.Dispose();
+        _referenceTypeObservablePropertyHelper.Dispose();
+        _nullableReferenceTypeObservablePropertyHelper.Dispose();
+        _myReadOnlyPropertyHelper.Dispose();
+        _myReadOnlyNonNullPropertyHelper.Dispose();
     }
 
     /// <summary>Associates a sample result with this view-model instance.</summary>
@@ -419,6 +417,7 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     }
 
     /// <summary>Test1s this instance.</summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand(CanExecute = nameof(CanExecuteTest1))]
     [property: JsonInclude]
     [property: Test(AParameter = "Test Input")]
@@ -426,39 +425,46 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
 
     /// <summary>Test3s the asynchronous.</summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand]
     private Task Test3Async() => UseInstance(Task.Delay(0));
 
     /// <summary>Test4s the asynchronous.</summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand]
     private Task<Point> Test4Async() => UseInstance(Task.FromResult(new Point(CommandArgumentValue, CommandArgumentValue)));
 
     /// <summary>Test5s the string to int.</summary>
     /// <param name="str">The string.</param>
     /// <returns>int.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand]
     private int Test5StringToInt(string str) => UseInstance(int.Parse(str));
 
     /// <summary>Test6s the argument only.</summary>
     /// <param name="str">The string.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand]
     private void Test6ArgOnly(string str) => WriteSampleMessage($">>> {str}");
 
     /// <summary>Test7s the observable.</summary>
     /// <returns>An Observable of Unit.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand]
     private IObservable<Unit> Test7Observable() => UseInstance(Observable.Return(Unit.Default));
 
     /// <summary>Test8s the observable.</summary>
     /// <param name="i">The i.</param>
     /// <returns>An Observable of int.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand(AccessModifier = PropertyAccessModifier.Internal)]
     private IObservable<double?> Test8Observable(int i) => UseInstance(Observable.Return<double?>(i + ObservableCommandOffset));
 
     /// <summary>Executes the cancellable reactive command sample.</summary>
     /// <param name="ct">The cancellation token for the command.</param>
     /// <returns>A task that completes when the command finishes.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand]
     private Task Test9Async(CancellationToken ct) => UseInstance(Task.Delay(CancellationDelayMilliseconds, ct));
 
@@ -466,16 +472,19 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     /// <param name="size">The size of the generated point.</param>
     /// <param name="ct">The cancellation token for the command.</param>
     /// <returns>A task that produces the generated point.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand]
     private Task<Point> Test10Async(int size, CancellationToken ct) => UseInstance(Task.FromResult(new Point(size, size)));
 
     /// <summary>Executes the command with a private observable can-execute source.</summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand(CanExecute = nameof(_observable), OutputScheduler = nameof(_scheduler))]
     private void TestPrivateCanExecute() => WriteSampleMessage("TestPrivateCanExecute");
 
     /// <summary>Retrieves the empty data sequence used by the reactive command sample.</summary>
     /// <param name="ct">The cancellation token for the command.</param>
     /// <returns>A task that produces an empty data sequence.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ReactiveCommand]
     private Task<System.Collections.IEnumerable> GetData(CancellationToken ct) =>
         UseInstance(Task.FromResult<System.Collections.IEnumerable>(Array.Empty<System.Collections.IEnumerable>()));

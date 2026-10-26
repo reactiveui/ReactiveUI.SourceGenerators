@@ -2,14 +2,14 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
-using System.ComponentModel;
-using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 
 namespace SGReactiveUI.SourceGenerators.Test;
 
 /// <summary>Provides the Windows Forms test view.</summary>
 /// <seealso cref="System.Windows.Forms.Form" />
-public partial class TestViewWinForms : Form, IViewFor<TestViewModel>
+[IViewFor<TestViewModel>]
+public partial class TestViewWinForms : Form
 {
     /// <summary>Initializes a new instance of the <see cref="TestViewWinForms"/> class.</summary>
     public TestViewWinForms()
@@ -18,12 +18,4 @@ public partial class TestViewWinForms : Form, IViewFor<TestViewModel>
         ViewModel = TestViewModel.Instance;
         _ = ViewModel.Activator.Activate();
     }
-
-    /// <inheritdoc/>
-    [Browsable(false)]
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    public TestViewModel? ViewModel { get; set; }
-
-    /// <inheritdoc/>
-    object? IViewFor.ViewModel { get => ViewModel; set => ViewModel = (TestViewModel?)value; }
 }

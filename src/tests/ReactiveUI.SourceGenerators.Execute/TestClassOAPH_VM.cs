@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using ReactiveUI.Reactive;
 using ReactiveUI.SourceGenerators;
 
@@ -67,16 +68,19 @@ public partial class TestClassOAPH_VM : ReactiveObject
 
     /// <summary>Creates the helper that projects the reactive property to its observable counterpart.</summary>
     /// <returns>The initialized observable property helper.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ObservableAsPropertyHelper<bool> CreateObservableTestPropertyHelper() =>
-        this.WhenAnyValue(x => x.ReactiveTestProperty).ToProperty(this, x => x.ObservableTestProperty);
+        this.WhenAnyValue(static x => x.ReactiveTestProperty).ToProperty(this, static x => x.ObservableTestProperty);
 
     /// <summary>Creates the helper that projects the reactive field to its observable counterpart.</summary>
     /// <returns>The initialized observable field helper.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ObservableAsPropertyHelper<bool> CreateObservableTestFieldHelper() =>
-        this.WhenAnyValue(x => x.ReactiveTestField).ToProperty(this, x => x.ObservableTestField);
+        this.WhenAnyValue(static x => x.ReactiveTestField).ToProperty(this, static x => x.ObservableTestField);
 
     /// <summary>Creates the helper that projects the test property.</summary>
     /// <returns>The initialized test helper.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ObservableAsPropertyHelper<string?> CreateTestHelper() =>
-        this.WhenAnyValue(x => x.TestProperty).ToProperty(this, x => x.Test);
+        this.WhenAnyValue(static x => x.TestProperty).ToProperty(this, static x => x.Test);
 }

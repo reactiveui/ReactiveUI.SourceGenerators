@@ -16,10 +16,7 @@ public partial class Class1 : ReactiveObject
     private string? _property1;
 
     /// <summary>Initializes a new instance of the <see cref="Class1"/> class.</summary>
-    public Class1()
-    {
-        _ = SetPropertyCommand.Execute(new Nested1.Class1 { Property1 = "Initial Value" }).Subscribe(new CommandObserver());
-    }
+    public Class1() => _ = SetPropertyCommand.Execute(new Nested1.Class1 { Property1 = "Initial Value" }).Subscribe(new CommandObserver());
 
     /// <summary>Copies the input object to the corresponding second nested object.</summary>
     /// <param name="class1">The object to copy.</param>

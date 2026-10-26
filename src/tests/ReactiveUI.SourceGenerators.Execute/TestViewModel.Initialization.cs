@@ -3,8 +3,8 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Reactive.Linq;
+using System.Runtime.CompilerServices;
 using DynamicData;
-using ReactiveUI.Reactive;
 using ReactiveUI.SourceGenerators;
 
 namespace SGReactiveUI.SourceGenerators.Test;
@@ -21,70 +21,84 @@ public partial class TestViewModel
 
     /// <summary>Creates the helper that projects the test command output.</summary>
     /// <returns>The initialized observable property helper.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ObservableAsPropertyHelper<double?> CreateTest2PropertyHelper() =>
-        Test8ObservableCommand!.ToProperty(this, x => x.Test2Property, initialValue: Test2InitialValue);
+        Test8ObservableCommand!.ToProperty(this, static x => x.Test2Property, initialValue: Test2InitialValue);
 
     /// <summary>Creates the helper that projects the activated reactive property.</summary>
     /// <returns>The initialized observable property helper.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ObservableAsPropertyHelper<double?> CreateTest11PropertyHelper() =>
-        this.WhenAnyValue(x => x.Test12Property).ToProperty(this, x => x.Test11Property, initialValue: Test11InitialValue);
+        this.WhenAnyValue(static x => x.Test12Property).ToProperty(this, static x => x.Test11Property, initialValue: Test11InitialValue);
 
     /// <summary>Creates the helper that projects the protected observable property.</summary>
     /// <returns>The initialized observable property helper.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ObservableAsPropertyHelper<double> CreateObservableAsPropertyTest3PropertyHelper() =>
-        this.WhenAnyValue(x => x.Test13Property).ToProperty(this, x => x.ObservableAsPropertyTest3Property);
+        this.WhenAnyValue(static x => x.Test13Property).ToProperty(this, static x => x.ObservableAsPropertyTest3Property);
 
     /// <summary>Creates the helper that projects the partial observable property.</summary>
     /// <returns>The initialized observable property helper.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ObservableAsPropertyHelper<int> CreateObservableAsPropertyFromPropertyHelper() =>
-        _fromPartialTestSubject.ToProperty(this, x => x.ObservableAsPropertyFromProperty, initialValue: FromPropertyInitialValue);
+        _fromPartialTestSubject.ToProperty(this, static x => x.ObservableAsPropertyFromProperty, initialValue: FromPropertyInitialValue);
 
     /// <summary>Creates the helper that projects the active PLC identifier.</summary>
     /// <returns>The initialized observable property helper.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ObservableAsPropertyHelper<string?> CreatePlcActiveHelper() =>
-        this.WhenAnyValue(x => x.PartialRequiredPropertyTest).ToProperty(this, nameof(PLCActive), initialValue: "Not Connected");
+        this.WhenAnyValue(static x => x.PartialRequiredPropertyTest).ToProperty(this, nameof(PLCActive), initialValue: "Not Connected");
 
     /// <summary>Creates the helper that projects the PLC status message.</summary>
     /// <returns>The initialized observable property helper.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ObservableAsPropertyHelper<string> CreatePlcStatusHelper() =>
-        this.WhenAnyValue(x => x.PLCActive).Select(static x => x ?? string.Empty).ToProperty(this, nameof(PLCStatus), initialValue: string.Empty);
+        this.WhenAnyValue(static x => x.PLCActive).Select(static x => x ?? string.Empty).ToProperty(this, nameof(PLCStatus), initialValue: string.Empty);
 
     /// <summary>Creates the helper that projects the PLC port.</summary>
     /// <returns>The initialized observable property helper.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ObservableAsPropertyHelper<int> CreatePlcPortHelper() =>
-        this.WhenAnyValue(x => x.Test1Property).ToProperty(this, nameof(PLCPort), initialValue: PlcInitialPort);
+        this.WhenAnyValue(static x => x.Test1Property).ToProperty(this, nameof(PLCPort), initialValue: PlcInitialPort);
 
     /// <summary>Creates the helper that projects the PLC instance.</summary>
     /// <returns>The initialized observable property helper.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ObservableAsPropertyHelper<PLCInstance> CreatePlcInstanceHelper() =>
-        this.WhenAnyValue(x => x.PlcInstanceCore).ToProperty(this, nameof(InstanceOfPLC), initialValue: new());
+        this.WhenAnyValue(static x => x.PlcInstanceCore).ToProperty(this, nameof(InstanceOfPLC), initialValue: new());
 
     /// <summary>Creates the helper that follows the non-null reference type observable.</summary>
     /// <returns>The initialized observable property helper.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ObservableAsPropertyHelper<object> CreateReferenceTypeHelper() =>
         ReferenceTypeObservable.ToProperty(this, nameof(ReferenceTypeObservableProperty), initialValue: new());
 
     /// <summary>Creates the helper that follows the nullable reference type observable.</summary>
     /// <returns>The initialized observable property helper.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ObservableAsPropertyHelper<object?> CreateNullableReferenceTypeHelper() =>
         NullableReferenceTypeObservable.ToProperty(this, nameof(NullableReferenceTypeObservableProperty));
 
     /// <summary>Creates the helper that follows <see cref="ObservableAsPropertyTest2"/>.</summary>
     /// <returns>The initialized observable property helper.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ObservableAsPropertyHelper<int> CreateObservableAsPropertyTest2PropertyHelper() =>
         ObservableAsPropertyTest2.ToProperty(this, nameof(ObservableAsPropertyTest2Property), initialValue: ObservableAsPropertyInitialValue);
 
     /// <summary>Creates the helper that follows <see cref="ObservableAsPropertyTest"/>.</summary>
     /// <returns>The initialized observable property helper.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ObservableAsPropertyHelper<double?> CreateMyReadOnlyPropertyHelper() =>
         ObservableAsPropertyTest().ToProperty(this, nameof(MyReadOnlyProperty), initialValue: NegativeInitialReadOnlyValue);
 
     /// <summary>Creates the helper that follows <see cref="ObservableAsPropertyTestNonNull"/>.</summary>
     /// <returns>The initialized observable property helper.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ObservableAsPropertyHelper<double> CreateMyReadOnlyNonNullPropertyHelper() =>
         ObservableAsPropertyTestNonNull().ToProperty(this, nameof(MyReadOnlyNonNullProperty), initialValue: NegativeNonNullReadOnlyValue);
 
     /// <summary>Registers the lifecycle activation subscriptions.</summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void RegisterActivation() =>
         this.WhenActivated(disposables =>
         {
@@ -173,7 +187,7 @@ public partial class TestViewModel
         _ = this.WhenAnyValue(vm => vm.People)
             .Subscribe(people => people
                 .AsObservableChangeSet()
-                .AutoRefresh(x => x.Deleted)
+                .AutoRefresh(static x => x.Deleted)
                 .Filter(static x => !x.Deleted)
                 .Bind(out _visiblePeople)
                 .Subscribe());

@@ -23,6 +23,12 @@ internal static class AttributeDefinitions
     /// <summary>The metadata name of <c>[Reactive]</c>.</summary>
     public const string ReactiveAttributeType = "ReactiveUI.SourceGenerators.ReactiveAttribute";
 
+    /// <summary>The metadata name of <c>[IViewFor("...")]</c>.</summary>
+    public const string IViewForAttributeType = "ReactiveUI.SourceGenerators.IViewForAttribute";
+
+    /// <summary>The metadata name of <c>[IViewFor&lt;T&gt;]</c>.</summary>
+    public const string IViewForGenericAttributeType = "ReactiveUI.SourceGenerators.IViewForAttribute`1";
+
     /// <summary>The metadata name of <c>[ViewModelControlHost]</c>.</summary>
     public const string ViewModelControlHostAttributeType = "ReactiveUI.SourceGenerators.WinForms.ViewModelControlHostAttribute";
 

@@ -112,6 +112,7 @@ public sealed partial class TestHelper<T> : IDisposable
         {
             nameof(ReactiveGenerator) => "REACTIVE",
             nameof(ReactiveCommandGenerator) => "REACTIVECMD",
+            nameof(IViewForGenerator) => "IVIEWFOR",
             nameof(RoutedControlHostGenerator) => "ROUTEDHOST",
             nameof(ViewModelControlHostGenerator) => "CONTROLHOST",
             nameof(BindableDerivedListGenerator) => "DERIVEDLIST",

@@ -4,12 +4,14 @@
 
 using System.Windows;
 using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 using Splat;
 
 namespace SGReactiveUI.SourceGenerators.Test;
 
 /// <summary>Provides the WPF test view.</summary>
-public class TestViewWpf : Window, IViewFor<TestViewModel>
+[IViewFor<TestViewModel>]
+public partial class TestViewWpf : Window
 {
     /// <summary>Initializes a new instance of the <see cref="TestViewWpf"/> class.</summary>
     public TestViewWpf()
@@ -23,10 +25,4 @@ public class TestViewWpf : Window, IViewFor<TestViewModel>
     /// The test property.
     /// </value>
     public int TestProperty { get; set; }
-
-    /// <inheritdoc/>
-    public TestViewModel? ViewModel { get; set; }
-
-    /// <inheritdoc/>
-    object? IViewFor.ViewModel { get => ViewModel; set => ViewModel = (TestViewModel?)value; }
 }

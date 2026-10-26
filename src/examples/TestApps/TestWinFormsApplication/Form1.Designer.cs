@@ -1,5 +1,6 @@
 namespace WinFormsApp1
 {
+	[ReactiveUI.SourceGenerators.IViewFor<MainViewModel>]
 	partial class Form1
 	{
 		/// <summary>
