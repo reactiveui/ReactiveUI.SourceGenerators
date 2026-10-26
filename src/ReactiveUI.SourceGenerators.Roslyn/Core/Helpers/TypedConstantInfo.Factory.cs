@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using Microsoft.CodeAnalysis;
@@ -29,13 +28,13 @@ internal abstract partial record TypedConstantInfo
         if (arg.Kind == TypedConstantKind.Array)
         {
             var elementTypeName = ((IArrayTypeSymbol)arg.Type!).ElementType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            using var items = ImmutableArrayBuilder<TypedConstantInfo>.Rent();
+            using var items = ArrayBuilder<TypedConstantInfo>.Rent();
             foreach (var value in arg.Values)
             {
                 items.Add(Create(value));
             }
 
-            return new Array(elementTypeName, items.ToImmutable());
+            return new Array(elementTypeName, items.ToEquatableArray());
         }
 
         return (arg.Kind, arg.Value) switch
@@ -162,11 +161,11 @@ internal abstract partial record TypedConstantInfo
         var initializer = GetInitializer(expression);
         if (initializer is null)
         {
-            info = new Array(elementTypeName, ImmutableArray<TypedConstantInfo>.Empty);
+            info = new Array(elementTypeName, default);
             return true;
         }
 
-        using var items = ImmutableArrayBuilder<TypedConstantInfo>.Rent();
+        using var items = ArrayBuilder<TypedConstantInfo>.Rent();
         foreach (var itemExpression in initializer.Expressions)
         {
             if (!TryCreateArrayItem(itemExpression, semanticModel, token, out var item))
@@ -178,7 +177,7 @@ internal abstract partial record TypedConstantInfo
             items.Add(item);
         }
 
-        info = new Array(elementTypeName, items.ToImmutable());
+        info = new Array(elementTypeName, items.ToEquatableArray());
         return true;
     }
 

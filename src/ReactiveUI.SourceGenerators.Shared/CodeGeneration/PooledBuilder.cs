@@ -4,7 +4,7 @@
 
 using System.Text;
 
-namespace ReactiveUI.Binding.SourceGenerators.CodeGeneration;
+namespace ReactiveUI.SourceGenerators.CodeGeneration;
 
 /// <summary>Hands out reusable string builders so a generation pass reuses buffers instead of allocating per file.</summary>
 /// <remarks>

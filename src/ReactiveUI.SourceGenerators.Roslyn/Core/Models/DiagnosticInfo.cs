@@ -55,12 +55,12 @@ internal sealed record DiagnosticInfo(
     /// <returns>The string representation of every argument.</returns>
     private static EquatableArray<string> CreateArguments(object[] args)
     {
-        using var arguments = ImmutableArrayBuilder<string>.Rent();
+        using var arguments = ArrayBuilder<string>.Rent();
         foreach (var argument in args)
         {
             arguments.Add(argument.ToString() ?? string.Empty);
         }
 
-        return arguments.ToImmutable();
+        return arguments.ToEquatableArray();
     }
 }

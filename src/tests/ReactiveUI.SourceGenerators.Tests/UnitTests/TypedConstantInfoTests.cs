@@ -127,9 +127,11 @@ public sealed class TypedConstantInfoTests
             new TypedConstantInfo.Null(),
             new TypedConstantInfo.Array(
                 Int32TypeName,
-                ImmutableArray.Create<TypedConstantInfo>(
+                new EquatableArray<TypedConstantInfo>(
+                [
                     new TypedConstantInfo.Primitive.Of<int>(FirstArrayValue),
-                    new TypedConstantInfo.Primitive.Of<int>(SecondArrayValue))),
+                    new TypedConstantInfo.Primitive.Of<int>(SecondArrayValue),
+                ])),
         ];
         List<string> expressions = [];
         foreach (var value in values)

@@ -32,9 +32,9 @@ internal static class IncrementalPipelineExtensions
                 results.Where(static result => !result.Errors.IsEmpty).Select(static (result, _) => result.Errors),
                 static (context, errors) =>
                 {
-                    foreach (var error in errors.AsImmutableArray())
+                    for (var i = 0; i < errors.Length; i++)
                     {
-                        context.ReportDiagnostic(error.ToDiagnostic());
+                        context.ReportDiagnostic(errors[i].ToDiagnostic());
                     }
                 });
     }
@@ -54,19 +54,19 @@ internal static class IncrementalPipelineExtensions
 
     /// <summary>Groups models by their type's hint name, which is unique within a compilation.</summary>
     /// <typeparam name="T">The model type.</typeparam>
-    /// <param name="all">Every model.</param>
+    /// <param name="all">Every model; Roslyn's <c>Collect</c> returns it as an <see cref="ImmutableArray{T}"/>.</param>
     /// <param name="target">Reads a model's type.</param>
     /// <returns>One array per type, in first-seen order.</returns>
-    private static ImmutableArray<EquatableArray<T>> Group<T>(ImmutableArray<T> all, Func<T, TargetInfo> target)
+    private static EquatableArray<T>[] Group<T>(ImmutableArray<T> all, Func<T, TargetInfo> target)
         where T : IEquatable<T>
     {
         if (all.IsEmpty)
         {
-            return ImmutableArray<EquatableArray<T>>.Empty;
+            return [];
         }
 
         var indexByType = new Dictionary<string, int>(StringComparer.Ordinal);
-        var groups = new List<ImmutableArray<T>.Builder>();
+        var groups = new List<List<T>>();
         foreach (var model in all)
         {
             var hintName = target(model).FileHintName;
@@ -74,18 +74,18 @@ internal static class IncrementalPipelineExtensions
             {
                 index = groups.Count;
                 indexByType.Add(hintName, index);
-                groups.Add(ImmutableArray.CreateBuilder<T>());
+                groups.Add([]);
             }
 
             groups[index].Add(model);
         }
 
-        var result = ImmutableArray.CreateBuilder<EquatableArray<T>>(groups.Count);
-        foreach (var group in groups)
+        var result = new EquatableArray<T>[groups.Count];
+        for (var i = 0; i < result.Length; i++)
         {
-            result.Add(group.ToImmutable());
+            result[i] = new(groups[i].ToArray());
         }
 
-        return result.MoveToImmutable();
+        return result;
     }
 }

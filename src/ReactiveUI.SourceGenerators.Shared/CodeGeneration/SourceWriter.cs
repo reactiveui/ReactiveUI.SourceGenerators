@@ -5,7 +5,7 @@
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace ReactiveUI.Binding.SourceGenerators.CodeGeneration;
+namespace ReactiveUI.SourceGenerators.CodeGeneration;
 
 /// <summary>Writes generated C# source, tracking the indentation level so emitters never spell it out.</summary>
 /// <remarks>

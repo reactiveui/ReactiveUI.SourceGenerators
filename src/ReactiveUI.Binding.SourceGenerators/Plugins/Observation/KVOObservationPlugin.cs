@@ -4,7 +4,6 @@
 
 using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
-using ReactiveUI.Binding.SourceGenerators.CodeGeneration;
 using ReactiveUI.Binding.SourceGenerators.Helpers;
 using ReactiveUI.Binding.SourceGenerators.Models;
 

@@ -91,7 +91,7 @@ internal static class CodeGeneratorHelpers
     /// <returns>A dotted access chain like "obj.Address.City".</returns>
     internal static string BuildPropertyAccessChain(string root, EquatableArray<PropertyPathSegment> path)
     {
-        if (path.Length == 0)
+        if (path.IsEmpty)
         {
             return root;
         }
@@ -222,7 +222,7 @@ internal static class CodeGeneratorHelpers
     /// <returns>A dotted string like "Address.City".</returns>
     internal static string BuildPropertyPathString(EquatableArray<PropertyPathSegment> path)
     {
-        if (path.Length == 0)
+        if (path.IsEmpty)
         {
             return string.Empty;
         }
@@ -530,7 +530,7 @@ internal static class CodeGeneratorHelpers
         string fullyQualifiedName,
         EquatableArray<PropertyPathSegment> path) =>
         FindClassInfo(allClasses, fullyQualifiedName)
-            ?? (path.Length > 0 ? path[0].DeclaringTypeInfo : null);
+            ?? (!path.IsEmpty ? path[0].DeclaringTypeInfo : null);
 
     /// <summary>Computes a deterministic hash for a string using FNV-1a. Unlike <see cref="string.GetHashCode()"/>, this is stable across processes and .NET versions.</summary>
     /// <param name="s">The string to hash.</param>

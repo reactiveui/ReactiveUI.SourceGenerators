@@ -1,42 +1,40 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <LangVersion>latest</LangVersion>
-    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <IsRoslynComponent>true</IsRoslynComponent>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
     <DevelopmentDependency>true</DevelopmentDependency>
     <NoPackageAnalysis>true</NoPackageAnalysis>
-    <NoWarn>$(NoWarn);RS1038;RS2007;NU5128</NoWarn>
-    <PackageDescription>A MVVM framework that integrates with the Reactive Extensions for .NET to create elegant, testable User Interfaces that run on any mobile or desktop platform. This is the Source Generators package for ReactiveUI</PackageDescription>
+    <!-- RS1038: the code fix providers in this assembly need the Workspaces reference. -->
+    <NoWarn>$(NoWarn);RS1038</NoWarn>
+    <PackageDescription>Analyzers and code fixes for ReactiveUI.SourceGenerators attributes.</PackageDescription>
   </PropertyGroup>
+
   <!-- Pinned to 4.8.0: the code-fix assembly ships in the version-less analyzers/dotnet/cs
        folder, which the compiler loads on EVERY host. Building it against the 4.8 API keeps it
        forward-compatible on all hosts (4.8 -> 5.0) with no CS9057 (that warning only fires when an
        analyzer references a NEWER compiler than the running one), so .NET 8 (Roslyn 4.8) consumers
-       — including -warnaserror builds — are not broken by the code fixes. -->
+       - including -warnaserror builds - are not broken by the code fixes. -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" VersionOverride="4.8.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" PrivateAssets="all" VersionOverride="4.8.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" PrivateAssets="all" VersionOverride="4.8.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" VersionOverride="4.8.0"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="all" VersionOverride="4.8.0"/>
   </ItemGroup>
+
   <ItemGroup>
-    <InternalsVisibleTo Include="ReactiveUI.SourceGenerators.Tests" />
+    <InternalsVisibleTo Include="ReactiveUI.SourceGenerators.Tests"/>
   </ItemGroup>
+
   <!-- The netstandard2.0 polyfills, shared with the generators. -->
   <ItemGroup>
-    <Compile Include="..\ReactiveUI.SourceGenerators.Roslyn\Polyfills\*.cs" Link="Polyfills\%(Filename)%(Extension)" />
+    <Compile Include="..\ReactiveUI.Binding.Shared\Polyfills\*.cs" LinkBase="Polyfills"/>
     <!-- The command generator's rules, so the analyzer reports exactly what the generator skips. -->
-    <Compile Include="..\ReactiveUI.SourceGenerators.Roslyn\ReactiveCommand\ReactiveCommandRules.cs" Link="Shared\ReactiveCommandRules.cs" />
-    <!-- The hosts' view API rules, so the analyzer reports exactly the hosts the generator writes without ObservedProperty. -->
-    <Compile Include="..\ReactiveUI.SourceGenerators.Roslyn\Core\Helpers\ViewApiRules.cs" Link="Shared\ViewApiRules.cs" />
+    <Compile Include="..\ReactiveUI.SourceGenerators.Roslyn\ReactiveCommand\ReactiveCommandRules.cs" Link="Shared\ReactiveCommandRules.cs"/>
   </ItemGroup>
+
   <!-- This ensures the library will be packaged as a source generator when we use `dotnet pack` -->
   <ItemGroup>
-    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
   </ItemGroup>
 </Project>

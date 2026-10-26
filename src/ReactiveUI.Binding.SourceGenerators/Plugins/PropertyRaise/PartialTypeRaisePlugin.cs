@@ -5,8 +5,8 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using ReactiveUI.Binding.SourceGenerators.CodeGeneration;
 using ReactiveUI.Binding.SourceGenerators.Models;
+using ReactiveUI.SourceGenerators.CodeGeneration;
 
 namespace ReactiveUI.Binding.SourceGenerators.Plugins.PropertyRaise;
 

@@ -45,9 +45,11 @@
     <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Models\PropertyRaiseCallKind.cs" Link="Models\PropertyRaiseCallKind.cs"/>
     <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Models\PropertyRaiseArgumentKind.cs" Link="Models\PropertyRaiseArgumentKind.cs"/>
     <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Models\PartialTypeDeclaration.cs" Link="Models\PartialTypeDeclaration.cs"/>
-    <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Models\EquatableArray.cs" Link="Models\EquatableArray.cs"/>
+    <Compile Include="..\ReactiveUI.SourceGenerators.Shared\Collections\EquatableArray.cs" Link="Shared\Collections\EquatableArray.cs"/>
     <Compile Include="..\ReactiveUI.Binding.Shared\Bindings\BindingAffinity.cs" Link="Bindings\BindingAffinity.cs"/>
-    <Compile Include="..\ReactiveUI.Binding.SourceGenerators\CodeGeneration\PooledStringBuilder.cs" Link="CodeGeneration\PooledStringBuilder.cs"/>
+    <Compile Include="..\ReactiveUI.SourceGenerators.Shared\CodeGeneration\PooledStringBuilder.cs" Link="Shared\CodeGeneration\PooledStringBuilder.cs"/>
+    <Using Include="ReactiveUI.SourceGenerators.CodeGeneration"/>
+    <Using Include="ReactiveUI.SourceGenerators.Helpers"/>
     <Compile Include="..\ReactiveUI.Binding.Shared\Polyfills\*.cs" LinkBase="Polyfills"/>
     <Compile Include="..\ReactiveUI.Binding.Shared\Helpers\ArgumentExceptionHelper.cs" Link="Helpers\ArgumentExceptionHelper.cs"/>
   </ItemGroup>

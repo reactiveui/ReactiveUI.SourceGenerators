@@ -49,5 +49,5 @@ internal sealed record HostedCall(
     internal bool ReturnNeedsCast => DeclaredReturnType != ClosedReturnType;
 
     /// <summary>Gets a value indicating whether the moved code is generic over the caller's type parameters.</summary>
-    internal bool IsGeneric => WrapperTypeParameters.Length > 0;
+    internal bool IsGeneric => !WrapperTypeParameters.IsEmpty;
 }

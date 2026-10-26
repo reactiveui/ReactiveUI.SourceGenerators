@@ -6,7 +6,6 @@ using System;
 using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
@@ -14,14 +13,14 @@ namespace ReactiveUI.SourceGenerators.Helpers;
 
 /// <summary>A helper type to build sequences of values with pooled buffers.</summary>
 /// <typeparam name="T">The type of items to create sequences for.</typeparam>
-internal ref struct ImmutableArrayBuilder<T>
+internal ref struct ArrayBuilder<T>
 {
     /// <summary>The rented <see cref="Writer"/> instance to use.</summary>
     private Writer? _writer;
 
-    /// <summary>Initializes a new instance of the <see cref="ImmutableArrayBuilder{T}"/> struct.</summary>
+    /// <summary>Initializes a new instance of the <see cref="ArrayBuilder{T}"/> struct.</summary>
     /// <param name="writer">The target data writer to use.</param>
-    private ImmutableArrayBuilder(Writer writer) => _writer = writer;
+    private ArrayBuilder(Writer writer) => _writer = writer;
 
     /// <summary>Gets the data written to the underlying buffer so far, as a <see cref="ReadOnlySpan{T}"/>.</summary>
     [UnscopedRef]
@@ -44,9 +43,9 @@ internal ref struct ImmutableArrayBuilder<T>
     /// <inheritdoc/>
     public override readonly string ToString() => _writer!.WrittenSpan.ToString();
 
-    /// <summary>Creates a <see cref="ImmutableArrayBuilder{T}"/> value with a pooled underlying data writer.</summary>
-    /// <returns>A <see cref="ImmutableArrayBuilder{T}"/> instance to write data to.</returns>
-    internal static ImmutableArrayBuilder<T> Rent() => new(new Writer());
+    /// <summary>Creates a <see cref="ArrayBuilder{T}"/> value with a pooled underlying data writer.</summary>
+    /// <returns>A <see cref="ArrayBuilder{T}"/> instance to write data to.</returns>
+    internal static ArrayBuilder<T> Rent() => new(new Writer());
 
     /// <summary>Adds an item to the builder.</summary>
     /// <param name="item">The item to add.</param>
@@ -55,15 +54,6 @@ internal ref struct ImmutableArrayBuilder<T>
     /// <summary>Adds the specified items to the end of the array.</summary>
     /// <param name="items">The items to add at the end of the array.</param>
     internal readonly void AddRange(scoped in ReadOnlySpan<T> items) => _writer!.AddRange(items);
-
-    /// <summary>Creates an immutable array from the written items.</summary>
-    /// <returns>An immutable array containing the written items.</returns>
-    internal readonly ImmutableArray<T> ToImmutable()
-    {
-        var array = _writer!.WrittenSpan.ToArray();
-
-        return Unsafe.As<T[], ImmutableArray<T>>(ref array);
-    }
 
     /// <summary>Creates an array from the written items.</summary>
     /// <returns>An array containing the written items.</returns>
@@ -105,7 +95,7 @@ internal ref struct ImmutableArrayBuilder<T>
             Count = 0;
         }
 
-        /// <inheritdoc cref="ImmutableArrayBuilder{T}.Count"/>
+        /// <inheritdoc cref="ArrayBuilder{T}.Count"/>
         public int Count
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

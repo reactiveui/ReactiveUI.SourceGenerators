@@ -32,6 +32,10 @@
     <Compile Include="..\ReactiveUI.Binding.SourceGenerators\**\*.cs"
              Exclude="..\ReactiveUI.Binding.SourceGenerators\bin\**\*.cs;..\ReactiveUI.Binding.SourceGenerators\obj\**\*.cs"
              LinkBase="SourceGenerators"/>
+    <Compile Include="..\ReactiveUI.SourceGenerators.Shared\CodeGeneration\*.cs" LinkBase="Shared\CodeGeneration"/>
+    <Compile Include="..\ReactiveUI.SourceGenerators.Shared\Collections\*.cs" LinkBase="Shared\Collections"/>
+    <Using Include="ReactiveUI.SourceGenerators.CodeGeneration"/>
+    <Using Include="ReactiveUI.SourceGenerators.Helpers"/>
     <Compile Include="..\ReactiveUI.Binding.Shared\Polyfills\*.cs" LinkBase="Polyfills"/>
     <Compile Include="..\ReactiveUI.Binding.Shared\Helpers\ArgumentExceptionHelper.cs" Link="Helpers\ArgumentExceptionHelper.cs"/>
     <Compile Include="..\ReactiveUI.Binding.Shared\Bindings\BindingAffinity.cs" Link="Bindings\BindingAffinity.cs"/>

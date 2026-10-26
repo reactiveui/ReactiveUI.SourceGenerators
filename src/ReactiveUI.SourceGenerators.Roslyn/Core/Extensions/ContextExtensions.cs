@@ -47,16 +47,16 @@ internal static class ContextExtensions
         /// <param name="token">The cancellation token.</param>
         /// <param name="forwardedAttributes">The generated attribute source text.</param>
         internal void GetForwardedAttributes(
-            ImmutableArrayBuilder<DiagnosticInfo> builder,
+            ArrayBuilder<DiagnosticInfo> builder,
             ISymbol symbol,
             in SyntaxList<AttributeListSyntax> attributeListSyntaxes,
             CancellationToken token,
-            out ImmutableArray<string> forwardedAttributes)
+            out EquatableArray<string> forwardedAttributes)
         {
-            using var attributes = ImmutableArrayBuilder<AttributeInfo>.Rent();
+            using var attributes = ArrayBuilder<AttributeInfo>.Rent();
             AddAutomaticForwardedAttributes(symbol, attributes, token);
             AddExplicitForwardedAttributes(context, builder, symbol, attributeListSyntaxes, attributes, token);
-            forwardedAttributes = ConvertToSourceAttributes(attributes.ToImmutable());
+            forwardedAttributes = ConvertToSourceAttributes(attributes.WrittenSpan);
         }
     }
 
@@ -80,7 +80,7 @@ internal static class ContextExtensions
     /// <param name="token">The cancellation token.</param>
     private static void AddAutomaticForwardedAttributes(
         ISymbol symbol,
-        ImmutableArrayBuilder<AttributeInfo> attributes,
+        ArrayBuilder<AttributeInfo> attributes,
         CancellationToken token)
     {
         var symbolAttributes = symbol.GetAttributes();
@@ -185,10 +185,10 @@ internal static class ContextExtensions
     /// <param name="token">The cancellation token.</param>
     private static void AddExplicitForwardedAttributes(
         in GeneratorAttributeSyntaxContext context,
-        ImmutableArrayBuilder<DiagnosticInfo> diagnostics,
+        ArrayBuilder<DiagnosticInfo> diagnostics,
         ISymbol symbol,
         in SyntaxList<AttributeListSyntax> attributeLists,
-        ImmutableArrayBuilder<AttributeInfo> attributes,
+        ArrayBuilder<AttributeInfo> attributes,
         CancellationToken token)
     {
         foreach (var attributeList in attributeLists)
@@ -222,10 +222,10 @@ internal static class ContextExtensions
     /// <param name="token">The cancellation token.</param>
     private static void AddExplicitForwardedAttribute(
         in GeneratorAttributeSyntaxContext context,
-        ImmutableArrayBuilder<DiagnosticInfo> diagnostics,
+        ArrayBuilder<DiagnosticInfo> diagnostics,
         ISymbol symbol,
         AttributeSyntax attribute,
-        ImmutableArrayBuilder<AttributeInfo> attributes,
+        ArrayBuilder<AttributeInfo> attributes,
         CancellationToken token)
     {
         if (!context.SemanticModel.GetSymbolInfo(attribute, token).TryGetAttributeTypeSymbol(out var attributeType))
@@ -251,15 +251,15 @@ internal static class ContextExtensions
     /// <summary>Converts forwarded attribute metadata to generated source text.</summary>
     /// <param name="attributes">The attributes to convert.</param>
     /// <returns>The generated source text.</returns>
-    private static ImmutableArray<string> ConvertToSourceAttributes(ImmutableArray<AttributeInfo> attributes)
+    private static EquatableArray<string> ConvertToSourceAttributes(ReadOnlySpan<AttributeInfo> attributes)
     {
-        using var sourceAttributes = ImmutableArrayBuilder<string>.Rent();
+        using var sourceAttributes = ArrayBuilder<string>.Rent();
         foreach (var attribute in attributes)
         {
             sourceAttributes.Add(attribute.ToString());
         }
 
-        return sourceAttributes.ToImmutable();
+        return sourceAttributes.ToEquatableArray();
     }
 
     /// <summary>Determines whether a ReactiveUI command exposes the primitive void type.</summary>

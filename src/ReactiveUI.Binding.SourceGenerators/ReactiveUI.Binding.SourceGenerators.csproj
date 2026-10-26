@@ -43,6 +43,14 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" VersionOverride="4.8.0"/>
   </ItemGroup>
 
+  <!-- The writer, pooled builders and equatable array both generator families use. -->
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.SourceGenerators.Shared\CodeGeneration\*.cs" LinkBase="Shared\CodeGeneration"/>
+    <Compile Include="..\ReactiveUI.SourceGenerators.Shared\Collections\*.cs" LinkBase="Shared\Collections"/>
+    <Using Include="ReactiveUI.SourceGenerators.CodeGeneration"/>
+    <Using Include="ReactiveUI.SourceGenerators.Helpers"/>
+  </ItemGroup>
+
   <!-- Link polyfills and helpers from runtime library for netstandard2.0 compatibility -->
   <ItemGroup>
     <Compile Include="..\ReactiveUI.Binding.Shared\Polyfills\*.cs" LinkBase="Polyfills"/>

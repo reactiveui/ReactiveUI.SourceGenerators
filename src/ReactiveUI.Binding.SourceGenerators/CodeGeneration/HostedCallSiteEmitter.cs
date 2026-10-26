@@ -213,7 +213,7 @@ internal static class HostedCallSiteEmitter
         _ = writer.BlankLine();
         CodeGeneratorHelpers.OpenPartialDeclaration(writer, destination.Declaration);
         _ = writer.Line($"internal static partial class {destination.EntriesDeclaration}");
-        if (call.WrapperConstraints.Length > 0)
+        if (!call.WrapperConstraints.IsEmpty)
         {
             _ = writer.Indent();
             foreach (var clause in call.WrapperConstraints)
@@ -384,7 +384,7 @@ internal static class HostedCallSiteEmitter
             _ = i == call.Parameters.Length - 1 ? writer.Line(")").Outdent() : writer.Line(",");
         }
 
-        if (call.Constraints.Length == 0)
+        if (call.Constraints.IsEmpty)
         {
             return;
         }
@@ -403,7 +403,7 @@ internal static class HostedCallSiteEmitter
     /// <param name="call">The hosted call.</param>
     private static void AppendTypeArguments(SourceWriter writer, HostedCall call)
     {
-        if (call.TypeParameters.Length == 0)
+        if (call.TypeParameters.IsEmpty)
         {
             return;
         }

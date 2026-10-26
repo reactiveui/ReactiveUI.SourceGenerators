@@ -18,9 +18,6 @@ public sealed class EquatableArrayTests
     /// <summary>The third element index.</summary>
     private const int ThirdIndex = 2;
 
-    /// <summary>The expected number of elements in a two-element array.</summary>
-    private const int TwoElements = 2;
-
     /// <summary>The expected number of elements in a three-element array.</summary>
     private const int ThreeElements = 3;
 
@@ -36,37 +33,13 @@ public sealed class EquatableArrayTests
     /// <summary>The value used to make an array unequal.</summary>
     private const int DifferentValue = 4;
 
-    /// <summary>The fifth value used by the tests.</summary>
-    private const int FifthValue = 5;
-
-    /// <summary>The sixth value used by the tests.</summary>
-    private const int SixthValue = 6;
-
-    /// <summary>The seventh value used by the tests.</summary>
-    private const int SeventhValue = 7;
-
-    /// <summary>The eighth value used by the tests.</summary>
-    private const int EighthValue = 8;
-
-    /// <summary>The ninth value used by the tests.</summary>
-    private const int NinthValue = 9;
-
-    /// <summary>The tenth value used by the tests.</summary>
-    private const int TenthValue = 10;
-
-    /// <summary>The twentieth value used by the tests.</summary>
-    private const int TwentiethValue = 20;
-
-    /// <summary>The thirtieth value used by the tests.</summary>
-    private const int ThirtiethValue = 30;
-
     /// <summary>Two arrays with identical elements are equal.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenSameElementsThenEqual()
     {
-        var a = ImmutableArray.Create(FirstValue, SecondValue, ThirdValue).AsEquatableArray();
-        var b = ImmutableArray.Create(FirstValue, SecondValue, ThirdValue).AsEquatableArray();
+        var a = new EquatableArray<int>([FirstValue, SecondValue, ThirdValue]);
+        var b = new EquatableArray<int>([FirstValue, SecondValue, ThirdValue]);
 
         await Assert.That(a == b).IsTrue();
         await Assert.That(a.Equals(b)).IsTrue();
@@ -78,8 +51,8 @@ public sealed class EquatableArrayTests
     [Test]
     public async Task WhenDifferentElementsThenNotEqual()
     {
-        var a = ImmutableArray.Create(FirstValue, SecondValue, ThirdValue).AsEquatableArray();
-        var b = ImmutableArray.Create(FirstValue, SecondValue, DifferentValue).AsEquatableArray();
+        var a = new EquatableArray<int>([FirstValue, SecondValue, ThirdValue]);
+        var b = new EquatableArray<int>([FirstValue, SecondValue, DifferentValue]);
 
         await Assert.That(a == b).IsFalse();
         await Assert.That(a != b).IsTrue();
@@ -90,22 +63,24 @@ public sealed class EquatableArrayTests
     [Test]
     public async Task WhenDifferentOrderThenNotEqual()
     {
-        var a = ImmutableArray.Create(FirstValue, SecondValue, ThirdValue).AsEquatableArray();
-        var b = ImmutableArray.Create(ThirdValue, SecondValue, FirstValue).AsEquatableArray();
+        var a = new EquatableArray<int>([FirstValue, SecondValue, ThirdValue]);
+        var b = new EquatableArray<int>([ThirdValue, SecondValue, FirstValue]);
 
         await Assert.That(a == b).IsFalse();
     }
 
-    /// <summary>An empty array equals another empty array.</summary>
+    /// <summary>An empty array equals another empty array and a default one.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task WhenBothEmptyThenEqual()
     {
-        var a = ImmutableArray<int>.Empty.AsEquatableArray();
-        var b = ImmutableArray<int>.Empty.AsEquatableArray();
+        var a = new EquatableArray<int>([]);
+        var b = default(EquatableArray<int>);
 
         await Assert.That(a == b).IsTrue();
         await Assert.That(a.IsEmpty).IsTrue();
+        await Assert.That(b.Length).IsEqualTo(0);
+        await Assert.That(b.GetHashCode()).IsEqualTo(0);
     }
 
     /// <summary>An empty array is not equal to a non-empty array.</summary>
@@ -113,10 +88,11 @@ public sealed class EquatableArrayTests
     [Test]
     public async Task WhenOneEmptyThenNotEqual()
     {
-        var a = ImmutableArray<int>.Empty.AsEquatableArray();
-        var b = ImmutableArray.Create(FirstValue).AsEquatableArray();
+        var a = new EquatableArray<int>([]);
+        var b = new EquatableArray<int>([FirstValue]);
 
         await Assert.That(a == b).IsFalse();
+        await Assert.That(b.Equals(a)).IsFalse();
     }
 
     /// <summary>The indexer returns the element at the given position.</summary>
@@ -124,63 +100,38 @@ public sealed class EquatableArrayTests
     [Test]
     public async Task WhenIndexedThenReturnsCorrectElement()
     {
-        var arr = ImmutableArray.Create(TenthValue, TwentiethValue, ThirtiethValue).AsEquatableArray();
+        var arr = new EquatableArray<int>([FirstValue, SecondValue, ThirdValue]);
 
-        await Assert.That(arr[FirstIndex]).IsEqualTo(TenthValue);
-        await Assert.That(arr[SecondIndex]).IsEqualTo(TwentiethValue);
-        await Assert.That(arr[ThirdIndex]).IsEqualTo(ThirtiethValue);
+        await Assert.That(arr[FirstIndex]).IsEqualTo(FirstValue);
+        await Assert.That(arr[SecondIndex]).IsEqualTo(SecondValue);
+        await Assert.That(arr[ThirdIndex]).IsEqualTo(ThirdValue);
     }
 
-    /// <summary>Enumeration yields all elements in order.</summary>
+    /// <summary>A Roslyn array is wrapped without copying and keeps its elements.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
-    public async Task WhenEnumeratedThenYieldsAllElements()
+    public async Task WhenWrappedFromRoslynThenKeepsElements()
     {
-        var expected = new[] { FirstValue, SecondValue, ThirdValue };
-        var arr = ImmutableArray.Create(expected).AsEquatableArray();
-        var actual = new List<int>(arr);
+        var wrapped = EquatableArray<int>.FromRoslyn([FirstValue, SecondValue]);
+        var fromDefault = EquatableArray<int>.FromRoslyn(default);
 
-        await Assert.That(actual.Count).IsEqualTo(ThreeElements);
-        await Assert.That(actual[FirstIndex]).IsEqualTo(FirstValue);
-        await Assert.That(actual[SecondIndex]).IsEqualTo(SecondValue);
-        await Assert.That(actual[ThirdIndex]).IsEqualTo(ThirdValue);
+        await Assert.That(wrapped.Length).IsEqualTo(SecondValue);
+        await Assert.That(wrapped[SecondIndex]).IsEqualTo(SecondValue);
+        await Assert.That(fromDefault.IsEmpty).IsTrue();
     }
 
-    /// <summary>Implicit conversion from ImmutableArray preserves elements.</summary>
+    /// <summary>ToArray returns a copy that does not share storage.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
-    public async Task WhenImplicitlyConvertedFromImmutableArrayThenPreservesElements()
+    public async Task WhenToArrayCalledThenReturnsIndependentCopy()
     {
-        EquatableArray<int> equatable = ImmutableArray.Create(FifthValue, SixthValue, SeventhValue);
-
-        await Assert.That(equatable[FirstIndex]).IsEqualTo(FifthValue);
-        await Assert.That(equatable[SecondIndex]).IsEqualTo(SixthValue);
-        await Assert.That(equatable[ThirdIndex]).IsEqualTo(SeventhValue);
-    }
-
-    /// <summary>Implicit conversion to ImmutableArray preserves elements.</summary>
-    /// <returns>A task to monitor the async.</returns>
-    [Test]
-    public async Task WhenImplicitlyConvertedToImmutableArrayThenPreservesElements()
-    {
-        ImmutableArray<int> immutable = ImmutableArray.Create(EighthValue, NinthValue).AsEquatableArray();
-
-        await Assert.That(immutable.Length).IsEqualTo(TwoElements);
-        await Assert.That(immutable[FirstIndex]).IsEqualTo(EighthValue);
-        await Assert.That(immutable[SecondIndex]).IsEqualTo(NinthValue);
-    }
-
-    /// <summary>ToArray returns a mutable copy with the same elements.</summary>
-    /// <returns>A task to monitor the async.</returns>
-    [Test]
-    public async Task WhenToArrayCalledThenReturnsMutableCopy()
-    {
-        var arr = ImmutableArray.Create(FirstValue, SecondValue, ThirdValue).AsEquatableArray();
+        var arr = new EquatableArray<int>([FirstValue, SecondValue, ThirdValue]);
         var copy = arr.ToArray();
+        copy[FirstIndex] = DifferentValue;
 
         await Assert.That(copy.Length).IsEqualTo(ThreeElements);
-        await Assert.That(copy[FirstIndex]).IsEqualTo(FirstValue);
-        await Assert.That(copy[ThirdIndex]).IsEqualTo(ThirdValue);
+        await Assert.That(arr[FirstIndex]).IsEqualTo(FirstValue);
+        await Assert.That(default(EquatableArray<int>).ToArray().Length).IsEqualTo(0);
     }
 
     /// <summary>AsSpan returns a span over the elements.</summary>
@@ -188,7 +139,7 @@ public sealed class EquatableArrayTests
     [Test]
     public async Task WhenAsSpanCalledThenSpanCoversElements()
     {
-        var arr = ImmutableArray.Create(FirstValue, SecondValue, ThirdValue).AsEquatableArray();
+        var arr = new EquatableArray<int>([FirstValue, SecondValue, ThirdValue]);
         var span = arr.AsSpan();
         var length = span.Length;
         var middle = span[SecondIndex];
@@ -202,84 +153,37 @@ public sealed class EquatableArrayTests
     [Test]
     public async Task WhenEqualArraysThenSameHashCode()
     {
-        var a = ImmutableArray.Create(FirstValue, SecondValue, ThirdValue).AsEquatableArray();
-        var b = ImmutableArray.Create(FirstValue, SecondValue, ThirdValue).AsEquatableArray();
+        var a = new EquatableArray<int>([FirstValue, SecondValue, ThirdValue]);
+        var b = new EquatableArray<int>([FirstValue, SecondValue, ThirdValue]);
 
         await Assert.That(a.GetHashCode()).IsEqualTo(b.GetHashCode());
     }
 
-    /// <summary>Equals(object) returns true when passed an equal EquatableArray.</summary>
+    /// <summary>Equals(object) compares by value and rejects other types.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
-    public async Task WhenEqualsObjectCalledWithEqualArrayThenReturnsTrue()
+    public async Task WhenEqualsObjectCalledThenComparesByValue()
     {
-        var a = ImmutableArray.Create(FirstValue, SecondValue).AsEquatableArray();
-        object b = ImmutableArray.Create(FirstValue, SecondValue).AsEquatableArray();
+        var a = new EquatableArray<int>([FirstValue, SecondValue]);
+        object same = new EquatableArray<int>([FirstValue, SecondValue]);
+        object different = new EquatableArray<int>([SecondValue]);
 
-        await Assert.That(a.Equals(b)).IsTrue();
-    }
-
-    /// <summary>Equals(object) returns false when passed null.</summary>
-    /// <returns>A task to monitor the async.</returns>
-    [Test]
-    public async Task WhenEqualsObjectCalledWithNullThenReturnsFalse()
-    {
-        var a = ImmutableArray.Create(FirstValue).AsEquatableArray();
-
+        await Assert.That(a.Equals(same)).IsTrue();
+        await Assert.That(a.Equals(different)).IsFalse();
         await Assert.That(a.Equals(null)).IsFalse();
     }
 
-    /// <summary>Default arrays and unequal boxed arrays cover the empty backing-store paths.</summary>
+    /// <summary>The IEnumerable implementation yields every element in order.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
-    public async Task DefaultAndUnequalBoxedArraysUseValueSemantics()
+    public async Task WhenEnumeratedAsIEnumerableThenYieldsInOrder()
     {
-        var empty = default(EquatableArray<int>);
-        var populated = ImmutableArray.Create(FirstValue).AsEquatableArray();
-        object unequal = ImmutableArray.Create(SecondValue).AsEquatableArray();
-
-        await Assert.That(empty.Length).IsEqualTo(0);
-        await Assert.That(empty.Count).IsEqualTo(0);
-        await Assert.That(empty.GetHashCode()).IsEqualTo(0);
-        await Assert.That(empty.Equals(populated)).IsFalse();
-        await Assert.That(populated.Equals(unequal)).IsFalse();
-    }
-
-    /// <summary>AsImmutableArray round-trips back to ImmutableArray.</summary>
-    /// <returns>A task to monitor the async.</returns>
-    [Test]
-    public async Task WhenAsImmutableArrayCalledThenRoundTrips()
-    {
-        var source = ImmutableArray.Create("x", "y", "z");
-        var equatable = source.AsEquatableArray();
-        var roundTripped = equatable.AsImmutableArray();
-
-        await Assert.That(roundTripped.SequenceEqual(source)).IsTrue();
-    }
-
-    /// <summary>FromImmutableArray static factory produces an equal instance to the extension method.</summary>
-    /// <returns>A task to monitor the async.</returns>
-    [Test]
-    public async Task WhenCreatedViaFactoryThenEqualsExtensionMethod()
-    {
-        var immutable = ImmutableArray.Create(FirstValue, SecondValue, ThirdValue);
-        var viaExtension = immutable.AsEquatableArray();
-        var viaFactory = EquatableArray<int>.FromImmutableArray(immutable);
-
-        await Assert.That(viaExtension == viaFactory).IsTrue();
-    }
-
-    /// <summary>IEnumerable&lt;T&gt; explicit interface yields elements correctly.</summary>
-    /// <returns>A task to monitor the async.</returns>
-    [Test]
-    public async Task WhenEnumeratedAsIEnumerableThenYieldsCorrectly()
-    {
-        IEnumerable<int> arr = ImmutableArray.Create(SeventhValue, EighthValue, NinthValue).AsEquatableArray();
+        IEnumerable<int> arr = new EquatableArray<int>([FirstValue, SecondValue, ThirdValue]);
         var list = new List<int>(arr);
 
         await Assert.That(list.Count).IsEqualTo(ThreeElements);
-        await Assert.That(list[FirstIndex]).IsEqualTo(SeventhValue);
-        await Assert.That(list[SecondIndex]).IsEqualTo(EighthValue);
-        await Assert.That(list[ThirdIndex]).IsEqualTo(NinthValue);
+        await Assert.That(list[FirstIndex]).IsEqualTo(FirstValue);
+        await Assert.That(list[SecondIndex]).IsEqualTo(SecondValue);
+        await Assert.That(list[ThirdIndex]).IsEqualTo(ThirdValue);
     }
 }

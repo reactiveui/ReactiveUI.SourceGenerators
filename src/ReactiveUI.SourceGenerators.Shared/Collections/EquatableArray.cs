@@ -3,9 +3,10 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Collections;
+using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 
-namespace ReactiveUI.Binding.SourceGenerators.Models;
+namespace ReactiveUI.SourceGenerators.Helpers;
 
 /// <summary>
 /// A value-equatable wrapper around an array for use in incremental generator pipelines.
@@ -18,6 +19,9 @@ internal readonly struct EquatableArray<T> : IEquatable<EquatableArray<T>>, IEnu
     /// <summary>The multiplier used in the deterministic hash-combine loop.</summary>
     private const int HashMultiplier = 31;
 
+    /// <summary>The seed of the hash-combine loop.</summary>
+    private const int HashSeed = 17;
+
     /// <summary>The underlying array, or null if default-constructed.</summary>
     private readonly T[]? _array;
 
@@ -25,19 +29,34 @@ internal readonly struct EquatableArray<T> : IEquatable<EquatableArray<T>>, IEnu
     private readonly int _cachedHashCode;
 
     /// <summary>Initializes a new instance of the <see cref="EquatableArray{T}"/> struct.</summary>
-    /// <param name="array">The array to wrap.</param>
+    /// <param name="array">The array to wrap. The caller keeps no other reference that mutates it.</param>
     public EquatableArray(T[] array)
     {
         _array = array;
         _cachedHashCode = ComputeHashCode(array);
     }
 
-    /// <summary>Gets the length of the array.</summary>
-    internal int Length => _array?.Length ?? 0;
+    /// <summary>Gets the number of elements.</summary>
+    internal int Length
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => _array?.Length ?? 0;
+    }
 
-    /// <summary>Gets the element at the specified index.</summary>
+    /// <summary>Gets a value indicating whether the array holds no elements.</summary>
+    internal bool IsEmpty
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => (_array?.Length ?? 0) == 0;
+    }
+
+    /// <summary>Gets a reference to the element at the specified index.</summary>
     /// <param name="index">The zero-based index of the element to get.</param>
-    internal T this[int index] => _array![index];
+    internal ref readonly T this[int index]
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => ref _array![index];
+    }
 
     /// <summary>Determines whether two arrays are equal.</summary>
     /// <param name="left">The first array to compare.</param>
@@ -50,6 +69,7 @@ internal readonly struct EquatableArray<T> : IEquatable<EquatableArray<T>>, IEnu
     /// <param name="left">The first array to compare.</param>
     /// <param name="right">The second array to compare.</param>
     /// <returns>true if the arrays are not equal; otherwise, false.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(EquatableArray<T> left, EquatableArray<T> right) => !left.Equals(right);
 
     /// <summary>Indicates whether the current array is equal to another array.</summary>
@@ -57,24 +77,16 @@ internal readonly struct EquatableArray<T> : IEquatable<EquatableArray<T>>, IEnu
     /// <returns>true if the arrays are equal; otherwise, false.</returns>
     public bool Equals(EquatableArray<T> other)
     {
-        if (_array is null && other._array is null)
-        {
-            return true;
-        }
-
-        if (_array is null || other._array is null)
+        var left = _array ?? [];
+        var right = other._array ?? [];
+        if (left.Length != right.Length)
         {
             return false;
         }
 
-        if (_array.Length != other._array.Length)
+        for (var i = 0; i < left.Length; i++)
         {
-            return false;
-        }
-
-        for (var i = 0; i < _array.Length; i++)
-        {
-            if (!_array[i].Equals(other._array[i]))
+            if (!left[i].Equals(right[i]))
             {
                 return false;
             }
@@ -92,20 +104,34 @@ internal readonly struct EquatableArray<T> : IEquatable<EquatableArray<T>>, IEnu
     /// <returns>A hash code for the current array.</returns>
     public override int GetHashCode() => _cachedHashCode;
 
-    /// <summary>Returns an enumerator that iterates through the array.</summary>
-    /// <returns>An enumerator for the array.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)(_array ?? [])).GetEnumerator();
+    /// <summary>Wraps the array a Roslyn API returned without copying it.</summary>
+    /// <param name="array">The Roslyn-owned array. Roslyn never mutates it.</param>
+    /// <returns>The wrapped array.</returns>
+    /// <remarks>This is the one place an <see cref="ImmutableArray{T}"/> enters the pipeline: Roslyn hands them out.</remarks>
+    internal static EquatableArray<T> FromRoslyn(ImmutableArray<T> array) =>
+        new(Unsafe.As<ImmutableArray<T>, T[]?>(ref array) ?? []);
 
-    /// <summary>Returns an enumerator that iterates through the array.</summary>
-    /// <returns>An enumerator for the array.</returns>
+    /// <summary>Gets the elements as a read-only span.</summary>
+    /// <returns>A span over the elements.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    internal ReadOnlySpan<T> AsSpan() => _array;
+
+    /// <summary>Copies the elements to a new array.</summary>
+    /// <returns>A new array holding the elements.</returns>
+    internal T[] ToArray() => _array is null || _array.Length == 0 ? [] : (T[])_array.Clone();
+
+    /// <inheritdoc/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>)(_array ?? [])).GetEnumerator();
+
+    /// <inheritdoc/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<T>)this).GetEnumerator();
 
     /// <summary>Computes a deterministic hash code for the given array.</summary>
     /// <param name="array">The array to hash.</param>
     /// <returns>A hash code for the array.</returns>
-    internal static int ComputeHashCode(T[]? array)
+    private static int ComputeHashCode(T[]? array)
     {
         if (array is null)
         {
@@ -114,7 +140,7 @@ internal readonly struct EquatableArray<T> : IEquatable<EquatableArray<T>>, IEnu
 
         unchecked
         {
-            var hash = 17;
+            var hash = HashSeed;
             for (var i = 0; i < array.Length; i++)
             {
                 hash = (hash * HashMultiplier) + (array[i]?.GetHashCode() ?? 0);

@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Immutable;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -80,7 +79,7 @@ public sealed class BindableDerivedListGenerator : IIncrementalGenerator
     /// <returns>The field metadata and diagnostics, or <see langword="null"/> when not applicable.</returns>
     private static Result<BindableDerivedListInfo?>? GetVariableInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
-        using var builder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
+        using var builder = ArrayBuilder<DiagnosticInfo>.Rent();
         var symbol = context.TargetSymbol;
 
         var attributeData = context.Attributes[0];
@@ -99,7 +98,7 @@ public sealed class BindableDerivedListGenerator : IIncrementalGenerator
                 fieldSymbol,
                 fieldSymbol.ContainingType,
                 fieldSymbol.Name);
-            return new(default, builder.ToImmutable());
+            return new(default, builder.ToEquatableArray());
         }
 
         token.ThrowIfCancellationRequested();
@@ -118,7 +117,7 @@ public sealed class BindableDerivedListGenerator : IIncrementalGenerator
         in GeneratorAttributeSyntaxContext context,
         IFieldSymbol fieldSymbol,
         AttributeData attributeData,
-        ImmutableArrayBuilder<DiagnosticInfo> builder,
+        ArrayBuilder<DiagnosticInfo> builder,
         CancellationToken token)
     {
         var typeNameWithNullabilityAnnotations = fieldSymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations();
@@ -133,7 +132,7 @@ public sealed class BindableDerivedListGenerator : IIncrementalGenerator
                     fieldSymbol,
                     fieldSymbol.ContainingType,
                     fieldSymbol.Name);
-            return new(default, builder.ToImmutable());
+            return new(default, builder.ToEquatableArray());
         }
 
         token.ThrowIfCancellationRequested();
@@ -172,7 +171,7 @@ public sealed class BindableDerivedListGenerator : IIncrementalGenerator
             includeMemberNotNullOnSetAccessor,
             forwardedAttributesString,
             accessModifier),
-            builder.ToImmutable());
+            builder.ToEquatableArray());
     }
 
     /// <summary>Gets the generated accessibility text from the attribute configuration.</summary>
@@ -222,7 +221,7 @@ public sealed class BindableDerivedListGenerator : IIncrementalGenerator
 
         // The GeneratedCode attribute has always been stamped once, ahead of the first property.
         _ = writer.OpenPartialType(target).Line(GeneratedCodeAttribute);
-        for (var i = 0; i < properties.Count; i++)
+        for (var i = 0; i < properties.Length; i++)
         {
             WriteProperty(writer, properties[i]);
         }
@@ -239,7 +238,7 @@ public sealed class BindableDerivedListGenerator : IIncrementalGenerator
     private static void WriteProperty(SourceWriter writer, BindableDerivedListInfo propertyInfo)
     {
         _ = writer.InheritDoc(propertyInfo.FieldName).ExcludeFromCodeCoverage();
-        foreach (var attribute in propertyInfo.ForwardedAttributes.AsImmutableArray())
+        foreach (var attribute in propertyInfo.ForwardedAttributes.AsSpan())
         {
             _ = writer.Line(attribute);
         }

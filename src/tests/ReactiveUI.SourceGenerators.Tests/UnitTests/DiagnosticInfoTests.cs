@@ -36,7 +36,7 @@ public sealed class DiagnosticInfoTests
             descriptor,
             null,
             default(TextSpan),
-            ImmutableArray<string>.Empty.AsEquatableArray()).ToDiagnostic();
+            default(EquatableArray<string>)).ToDiagnostic();
 
         await Assert.That(sourceDiagnostic.Location.IsInSource).IsTrue();
         await Assert.That(sourceDiagnostic.GetMessage()).IsEqualTo("Value 'source'");

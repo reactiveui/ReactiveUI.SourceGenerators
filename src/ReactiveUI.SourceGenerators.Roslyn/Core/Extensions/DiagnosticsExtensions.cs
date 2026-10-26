@@ -13,7 +13,7 @@ internal static class DiagnosticsExtensions
 {
     /// <summary>Provides extension members for a diagnostic builder.</summary>
     /// <param name="diagnostics">The diagnostic builder to extend.</param>
-    extension(ImmutableArrayBuilder<DiagnosticInfo> diagnostics)
+    extension(ArrayBuilder<DiagnosticInfo> diagnostics)
     {
         /// <summary>Adds a diagnostic associated with a symbol to this builder.</summary>
         /// <param name="descriptor">The input <see cref="DiagnosticDescriptor"/> for the diagnostic to create.</param>

@@ -198,7 +198,7 @@ internal static class BindingEmitterHelpers
     /// <remarks>Leaves the line open after the reader, for the caller to separate or close the argument list.</remarks>
     internal static void AppendHookPropertyReader(SourceWriter sb, string root, EquatableArray<PropertyPathSegment> path)
     {
-        if (path.Length == 0)
+        if (path.IsEmpty)
         {
             _ = sb.Append("() => global::System.Array.Empty<")
                 .Append(GeneratedTypeNames.IObservedChange).Append("<object, object>>()");

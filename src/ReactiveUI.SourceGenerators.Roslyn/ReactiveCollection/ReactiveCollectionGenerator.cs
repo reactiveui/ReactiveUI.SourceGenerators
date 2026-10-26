@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Immutable;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -76,7 +75,7 @@ public sealed class ReactiveCollectionGenerator : IIncrementalGenerator
     /// <returns>The field metadata and diagnostics, or <see langword="null"/> when not applicable.</returns>
     private static Result<ReactiveCollectionFieldInfo?>? GetVariableInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
-        using var builder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
+        using var builder = ArrayBuilder<DiagnosticInfo>.Rent();
         var symbol = context.TargetSymbol;
         token.ThrowIfCancellationRequested();
 
@@ -93,7 +92,7 @@ public sealed class ReactiveCollectionGenerator : IIncrementalGenerator
                     fieldSymbol,
                     fieldSymbol.ContainingType,
                     fieldSymbol.Name);
-            return new(default, builder.ToImmutable());
+            return new(default, builder.ToEquatableArray());
         }
 
         return CreateResult(context, fieldSymbol, builder, token);
@@ -108,7 +107,7 @@ public sealed class ReactiveCollectionGenerator : IIncrementalGenerator
     private static Result<ReactiveCollectionFieldInfo?> CreateResult(
         in GeneratorAttributeSyntaxContext context,
         IFieldSymbol fieldSymbol,
-        ImmutableArrayBuilder<DiagnosticInfo> builder,
+        ArrayBuilder<DiagnosticInfo> builder,
         CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
@@ -124,7 +123,7 @@ public sealed class ReactiveCollectionGenerator : IIncrementalGenerator
                 fieldSymbol,
                 fieldSymbol.ContainingType,
                 fieldSymbol.Name);
-            return new(default, builder.ToImmutable());
+            return new(default, builder.ToEquatableArray());
         }
 
         return CreateMetadata(context, fieldSymbol, fieldName, propertyName, builder, token);
@@ -143,7 +142,7 @@ public sealed class ReactiveCollectionGenerator : IIncrementalGenerator
         IFieldSymbol fieldSymbol,
         string fieldName,
         string propertyName,
-        ImmutableArrayBuilder<DiagnosticInfo> builder,
+        ArrayBuilder<DiagnosticInfo> builder,
         CancellationToken token)
     {
         var typeNameWithNullabilityAnnotations = fieldSymbol.Type.GetFullyQualifiedNameWithNullabilityAnnotations();
@@ -180,7 +179,7 @@ public sealed class ReactiveCollectionGenerator : IIncrementalGenerator
                 isReferenceTypeOrUnconstraindTypeParameter,
                 includeMemberNotNullOnSetAccessor,
                 forwardedPropertyAttributes),
-            builder.ToImmutable());
+            builder.ToEquatableArray());
     }
 
     /// <summary>Gets nullability metadata for a generated reactive collection property.</summary>
@@ -223,7 +222,7 @@ public sealed class ReactiveCollectionGenerator : IIncrementalGenerator
         var depth = writer.OpenNamespace(target.TargetNamespace) + writer.OpenContainingTypes(target.ParentInfo);
 
         _ = writer.OpenPartialType(target);
-        for (var i = 0; i < properties.Count; i++)
+        for (var i = 0; i < properties.Length; i++)
         {
             if (i > 0)
             {
@@ -257,7 +256,7 @@ public sealed class ReactiveCollectionGenerator : IIncrementalGenerator
             .InheritDoc(fieldName)
             .Line(GeneratedCodeAttribute)
             .ExcludeFromCodeCoverage();
-        foreach (var attribute in propertyInfo.ForwardedAttributes.AsImmutableArray())
+        foreach (var attribute in propertyInfo.ForwardedAttributes.AsSpan())
         {
             _ = writer.Line(attribute);
         }

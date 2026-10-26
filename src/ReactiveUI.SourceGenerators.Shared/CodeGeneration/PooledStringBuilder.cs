@@ -4,7 +4,7 @@
 
 using System.Runtime.CompilerServices;
 
-namespace ReactiveUI.Binding.SourceGenerators.CodeGeneration;
+namespace ReactiveUI.SourceGenerators.CodeGeneration;
 
 /// <summary>A fluent string builder for short generated fragments, backed by thread-local pooled buffers.</summary>
 /// <remarks>

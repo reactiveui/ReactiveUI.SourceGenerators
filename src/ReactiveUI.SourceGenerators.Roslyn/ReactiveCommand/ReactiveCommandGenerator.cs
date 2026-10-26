@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Threading;
@@ -137,7 +136,7 @@ public sealed class ReactiveCommandGenerator : IIncrementalGenerator
         token.ThrowIfCancellationRequested();
         var accessModifier = GetAccessModifier(attributeData);
         token.ThrowIfCancellationRequested();
-        using var builder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
+        using var builder = ArrayBuilder<DiagnosticInfo>.Rent();
         var methodSyntax = (MethodDeclarationSyntax)context.TargetNode;
         context.GetForwardedAttributes(
             builder,
@@ -148,7 +147,7 @@ public sealed class ReactiveCommandGenerator : IIncrementalGenerator
         token.ThrowIfCancellationRequested();
         var targetInfo = TargetInfo.From(methodSymbol.ContainingType);
         token.ThrowIfCancellationRequested();
-        var argumentTypeString = methodParameters.IsEmpty
+        var argumentTypeString = methodParameters.Length == 0
             ? null
             : methodParameters[0].Type.GetFullyQualifiedNameWithNullabilityAnnotations();
         token.ThrowIfCancellationRequested();
@@ -191,9 +190,9 @@ public sealed class ReactiveCommandGenerator : IIncrementalGenerator
     /// <param name="methodSymbol">The command method.</param>
     /// <param name="isTask">Whether the method is task-backed.</param>
     /// <returns>The parameters exposed by the generated command.</returns>
-    private static ImmutableArray<IParameterSymbol> GetCommandParameters(IMethodSymbol methodSymbol, bool isTask)
+    private static IParameterSymbol[] GetCommandParameters(IMethodSymbol methodSymbol, bool isTask)
     {
-        using var builder = ImmutableArrayBuilder<IParameterSymbol>.Rent();
+        using var builder = ArrayBuilder<IParameterSymbol>.Rent();
         var hasCancellationToken = false;
         foreach (var parameter in methodSymbol.Parameters)
         {
@@ -216,7 +215,7 @@ public sealed class ReactiveCommandGenerator : IIncrementalGenerator
             }
         }
 
-        return builder.ToImmutable();
+        return builder.ToArray();
     }
 
     /// <summary>Determines whether a command method takes a <c>CancellationToken</c> as its last parameter.</summary>
@@ -289,7 +288,7 @@ public sealed class ReactiveCommandGenerator : IIncrementalGenerator
 
         var depth = writer.OpenNamespace(target.TargetNamespace) + writer.OpenContainingTypes(target.ParentInfo);
         _ = writer.OpenPartialType(target);
-        for (var i = 0; i < commands.Count; i++)
+        for (var i = 0; i < commands.Length; i++)
         {
             if (i > 0)
             {
@@ -328,7 +327,7 @@ public sealed class ReactiveCommandGenerator : IIncrementalGenerator
         }
 
         _ = writer.Line(GeneratedCodeAttribute).ExcludeFromCodeCoverage();
-        foreach (var attribute in commandInfo.ForwardedPropertyAttributes.AsImmutableArray())
+        foreach (var attribute in commandInfo.ForwardedPropertyAttributes.AsSpan())
         {
             _ = writer.Line(attribute);
         }

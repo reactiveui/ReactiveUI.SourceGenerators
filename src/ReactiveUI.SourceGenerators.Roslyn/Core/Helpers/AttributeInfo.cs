@@ -31,8 +31,8 @@ internal sealed record AttributeInfo(
     {
         var typeName = attributeData.AttributeClass!.GetFullyQualifiedName();
 
-        using var constructorArguments = ImmutableArrayBuilder<TypedConstantInfo>.Rent();
-        using var namedArguments = ImmutableArrayBuilder<(string, TypedConstantInfo)>.Rent();
+        using var constructorArguments = ArrayBuilder<TypedConstantInfo>.Rent();
+        using var namedArguments = ArrayBuilder<(string, TypedConstantInfo)>.Rent();
 
         // Get the constructor arguments
         foreach (var typedConstant in attributeData.ConstructorArguments)
@@ -48,8 +48,8 @@ internal sealed record AttributeInfo(
 
         return new(
             typeName,
-            constructorArguments.ToImmutable(),
-            namedArguments.ToImmutable());
+            constructorArguments.ToEquatableArray(),
+            namedArguments.ToEquatableArray());
     }
 
     /// <summary>Creates a new <see cref="AttributeInfo"/> instance from a given syntax node.</summary>
@@ -68,8 +68,8 @@ internal sealed record AttributeInfo(
     {
         var typeName = typeSymbol.GetFullyQualifiedName();
 
-        using var constructorArguments = ImmutableArrayBuilder<TypedConstantInfo>.Rent();
-        using var namedArguments = ImmutableArrayBuilder<(string, TypedConstantInfo)>.Rent();
+        using var constructorArguments = ArrayBuilder<TypedConstantInfo>.Rent();
+        using var namedArguments = ArrayBuilder<(string, TypedConstantInfo)>.Rent();
 
         foreach (var argument in arguments)
         {
@@ -101,8 +101,8 @@ internal sealed record AttributeInfo(
 
         info = new(
             typeName,
-            constructorArguments.ToImmutable(),
-            namedArguments.ToImmutable());
+            constructorArguments.ToEquatableArray(),
+            namedArguments.ToEquatableArray());
 
         return true;
     }
@@ -111,20 +111,20 @@ internal sealed record AttributeInfo(
     /// <returns>The <see cref="ExpressionSyntax"/> instance representing the current value.</returns>
     internal AttributeSyntax GetSyntax()
     {
-        using var arguments = ImmutableArrayBuilder<AttributeArgumentSyntax>.Rent();
+        using var arguments = ArrayBuilder<AttributeArgumentSyntax>.Rent();
 
-        foreach (var constructorArgument in ConstructorArgumentInfo.AsImmutableArray())
+        foreach (var constructorArgument in ConstructorArgumentInfo.AsSpan())
         {
             arguments.Add(AttributeArgument(constructorArgument.GetSyntax()));
         }
 
-        foreach (var namedArgument in NamedArgumentInfo.AsImmutableArray())
+        foreach (var namedArgument in NamedArgumentInfo.AsSpan())
         {
             arguments.Add(
                 AttributeArgument(namedArgument.Value.GetSyntax())
                 .WithNameEquals(NameEquals(IdentifierName(namedArgument.Name))));
         }
 
-        return Attribute(IdentifierName(TypeName), AttributeArgumentList(SeparatedList(arguments.ToImmutable())));
+        return Attribute(IdentifierName(TypeName), AttributeArgumentList(SeparatedList(arguments.ToArray())));
     }
 }

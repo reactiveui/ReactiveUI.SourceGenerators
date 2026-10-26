@@ -141,7 +141,7 @@ public sealed class ReactiveGenerator : IIncrementalGenerator
     /// <returns>The property metadata, or <see langword="null"/> when the property is unsupported.</returns>
     private static Result<PropertyInfo?>? GetPropertyInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
-        using var builder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
+        using var builder = ArrayBuilder<DiagnosticInfo>.Rent();
         var symbol = context.TargetSymbol;
         var attributeData = context.Attributes[0];
 
@@ -157,10 +157,10 @@ public sealed class ReactiveGenerator : IIncrementalGenerator
                     propertySymbol,
                     propertySymbol.ContainingType,
                     propertySymbol.Name);
-            return new(default, builder.ToImmutable());
+            return new(default, builder.ToEquatableArray());
         }
 
-        return new(CreatePartialPropertyInfo(context, propertySymbol, attributeData, builder, token), builder.ToImmutable());
+        return new(CreatePartialPropertyInfo(context, propertySymbol, attributeData, builder, token), builder.ToEquatableArray());
     }
 
     /// <summary>Creates metadata for a valid attributed partial property.</summary>
@@ -174,7 +174,7 @@ public sealed class ReactiveGenerator : IIncrementalGenerator
         in GeneratorAttributeSyntaxContext context,
         IPropertySymbol propertySymbol,
         AttributeData attributeData,
-        ImmutableArrayBuilder<DiagnosticInfo> builder,
+        ArrayBuilder<DiagnosticInfo> builder,
         CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
@@ -290,7 +290,7 @@ public sealed class ReactiveGenerator : IIncrementalGenerator
     /// </returns>
     private static Result<PropertyInfo?>? GetVariableInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token)
     {
-        using var builder = ImmutableArrayBuilder<DiagnosticInfo>.Rent();
+        using var builder = ArrayBuilder<DiagnosticInfo>.Rent();
         var attributeData = context.Attributes[0];
 
         if (context.TargetSymbol is not IFieldSymbol fieldSymbol || !fieldSymbol.IsTargetTypeValid())
@@ -305,11 +305,11 @@ public sealed class ReactiveGenerator : IIncrementalGenerator
                     invalidFieldSymbol,
                     invalidFieldSymbol.ContainingType,
                     invalidFieldSymbol.Name);
-            return new(default, builder.ToImmutable());
+            return new(default, builder.ToEquatableArray());
         }
 
         var propertyInfo = CreateFieldPropertyInfo(context, fieldSymbol, attributeData, builder, token);
-        return propertyInfo is null ? new(default, builder.ToImmutable()) : new(propertyInfo, builder.ToImmutable());
+        return propertyInfo is null ? new(default, builder.ToEquatableArray()) : new(propertyInfo, builder.ToEquatableArray());
     }
 
     /// <summary>Creates metadata for a valid attributed field.</summary>
@@ -323,7 +323,7 @@ public sealed class ReactiveGenerator : IIncrementalGenerator
         in GeneratorAttributeSyntaxContext context,
         IFieldSymbol fieldSymbol,
         AttributeData attributeData,
-        ImmutableArrayBuilder<DiagnosticInfo> builder,
+        ArrayBuilder<DiagnosticInfo> builder,
         CancellationToken token)
     {
         var propertyName = fieldSymbol.GetGeneratedPropertyName();
@@ -397,7 +397,7 @@ public sealed class ReactiveGenerator : IIncrementalGenerator
 
         var depth = writer.OpenNamespace(target.TargetNamespace) + writer.OpenContainingTypes(target.ParentInfo);
         _ = writer.OpenPartialType(target);
-        for (var i = 0; i < properties.Count; i++)
+        for (var i = 0; i < properties.Length; i++)
         {
             if (i > 0)
             {
@@ -453,7 +453,7 @@ public sealed class ReactiveGenerator : IIncrementalGenerator
             .OpenBlock()
             .Append("this.RaiseAndSetIfChanged(ref ").Append(setFieldName).Line(", value);");
 
-        foreach (var propertyName in propertyInfo.AlsoNotify.AsImmutableArray())
+        foreach (var propertyName in propertyInfo.AlsoNotify.AsSpan())
         {
             _ = writer.Append("this.RaisePropertyChanged(nameof(").Append(propertyName).Line("));");
         }
@@ -483,7 +483,7 @@ public sealed class ReactiveGenerator : IIncrementalGenerator
     /// <param name="lines">The lines, such as forwarded attributes.</param>
     private static void WriteLines(SourceWriter writer, EquatableArray<string> lines)
     {
-        foreach (var line in lines.AsImmutableArray())
+        foreach (var line in lines.AsSpan())
         {
             _ = writer.Line(line);
         }
@@ -497,7 +497,7 @@ public sealed class ReactiveGenerator : IIncrementalGenerator
     /// <returns>The additional property names.</returns>
     private static EquatableArray<string> GetAlsoNotifyValues(AttributeData attributeData, string propertyName, SemanticModel semanticModel, CancellationToken token)
     {
-        using var builder = ImmutableArrayBuilder<string>.Rent();
+        using var builder = ArrayBuilder<string>.Rent();
 
         // Read in place rather than through an iterator: the names arrive as the params array's elements.
         foreach (var argument in attributeData.ConstructorArguments)
@@ -519,7 +519,7 @@ public sealed class ReactiveGenerator : IIncrementalGenerator
             AddAlsoNotifySyntaxArguments(builder, attributeSyntax, propertyName, semanticModel, token);
         }
 
-        return builder.ToImmutable();
+        return builder.ToEquatableArray();
     }
 
     /// <summary>Adds valid notification values represented in attribute syntax.</summary>
@@ -529,7 +529,7 @@ public sealed class ReactiveGenerator : IIncrementalGenerator
     /// <param name="semanticModel">The semantic model for constant lookup.</param>
     /// <param name="token">The cancellation token.</param>
     private static void AddAlsoNotifySyntaxArguments(
-        ImmutableArrayBuilder<string> builder,
+        ArrayBuilder<string> builder,
         AttributeSyntax attributeSyntax,
         string propertyName,
         SemanticModel semanticModel,
@@ -558,7 +558,7 @@ public sealed class ReactiveGenerator : IIncrementalGenerator
     /// <param name="builder">The destination builder.</param>
     /// <param name="value">The candidate property name.</param>
     /// <param name="propertyName">The generated property name.</param>
-    private static void AddAlsoNotifyValue(ImmutableArrayBuilder<string> builder, string? value, string propertyName)
+    private static void AddAlsoNotifyValue(ArrayBuilder<string> builder, string? value, string propertyName)
     {
         if (string.IsNullOrWhiteSpace(value) || string.Equals(value, propertyName, StringComparison.Ordinal))
         {
