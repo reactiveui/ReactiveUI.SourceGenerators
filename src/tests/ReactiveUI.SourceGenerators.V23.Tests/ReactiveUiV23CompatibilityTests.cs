@@ -78,6 +78,7 @@ public sealed class ReactiveUiV23CompatibilityTests
 
     /// <summary>ReactiveUI 23 produces compilable legacy command output.</summary>
     /// <returns>A task representing the asynchronous assertion work.</returns>
+    /// <exception cref="InvalidOperationException">ReactiveUI did not expose an informational version.</exception>
     [Test]
     public async Task RealReactiveUiPackageUsesLegacyGeneratorProfile()
     {
@@ -87,10 +88,10 @@ public sealed class ReactiveUiV23CompatibilityTests
             .InformationalVersion.Split('+')[0]
             ?? throw new InvalidOperationException("ReactiveUI did not expose an informational version.");
         var compilation = CreateCompilation(reactiveUiAssembly);
-        GeneratorDriver driver = CSharpGeneratorDriver
+        var driver = CSharpGeneratorDriver
             .Create([new ReactiveCommandGenerator(), new ReactiveGenerator()])
-            .WithUpdatedParseOptions((CSharpParseOptions)compilation.SyntaxTrees.Single().Options);
-        driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var generatorDiagnostics);
+            .WithUpdatedParseOptions((CSharpParseOptions)compilation.SyntaxTrees.Single().Options)
+            .RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var generatorDiagnostics);
         var generatedSource = GetGeneratedCommandSource(driver);
         var errors = GetErrors(outputCompilation, generatorDiagnostics);
 
@@ -169,6 +170,7 @@ public sealed class ReactiveUiV23CompatibilityTests
     /// <summary>Gets the generated command source from a completed driver run.</summary>
     /// <param name="driver">The completed generator driver.</param>
     /// <returns>The generated command source.</returns>
+    /// <exception cref="InvalidOperationException">The generator produced no command source.</exception>
     private static string GetGeneratedCommandSource(GeneratorDriver driver)
     {
         foreach (var result in driver.GetRunResult().Results)

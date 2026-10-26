@@ -23,31 +23,12 @@ internal static class AnalyzerHelpers
     /// <summary>The name of the argument that carries the view model of a view-first binding.</summary>
     private const string ViewModelParameterName = "viewModel";
 
-    /// <summary>The API names this package generates bindings for.</summary>
-    private static readonly HashSet<string> GeneratedApiNames =
-    [
-        with(StringComparer.Ordinal),
-        SourceGenerators.Constants.WhenChangedMethodName,
-        SourceGenerators.Constants.WhenChangingMethodName,
-        SourceGenerators.Constants.WhenAnyMethodName,
-        SourceGenerators.Constants.WhenAnyValueMethodName,
-        SourceGenerators.Constants.WhenAnyObservableMethodName,
-        SourceGenerators.Constants.BindOneWayMethodName,
-        SourceGenerators.Constants.BindTwoWayMethodName,
-        SourceGenerators.Constants.OneWayBindMethodName,
-        SourceGenerators.Constants.BindMethodName,
-        SourceGenerators.Constants.BindToMethodName,
-        SourceGenerators.Constants.BindCommandMethodName,
-        SourceGenerators.Constants.BindInteractionMethodName,
-        SourceGenerators.Constants.InvokeCommandMethodName,
-        SourceGenerators.Constants.ToPropertyMethodName,
-    ];
-
     /// <summary>Determines whether a method name is one of the APIs this package generates bindings for.</summary>
     /// <param name="name">The method name.</param>
     /// <returns><see langword="true"/> when bindings are generated for it.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static bool IsGeneratedApiName(string name) => GeneratedApiNames.Contains(name);
+    /// <remarks>A pattern over constants compiles to a hashed switch, so the lookup builds and allocates nothing.</remarks>
+    internal static bool IsGeneratedApiName(string name) =>
+        IsObservationApiName(name) || IsPropertyBindingApiName(name) || IsCommandOrOutputApiName(name);
 
     /// <summary>Checks if a method symbol belongs to our generated extension class.</summary>
     /// <param name="methodSymbol">The method symbol to check.</param>
@@ -414,4 +395,33 @@ internal static class AnalyzerHelpers
         platformType.TypeKind == TypeKind.Interface
             ? ImplementsInterface(typeSymbol, platformType)
             : InheritsFrom(typeSymbol, platformType);
+
+    /// <summary>Determines whether a method name is one of the observation APIs.</summary>
+    /// <param name="name">The method name.</param>
+    /// <returns><see langword="true"/> for <c>WhenChanged</c>, <c>WhenChanging</c> and the <c>WhenAny</c> family.</returns>
+    private static bool IsObservationApiName(string name) =>
+        name is SourceGenerators.Constants.WhenChangedMethodName
+            or SourceGenerators.Constants.WhenChangingMethodName
+            or SourceGenerators.Constants.WhenAnyMethodName
+            or SourceGenerators.Constants.WhenAnyValueMethodName
+            or SourceGenerators.Constants.WhenAnyObservableMethodName;
+
+    /// <summary>Determines whether a method name is one of the property binding APIs.</summary>
+    /// <param name="name">The method name.</param>
+    /// <returns><see langword="true"/> for the one-way, two-way and <c>BindTo</c> bindings.</returns>
+    private static bool IsPropertyBindingApiName(string name) =>
+        name is SourceGenerators.Constants.BindOneWayMethodName
+            or SourceGenerators.Constants.BindTwoWayMethodName
+            or SourceGenerators.Constants.OneWayBindMethodName
+            or SourceGenerators.Constants.BindMethodName
+            or SourceGenerators.Constants.BindToMethodName;
+
+    /// <summary>Determines whether a method name is one of the command, interaction and output property APIs.</summary>
+    /// <param name="name">The method name.</param>
+    /// <returns><see langword="true"/> for <c>BindCommand</c>, <c>BindInteraction</c>, <c>InvokeCommand</c> and <c>ToProperty</c>.</returns>
+    private static bool IsCommandOrOutputApiName(string name) =>
+        name is SourceGenerators.Constants.BindCommandMethodName
+            or SourceGenerators.Constants.BindInteractionMethodName
+            or SourceGenerators.Constants.InvokeCommandMethodName
+            or SourceGenerators.Constants.ToPropertyMethodName;
 }

@@ -24,18 +24,6 @@ namespace ReactiveUI.Binding.Analyzer.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class ViewThreadInvokerAnalyzer : DiagnosticAnalyzer
 {
-    /// <summary>The binding APIs that write to a target, without their <c>Unsafe</c> suffix.</summary>
-    private static readonly HashSet<string> WritingApiNames =
-    [
-        with(StringComparer.Ordinal),
-        Constants.BindMethodName,
-        Constants.OneWayBindMethodName,
-        Constants.BindOneWayMethodName,
-        Constants.BindTwoWayMethodName,
-        Constants.BindToMethodName,
-        Constants.BindCommandMethodName,
-    ];
-
     /// <summary>The diagnostics this analyzer reports.</summary>
     private static readonly ImmutableArray<DiagnosticDescriptor> ReportedDiagnostics =
         new[] { DiagnosticWarnings.MissingViewThreadInvoker }.ToImmutableArray();
@@ -85,7 +73,13 @@ public class ViewThreadInvokerAnalyzer : DiagnosticAnalyzer
     /// <returns><see langword="true"/> for a binding that writes to a view, target or control.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static bool IsWritingApi(string name) =>
-        WritingApiNames.Contains(name.EndsWith(AnalyzerHelpers.UnsafeMethodSuffix, StringComparison.Ordinal)
+        (name.EndsWith(AnalyzerHelpers.UnsafeMethodSuffix, StringComparison.Ordinal)
             ? name[..^AnalyzerHelpers.UnsafeMethodSuffix.Length]
-            : name);
+            : name)
+        is Constants.BindMethodName
+            or Constants.OneWayBindMethodName
+            or Constants.BindOneWayMethodName
+            or Constants.BindTwoWayMethodName
+            or Constants.BindToMethodName
+            or Constants.BindCommandMethodName;
 }
