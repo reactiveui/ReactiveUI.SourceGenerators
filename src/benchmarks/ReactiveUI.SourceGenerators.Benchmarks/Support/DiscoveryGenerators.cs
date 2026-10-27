@@ -1,7 +1,8 @@
-// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
-// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI and Contributors. All rights reserved.
+// ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -50,6 +51,7 @@ internal static class DiscoveryGenerators
     /// <summary>Writes the number of fields found, so every strategy's pipeline runs to its end.</summary>
     /// <param name="context">The generator initialization context.</param>
     /// <param name="names">The names of the fields found.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void RegisterCount(in IncrementalGeneratorInitializationContext context, IncrementalValuesProvider<string> names) =>
         context.RegisterSourceOutput(names.Collect(), static (context, all) => context.AddSource("Count.g.cs", $"// {all.Length}"));
 
@@ -57,6 +59,7 @@ internal static class DiscoveryGenerators
     private sealed class ForAttributeWithMetadataNameDiscovery : IIncrementalGenerator
     {
         /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Initialize(IncrementalGeneratorInitializationContext context) =>
             RegisterCount(context, context.SyntaxProvider.ForAttributeWithMetadataName(
                 AttributeMetadataName,
@@ -68,6 +71,7 @@ internal static class DiscoveryGenerators
     private sealed class SyntaxNameThenSymbolDiscovery : IIncrementalGenerator
     {
         /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Initialize(IncrementalGeneratorInitializationContext context) =>
             RegisterCount(context, context.SyntaxProvider.CreateSyntaxProvider(
                     static (node, _) => NamesReactiveAttribute(node),
@@ -112,6 +116,7 @@ internal static class DiscoveryGenerators
     private sealed class DeclaredSymbolScanDiscovery : IIncrementalGenerator
     {
         /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Initialize(IncrementalGeneratorInitializationContext context) =>
             RegisterCount(context, context.SyntaxProvider.CreateSyntaxProvider(
                     static (node, _) => IsAttributedField(node),

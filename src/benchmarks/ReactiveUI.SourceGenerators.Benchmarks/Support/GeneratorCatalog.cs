@@ -1,5 +1,5 @@
-// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
-// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI and Contributors. All rights reserved.
+// ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using Microsoft.CodeAnalysis;
@@ -18,6 +18,7 @@ internal static class GeneratorCatalog
         "ReactiveObject",
         "BindableDerivedList",
         "ReactiveCollection",
+        "IViewFor",
         "ViewModelControlHost",
         "RoutedControlHost",
         GeneratorHarness.AllCorpus,
@@ -38,6 +39,7 @@ internal static class GeneratorCatalog
             "ReactiveObject" => [new ReactiveGenerator().AsSourceGenerator(), new ReactiveObjectGenerator().AsSourceGenerator()],
             "BindableDerivedList" => [new ReactiveGenerator().AsSourceGenerator(), new BindableDerivedListGenerator().AsSourceGenerator()],
             "ReactiveCollection" => [new ReactiveGenerator().AsSourceGenerator(), new ReactiveCollectionGenerator().AsSourceGenerator()],
+            "IViewFor" => [new ReactiveGenerator().AsSourceGenerator(), new IViewForGenerator().AsSourceGenerator()],
             "ViewModelControlHost" => [new ReactiveGenerator().AsSourceGenerator(), new ViewModelControlHostGenerator().AsSourceGenerator()],
             "RoutedControlHost" => [new ReactiveGenerator().AsSourceGenerator(), new RoutedControlHostGenerator().AsSourceGenerator()],
             _ => Create(),
@@ -52,6 +54,7 @@ internal static class GeneratorCatalog
         new ReactiveObjectGenerator().AsSourceGenerator(),
         new BindableDerivedListGenerator().AsSourceGenerator(),
         new ReactiveCollectionGenerator().AsSourceGenerator(),
+        new IViewForGenerator().AsSourceGenerator(),
         new ViewModelControlHostGenerator().AsSourceGenerator(),
         new RoutedControlHostGenerator().AsSourceGenerator(),
     ];

@@ -1,0 +1,27 @@
+name: Benchmarks
+
+on:
+    workflow_dispatch:
+        inputs:
+            sha:
+                description: 'Commit to benchmark. Empty benchmarks the latest commit of the chosen branch.'
+                type: string
+                default: ''
+
+permissions:
+    contents: read
+
+jobs:
+    benchmark:
+        uses: reactiveui/actions-common/.github/workflows/workflow-common-benchmarks.yml@main
+        with:
+            revision: ${{ inputs.sha }}
+            projects: |
+                benchmarks/ReactiveUI.Binding.Benchmarks/ReactiveUI.Binding.Benchmarks.csproj
+                benchmarks/ReactiveUI.Binding.Benchmarks.ReactiveUI/ReactiveUI.Binding.Benchmarks.ReactiveUI.csproj
+                benchmarks/ReactiveUI.Binding.Generator.Benchmarks/ReactiveUI.Binding.Generator.Benchmarks.csproj
+                benchmarks/ReactiveUI.Binding.Analyzer.Benchmarks/ReactiveUI.Binding.Analyzer.Benchmarks.csproj
+                benchmarks/ReactiveUI.SourceGenerators.Benchmarks/ReactiveUI.SourceGenerators.Benchmarks.csproj
+                benchmarks/ReactiveUI.SourceGenerators.Runtime.Benchmarks/ReactiveUI.SourceGenerators.Runtime.Benchmarks.csproj
+            solutionFile: ReactiveUI.SourceGenerators.slnf
+            installWorkloads: true

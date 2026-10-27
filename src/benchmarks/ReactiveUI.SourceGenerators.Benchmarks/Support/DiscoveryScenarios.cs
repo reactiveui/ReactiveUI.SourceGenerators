@@ -1,7 +1,8 @@
-// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
-// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI and Contributors. All rights reserved.
+// ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using ReactiveUI.SourceGenerators.Benchmarks.Shared;
@@ -81,6 +82,7 @@ internal static class DiscoveryScenarios
     /// <summary>Creates a cold driver for one discovery generator.</summary>
     /// <param name="generator">The generator.</param>
     /// <returns>The driver.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static CSharpGeneratorDriver CreateDriver(IIncrementalGenerator generator) =>
         CSharpGeneratorDriver.Create([generator.AsSourceGenerator()], parseOptions: new(LanguageVersion.CSharp13));
 
@@ -88,6 +90,7 @@ internal static class DiscoveryScenarios
     /// <param name="compilation">The compilation.</param>
     /// <param name="fileName">The file name.</param>
     /// <returns>The tree.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the input is not valid.</exception>
     private static SyntaxTree FindTree(Compilation compilation, string fileName)
     {
         foreach (var tree in compilation.SyntaxTrees)
@@ -105,6 +108,7 @@ internal static class DiscoveryScenarios
     /// <param name="driver">The driver.</param>
     /// <param name="compilation">The compilation.</param>
     /// <returns>The generated length.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static long Run(GeneratorDriver driver, Compilation compilation) =>
         driver.RunGenerators(compilation).GetRunResult().Results[0].GeneratedSources[0].SourceText.Length;
 }

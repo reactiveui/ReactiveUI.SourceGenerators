@@ -1,0 +1,34 @@
+name: SonarCloud
+
+on:
+    push:
+        branches: [ main ]
+    pull_request:
+        branches: [ main ]
+
+permissions:
+    contents: read
+
+jobs:
+    sonarcloud:
+        uses: reactiveui/actions-common/.github/workflows/workflow-common-sonarcloud.yml@main
+        with:
+            productNamespacePrefix: ReactiveUI
+            solutionFile: ReactiveUI.SourceGenerators.slnf
+            installWorkloads: true
+            sonarProjectKey: ReactiveUI.Binding.SourceGenerators
+            sonarOrganization: reactiveui
+            sonarExclusions: '**/tests/**,**/benchmarks/**,**/TestResults/**'
+            sonarCoverageExclusions: '**/tests/**,**/benchmarks/**,**/examples/**,**/*Tests/**,**/*Tests.cs,**/*TestModels/**'
+            # Copy-paste detection is switched off for the arity-expanded surface and the platform packages.
+            # A *.WideArity.cs file is the same operator written once per type-parameter count, and the
+            # CombineLatest observables are one class per arity; each repetition is what makes the call site
+            # allocation-free and reflection-free, so collapsing them is not an option. The platform packages
+            # implement the same small abstractions against different UI frameworks.
+            sonarCpdExclusions: '**/tests/**,**/benchmarks/**,**/examples/**,**/*.WideArity.cs,**/*.WideArity.Unsafe.cs,**/Observables/CombineLatest*Observable.cs,**/ReactiveUI.Binding.Maui.Shared/**,**/ReactiveUI.Binding.Wpf.Shared/**,**/ReactiveUI.Binding.WinForms.Shared/**,**/ReactiveUI.Binding.Platform.Shared/**'
+            sonarTestExclusions: '**/tests/**,**/benchmarks/**,**/examples/**'
+            # Matches ci-build.yml: the MTP/TUnit suite is far slower on Windows net10
+            # than on net8/9, so allow generous headroom for the coverage run.
+            testTimeout: '15m'
+        secrets:
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

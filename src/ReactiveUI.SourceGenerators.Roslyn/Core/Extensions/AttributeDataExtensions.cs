@@ -1,10 +1,9 @@
-// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
-// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI and Contributors. All rights reserved.
+// ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -123,16 +122,16 @@ internal static class AttributeDataExtensions
             SemanticModel semanticModel,
             ClassDeclarationSyntax classDeclaration,
             CancellationToken token,
-            out ImmutableArray<AttributeInfo> classAttributesInfo)
+            out EquatableArray<AttributeInfo> classAttributesInfo)
         {
-            using var classAttributesInfoBuilder = ImmutableArrayBuilder<AttributeInfo>.Rent();
+            using var classAttributesInfoBuilder = ArrayBuilder<AttributeInfo>.Rent();
 
             static void GatherForwardedAttributes(
                 AttributeData attributeData,
                 SemanticModel semanticModel,
                 ClassDeclarationSyntax classDeclaration,
                 CancellationToken token,
-                ImmutableArrayBuilder<AttributeInfo> classAttributesInfo)
+                ArrayBuilder<AttributeInfo> classAttributesInfo)
             {
                 // Gather explicit forwarded attributes info
                 foreach (var attributeList in classDeclaration.AttributeLists)
@@ -167,7 +166,7 @@ internal static class AttributeDataExtensions
             // If the method is not a partial definition/implementation, just gather attributes from the method with no modifications
             GatherForwardedAttributes(attributeData, semanticModel, classDeclaration, token, classAttributesInfoBuilder);
 
-            classAttributesInfo = classAttributesInfoBuilder.ToImmutable();
+            classAttributesInfo = classAttributesInfoBuilder.ToEquatableArray();
         }
     }
 

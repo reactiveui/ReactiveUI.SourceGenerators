@@ -5,14 +5,24 @@
     ],
     "packageRules": [
         {
+            "description": "The generator and analyzer are held at the Roslyn 4.8.0 baseline (VS 2022 17.8, .NET 8.0.1xx SDK) and must not move with the toolchain. Both ship in the version-less analyzers/dotnet/cs folder, and a compiler refuses to load a generator or analyzer built against a newer Roslyn than itself, so raising this floor silently drops every consumer on an older SDK. It is a compatibility decision, not a maintenance lag, and the only reason to change it is to raise the minimum supported SDK on purpose. Microsoft.CodeAnalysis.Analyzers is deliberately absent: it supplies analyzer-authoring rules and has no bearing on the load floor.",
+            "matchManagers": [
+                "nuget"
+            ],
+            "enabled": false,
+            "matchPackageNames": [
+                "/^Microsoft\\.CodeAnalysis\\.CSharp$/",
+                "/^Microsoft\\.CodeAnalysis\\.CSharp\\.Workspaces$/"
+            ]
+        },
+        {
             "description": "Analyzer packages all gate the build through the same warnings-as-errors pass, so landing them separately just means several red CI runs in a row. Move them in one PR.",
             "matchManagers": [
                 "nuget"
             ],
             "groupName": "analyzers",
             "matchPackageNames": [
-                "/^Roslynator\\./",
-                "/^stylecop\\.analyzers$/i"
+                "/^(Style|Performance|Security|PublicApi)Sharp\\.Analyzers$/"
             ]
         },
         {
@@ -27,14 +37,13 @@
             ]
         },
         {
-            "description": "Verify.TUnit is built against a specific TUnit version. The shared preset groups TUnit separately from Verify.*, which can split a matched pair across two PRs and red the build; keep them together here.",
+            "description": "Basic.Reference.Assemblies ships one package per target runtime and the generator tests compile against all of them. A partial bump leaves the suite straddling two versions.",
             "matchManagers": [
                 "nuget"
             ],
-            "groupName": "TUnit",
+            "groupName": "reference assemblies",
             "matchPackageNames": [
-                "/^TUnit(\\.|$)/",
-                "/^Verify\\./"
+                "/^Basic\\.Reference\\.Assemblies(\\.|$)/"
             ]
         },
         {
@@ -44,7 +53,7 @@
             ],
             "groupName": "test tooling",
             "matchPackageNames": [
-                "/^PublicApiGenerator$/"
+                "/^BenchmarkDotNet(\\.|$)/"
             ]
         }
     ]

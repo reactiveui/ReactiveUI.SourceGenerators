@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net10.0;net10.0-windows10.0.19041.0</TargetFrameworks>
+    <LangVersion>14.0</LangVersion>
+    <RootNamespace>ReactiveUI.Binding.Documentation</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <UseMaui>true</UseMaui>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-windows10.0.19041.0'">
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+  <ItemGroup>
+    <Using Include="ReactiveUI.Binding" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../../ReactiveUI.Binding.SourceGenerators/ReactiveUI.Binding.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="../../../../ReactiveUI.Binding.Analyzer/ReactiveUI.Binding.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <Compile Include="../../Common/**/*.cs" Link="Common/%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <ProjectReference Include="../../../../ReactiveUI.Binding.Maui/ReactiveUI.Binding.Maui.csproj" />
+    <ProjectReference Include="../../../../ReactiveUI.Binding.Avalonia/ReactiveUI.Binding.Avalonia.csproj" />
+    <Using Include="ReactiveUI.Binding.Avalonia" />
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="ReactiveUI.Primitives.Avalonia" />
+    <Compile Remove="Wpf/**;WinForms/**;WpfExamples.cs;WinFormsExamples.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows10.0.19041.0'">
+    <ProjectReference Include="../../../../ReactiveUI.Binding.Wpf/ReactiveUI.Binding.Wpf.csproj" />
+    <ProjectReference Include="../../../../ReactiveUI.Binding.WinForms/ReactiveUI.Binding.WinForms.csproj" />
+    <PackageReference Include="Microsoft.Maui.Controls" />
+    <Compile Remove="Avalonia/**;Maui/**;Sequencers/**" />
+    <Using Remove="System.Windows.Forms;System.Drawing;Microsoft.Maui;Microsoft.Maui.Accessibility;Microsoft.Maui.ApplicationModel;Microsoft.Maui.ApplicationModel.Communication;Microsoft.Maui.ApplicationModel.DataTransfer;Microsoft.Maui.Authentication;Microsoft.Maui.Controls.Hosting;Microsoft.Maui.Controls.Xaml;Microsoft.Maui.Devices;Microsoft.Maui.Devices.Sensors;Microsoft.Maui.Dispatching;Microsoft.Maui.Graphics;Microsoft.Maui.Hosting;Microsoft.Maui.Media;Microsoft.Maui.Networking;Microsoft.Maui.Storage" />
+  </ItemGroup>
+</Project>

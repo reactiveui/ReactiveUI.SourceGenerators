@@ -1,0 +1,65 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <!-- forces SDK to copy dependencies into build output to make packing easier -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <PackageDescription>Compatibility package for ReactiveUI.Binding consumers that reference the source generator by name. The generator and its analyzer ship inside ReactiveUI.Binding and ReactiveUI.Binding.Reactive; this package exists so existing references keep resolving.</PackageDescription>
+    <NoWarn>$(NoWarn);AD0001</NoWarn>
+    <DebugType>full</DebugType>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ReactiveUI.Binding.SourceGenerators.Tests"/>
+    <InternalsVisibleTo Include="ReactiveUI.Binding.SourceGenerators.Tests.Roslyn413"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="AnalyzerReleases.Shipped.md"/>
+    <None Include="AnalyzerReleases.Unshipped.md"/>
+  </ItemGroup>
+
+  <!-- Ship the MSBuild props that exposes ReactiveUIBindingEmitGeneratedCodeMarkers to consumers and the generator.
+       The built assemblies are deliberately not packed here: the runtime packages carry them, and a second
+       copy under a different package root is loaded as a second generator, which emits every dispatch file
+       twice and fails the consumer's build. -->
+  <ItemGroup>
+    <None Include="build\ReactiveUI.Binding.SourceGenerators.props"
+          Pack="true"
+          PackagePath="build\ReactiveUI.Binding.SourceGenerators.props;buildTransitive\ReactiveUI.Binding.SourceGenerators.props"/>
+    <None Include="build\ReactiveUI.Binding.SourceGenerators.targets"
+          Pack="true"
+          PackagePath="build\ReactiveUI.Binding.SourceGenerators.targets;buildTransitive\ReactiveUI.Binding.SourceGenerators.targets"/>
+  </ItemGroup>
+
+  <!-- Roslyn 4.8.0 baseline (VS 2022 17.8, .NET 8.0.1xx SDK). The generator ships in the
+       version-less analyzers/dotnet/cs folder, and a compiler will not load a generator built
+       against a newer Roslyn than itself, so building against 4.8.0 is what keeps .NET 8 SDK
+       consumers working. Only APIs present in Roslyn 4.8 may be used here. -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" VersionOverride="4.8.0"/>
+  </ItemGroup>
+
+  <!-- The writer, pooled builders and equatable array both generator families use. -->
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.SourceGenerators.Shared\CodeGeneration\*.cs" LinkBase="Shared\CodeGeneration"/>
+    <Compile Include="..\ReactiveUI.SourceGenerators.Shared\Collections\*.cs" LinkBase="Shared\Collections"/>
+    <Using Include="ReactiveUI.SourceGenerators.CodeGeneration"/>
+    <Using Include="ReactiveUI.SourceGenerators.Helpers"/>
+  </ItemGroup>
+
+  <!-- Link polyfills and helpers from runtime library for netstandard2.0 compatibility -->
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.Binding.Shared\Polyfills\*.cs" LinkBase="Polyfills"/>
+    <Compile Include="..\ReactiveUI.Binding.Shared\Helpers\ArgumentExceptionHelper.cs" Link="Helpers\ArgumentExceptionHelper.cs"/>
+    <Compile Include="..\ReactiveUI.Binding.Shared\Bindings\BindingAffinity.cs" Link="Bindings\BindingAffinity.cs"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Reference the analyzer project to force it to build -->
+    <ProjectReference Include="..\ReactiveUI.Binding.Analyzer\ReactiveUI.Binding.Analyzer.csproj" PrivateAssets="all" ReferenceOutputAssembly="false"/>
+  </ItemGroup>
+</Project>

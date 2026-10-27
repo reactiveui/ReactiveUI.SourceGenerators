@@ -1,0 +1,45 @@
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("ReactiveUI.Binding.Avalonia.Tests")]
+namespace ReactiveUI.Binding.Avalonia
+{
+    public sealed class AvaloniaBindingModule : Splat.Builder.IModule
+    {
+        public AvaloniaBindingModule() { }
+        public void Configure(Splat.IMutableDependencyResolver resolver) { }
+    }
+    public sealed class AvaloniaCreatesCommandBinding : ReactiveUI.Binding.ICreatesCommandBinding
+    {
+        public AvaloniaCreatesCommandBinding() { }
+        public System.IDisposable? BindCommandToObject<T>(System.Windows.Input.ICommand? command, T? target, System.IObservable<object?> commandParameter) where T : class { }
+        public System.IDisposable? BindCommandToObject<T, TEventArgs>(System.Windows.Input.ICommand? command, T? target, System.IObservable<object?> commandParameter, string eventName) where T : class { }
+        public System.IDisposable? BindCommandToObject<T, TEventArgs>(System.Windows.Input.ICommand? command, T? target, System.IObservable<object?> commandParameter, System.Action<System.EventHandler<TEventArgs>> addHandler, System.Action<System.EventHandler<TEventArgs>> removeHandler) where T : class where TEventArgs : System.EventArgs { }
+        public int GetAffinityForObject<T>(bool hasEventTarget) { }
+    }
+    public sealed class AvaloniaObjectObservableForProperty : ReactiveUI.Binding.ICreatesObservableForProperty
+    {
+        public AvaloniaObjectObservableForProperty() { }
+        public int GetAffinityForObject(System.Type type, string propertyName, bool beforeChanged) { }
+        public System.IObservable<ReactiveUI.Binding.IObservedChange<object, object?>> GetNotificationForProperty(object sender, System.Linq.Expressions.Expression expression, string propertyName, bool beforeChanged, bool suppressWarnings) { }
+    }
+    public sealed class AvaloniaViewThreadInvoker : ReactiveUI.Binding.SequencerViewThreadInvoker<Avalonia.AvaloniaObject, ReactiveUI.Primitives.Concurrency.AvaloniaScheduler>
+    {
+        public AvaloniaViewThreadInvoker() { }
+        public static ReactiveUI.Binding.Avalonia.AvaloniaViewThreadInvoker Instance { get; }
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        protected override ReactiveUI.Primitives.Concurrency.AvaloniaScheduler SequencerFor(Avalonia.AvaloniaObject target) { }
+    }
+}
+namespace ReactiveUI.Binding.Avalonia.Builder
+{
+    public static class AvaloniaBindingBuilderExtensions
+    {
+        extension(ReactiveUI.Binding.Builder.IReactiveUIBindingBuilder builder)
+        {
+            public ReactiveUI.Binding.Builder.IReactiveUIBindingBuilder WithAvalonia() { }
+        }
+        extension(Splat.Builder.IAppBuilder builder)
+        {
+            [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            public ReactiveUI.Binding.Builder.IReactiveUIBindingBuilder WithAvalonia() { }
+        }
+    }
+}

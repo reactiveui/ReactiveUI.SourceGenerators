@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net10.0;net11.0</TargetFrameworks>
+    <IsAotCompatible>false</IsAotCompatible>
+  </PropertyGroup>
+
+  <!-- The baselines measure ReactiveUI's own ToProperty. ReactiveUI 25 replaced it with this library, so the
+       benchmarks stay on the last release that has it. -->
+  <ItemGroup>
+    <PackageReference Include="ReactiveUI" VersionOverride="26.0.1"/>
+    <PackageReference Include="System.Reactive"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.Binding.Benchmarks\Mocks\BenchmarkViewModel.cs" Link="Mocks\BenchmarkViewModel.cs"/>
+    <Compile Include="..\ReactiveUI.Binding.Benchmarks\Mocks\BenchmarkChildViewModel.cs" Link="Mocks\BenchmarkChildViewModel.cs"/>
+    <Compile Include="..\ReactiveUI.Binding.Benchmarks\Mocks\BenchmarkView.cs" Link="Mocks\BenchmarkView.cs"/>
+    <Compile Include="..\ReactiveUI.Binding.Benchmarks\Mocks\BenchmarkSource.cs" Link="Mocks\BenchmarkSource.cs"/>
+  </ItemGroup>
+
+</Project>

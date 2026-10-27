@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The Windows head creates real WinUI controls through the Windows App SDK, so the invoker's thread checks run
+       there. Every other host runs the tests that need no Uno runtime. -->
+  <PropertyGroup>
+    <TargetFrameworks>net10.0</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('Windows'))">net10.0-windows10.0.19041.0</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <Choose>
+    <When Condition="$(TargetFramework.EndsWith('-windows10.0.19041.0'))">
+      <PropertyGroup>
+        <UseWinUI>true</UseWinUI>
+        <WindowsPackageType>None</WindowsPackageType>
+        <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+        <WindowsAppSdkUndockedRegFreeWinRTInitialize>false</WindowsAppSdkUndockedRegFreeWinRTInitialize>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+      </PropertyGroup>
+      <ItemGroup>
+        <PackageReference Include="Microsoft.WindowsAppSDK"/>
+      </ItemGroup>
+    </When>
+  </Choose>
+
+  <ItemGroup>
+    <Using Include="ReactiveUI.Binding"/>
+    <Using Include="ReactiveUI.Binding.Builder"/>
+    <Using Include="ReactiveUI.Binding.Uno"/>
+    <Using Include="ReactiveUI.Binding.Uno.Builder"/>
+    <Using Include="Splat"/>
+    <Using Include="Splat.Builder"/>
+    <Using Include="TUnit.Core"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TUnit"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.Uno\ReactiveUI.Binding.Uno.csproj"/>
+  </ItemGroup>
+</Project>

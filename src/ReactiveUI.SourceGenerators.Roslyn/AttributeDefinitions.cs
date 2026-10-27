@@ -1,5 +1,5 @@
-// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
-// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI and Contributors. All rights reserved.
+// ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 namespace ReactiveUI.SourceGenerators.Helpers;
@@ -22,6 +22,12 @@ internal static class AttributeDefinitions
 
     /// <summary>The metadata name of <c>[Reactive]</c>.</summary>
     public const string ReactiveAttributeType = "ReactiveUI.SourceGenerators.ReactiveAttribute";
+
+    /// <summary>The metadata name of <c>[IViewFor("...")]</c>.</summary>
+    public const string IViewForAttributeType = "ReactiveUI.SourceGenerators.IViewForAttribute";
+
+    /// <summary>The metadata name of <c>[IViewFor&lt;T&gt;]</c>.</summary>
+    public const string IViewForGenericAttributeType = "ReactiveUI.SourceGenerators.IViewForAttribute`1";
 
     /// <summary>The metadata name of <c>[ViewModelControlHost]</c>.</summary>
     public const string ViewModelControlHostAttributeType = "ReactiveUI.SourceGenerators.WinForms.ViewModelControlHostAttribute";

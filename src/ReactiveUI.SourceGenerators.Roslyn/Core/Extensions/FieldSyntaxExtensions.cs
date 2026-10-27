@@ -1,8 +1,9 @@
-// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
-// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI and Contributors. All rights reserved.
+// ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using ReactiveUI.SourceGenerators.CodeGeneration;
 using ReactiveUI.SourceGenerators.Helpers;
@@ -53,6 +54,7 @@ internal static class FieldSyntaxExtensions
         /// <param name="semanticModel">The semantic model for the current run.</param>
         /// <param name="isReferenceTypeOrUnconstraindTypeParameter">Whether the property type supports nullability.</param>
         /// <param name="includeMemberNotNullOnSetAccessor">Whether MemberNotNullAttribute should be used on the setter.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void GetNullabilityInfo(
             SemanticModel semanticModel,
             out bool isReferenceTypeOrUnconstraindTypeParameter,
@@ -61,6 +63,7 @@ internal static class FieldSyntaxExtensions
 
         /// <summary>Validates the containing type for a given field being annotated.</summary>
         /// <returns>Whether the containing type is valid.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool IsTargetTypeValid() => IsTargetTypeValid(fieldSymbol.ContainingType);
     }
 
@@ -70,6 +73,7 @@ internal static class FieldSyntaxExtensions
     {
         /// <summary>Validates the containing type for a given method being annotated.</summary>
         /// <returns>Whether the containing type is valid.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool IsTargetTypeValid() => IsTargetTypeValid(methodSymbol.ContainingType);
     }
 
@@ -91,6 +95,7 @@ internal static class FieldSyntaxExtensions
         /// <param name="semanticModel">The semantic model for the current run.</param>
         /// <param name="isReferenceTypeOrUnconstraindTypeParameter">Whether the property type supports nullability.</param>
         /// <param name="includeMemberNotNullOnSetAccessor">Whether MemberNotNullAttribute should be used on the setter.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void GetNullabilityInfo(
             SemanticModel semanticModel,
             out bool isReferenceTypeOrUnconstraindTypeParameter,
@@ -99,6 +104,7 @@ internal static class FieldSyntaxExtensions
 
         /// <summary>Validates the containing type for a given property being annotated.</summary>
         /// <returns>Whether the containing type is valid.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool IsTargetTypeValid() => IsTargetTypeValid(propertySymbol.ContainingType);
     }
 

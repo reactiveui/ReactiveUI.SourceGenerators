@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- The same tests, recompiled against ReactiveUI.Binding.Reactive.Maui. REACTIVE_SHIM comes from
+         ReactiveShim.props via the '.Reactive' name suffix, which is why the suffix goes last. -->
+    <TargetFrameworks>$(BindingMauiTestTargets)</TargetFrameworks>
+    <UseMaui>true</UseMaui>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <!-- No test source of its own: it recompiles the lean project's files under the shifted namespaces. -->
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.Binding.Maui.Tests\**\*.cs"
+             Exclude="..\ReactiveUI.Binding.Maui.Tests\obj\**\*.cs;..\ReactiveUI.Binding.Maui.Tests\bin\**\*.cs"
+             Link="%(RecursiveDir)%(Filename)%(Extension)"/>
+    <MauiXaml Include="..\ReactiveUI.Binding.Maui.Tests\**\*.xaml"
+              Exclude="..\ReactiveUI.Binding.Maui.Tests\obj\**;..\ReactiveUI.Binding.Maui.Tests\bin\**"
+              Link="%(RecursiveDir)%(Filename)%(Extension)"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="ReactiveUI.Binding.Reactive"/>
+    <Using Include="ReactiveUI.Binding.Reactive.Builder"/>
+    <Using Include="ReactiveUI.Binding.Reactive.Maui"/>
+    <Using Include="ReactiveUI.Binding.Reactive.Maui.Builder"/>
+    <Using Include="Splat"/>
+    <Using Include="Splat.Builder"/>
+    <Using Include="TUnit.Core"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TUnit"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.Maui.Reactive\ReactiveUI.Binding.Maui.Reactive.csproj"/>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.SourceGenerators\ReactiveUI.Binding.SourceGenerators.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"/>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.Analyzer\ReactiveUI.Binding.Analyzer.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"/>
+  </ItemGroup>
+</Project>

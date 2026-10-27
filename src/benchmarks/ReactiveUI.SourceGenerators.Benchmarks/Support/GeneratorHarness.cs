@@ -1,8 +1,10 @@
-// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
-// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI and Contributors. All rights reserved.
+// ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using BenchmarkDotNet.Loggers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -70,6 +72,7 @@ internal static class GeneratorHarness
     /// <summary>Creates a cold generator driver for a corpus, carrying no caches from a previous run.</summary>
     /// <param name="corpus">The corpus whose generators the driver runs.</param>
     /// <returns>The generator driver.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static GeneratorDriver CreateDriver(string corpus) =>
         CSharpGeneratorDriver.Create(
             GeneratorCatalog.Create(corpus),
@@ -84,11 +87,13 @@ internal static class GeneratorHarness
         var errors = 0;
         foreach (var diagnostic in output.GetDiagnostics())
         {
-            if (diagnostic.Severity == DiagnosticSeverity.Error)
+            if (diagnostic.Severity != DiagnosticSeverity.Error)
             {
-                errors++;
-                Console.WriteLine($"  {diagnostic}");
+                continue;
             }
+
+            errors++;
+            ConsoleLogger.Default.WriteLine(LogKind.Error, $"  {diagnostic}");
         }
 
         return errors;

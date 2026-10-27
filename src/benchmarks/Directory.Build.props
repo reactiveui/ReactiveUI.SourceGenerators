@@ -1,0 +1,33 @@
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))"/>
+
+  <PropertyGroup>
+    <!-- Only the projects directly in this folder: BenchmarkDotNet's per-job projects sit deeper, in each output folder. -->
+    <BenchmarkProjectParentDirectory>$([MSBuild]::NormalizeDirectory($(MSBuildProjectDirectory), '..'))</BenchmarkProjectParentDirectory>
+    <IsBenchmarkHostProject>false</IsBenchmarkHostProject>
+    <IsBenchmarkHostProject Condition="'$(BenchmarkProjectParentDirectory)' == '$(MSBuildThisFileDirectory)'">true</IsBenchmarkHostProject>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsBenchmarkHostProject)' == 'true'">
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <!-- Pass -p:BenchmarkPlatform=windows or unix to compile the other platform's configs. -->
+    <BenchmarkPlatform Condition="'$(BenchmarkPlatform)' == '' and $([MSBuild]::IsOsPlatform('Windows'))">windows</BenchmarkPlatform>
+    <BenchmarkPlatform Condition="'$(BenchmarkPlatform)' == ''">unix</BenchmarkPlatform>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(IsBenchmarkHostProject)' == 'true'">
+    <PackageReference Include="BenchmarkDotNet"/>
+    <Compile Include="$(MSBuildThisFileDirectory)Shared\Configs\**\*.cs" Link="Configs\%(RecursiveDir)%(Filename)%(Extension)"/>
+    <None Include="$(MSBuildThisFileDirectory)Shared\Platforms\**\*.cs" Link="Platforms\%(RecursiveDir)%(Filename)%(Extension)"/>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(IsBenchmarkHostProject)' == 'true' and '$(BenchmarkPlatform)' == 'windows'">
+    <Compile Include="$(MSBuildThisFileDirectory)Shared\Platforms\windows\**\*.cs" Link="Platforms\windows\%(RecursiveDir)%(Filename)%(Extension)"/>
+    <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows"/>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(IsBenchmarkHostProject)' == 'true' and '$(BenchmarkPlatform)' == 'unix'">
+    <Compile Include="$(MSBuildThisFileDirectory)Shared\Platforms\unix\**\*.cs" Link="Platforms\unix\%(RecursiveDir)%(Filename)%(Extension)"/>
+  </ItemGroup>
+</Project>

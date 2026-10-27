@@ -1,0 +1,89 @@
+<Project>
+
+  <PropertyGroup>
+    <!--
+      Whether the generator claims each binding call site outright instead of offering an overload that has to
+      win extension-method lookup. Interception is what serves a call site the overloads cannot reach: a file
+      declared outside the root namespace, or a project below C# 10 whose assembly exposes its internals.
+
+      Set to false to keep the dispatch overloads on a compiler that could intercept:
+
+        <PropertyGroup>
+          <ReactiveUIBindingUseInterceptors>false</ReactiveUIBindingUseInterceptors>
+        </PropertyGroup>
+    -->
+    <ReactiveUIBindingUseInterceptors Condition="'$(ReactiveUIBindingUseInterceptors)' == ''">true</ReactiveUIBindingUseInterceptors>
+
+    <!-- The namespace the interceptors are generated into, and the one the compiler is asked to honour. -->
+    <_ReactiveUIBindingInterceptorNamespace>ReactiveUI.Binding.Generated.Interceptors</_ReactiveUIBindingInterceptorNamespace>
+
+    <!-- The oldest and the newest analyzers\dotnet\roslyn&lt;version&gt;\cs slot this package ships. -->
+    <_ReactiveUIBindingMinimumCompilerVersion>4.8</_ReactiveUIBindingMinimumCompilerVersion>
+    <_ReactiveUIBindingInterceptorCompilerVersion>4.13</_ReactiveUIBindingInterceptorCompilerVersion>
+  </PropertyGroup>
+
+  <!--
+    Settle which analyzer slot this build gets, and turn interception on where that slot can honour it.
+
+    Both halves need $(CompilerApiVersion), which the Roslyn targets set long after a .props file is
+    evaluated, so this is a target rather than a plain property group. Every guard is deliberately
+    fail-open: an unset, non-Roslyn or malformed value falls back to the oldest slot rather than breaking a
+    build we do not understand.
+  -->
+  <Target Name="ReactiveUIBindingSelectAnalyzerSlot"
+          BeforeTargets="CoreCompile"
+          Condition="'$(Language)' == 'C#'">
+    <PropertyGroup>
+      <_ReactiveUIBindingCompilerVersion Condition="'$(CompilerApiVersion)' != '' and $(CompilerApiVersion.StartsWith('roslyn'))">$(CompilerApiVersion.Substring(6))</_ReactiveUIBindingCompilerVersion>
+      <_ReactiveUIBindingCompilerVersion Condition="!$(_ReactiveUIBindingCompilerVersion.Contains('.'))">$(_ReactiveUIBindingMinimumCompilerVersion)</_ReactiveUIBindingCompilerVersion>
+
+      <_ReactiveUIBindingInterceptsCallSites>false</_ReactiveUIBindingInterceptsCallSites>
+      <_ReactiveUIBindingInterceptsCallSites Condition="'$([System.Version]::Parse($(_ReactiveUIBindingCompilerVersion)).CompareTo($([System.Version]::Parse($(_ReactiveUIBindingInterceptorCompilerVersion)))))' &gt;= '0'">true</_ReactiveUIBindingInterceptsCallSites>
+
+      <_ReactiveUIBindingSlot Condition="'$(_ReactiveUIBindingInterceptsCallSites)' == 'true'">roslyn$(_ReactiveUIBindingInterceptorCompilerVersion)</_ReactiveUIBindingSlot>
+      <_ReactiveUIBindingSlot Condition="'$(_ReactiveUIBindingSlot)' == ''">roslyn$(_ReactiveUIBindingMinimumCompilerVersion)</_ReactiveUIBindingSlot>
+    </PropertyGroup>
+
+    <!--
+      Only the .NET SDK narrows a package that ships several slots down to one: its ResolvePackageAssets task
+      picks the highest slot at or below $(CompilerApiVersion). A legacy non-SDK .csproj never runs that task,
+      so it receives every slot at once, loads the generator twice and emits every dispatch file twice.
+      Dropping the slots this compiler is not being served by gives both kinds of consumer the same single one.
+    -->
+    <ItemGroup>
+      <_ReactiveUIBindingAnalyzer Include="@(Analyzer)"
+                                  Condition="'%(Analyzer.Filename)' == 'ReactiveUI.Binding.SourceGenerators' or '%(Analyzer.Filename)' == 'ReactiveUI.Binding.Analyzer'">
+        <_Slot>$([System.IO.Path]::GetFileName($([System.IO.Path]::GetDirectoryName($([System.IO.Path]::GetDirectoryName('%(Analyzer.FullPath)'))))))</_Slot>
+      </_ReactiveUIBindingAnalyzer>
+
+      <Analyzer Remove="@(_ReactiveUIBindingAnalyzer)"
+                Condition="'%(_ReactiveUIBindingAnalyzer._Slot)' != '$(_ReactiveUIBindingSlot)'"/>
+    </ItemGroup>
+
+    <!--
+      Interception is refused outright for a namespace the project did not list, so the opt-in travels with
+      the generator that emits into it. Appended to whatever the project already listed. The compiler task reads
+      the property when CoreCompile runs and merges it with the SDK's own namespaces; a second
+      InterceptorsNamespaces entry in $(Features) would replace that merged list instead.
+    -->
+    <PropertyGroup Condition="'$(_ReactiveUIBindingInterceptsCallSites)' == 'true' and '$(ReactiveUIBindingUseInterceptors)' == 'true'">
+      <_ReactiveUIBindingInterceptorsNamespaces>$(InterceptorsNamespaces)</_ReactiveUIBindingInterceptorsNamespaces>
+      <_ReactiveUIBindingInterceptorsNamespaces Condition="'$(_ReactiveUIBindingInterceptorsNamespaces)' != ''">$(_ReactiveUIBindingInterceptorsNamespaces);</_ReactiveUIBindingInterceptorsNamespaces>
+      <_ReactiveUIBindingInterceptorsNamespaces>$(_ReactiveUIBindingInterceptorsNamespaces)$(_ReactiveUIBindingInterceptorNamespace)</_ReactiveUIBindingInterceptorsNamespaces>
+      <InterceptorsNamespaces>$(_ReactiveUIBindingInterceptorsNamespaces)</InterceptorsNamespaces>
+    </PropertyGroup>
+
+    <!--
+      Fail loudly on a compiler older than the oldest slot. NuGet asset selection drops a slot newer than the
+      host compiler without reporting anything, so such a consumer would otherwise get no generated bindings
+      and a runtime throw from every binding call with no hint at the cause.
+    -->
+    <Error Condition="'$(CompilerApiVersion)' != ''
+                      and $(CompilerApiVersion.StartsWith('roslyn'))
+                      and $(_ReactiveUIBindingCompilerVersion.Contains('.'))
+                      and '$([System.Version]::Parse($(_ReactiveUIBindingMinimumCompilerVersion)).CompareTo($([System.Version]::Parse($(_ReactiveUIBindingCompilerVersion)))))' &gt; '0'"
+           Code="RXUIBIND100"
+           Text="ReactiveUI.Binding's source generator requires Roslyn $(_ReactiveUIBindingMinimumCompilerVersion) or later (Visual Studio 2022 17.8+, or .NET SDK 8.0.100+), but this project is building with Roslyn $(_ReactiveUIBindingCompilerVersion). Upgrade the build tools to get compile-time bindings."/>
+  </Target>
+
+</Project>

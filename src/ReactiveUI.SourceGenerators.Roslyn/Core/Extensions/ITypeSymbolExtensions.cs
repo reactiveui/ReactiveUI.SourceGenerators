@@ -1,5 +1,5 @@
-// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
-// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI and Contributors. All rights reserved.
+// ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System;
@@ -124,7 +124,7 @@ internal static class ITypeSymbolExtensions
     /// <returns>Whether the metadata name contains <paramref name="name"/>.</returns>
     internal bool ContainsFullyQualifiedMetadataName(string name)
     {
-        using var builder = ImmutableArrayBuilder<char>.Rent();
+        using var builder = ArrayBuilder<char>.Rent();
 
         AppendFullyQualifiedMetadataName(typeSymbol, builder);
 
@@ -135,7 +135,7 @@ internal static class ITypeSymbolExtensions
     /// <returns>The fully qualified metadata name for the type symbol.</returns>
     internal string GetFullyQualifiedMetadataName()
     {
-        using var builder = ImmutableArrayBuilder<char>.Rent();
+        using var builder = ArrayBuilder<char>.Rent();
 
         AppendFullyQualifiedMetadataName(typeSymbol, builder);
 
@@ -326,10 +326,10 @@ internal static class ITypeSymbolExtensions
 
     /// <summary>Appends the fully qualified metadata name for a given symbol to a target builder.</summary>
     /// <param name="symbol">The input <see cref="ITypeSymbol"/> instance.</param>
-    /// <param name="builder">The target <see cref="ImmutableArrayBuilder{T}"/> instance.</param>
-    private static void AppendFullyQualifiedMetadataName(ITypeSymbol symbol, ImmutableArrayBuilder<char> builder)
+    /// <param name="builder">The target <see cref="ArrayBuilder{T}"/> instance.</param>
+    private static void AppendFullyQualifiedMetadataName(ITypeSymbol symbol, ArrayBuilder<char> builder)
     {
-        static void BuildFrom(ISymbol? current, ImmutableArrayBuilder<char> target)
+        static void BuildFrom(ISymbol? current, ArrayBuilder<char> target)
         {
             if (current is INamespaceSymbol namespaceSymbol)
             {

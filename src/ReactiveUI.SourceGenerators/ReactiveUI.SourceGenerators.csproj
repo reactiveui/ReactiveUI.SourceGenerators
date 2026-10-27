@@ -5,13 +5,19 @@
        assembly granted InternalsVisibleTo never sees two. They are [Conditional], so a consumer keeps no reference to
        this assembly. -->
   <PropertyGroup>
-    <TargetFrameworks>$(LibraryTfms)</TargetFrameworks>
+    <TargetFrameworks>$(BindingRuntimeTargets)</TargetFrameworks>
     <PackageDescription>A MVVM framework that integrates with the Reactive Extensions for .NET to create elegant, testable User Interfaces that run on any mobile or desktop platform. This is the Source Generators package for ReactiveUI</PackageDescription>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
+
+  <!-- This package documents the attribute generators; the repository README documents the whole repository. -->
+  <ItemGroup>
+    <None Remove="$(MSBuildThisFileDirectory)..\..\README.md" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <!-- Built before packing; bundled below rather than referenced or depended on. -->
   <ItemGroup>

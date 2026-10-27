@@ -2,10 +2,10 @@
 
 ## Supported versions
 
-Only the latest released version of `ReactiveUI.SourceGenerators` on
-[NuGet](https://www.nuget.org/packages/ReactiveUI.SourceGenerators/) is supported. Fixes ship in
-a new release; no patches are issued for earlier versions. Upgrade to the latest version before
-reporting an issue.
+Only the latest released versions of the `ReactiveUI.SourceGenerators` and `ReactiveUI.Binding`
+packages on [NuGet](https://www.nuget.org/packages/ReactiveUI.SourceGenerators/) are supported.
+Fixes ship in a new release; no patches are issued for earlier versions. Upgrade to the latest
+version before reporting an issue.
 
 ## Reporting a vulnerability
 

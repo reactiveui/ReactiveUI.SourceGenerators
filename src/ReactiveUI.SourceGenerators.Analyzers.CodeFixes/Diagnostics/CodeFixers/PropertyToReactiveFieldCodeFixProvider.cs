@@ -1,10 +1,11 @@
-// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
-// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI and Contributors. All rights reserved.
+// ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -138,6 +139,7 @@ public sealed class PropertyToReactiveFieldCodeFixProvider : CodeFixProvider
 
     /// <summary>Makes the <c>[ReactiveUI.SourceGenerators.Reactive]</c> attribute list.</summary>
     /// <returns>The attribute list.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static AttributeListSyntax ReactiveAttributeList() =>
         AttributeList(SingletonSeparatedList(Attribute(IdentifierName("ReactiveUI.SourceGenerators.Reactive"))));
 

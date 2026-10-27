@@ -1,5 +1,5 @@
-// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
-// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI and Contributors. All rights reserved.
+// ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System.Collections.Immutable;
@@ -29,20 +29,22 @@ public sealed class ReactiveCommandMethodDoesNotNeedToBeStaticDiagnosticSuppress
             var syntaxNode = diagnostic.Location.SourceTree?.GetRoot(context.CancellationToken).FindNode(diagnostic.Location.SourceSpan);
 
             // Check that the target is a method declaration, which is the case we're looking for
-            if (syntaxNode is MethodDeclarationSyntax methodDeclaration)
+            if (syntaxNode is not MethodDeclarationSyntax methodDeclaration)
             {
-                var semanticModel = context.GetSemanticModel(syntaxNode.SyntaxTree);
+                continue;
+            }
 
-                // Get the method symbol from the first variable declaration
-                ISymbol? declaredSymbol = semanticModel.GetDeclaredSymbol(methodDeclaration, context.CancellationToken);
+            var semanticModel = context.GetSemanticModel(syntaxNode.SyntaxTree);
 
-                // Check if the method is using [ReactiveCommand], in which case we should suppress the warning
-                if (declaredSymbol is IMethodSymbol methodSymbol
-                    && semanticModel.Compilation.GetTypeByMetadataName(AttributeDefinitions.ReactiveCommandAttributeType) is INamedTypeSymbol reactiveCommandSymbol
-                    && methodSymbol.HasAttributeWithType(reactiveCommandSymbol))
-                {
-                    context.ReportSuppression(Suppression.Create(ReactiveCommandDoesNotAccessInstanceData, diagnostic));
-                }
+            // Get the method symbol from the first variable declaration
+            ISymbol? declaredSymbol = semanticModel.GetDeclaredSymbol(methodDeclaration, context.CancellationToken);
+
+            // Check if the method is using [ReactiveCommand], in which case we should suppress the warning
+            if (declaredSymbol is IMethodSymbol methodSymbol
+                && semanticModel.Compilation.GetTypeByMetadataName(AttributeDefinitions.ReactiveCommandAttributeType) is INamedTypeSymbol reactiveCommandSymbol
+                && methodSymbol.HasAttributeWithType(reactiveCommandSymbol))
+            {
+                context.ReportSuppression(Suppression.Create(ReactiveCommandDoesNotAccessInstanceData, diagnostic));
             }
         }
     }

@@ -1,0 +1,445 @@
+// Copyright (c) 2019-2026 ReactiveUI and Contributors. All rights reserved.
+// ReactiveUI and Contributors licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for full license information.
+
+using ReactiveUI.Binding.Documentation.UnsafeOverloads;
+
+UnsafeSetupExamples.PlainCallNeedsAPathWrittenInTheCall();
+
+UnsafeSetupExamples.UnsafeCallBeforeBuildFails();
+
+UnsafeSetupExamples.BuildApplication();
+
+UnsafeSetupExamples.UnsafeCallAfterBuildObserves();
+
+UnsafeObservationExamples.ObserveTitleChosenAtRunTime();
+
+UnsafeObservationExamples.ObserveTwoColumnsChosenAtRunTime();
+
+UnsafeObservationExamples.ObserveTwoColumnsWithSelector();
+
+UnsafeObservationExamples.ObserveThreeColumnsChosenAtRunTime();
+
+UnsafeObservationExamples.ObserveThreeColumnsWithSelector();
+
+UnsafeObservationExamples.ObserveTitleBeforeChange();
+
+UnsafeObservationExamples.ObserveTwoColumnsBeforeChange();
+
+UnsafeObservationExamples.ObserveTwoColumnsBeforeChangeWithSelector();
+
+UnsafeObservationExamples.ObserveAnyValueChosenAtRunTime();
+
+UnsafeObservationExamples.ObserveAnyValueWithSelector();
+
+UnsafeObservationExamples.ObserveTwoAnyValuesChosenAtRunTime();
+
+UnsafeObservationExamples.ObserveTwoAnyValuesWithSelector();
+
+UnsafeObservationExamples.ObserveAnyChosenAtRunTime();
+
+UnsafeObservationExamples.ObserveTwoAnyChosenAtRunTime();
+
+UnsafeObservationExamples.ObserveAnnouncementStreamChosenAtRunTime();
+
+UnsafeObservationExamples.MergeAnnouncementStreams();
+
+UnsafeObservationExamples.CombineAnnouncementStreams();
+
+UnsafeWhenChangedWideExamples.ObserveFourColumns();
+
+UnsafeWhenChangedWideExamples.ObserveFiveColumns();
+
+UnsafeWhenChangedWideExamples.ObserveSixColumns();
+
+UnsafeWhenChangedWideExamples.ObserveSevenColumns();
+
+UnsafeWhenChangedWideExamples.ObserveEightColumns();
+
+UnsafeWhenChangedWideExamples.ObserveNineColumns();
+
+UnsafeWhenChangedWideExamples.ObserveTenColumns();
+
+UnsafeWhenChangedWideExamples.ObserveElevenColumns();
+
+UnsafeWhenChangedWideExamples.ObserveTwelveColumns();
+
+UnsafeWhenChangedWideExamples.ObserveThirteenColumns();
+
+UnsafeWhenChangedWideExamples.ObserveFourteenColumns();
+
+UnsafeWhenChangedWideExamples.ObserveFifteenColumns();
+
+UnsafeWhenChangedWideExamples.ObserveSixteenColumns();
+
+UnsafeWhenChangedWideSelectorExamples.ObserveFourColumnsWithSelector();
+
+UnsafeWhenChangedWideSelectorExamples.ObserveFiveColumnsWithSelector();
+
+UnsafeWhenChangedWideSelectorExamples.ObserveSixColumnsWithSelector();
+
+UnsafeWhenChangedWideSelectorExamples.ObserveSevenColumnsWithSelector();
+
+UnsafeWhenChangedWideSelectorExamples.ObserveEightColumnsWithSelector();
+
+UnsafeWhenChangedWideSelectorExamples.ObserveNineColumnsWithSelector();
+
+UnsafeWhenChangedWideSelectorExamples.ObserveTenColumnsWithSelector();
+
+UnsafeWhenChangedWideSelectorExamples.ObserveElevenColumnsWithSelector();
+
+UnsafeWhenChangedWideSelectorExamples.ObserveTwelveColumnsWithSelector();
+
+UnsafeWhenChangedWideSelectorExamples.ObserveThirteenColumnsWithSelector();
+
+UnsafeWhenChangedWideSelectorExamples.ObserveFourteenColumnsWithSelector();
+
+UnsafeWhenChangedWideSelectorExamples.ObserveFifteenColumnsWithSelector();
+
+UnsafeWhenChangedWideSelectorExamples.ObserveSixteenColumnsWithSelector();
+
+UnsafeWhenChangingWideExamples.ObserveThreeColumnsBeforeChange();
+
+UnsafeWhenChangingWideExamples.ObserveFourColumnsBeforeChange();
+
+UnsafeWhenChangingWideExamples.ObserveFiveColumnsBeforeChange();
+
+UnsafeWhenChangingWideExamples.ObserveSixColumnsBeforeChange();
+
+UnsafeWhenChangingWideExamples.ObserveSevenColumnsBeforeChange();
+
+UnsafeWhenChangingWideExamples.ObserveEightColumnsBeforeChange();
+
+UnsafeWhenChangingWideExamples.ObserveNineColumnsBeforeChange();
+
+UnsafeWhenChangingWideExamples.ObserveTenColumnsBeforeChange();
+
+UnsafeWhenChangingWideExamples.ObserveElevenColumnsBeforeChange();
+
+UnsafeWhenChangingWideExamples.ObserveTwelveColumnsBeforeChange();
+
+UnsafeWhenChangingWideExamples.ObserveThirteenColumnsBeforeChange();
+
+UnsafeWhenChangingWideExamples.ObserveFourteenColumnsBeforeChange();
+
+UnsafeWhenChangingWideExamples.ObserveFifteenColumnsBeforeChange();
+
+UnsafeWhenChangingWideExamples.ObserveSixteenColumnsBeforeChange();
+
+UnsafeWhenChangingWideSelectorExamples.ObserveThreeColumnsBeforeChangeWithSelector();
+
+UnsafeWhenChangingWideSelectorExamples.ObserveFourColumnsBeforeChangeWithSelector();
+
+UnsafeWhenChangingWideSelectorExamples.ObserveFiveColumnsBeforeChangeWithSelector();
+
+UnsafeWhenChangingWideSelectorExamples.ObserveSixColumnsBeforeChangeWithSelector();
+
+UnsafeWhenChangingWideSelectorExamples.ObserveSevenColumnsBeforeChangeWithSelector();
+
+UnsafeWhenChangingWideSelectorExamples.ObserveEightColumnsBeforeChangeWithSelector();
+
+UnsafeWhenChangingWideSelectorExamples.ObserveNineColumnsBeforeChangeWithSelector();
+
+UnsafeWhenChangingWideSelectorExamples.ObserveTenColumnsBeforeChangeWithSelector();
+
+UnsafeWhenChangingWideSelectorExamples.ObserveElevenColumnsBeforeChangeWithSelector();
+
+UnsafeWhenChangingWideSelectorExamples.ObserveTwelveColumnsBeforeChangeWithSelector();
+
+UnsafeWhenChangingWideSelectorExamples.ObserveThirteenColumnsBeforeChangeWithSelector();
+
+UnsafeWhenChangingWideSelectorExamples.ObserveFourteenColumnsBeforeChangeWithSelector();
+
+UnsafeWhenChangingWideSelectorExamples.ObserveFifteenColumnsBeforeChangeWithSelector();
+
+UnsafeWhenChangingWideSelectorExamples.ObserveSixteenColumnsBeforeChangeWithSelector();
+
+UnsafeWhenAnyValueWideExamples.ObserveThreeColumns();
+
+UnsafeWhenAnyValueWideExamples.ObserveFourColumns();
+
+UnsafeWhenAnyValueWideExamples.ObserveFiveColumns();
+
+UnsafeWhenAnyValueWideExamples.ObserveSixColumns();
+
+UnsafeWhenAnyValueWideExamples.ObserveSevenColumns();
+
+UnsafeWhenAnyValueWideExamples.ObserveEightColumns();
+
+UnsafeWhenAnyValueWideExamples.ObserveNineColumns();
+
+UnsafeWhenAnyValueWideExamples.ObserveTenColumns();
+
+UnsafeWhenAnyValueWideExamples.ObserveElevenColumns();
+
+UnsafeWhenAnyValueWideExamples.ObserveTwelveColumns();
+
+UnsafeWhenAnyValueWideExamples.ObserveThirteenColumns();
+
+UnsafeWhenAnyValueWideExamples.ObserveFourteenColumns();
+
+UnsafeWhenAnyValueWideExamples.ObserveFifteenColumns();
+
+UnsafeWhenAnyValueWideExamples.ObserveSixteenColumns();
+
+UnsafeWhenAnyValueWideSelectorExamples.ObserveThreeColumnsWithSelector();
+
+UnsafeWhenAnyValueWideSelectorExamples.ObserveFourColumnsWithSelector();
+
+UnsafeWhenAnyValueWideSelectorExamples.ObserveFiveColumnsWithSelector();
+
+UnsafeWhenAnyValueWideSelectorExamples.ObserveSixColumnsWithSelector();
+
+UnsafeWhenAnyValueWideSelectorExamples.ObserveSevenColumnsWithSelector();
+
+UnsafeWhenAnyValueWideSelectorExamples.ObserveEightColumnsWithSelector();
+
+UnsafeWhenAnyValueWideSelectorExamples.ObserveNineColumnsWithSelector();
+
+UnsafeWhenAnyValueWideSelectorExamples.ObserveTenColumnsWithSelector();
+
+UnsafeWhenAnyValueWideSelectorExamples.ObserveElevenColumnsWithSelector();
+
+UnsafeWhenAnyValueWideSelectorExamples.ObserveTwelveColumnsWithSelector();
+
+UnsafeWhenAnyValueWideSelectorExamples.ObserveThirteenColumnsWithSelector();
+
+UnsafeWhenAnyValueWideSelectorExamples.ObserveFourteenColumnsWithSelector();
+
+UnsafeWhenAnyValueWideSelectorExamples.ObserveFifteenColumnsWithSelector();
+
+UnsafeWhenAnyValueWideSelectorExamples.ObserveSixteenColumnsWithSelector();
+
+UnsafeWhenAnyWideExamples.ObserveThreeColumnsWithChanges();
+
+UnsafeWhenAnyWideExamples.ObserveFourColumnsWithChanges();
+
+UnsafeWhenAnyWideExamples.ObserveFiveColumnsWithChanges();
+
+UnsafeWhenAnyWideExamples.ObserveSixColumnsWithChanges();
+
+UnsafeWhenAnyWideExamples.ObserveSevenColumnsWithChanges();
+
+UnsafeWhenAnyWideExamples.ObserveEightColumnsWithChanges();
+
+UnsafeWhenAnyWideExamples.ObserveNineColumnsWithChanges();
+
+UnsafeWhenAnyWideExamples.ObserveTenColumnsWithChanges();
+
+UnsafeWhenAnyWideExamples.ObserveElevenColumnsWithChanges();
+
+UnsafeWhenAnyWideExamples.ObserveTwelveColumnsWithChanges();
+
+UnsafeWhenAnyObservableWideExamples.MergeThreeAnnouncementStreams();
+
+UnsafeWhenAnyObservableWideExamples.MergeFourAnnouncementStreams();
+
+UnsafeWhenAnyObservableWideExamples.MergeFiveAnnouncementStreams();
+
+UnsafeWhenAnyObservableWideExamples.MergeSixAnnouncementStreams();
+
+UnsafeWhenAnyObservableWideExamples.MergeSevenAnnouncementStreams();
+
+UnsafeWhenAnyObservableWideExamples.MergeEightAnnouncementStreams();
+
+UnsafeWhenAnyObservableWideExamples.MergeNineAnnouncementStreams();
+
+UnsafeWhenAnyObservableWideExamples.MergeTenAnnouncementStreams();
+
+UnsafeWhenAnyObservableWideExamples.MergeElevenAnnouncementStreams();
+
+UnsafeWhenAnyObservableWideExamples.MergeTwelveAnnouncementStreams();
+
+UnsafeWhenAnyObservableWideExamples.CombineThreeAnnouncementStreams();
+
+UnsafeWhenAnyObservableWideExamples.CombineFourAnnouncementStreams();
+
+UnsafeWhenAnyObservableWideExamples.CombineFiveAnnouncementStreams();
+
+UnsafeWhenAnyObservableWideExamples.CombineSixAnnouncementStreams();
+
+UnsafeWhenAnyObservableWideExamples.CombineSevenAnnouncementStreams();
+
+UnsafeWhenAnyObservableWideExamples.CombineEightAnnouncementStreams();
+
+UnsafeWhenAnyObservableWideExamples.CombineNineAnnouncementStreams();
+
+UnsafeWhenAnyObservableWideExamples.CombineTenAnnouncementStreams();
+
+UnsafeWhenAnyObservableWideExamples.CombineElevenAnnouncementStreams();
+
+UnsafeWhenAnyObservableWideExamples.CombineTwelveAnnouncementStreams();
+
+await UnsafeBindingExamples.BindOneWayBetweenPathsChosenAtRunTime();
+
+await UnsafeBindingExamples.BindOneWayWithConversionChosenAtRunTime();
+
+await UnsafeBindingExamples.BindTwoWayBetweenPathsChosenAtRunTime();
+
+UnsafeBindingExamples.BindTwoWayWithConversionsChosenAtRunTime();
+
+await UnsafeBindingExamples.OneWayBindChosenAtRunTime();
+
+await UnsafeBindingExamples.OneWayBindWithSelectorChosenAtRunTime();
+
+await UnsafeBindingExamples.OneWayBindThroughIndexer();
+
+await UnsafeBindingExamples.BindChosenAtRunTime();
+
+UnsafeBindingExamples.BindWithConversionsChosenAtRunTime();
+
+await UnsafeBindingExamples.BindToTargetChosenAtRunTime();
+
+await UnsafeBindingExamples.BindToWithConverterOverride();
+
+await UnsafeBindingExamples.BindToWithHintAndConverterOverride();
+
+await UnsafeBindingExamples.BindToWithConversionHint();
+
+await UnsafeBindingExamples.InvokeCommandChosenAtRunTime();
+
+await UnsafeBindingExamples.BindCommandToButtonChosenAtRunTime();
+
+await UnsafeBindingExamples.BindCommandWithParameterStream();
+
+await UnsafeBindingExamples.BindCommandWithParameterProperty();
+
+await UnsafeBindingExamples.BindInteractionWithTaskHandler();
+
+await UnsafeBindingExamples.BindInteractionWithObservableHandler();
+
+await UnsafeSequencerExamples.BindOneWayOnSequencer();
+
+await UnsafeSequencerExamples.BindOneWayWithConversionOnSequencer();
+
+await UnsafeSequencerExamples.BindOneWayWithConverterOnSequencer();
+
+await UnsafeSequencerExamples.BindTwoWayOnSequencer();
+
+UnsafeSequencerExamples.BindTwoWayWithConversionsOnSequencer();
+
+UnsafeSequencerExamples.BindTwoWayWithConvertersOnSequencer();
+
+UnsafeSequencerExamples.BindWithConversionsOnSequencer();
+
+UnsafeSequencerExamples.BindWithConvertersOnSequencer();
+
+await UnsafeSequencerExamples.OneWayBindWithSelectorOnSequencer();
+
+await UnsafeSequencerExamples.OneWayBindWithConverterOnSequencer();
+
+await UnsafeTriggerUpdateExamples.CommitViewEditOnSignal();
+
+await UnsafeTriggerUpdateExamples.RefreshViewOnSignal();
+
+await UnsafeTriggerUpdateExamples.DeliverLatestViewModelValueOnSignal();
+
+await UnsafeTriggerUpdateExamples.DeliverInitialViewModelValue();
+
+await UnsafeTriggerUpdateExamples.ObserveBothPropertiesWithoutSignal();
+
+UnsafeTriggerUpdateExamples.CommitConvertedViewEditOnSignal();
+
+UnsafeTriggerUpdateExamples.RefreshConvertedViewOnSignal();
+
+FallbackObservationExamples.ObserveOnePropertyAfterChange();
+
+FallbackObservationExamples.ObserveTwoPropertiesAfterChange();
+
+FallbackObservationExamples.ObserveThreePropertiesAfterChange();
+
+FallbackObservationExamples.ObserveOnePropertyBeforeChange();
+
+FallbackObservationExamples.ObserveTwoPropertiesBeforeChange();
+
+FallbackObservationExamples.ObserveThreePropertiesBeforeChange();
+
+FallbackObservationExamples.ObserveOneAnyValue();
+
+FallbackObservationExamples.ObserveTwoAnyValues();
+
+FallbackObservationExamples.ObserveThreeAnyValues();
+
+await FallbackRuntimeExamples.BindOneWayBetweenProperties();
+
+await FallbackRuntimeExamples.BindOneWayOnSequencer();
+
+await FallbackRuntimeExamples.BindOneWayWithConversion();
+
+await FallbackRuntimeExamples.BindTwoWayBetweenProperties();
+
+FallbackRuntimeExamples.BindTwoWayWithConverterPair();
+
+await FallbackRuntimeExamples.OneWayBindToView();
+
+await FallbackRuntimeExamples.OneWayBindToViewWithConversion();
+
+await FallbackRuntimeExamples.BindViewAndViewModel();
+
+FallbackRuntimeExamples.BindViewAndViewModelWithConverterPair();
+
+await FallbackRuntimeExamples.BindViewAndViewModelOnSignal();
+
+FallbackRuntimeExamples.BindViewAndViewModelWithConverterPairOnSignal();
+
+await FallbackRuntimeExamples.BindStreamToProperty();
+
+await FallbackRuntimeExamples.BindStreamToPropertyWithHintAndConverter();
+
+await FallbackRuntimeExamples.BindStreamToNullTarget();
+
+FallbackRuntimeExamples.ConvertWithRegisteredConverter();
+
+FallbackRuntimeExamples.ConvertWithConversionHint();
+
+FallbackRuntimeExamples.ConvertWithConverterOverride();
+
+FallbackRuntimeExamples.ConvertWithoutConverterFails();
+
+FallbackRuntimeExamples.ConvertValueThatAlreadyHasTheTargetType();
+
+FallbackRuntimeExamples.CreateConverterPairWithFactory();
+
+FallbackRuntimeExamples.CreateConverterPairWithConstructor();
+
+await FallbackRuntimeExamples.BindCommandToButton();
+
+await FallbackRuntimeExamples.BindCommandToButtonEvent();
+
+FallbackRuntimeExamples.BindCommandWithoutViewModel();
+
+await FallbackRuntimeExamples.InvokeCommandForStream();
+
+await FallbackRuntimeExamples.BindInteractionToHandler();
+
+ExpressionEngineExamples.NameThePathOfAnExpression();
+
+ExpressionEngineExamples.SplitAnExpressionIntoLinks();
+
+ExpressionEngineExamples.FindTheMemberBehindAConversion();
+
+ExpressionEngineExamples.FindTheParentOfAMember();
+
+ExpressionEngineExamples.ReadTheArgumentsOfAnIndexer();
+
+ExpressionEngineExamples.RewriteAnExpressionIntoChainShape();
+
+ExpressionEngineExamples.ReadAPropertyWithAFetcher();
+
+ExpressionEngineExamples.ReadAPropertyWithAFetcherOrThrow();
+
+ExpressionEngineExamples.WriteAPropertyWithASetter();
+
+ExpressionEngineExamples.WriteAPropertyWithASetterOrThrow();
+
+ExpressionEngineExamples.ReadTheValueAtTheEndOfAPath();
+
+ExpressionEngineExamples.ReadThroughANullLink();
+
+ExpressionEngineExamples.ReadEveryValueAlongAPath();
+
+ExpressionEngineExamples.WriteTheValueAtTheEndOfAPath();
+
+ExpressionEngineExamples.WriteTheValueAtTheEndOfAPathWithoutThrowing();
+
+UnsafeToPropertyExamples.BackAPropertyOnATypeThatIsNotPartial();

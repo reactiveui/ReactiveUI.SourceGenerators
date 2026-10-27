@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- The same tests, recompiled against ReactiveUI.Binding.Reactive.WinForms. REACTIVE_SHIM comes from
+         ReactiveShim.props via the '.Reactive' name suffix, which is why the suffix goes last. -->
+    <TargetFrameworks>$(BindingTestPlatformTargets)</TargetFrameworks>
+    <UseWindowsForms>true</UseWindowsForms>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <!-- No test source of its own: it recompiles the lean project's files under the shifted namespaces. -->
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.Binding.WinForms.Tests\**\*.cs"
+             Exclude="..\ReactiveUI.Binding.WinForms.Tests\obj\**\*.cs;..\ReactiveUI.Binding.WinForms.Tests\bin\**\*.cs"
+             Link="%(RecursiveDir)%(Filename)%(Extension)"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="ReactiveUI.Binding.Reactive"/>
+    <Using Include="ReactiveUI.Binding.Reactive.WinForms"/>
+    <Using Include="TUnit.Core"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TUnit"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.WinForms.Reactive\ReactiveUI.Binding.WinForms.Reactive.csproj"/>
+  </ItemGroup>
+</Project>

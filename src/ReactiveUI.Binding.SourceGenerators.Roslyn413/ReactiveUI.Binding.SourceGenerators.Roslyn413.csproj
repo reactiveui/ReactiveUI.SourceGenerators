@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>ReactiveUI.Binding.SourceGenerators</AssemblyName>
+    <RootNamespace>ReactiveUI.Binding.SourceGenerators</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <IsRoslynComponent>true</IsRoslynComponent>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <NoWarn>$(NoWarn);AD0001</NoWarn>
+    <DebugType>full</DebugType>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+  </PropertyGroup>
+
+  <!-- Roslyn 4.13.0 is the first release where SemanticModel.GetInterceptableLocation is a supported API
+       rather than an experimental one, so this build reaches it without acknowledging RSEXPERIMENTAL002.
+       It is what lets the generator redirect a call site rather than compete with it through
+       extension-method lookup. A consumer on an older compiler selects the 4.8 slot, whose generator emits
+       the dispatch overloads instead. Only APIs present in Roslyn 4.13 may be used here. -->
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);ROSLYN_4_13</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" VersionOverride="4.13.0"/>
+  </ItemGroup>
+
+  <!-- The same generator source, compiled a second time against the newer compiler. Nothing is duplicated:
+       the two leaves differ only in which Roslyn they bind to and what ROSLYN_4_13 turns on. -->
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.Binding.SourceGenerators\**\*.cs"
+             Exclude="..\ReactiveUI.Binding.SourceGenerators\bin\**\*.cs;..\ReactiveUI.Binding.SourceGenerators\obj\**\*.cs"
+             LinkBase="SourceGenerators"/>
+    <Compile Include="..\ReactiveUI.SourceGenerators.Shared\CodeGeneration\*.cs" LinkBase="Shared\CodeGeneration"/>
+    <Compile Include="..\ReactiveUI.SourceGenerators.Shared\Collections\*.cs" LinkBase="Shared\Collections"/>
+    <Using Include="ReactiveUI.SourceGenerators.CodeGeneration"/>
+    <Using Include="ReactiveUI.SourceGenerators.Helpers"/>
+    <Compile Include="..\ReactiveUI.Binding.Shared\Polyfills\*.cs" LinkBase="Polyfills"/>
+    <Compile Include="..\ReactiveUI.Binding.Shared\Helpers\ArgumentExceptionHelper.cs" Link="Helpers\ArgumentExceptionHelper.cs"/>
+    <Compile Include="..\ReactiveUI.Binding.Shared\Bindings\BindingAffinity.cs" Link="Bindings\BindingAffinity.cs"/>
+  </ItemGroup>
+
+  <!-- Release tracking reads these through AdditionalFiles. The package auto-includes them from the project
+       directory, which does not reach a linked copy, so they are named explicitly. -->
+  <ItemGroup>
+    <AdditionalFiles Include="..\ReactiveUI.Binding.SourceGenerators\AnalyzerReleases.Shipped.md" Link="AnalyzerReleases.Shipped.md"/>
+    <AdditionalFiles Include="..\ReactiveUI.Binding.SourceGenerators\AnalyzerReleases.Unshipped.md" Link="AnalyzerReleases.Unshipped.md"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ReactiveUI.Binding.SourceGenerators.Tests"/>
+    <InternalsVisibleTo Include="ReactiveUI.Binding.SourceGenerators.Tests.Roslyn413"/>
+  </ItemGroup>
+</Project>

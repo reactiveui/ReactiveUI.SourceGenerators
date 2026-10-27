@@ -1,0 +1,30 @@
+name: Benchmarks A/B
+
+on:
+    workflow_dispatch:
+        inputs:
+            base:
+                description: 'Baseline commit SHA.'
+                type: string
+                required: true
+            head:
+                description: 'Commit SHA compared against the baseline.'
+                type: string
+                required: true
+
+permissions:
+    contents: read
+
+jobs:
+    benchmark:
+        uses: reactiveui/actions-common/.github/workflows/workflow-common-benchmarks-ab.yml@main
+        with:
+            base: ${{ inputs.base }}
+            head: ${{ inputs.head }}
+            projects: |
+                benchmarks/ReactiveUI.Binding.Benchmarks/ReactiveUI.Binding.Benchmarks.csproj
+                benchmarks/ReactiveUI.Binding.Generator.Benchmarks/ReactiveUI.Binding.Generator.Benchmarks.csproj
+                benchmarks/ReactiveUI.Binding.Analyzer.Benchmarks/ReactiveUI.Binding.Analyzer.Benchmarks.csproj
+                benchmarks/ReactiveUI.SourceGenerators.Benchmarks/ReactiveUI.SourceGenerators.Benchmarks.csproj
+            solutionFile: ReactiveUI.SourceGenerators.slnf
+            installWorkloads: true

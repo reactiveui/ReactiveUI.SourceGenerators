@@ -1,42 +1,40 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>$(RoslynTfm)</TargetFramework>
-    <Nullable>enable</Nullable>
-    <LangVersion>latest</LangVersion>
-    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>ReactiveUI.SourceGenerators.Roslyn</AssemblyName>
+    <IsPackable>false</IsPackable>
     <IsRoslynComponent>true</IsRoslynComponent>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <DevelopmentDependency>true</DevelopmentDependency>
-    <IsPackable>false</IsPackable>
-
-    <PackageDescription>A MVVM framework that integrates with the Reactive Extensions for .NET to create elegant, testable User Interfaces that run on any mobile or desktop platform. This is the Source Generators package for ReactiveUI</PackageDescription>
-    <AssemblyName>ReactiveUI.SourceGenerators.Roslyn</AssemblyName>
-    <!-- Roslyn 4.8 baseline band (VS 2022 17.8, .NET 8.0.1xx SDK). No ROSYLN_412 — the
-         4.12+ API surface is compiled out, so this band compiles against the 4.8 API only. -->
+    <DebugType>full</DebugType>
+    <PackageDescription>Source generators for ReactiveUI properties, commands, reactive objects, derived lists and view hosts.</PackageDescription>
+    <!-- Roslyn 4.8 baseline band (VS 2022 17.8, .NET 8.0.1xx SDK). No ROSYLN_412: the 4.12+ API surface is
+         compiled out, so this band compiles against the 4.8 API only. -->
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" VersionOverride="4.8.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" PrivateAssets="all" VersionOverride="4.8.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" PrivateAssets="all" VersionOverride="4.8.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis" PrivateAssets="all" VersionOverride="4.8.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="all" VersionOverride="4.8.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" VersionOverride="4.8.0"/>
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="ReactiveUI.CodeFixes" />
+    <InternalsVisibleTo Include="ReactiveUI.SourceGenerators.Analyzers.CodeFixes"/>
+    <InternalsVisibleTo Include="ReactiveUI.SourceGenerators.Tests"/>
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\ReactiveUI.SourceGenerators.Roslyn\**\*.cs" LinkBase="Shared" />
+    <Compile Include="..\ReactiveUI.SourceGenerators.Roslyn\**\*.cs" LinkBase="Roslyn"/>
+    <Compile Include="..\ReactiveUI.SourceGenerators.Shared\**\*.cs" LinkBase="Shared"/>
+    <Compile Include="..\ReactiveUI.Binding.Shared\Polyfills\*.cs" LinkBase="Polyfills"/>
+    <Using Include="ReactiveUI.SourceGenerators.CodeGeneration"/>
+    <Using Include="ReactiveUI.SourceGenerators.Helpers"/>
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="..\ReactiveUI.SourceGenerators.Roslyn\AnalyzerReleases.Shipped.md" />
-    <AdditionalFiles Include="..\ReactiveUI.SourceGenerators.Roslyn\AnalyzerReleases.Unshipped.md" />
+    <AdditionalFiles Include="..\ReactiveUI.SourceGenerators.Roslyn\AnalyzerReleases.Shipped.md"/>
+    <AdditionalFiles Include="..\ReactiveUI.SourceGenerators.Roslyn\AnalyzerReleases.Unshipped.md"/>
   </ItemGroup>
 
 </Project>

@@ -1,61 +1,113 @@
 <Project>
+  <Import Project="ReactiveShim.props"/>
+
+  <PropertyGroup>
+    <!-- Enable building Windows-specific targets on non-Windows platforms -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+
+    <!-- Granular Target Framework definitions for cross-platform builds -->
+    <BindingCoreTargets>net8.0;net9.0;net10.0;net11.0</BindingCoreTargets>
+
+    <!-- Legacy .NET Framework targets (Windows only) -->
+    <BindingLegacyTargets>net462;net47;net471;net472;net48;net481</BindingLegacyTargets>
+
+    <!-- Combined core + legacy -->
+    <BindingRuntimeTargets>$(BindingCoreTargets)</BindingRuntimeTargets>
+    <BindingRuntimeTargets Condition=" '$(BindingLegacyTargets)' != '' ">$(BindingRuntimeTargets);$(BindingLegacyTargets)</BindingRuntimeTargets>
+
+    <!-- Windows-specific platform targets (WPF, WinForms) -->
+    <BindingWindowsTargets>net8.0-windows10.0.19041.0;net9.0-windows10.0.19041.0;net10.0-windows10.0.19041.0;net11.0-windows10.0.19041.0</BindingWindowsTargets>
+
+    <!-- MAUI targets. The net8 and net9 heads are end of life, so MAUI starts at net10 while everything
+         else still offers net8. -->
+    <BindingMauiWindowsTargets>net10.0-windows10.0.19041.0;net11.0-windows10.0.19041.0</BindingMauiWindowsTargets>
+    <!-- net10 pins the compile-SDK to API 36 (Android 16) and net11 to API 37, the latest released stable
+         levels, both above Google Play's API 35 floor. -->
+    <BindingAndroidTargets>net10.0-android36.0;net11.0-android37</BindingAndroidTargets>
+    <BindingAppleTargets>net10.0-ios;net10.0-macos;net10.0-maccatalyst;net10.0-tvos;net11.0-ios;net11.0-macos;net11.0-maccatalyst;net11.0-tvos</BindingAppleTargets>
+
+    <BindingMauiTargets>$(BindingMauiWindowsTargets)</BindingMauiTargets>
+    <BindingMauiTargets>$(BindingMauiTargets);net10.0;net11.0;$(BindingAndroidTargets)</BindingMauiTargets>
+    <BindingMauiTargets Condition="$([MSBuild]::IsOsPlatform('Windows')) or $([MSBuild]::IsOsPlatform('OSX'))">$(BindingMauiTargets);$(BindingAppleTargets)</BindingMauiTargets>
+
+    <!-- Uno.Sdk heads. The Windows head builds only on Windows, with MSBuild, and the iOS head on Windows or macOS;
+         the Uno projects sit in ReactiveUI.Binding.SourceGenerators.Uno.slnf so the dotnet build never loads them. -->
+    <BindingUnoTargets>net10.0;net10.0-desktop;net10.0-browserwasm;net11.0;net11.0-desktop;net11.0-browserwasm;net10.0-android;net11.0-android</BindingUnoTargets>
+    <BindingUnoTargets Condition="$([MSBuild]::IsOsPlatform('Windows'))">$(BindingUnoTargets);net10.0-windows10.0.19041.0;net11.0-windows10.0.19041.0</BindingUnoTargets>
+    <BindingUnoTargets Condition="$([MSBuild]::IsOsPlatform('Windows')) or $([MSBuild]::IsOsPlatform('OSX'))">$(BindingUnoTargets);net10.0-ios;net11.0-ios</BindingUnoTargets>
+
+    <!-- The core runtime adds the Apple heads, which carry the key-value observing and AppKit command types that
+         generated Apple bindings reference. Like the MAUI Apple heads, they build only on Windows and macOS.
+         A consumer published for a runtime identifier passes it to this project's restore, and no Apple head
+         restores for a desktop runtime, so the heads are left out of any build that names one. -->
+    <BindingCoreRuntimeTargets>$(BindingRuntimeTargets)</BindingCoreRuntimeTargets>
+    <BindingCoreRuntimeTargets Condition="'$(RuntimeIdentifier)' == '' and ($([MSBuild]::IsOsPlatform('Windows')) or $([MSBuild]::IsOsPlatform('OSX')))">$(BindingCoreRuntimeTargets);$(BindingAppleTargets)</BindingCoreRuntimeTargets>
+
+    <!-- Plain desktop targets (windows7.0) for the WPF and WinForms packages. A net*-windows app cannot consume a
+         -windows10.0.19041.0 asset, so without these it falls back to the .NET Framework asset via AssetTargetFallback. -->
+    <BindingDesktopTargets>net8.0-windows;net9.0-windows;net10.0-windows;net11.0-windows</BindingDesktopTargets>
+
+    <!-- Windows-only targets (Framework + desktop + Windows-specific) -->
+    <BindingWindowsOnlyTargets>$(BindingWindowsTargets)</BindingWindowsOnlyTargets>
+    <BindingWindowsOnlyTargets>$(BindingLegacyTargets);$(BindingDesktopTargets);$(BindingWindowsTargets)</BindingWindowsOnlyTargets>
+
+    <!-- Test targets -->
+    <BindingTestTargets>net10.0;net11.0</BindingTestTargets>
+    <BindingTestPlatformTargets>net10.0-windows10.0.19041.0;net11.0-windows10.0.19041.0</BindingTestPlatformTargets>
+
+    <!-- MAUI's net9 heads are end of life, so its tests start where the package does. -->
+    <BindingMauiTestTargets>net10.0;net11.0</BindingMauiTestTargets>
+
+    <!-- Windows-specific test targets: use Windows TFMs on Windows, core TFMs elsewhere -->
+    <BindingTestWindowsTargets>$(BindingTestTargets)</BindingTestWindowsTargets>
+    <BindingTestWindowsTargets Condition="$([MSBuild]::IsOsPlatform('Windows'))">$(BindingTestPlatformTargets)</BindingTestWindowsTargets>
+  </PropertyGroup>
+
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Platform>AnyCPU</Platform>
     <IsTestProject>$(MSBuildProjectName.Contains('Tests'))</IsTestProject>
+
+    <!-- Matched on the singular so BenchmarkDotNet's generated per-job projects are included: they are
+         written under a benchmark's output folder and so inherit this file. -->
+    <IsBenchmarkProject>$(MSBuildProjectName.Contains('Benchmark'))</IsBenchmarkProject>
+
+    <!-- WPF and WinForms tests target the windows TFMs, so they need the Windows Desktop runtime to execute.
+         Off Windows they still compile (EnableWindowsTargeting) - which is the validation we want from the
+         Linux and macOS legs - but demoting them out of IsTestProject keeps the test run from launching an
+         app that cannot start there and reporting it as "Zero tests ran". The MAUI tests are deliberately
+         absent: they target the plain TFMs and run everywhere. -->
+    <IsWindowsDesktopTestProject Condition="'$(IsTestProject)' == 'true' and ($(MSBuildProjectName.Contains('.Wpf.')) or $(MSBuildProjectName.Contains('.WinForms.')))">true</IsWindowsDesktopTestProject>
+    <IsTestProject Condition="'$(IsWindowsDesktopTestProject)' == 'true' and !$([MSBuild]::IsOsPlatform('Windows'))">false</IsTestProject>
+    <IsTestingPlatformApplication Condition="'$(IsWindowsDesktopTestProject)' == 'true' and !$([MSBuild]::IsOsPlatform('Windows'))">false</IsTestingPlatformApplication>
     <DebugType>embedded</DebugType>
-    <Authors>.NET Foundation and Contributors</Authors>
-    <Copyright>Copyright (c) .NET Foundation and Contributors</Copyright>
-    <PackageIcon>logo.png</PackageIcon>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Authors>Glenn Watson</Authors>
+    <Copyright>Copyright (c) $([System.DateTime]::Now.ToString(yyyy)) ReactiveUI and Contributors</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://reactiveui.net</PackageProjectUrl>
-    <DefaultPackageDescription>A MVVM framework that integrates with the Reactive Extensions for .NET to create elegant, testable User Interfaces that run on any mobile or desktop platform. Supports Xamarin.iOS, Xamarin.Android, Xamarin.Mac, Xamarin Forms, Xamarin.TVOS, Tizen, WPF, Windows Forms, Universal Windows Platform (UWP) and the Uno Platform.</DefaultPackageDescription>
-    <PackageDescription>$(DefaultPackageDescription)</PackageDescription>
-    <Owners>anaisbetts;chrispulman</Owners>
-    <PackageTags>mvvm;reactiveui;rx;reactive extensions;observable;LINQ;events;frp;xamarin;android;ios;mac;forms;monodroid;monotouch;xamarin.android;xamarin.ios;xamarin.forms;xamarin.mac;xamarin.tvos;wpf;net;netstandard;net462;winui;maui;tizen;unoplatform</PackageTags>
-    <PackageReleaseNotes>https://github.com/reactiveui/ReactiveUI.SourceGenerators/releases</PackageReleaseNotes>
-    <RepositoryUrl>https://github.com/reactiveui/reactiveui.sourcegenerators</RepositoryUrl>
+    <PackageDescription>Source generator for ReactiveUI property observation and binding. Generates compile-time WhenChanged, WhenChanging, BindOneWay, and BindTwoWay implementations.</PackageDescription>
+    <Owners>glennawatson</Owners>
+    <PackageTags>reactiveui;binding;source-generator;system.reactive</PackageTags>
+    <PackageProjectUrl>https://github.com/reactiveui/ReactiveUI.Binding.SourceGenerators</PackageProjectUrl>
+    <PackageReleaseNotes>https://github.com/reactiveui/ReactiveUI.Binding.SourceGenerators/releases</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/reactiveui/ReactiveUI.Binding.SourceGenerators</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <NoWarn>$(NoWarn);IDE0060;IDE1006;IDE0130;VSSpell001;RS2007;RS1038;NU5128</NoWarn>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
     <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <!-- Embed source files that are not tracked by the source control manager in the PDB -->
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <!-- Include PDB in the built .nupkg -->
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-    <Nullable>enable</Nullable>
-    <LangVersion>preview</LangVersion>
+    <PackageIcon>logo.png</PackageIcon>
+    <SolutionDir Condition="'$(SolutionDir)' == ''">$(MSBuildThisFileDirectory)</SolutionDir>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <EnableNETAnalyzers>True</EnableNETAnalyzers>
     <AnalysisLevel>latest</AnalysisLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludePackageReferencesDuringMarkupCompilation>true</IncludePackageReferencesDuringMarkupCompilation>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EnableWindowsTargeting>true</EnableWindowsTargeting>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-  </PropertyGroup>
-
-  <!-- Centralized TFM Definitions -->
-  <PropertyGroup>
-    <!-- Roslyn projects target netstandard2.0 -->
-    <RoslynTfm>netstandard2.0</RoslynTfm>
-    <!-- The ReactiveUI.SourceGenerators attributes library consumers compile against: modern .NET and .NET Framework -->
-    <LibraryTfms>net8.0;net9.0;net10.0;net11.0;net462;net47;net471;net472;net48;net481</LibraryTfms>
-    <!-- Test projects multi-target net8.0, net9.0, and net10.0 -->
-    <TestTfms>net8.0;net9.0;net10.0</TestTfms>
-  </PropertyGroup>
-
-  <!-- MAUI TFMs with OS-specific conditional logic -->
-  <PropertyGroup>
-    <!-- Linux builds Android targets only -->
-    <MauiTfms Condition="$([MSBuild]::IsOSPlatform('Linux'))">net10.0-android</MauiTfms>
-    <!-- macOS builds Android and Apple (iOS/MacCatalyst) targets -->
-    <MauiTfms Condition="$([MSBuild]::IsOSPlatform('OSX'))">net10.0-android;net10.0-ios;net10.0-maccatalyst</MauiTfms>
-    <!-- Windows builds Android, Windows, and Apple targets (assuming paired Mac) -->
-    <MauiTfms Condition="$([MSBuild]::IsOSPlatform('Windows'))">net10.0-android;net10.0-ios;net10.0-maccatalyst;net10.0-windows10.0.19041.0</MauiTfms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(IsTestProject)' == 'true'">
@@ -67,39 +119,74 @@
 
   <!-- MTP Native JSON Configuration -->
   <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+    <!-- Keep ordinary tests independent of the host locale; culture regressions override this per test. -->
+    <AssemblyAttribute Include="TUnit.Core.Executors.CultureAttribute">
+      <_Parameter1>en-US</_Parameter1>
+    </AssemblyAttribute>
     <None Include="$(MSBuildThisFileDirectory)testconfig.json">
       <Link>$(AssemblyName).testconfig.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(IsTestProject)' != 'true'">
-    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+  <!-- Neither a test nor a benchmark ships, so there is nothing for a debugger to fetch sources for. The
+       package also brings the git tasks, which warn on any working copy whose origin is not a GitHub URL. -->
+  <ItemGroup Condition="'$(IsTestProject)' != 'true' and '$(IsBenchmarkProject)' != 'true'">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
   </ItemGroup>
-  <PropertyGroup>
-    <SolutionDir Condition="'$(SolutionDir)' == ''">$(MSBuildThisFileDirectory)</SolutionDir>
+
+  <!-- Alias Lock to the dedicated System.Threading.Lock on .NET 9+ (faster EnterScope fast path),
+       and to a plain object elsewhere (the lock statement falls back to Monitor). -->
+  <ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net9.0'))">
+    <Using Include="System.Threading.Lock" Alias="Lock"/>
+  </ItemGroup>
+  <ItemGroup Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net9.0'))">
+    <Using Include="System.Object" Alias="Lock"/>
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
+
   <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)..\images\logo.png" Pack="true" PackagePath="\" />
-    <None Include="$(MSBuildThisFileDirectory)..\LICENSE" Pack="true" PackagePath="LICENSE" />
-    <None Include="$(MSBuildThisFileDirectory)..\README.md" Pack="true" PackagePath="\" />
+    <None Include="$(MSBuildThisFileDirectory)..\images\logo.png" Pack="true" PackagePath="\"/>
+    <None Include="$(MSBuildThisFileDirectory)..\LICENSE" Pack="true" PackagePath="LICENSE"/>
+    <None Include="$(MSBuildThisFileDirectory)..\README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
-  <!-- MinVer (versioning) — replaces Nerdbank.GitVersioning. Floor at 2.7
-       so untagged builds produce 2.7.x-alpha.0.<height> until a v2.7.x
-       (or later) tag is reachable. -->
+
+  <!-- The two families are versioned completely separately. The attribute generators continue their v4.x tags.
+       ReactiveUI.Binding continues from 9.1.0 on its own binding-v tags, and untagged builds produce
+       9.2.0-alpha.0.<height>. Each family has its own release workflow (release.yml and release-binding.yml) that
+       computes its version from its own tags and stamps it on the projects of its solution filter. -->
   <PropertyGroup>
     <MinVerAutoIncrement>minor</MinVerAutoIncrement>
     <MinVerDefaultPreReleaseIdentifiers>alpha.0</MinVerDefaultPreReleaseIdentifiers>
     <MinVerTagPrefix>v</MinVerTagPrefix>
-    <MinVerMinimumMajorMinor>2.7</MinVerMinimumMajorMinor>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(MSBuildProjectName.StartsWith('ReactiveUI.Binding'))">
+    <MinVerTagPrefix>binding-v</MinVerTagPrefix>
+    <MinVerMinimumMajorMinor>9.2</MinVerMinimumMajorMinor>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CustomBeforeMicrosoftCommonTargets>$(MSBuildThisFileDirectory)build\NoDeviceSelection.targets</CustomBeforeMicrosoftCommonTargets>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MinVer" PrivateAssets="all" />
+    <PackageReference Include="MinVer" PrivateAssets="all"/>
     <PackageReference Include="StyleSharp.Analyzers" PrivateAssets="all"/>
     <PackageReference Include="PerformanceSharp.Analyzers" PrivateAssets="all"/>
     <PackageReference Include="SecuritySharp.Analyzers" PrivateAssets="all"/>
-    <PackageReference Include="Roslynator.Analyzers" PrivateAssets="All" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TrackPublicApi Condition="'$(TrackPublicApi)' == ''">true</TrackPublicApi>
+    <TrackPublicApi Condition="'$(IsTestProject)' == 'true' or '$(IsBenchmarkProject)' == 'true'">false</TrackPublicApi>
+    <TrackPublicApi Condition="$(MSBuildProjectDirectory.StartsWith('$(MSBuildThisFileDirectory)tests')) or $(MSBuildProjectDirectory.StartsWith('$(MSBuildThisFileDirectory)benchmarks')) or $(MSBuildProjectDirectory.StartsWith('$(MSBuildThisFileDirectory)examples'))">false</TrackPublicApi>
+    <TrackPublicApi Condition="$(MSBuildProjectName.StartsWith('ReactiveUI.Binding.SourceGenerators')) or $(MSBuildProjectName.StartsWith('ReactiveUI.Binding.Analyzer'))">false</TrackPublicApi>
+    <EnablePublicApiBaseline>$(TrackPublicApi)</EnablePublicApiBaseline>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(TrackPublicApi)' == 'true'">
+    <PackageReference Include="PublicApiSharp.Analyzers" PrivateAssets="all"/>
   </ItemGroup>
 </Project>
-<!--SyntaxFactory helper https://roslynquoter.azurewebsites.net/-->

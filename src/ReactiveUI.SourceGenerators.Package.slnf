@@ -1,0 +1,12 @@
+{
+  "solution": {
+    "path": "ReactiveUI.SourceGenerators.slnx",
+    "projects": [
+      "ReactiveUI.SourceGenerators\\ReactiveUI.SourceGenerators.csproj",
+      "ReactiveUI.SourceGenerators.Roslyn480\\ReactiveUI.SourceGenerators.Roslyn480.csproj",
+      "ReactiveUI.SourceGenerators.Roslyn4140\\ReactiveUI.SourceGenerators.Roslyn4140.csproj",
+      "ReactiveUI.SourceGenerators.Roslyn5000\\ReactiveUI.SourceGenerators.Roslyn5000.csproj",
+      "ReactiveUI.SourceGenerators.Analyzers.CodeFixes\\ReactiveUI.SourceGenerators.Analyzers.CodeFixes.csproj"
+    ]
+  }
+}

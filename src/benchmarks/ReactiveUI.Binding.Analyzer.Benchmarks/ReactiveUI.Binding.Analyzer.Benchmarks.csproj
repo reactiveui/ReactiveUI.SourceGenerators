@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net10.0;net11.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp"/>
+    <PackageReference Include="Basic.Reference.Assemblies.Net100"/>
+    <PackageReference Include="Basic.Reference.Assemblies.Net110"/>
+  </ItemGroup>
+
+  <!--
+    The analyzers are referenced as plain libraries, not as analyzers: these benchmarks drive them through
+    CompilationWithAnalyzers so the measurement covers the analyzers rather than whatever the host build does.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.Analyzer\ReactiveUI.Binding.Analyzer.csproj"/>
+    <ProjectReference Include="..\..\ReactiveUI.Binding\ReactiveUI.Binding.csproj"/>
+  </ItemGroup>
+
+</Project>

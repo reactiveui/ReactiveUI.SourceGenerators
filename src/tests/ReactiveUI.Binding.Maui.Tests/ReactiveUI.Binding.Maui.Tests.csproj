@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- The plain TFMs only. The converters under test resolve Microsoft.Maui.Visibility, which is a managed
+         enum available without a platform head, so unlike the WPF and WinForms pairs these tests actually run
+         on every CI leg rather than only the Windows one. -->
+    <TargetFrameworks>$(BindingMauiTestTargets)</TargetFrameworks>
+    <UseMaui>true</UseMaui>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="ReactiveUI.Binding"/>
+    <Using Include="ReactiveUI.Binding.Builder"/>
+    <Using Include="ReactiveUI.Binding.Maui"/>
+    <Using Include="ReactiveUI.Binding.Maui.Builder"/>
+    <Using Include="Splat"/>
+    <Using Include="Splat.Builder"/>
+    <Using Include="TUnit.Core"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TUnit"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.Maui\ReactiveUI.Binding.Maui.csproj"/>
+    <!-- XamlPage binds controls MAUI's XAML generator declares, so the binding generator runs over this project. -->
+    <ProjectReference Include="..\..\ReactiveUI.Binding.SourceGenerators\ReactiveUI.Binding.SourceGenerators.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"/>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.Analyzer\ReactiveUI.Binding.Analyzer.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"/>
+  </ItemGroup>
+</Project>

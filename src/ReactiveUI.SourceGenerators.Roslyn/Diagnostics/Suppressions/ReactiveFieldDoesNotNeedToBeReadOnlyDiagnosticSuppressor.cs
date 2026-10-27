@@ -1,5 +1,5 @@
-// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
-// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI and Contributors. All rights reserved.
+// ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System.Collections.Immutable;
@@ -25,31 +25,34 @@ public sealed class ReactiveFieldDoesNotNeedToBeReadOnlyDiagnosticSuppressor : D
         public override void ReportSuppressions(SuppressionAnalysisContext context)
         {
             foreach (var diagnostic in context.ReportedDiagnostics)
+        {
+            var syntaxNode = diagnostic.Location.SourceTree?.GetRoot(context.CancellationToken).FindNode(diagnostic.Location.SourceSpan);
+
+            // RCS1169 can report either the complete declaration or a nested variable span.
+            var fieldDeclaration = syntaxNode as FieldDeclarationSyntax
+                ?? syntaxNode?.FirstAncestorOrSelf<FieldDeclarationSyntax>();
+            if (fieldDeclaration is null)
             {
-                var syntaxNode = diagnostic.Location.SourceTree?.GetRoot(context.CancellationToken).FindNode(diagnostic.Location.SourceSpan);
+                continue;
+            }
 
-                // RCS1169 can report either the complete declaration or a nested variable span.
-                var fieldDeclaration = syntaxNode as FieldDeclarationSyntax
-                    ?? syntaxNode?.FirstAncestorOrSelf<FieldDeclarationSyntax>();
-                if (fieldDeclaration is not null)
+            var semanticModel = context.GetSemanticModel(fieldDeclaration.SyntaxTree);
+            var reactiveSymbol = semanticModel.Compilation.GetTypeByMetadataName(AttributeDefinitions.ReactiveAttributeType);
+            if (reactiveSymbol is null)
+            {
+                continue;
+            }
+
+            foreach (var variable in fieldDeclaration.Declaration.Variables)
+            {
+                if (semanticModel.GetDeclaredSymbol(variable, context.CancellationToken) is not IFieldSymbol fieldSymbol || !fieldSymbol.HasAttributeWithType(reactiveSymbol))
                 {
-                    var semanticModel = context.GetSemanticModel(fieldDeclaration.SyntaxTree);
-                    var reactiveSymbol = semanticModel.Compilation.GetTypeByMetadataName(AttributeDefinitions.ReactiveAttributeType);
-                    if (reactiveSymbol is null)
-                    {
-                        continue;
-                    }
-
-                    foreach (var variable in fieldDeclaration.Declaration.Variables)
-                    {
-                        if (semanticModel.GetDeclaredSymbol(variable, context.CancellationToken) is IFieldSymbol fieldSymbol
-                            && fieldSymbol.HasAttributeWithType(reactiveSymbol))
-                        {
-                            context.ReportSuppression(Suppression.Create(ReactiveFieldsShouldNotBeReadOnly, diagnostic));
-                            break;
-                        }
-                    }
+                    continue;
                 }
+
+                context.ReportSuppression(Suppression.Create(ReactiveFieldsShouldNotBeReadOnly, diagnostic));
+                break;
             }
         }
+    }
 }

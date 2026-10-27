@@ -1,0 +1,57 @@
+[assembly: Microsoft.Maui.Controls.XmlnsDefinition("http://schemas.microsoft.com/dotnet/maui/global", "Microsoft.Maui", AssemblyName="Microsoft.Maui")]
+[assembly: Microsoft.Maui.Controls.XmlnsDefinition("http://schemas.microsoft.com/dotnet/maui/global", "Microsoft.Maui.Controls", AssemblyName="Microsoft.Maui.Controls")]
+[assembly: Microsoft.Maui.Controls.XmlnsDefinition("http://schemas.microsoft.com/dotnet/maui/global", "Microsoft.Maui.Controls.Shapes", AssemblyName="Microsoft.Maui.Controls")]
+[assembly: Microsoft.Maui.Controls.XmlnsDefinition("http://schemas.microsoft.com/dotnet/maui/global", "Microsoft.Maui.Controls.Xaml", AssemblyName="Microsoft.Maui.Controls.Xaml")]
+[assembly: Microsoft.Maui.Controls.XmlnsDefinition("http://schemas.microsoft.com/dotnet/maui/global", "Microsoft.Maui.Graphics", AssemblyName="Microsoft.Maui.Graphics")]
+[assembly: Microsoft.Maui.Controls.XmlnsDefinition("http://schemas.microsoft.com/dotnet/maui/global", "http://schemas.microsoft.com/dotnet/2021/maui")]
+[assembly: Microsoft.Maui.Controls.XmlnsPrefix("http://schemas.microsoft.com/dotnet/maui/global", "global")]
+[assembly: System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+[assembly: System.Runtime.Versioning.SupportedOSPlatform("macOS27.0")]
+namespace ReactiveUI.Binding.Reactive.Maui
+{
+    [System.Flags]
+    public enum BooleanToVisibilityHints
+    {
+        None = 0,
+        Inverse = 2,
+        UseHidden = 4,
+    }
+    public sealed class BooleanToVisibilityTypeConverter : ReactiveUI.Binding.Reactive.BindingTypeConverter<bool, Microsoft.Maui.Visibility>
+    {
+        public BooleanToVisibilityTypeConverter() { }
+        public override int GetAffinityForObjects() { }
+        public override bool TryConvert(bool from, object? conversionHint, out Microsoft.Maui.Visibility result) { }
+    }
+    public sealed class DispatcherViewThreadInvoker : ReactiveUI.Binding.Reactive.SequencerViewThreadInvoker<Microsoft.Maui.Controls.BindableObject, ReactiveUI.Primitives.Reactive.Concurrency.MauiDispatcherSequencer>
+    {
+        public DispatcherViewThreadInvoker() { }
+        public static ReactiveUI.Binding.Reactive.Maui.DispatcherViewThreadInvoker Instance { get; }
+        protected override ReactiveUI.Primitives.Reactive.Concurrency.MauiDispatcherSequencer? SequencerFor(Microsoft.Maui.Controls.BindableObject target) { }
+    }
+    public sealed class MauiBindingModule : Splat.Builder.IModule
+    {
+        public MauiBindingModule() { }
+        public void Configure(Splat.IMutableDependencyResolver resolver) { }
+    }
+    public sealed class VisibilityToBooleanTypeConverter : ReactiveUI.Binding.Reactive.BindingTypeConverter<Microsoft.Maui.Visibility, bool>
+    {
+        public VisibilityToBooleanTypeConverter() { }
+        public override int GetAffinityForObjects() { }
+        public override bool TryConvert(Microsoft.Maui.Visibility from, object? conversionHint, out bool result) { }
+    }
+}
+namespace ReactiveUI.Binding.Reactive.Maui.Builder
+{
+    public static class MauiBindingBuilderExtensions
+    {
+        extension(ReactiveUI.Binding.Reactive.Builder.IReactiveUIBindingBuilder builder)
+        {
+            public ReactiveUI.Binding.Reactive.Builder.IReactiveUIBindingBuilder WithMaui() { }
+        }
+        extension(Splat.Builder.IAppBuilder builder)
+        {
+            [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            public ReactiveUI.Binding.Reactive.Builder.IReactiveUIBindingBuilder WithMaui() { }
+        }
+    }
+}

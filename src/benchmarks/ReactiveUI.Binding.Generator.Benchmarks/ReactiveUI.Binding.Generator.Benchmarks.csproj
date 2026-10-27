@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net10.0;net11.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp"/>
+    <PackageReference Include="Basic.Reference.Assemblies.Net100"/>
+    <PackageReference Include="Basic.Reference.Assemblies.Net110"/>
+  </ItemGroup>
+
+  <!--
+    The generator is referenced as a plain library, not as an analyzer: these benchmarks drive it directly
+    so the measurement covers the emitter rather than whatever the host build decides to do with it.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\ReactiveUI.Binding.SourceGenerators\ReactiveUI.Binding.SourceGenerators.csproj"/>
+    <ProjectReference Include="..\..\ReactiveUI.Binding\ReactiveUI.Binding.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Mocks\*.cs" CopyToOutputDirectory="PreserveNewest"/>
+  </ItemGroup>
+
+</Project>

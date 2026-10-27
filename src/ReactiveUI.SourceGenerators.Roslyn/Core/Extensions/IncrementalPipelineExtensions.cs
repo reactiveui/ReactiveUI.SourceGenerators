@@ -1,10 +1,11 @@
-// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
-// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI and Contributors. All rights reserved.
+// ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.Models;
@@ -26,15 +27,16 @@ internal static class IncrementalPipelineExtensions
         /// <summary>Reports each result's diagnostics as their own output, apart from the sources.</summary>
         /// <typeparam name="T">The result's value type.</typeparam>
         /// <param name="results">The extraction results.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RegisterDiagnostics<T>(IncrementalValuesProvider<Result<T>> results)
             where T : IEquatable<T>? =>
             context.RegisterSourceOutput(
                 results.Where(static result => !result.Errors.IsEmpty).Select(static (result, _) => result.Errors),
                 static (context, errors) =>
                 {
-                    foreach (var error in errors.AsImmutableArray())
+                    for (var i = 0; i < errors.Length; i++)
                     {
-                        context.ReportDiagnostic(error.ToDiagnostic());
+                        context.ReportDiagnostic(errors[i].ToDiagnostic());
                     }
                 });
     }
@@ -48,25 +50,26 @@ internal static class IncrementalPipelineExtensions
         /// <summary>Groups the models by the type they belong to, one value-equatable array per type.</summary>
         /// <param name="target">Reads a model's type.</param>
         /// <returns>One array per type, in the order the types were first seen.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal IncrementalValuesProvider<EquatableArray<T>> GroupByTarget(Func<T, TargetInfo> target) =>
             models.Collect().SelectMany((all, _) => Group(all, target));
     }
 
     /// <summary>Groups models by their type's hint name, which is unique within a compilation.</summary>
     /// <typeparam name="T">The model type.</typeparam>
-    /// <param name="all">Every model.</param>
+    /// <param name="all">Every model; Roslyn's <c>Collect</c> returns it as an <see cref="ImmutableArray{T}"/>.</param>
     /// <param name="target">Reads a model's type.</param>
     /// <returns>One array per type, in first-seen order.</returns>
-    private static ImmutableArray<EquatableArray<T>> Group<T>(ImmutableArray<T> all, Func<T, TargetInfo> target)
+    private static EquatableArray<T>[] Group<T>(ImmutableArray<T> all, Func<T, TargetInfo> target)
         where T : IEquatable<T>
     {
         if (all.IsEmpty)
         {
-            return ImmutableArray<EquatableArray<T>>.Empty;
+            return [];
         }
 
         var indexByType = new Dictionary<string, int>(StringComparer.Ordinal);
-        var groups = new List<ImmutableArray<T>.Builder>();
+        var groups = new List<List<T>>();
         foreach (var model in all)
         {
             var hintName = target(model).FileHintName;
@@ -74,18 +77,18 @@ internal static class IncrementalPipelineExtensions
             {
                 index = groups.Count;
                 indexByType.Add(hintName, index);
-                groups.Add(ImmutableArray.CreateBuilder<T>());
+                groups.Add([]);
             }
 
             groups[index].Add(model);
         }
 
-        var result = ImmutableArray.CreateBuilder<EquatableArray<T>>(groups.Count);
-        foreach (var group in groups)
+        var result = new EquatableArray<T>[groups.Count];
+        for (var i = 0; i < result.Length; i++)
         {
-            result.Add(group.ToImmutable());
+            result[i] = new(groups[i].ToArray());
         }
 
-        return result.MoveToImmutable();
+        return result;
     }
 }

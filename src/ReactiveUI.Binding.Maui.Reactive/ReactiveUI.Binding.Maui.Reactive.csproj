@@ -1,0 +1,72 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- System.Reactive-flavoured MAUI leaf: recompiles the shared MAUI source against
+         ReactiveUI.Binding.Reactive, shifting its types to ReactiveUI.Binding.Reactive.Maui.
+         REACTIVE_SHIM comes from ReactiveShim.props via the '.Reactive' name suffix. -->
+    <TargetFrameworks>$(BindingMauiTargets)</TargetFrameworks>
+    <RootNamespace>ReactiveUI.Binding.Reactive.Maui</RootNamespace>
+    <UseMaui>true</UseMaui>
+    <DefineConstants>$(DefineConstants);IS_MAUI</DefineConstants>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([System.String]::Copy('$(TargetFramework)').EndsWith('-windows10.0.19041.0'))">10.0.19041.0</SupportedOSPlatformVersion>
+    <TargetPlatformMinVersion Condition="$([System.String]::Copy('$(TargetFramework)').EndsWith('-windows10.0.19041.0'))">10.0.19041.0</TargetPlatformMinVersion>
+    <PackageDescription>MAUI platform support for ReactiveUI.Binding.Reactive, for consumers on System.Reactive.</PackageDescription>
+    <PackageTags>reactiveui;binding;maui;winui;system.reactive</PackageTags>
+    <IsAotCompatible>false</IsAotCompatible>
+    <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
+    <EnableSingleFileAnalyzer>false</EnableSingleFileAnalyzer>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+    <DefineConstants>$(DefineConstants);WINUI_TARGET</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.Binding.Maui.Shared\**\*.cs" Link="ReactiveUI.Binding.Maui.Shared\%(RecursiveDir)%(Filename)%(Extension)"/>
+  </ItemGroup>
+
+  <!-- The WinUI DependencyProperty observer is guarded with #if WINUI_TARGET, so exclude the source
+       on the non-Windows targets rather than compiling a file that declares nothing there. It is also the
+       only consumer of the shared platform primitives, which are therefore linked on the same targets. -->
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'windows'">
+    <Compile Remove="..\ReactiveUI.Binding.Maui.Shared\DependencyObjectObservableForProperty.cs"/>
+  </ItemGroup>
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+    <Compile Include="..\ReactiveUI.Binding.Platform.Shared\**\*.cs" Link="ReactiveUI.Binding.Platform.Shared\%(RecursiveDir)%(Filename)%(Extension)"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="ReactiveUI.Primitives.Disposables"/>
+    <Using Include="System"/>
+    <Using Include="System.ComponentModel"/>
+    <Using Include="System.Diagnostics"/>
+    <Using Include="System.Diagnostics.CodeAnalysis"/>
+    <Using Include="System.Runtime.CompilerServices"/>
+    <Using Include="Splat"/>
+    <Using Include="ReactiveUI.Primitives.Reactive.Concurrency.MauiDispatcherSequencer" Alias="MauiDispatcherSequencer"/>
+  </ItemGroup>
+
+  <!-- The shifted counterparts of the lean leaf's imports. -->
+  <ItemGroup>
+    <Using Include="ReactiveUI.Binding.Reactive.Builder"/>
+    <Using Include="ReactiveUI.Binding.Reactive.Helpers"/>
+    <Using Include="ReactiveUI.Binding.Reactive.ObservableForProperty"/>
+    <Using Include="ReactiveUI.Binding.Reactive.Observables"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ReactiveUI.Binding.Reactive\ReactiveUI.Binding.Reactive.csproj"/>
+    <PackageReference Include="Microsoft.Maui.Controls"/>
+    <PackageReference Include="ReactiveUI.Primitives.Maui.Reactive"/>
+    <!-- The compatibility shims are deprecated from net11 onwards and ship no build for it. -->
+    <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Condition="$(TargetFramework.StartsWith('net10'))"/>
+  </ItemGroup>
+
+  <!-- A recompilation of ReactiveUI.Binding.Maui.Shared, which ReactiveUI.Binding.Maui already covers.
+       See the note on ReactiveUI.Binding.Reactive for why this is an attribute and not a module path. -->
+  <ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'netcoreapp3.0'))">
+    <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage"/>
+  </ItemGroup>
+</Project>

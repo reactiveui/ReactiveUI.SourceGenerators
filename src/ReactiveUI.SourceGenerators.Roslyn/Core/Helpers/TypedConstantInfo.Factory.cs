@@ -1,9 +1,8 @@
-// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
-// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI and Contributors. All rights reserved.
+// ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using Microsoft.CodeAnalysis;
@@ -29,13 +28,13 @@ internal abstract partial record TypedConstantInfo
         if (arg.Kind == TypedConstantKind.Array)
         {
             var elementTypeName = ((IArrayTypeSymbol)arg.Type!).ElementType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            using var items = ImmutableArrayBuilder<TypedConstantInfo>.Rent();
+            using var items = ArrayBuilder<TypedConstantInfo>.Rent();
             foreach (var value in arg.Values)
             {
                 items.Add(Create(value));
             }
 
-            return new Array(elementTypeName, items.ToImmutable());
+            return new Array(elementTypeName, items.ToEquatableArray());
         }
 
         return (arg.Kind, arg.Value) switch
@@ -104,6 +103,7 @@ internal abstract partial record TypedConstantInfo
     /// <param name="operation">The operation to inspect.</param>
     /// <param name="info">The resulting constant information, when successful.</param>
     /// <returns><see langword="true"/> when the operation has a supported constant value.</returns>
+    /// <exception cref="ArgumentException">Thrown if the constant is a primitive of an unsupported type.</exception>
     private static bool TryCreateConstant(
         IOperation operation,
         [NotNullWhen(true)] out TypedConstantInfo? info)
@@ -162,11 +162,11 @@ internal abstract partial record TypedConstantInfo
         var initializer = GetInitializer(expression);
         if (initializer is null)
         {
-            info = new Array(elementTypeName, ImmutableArray<TypedConstantInfo>.Empty);
+            info = new Array(elementTypeName, default);
             return true;
         }
 
-        using var items = ImmutableArrayBuilder<TypedConstantInfo>.Rent();
+        using var items = ArrayBuilder<TypedConstantInfo>.Rent();
         foreach (var itemExpression in initializer.Expressions)
         {
             if (!TryCreateArrayItem(itemExpression, semanticModel, token, out var item))
@@ -178,7 +178,7 @@ internal abstract partial record TypedConstantInfo
             items.Add(item);
         }
 
-        info = new Array(elementTypeName, items.ToImmutable());
+        info = new Array(elementTypeName, items.ToEquatableArray());
         return true;
     }
 

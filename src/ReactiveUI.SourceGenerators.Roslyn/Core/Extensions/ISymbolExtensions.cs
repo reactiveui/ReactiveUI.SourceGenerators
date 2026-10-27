@@ -1,9 +1,10 @@
-// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
-// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI and Contributors. All rights reserved.
+// ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 
 namespace ReactiveUI.SourceGenerators.Extensions;
@@ -21,11 +22,13 @@ internal static class ISymbolExtensions
     {
         /// <summary>Gets the fully qualified name for this symbol.</summary>
         /// <returns>The fully qualified name for this symbol.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal string GetFullyQualifiedName() =>
             symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
         /// <summary>Gets the fully qualified name for this symbol, including nullability annotations.</summary>
         /// <returns>The fully qualified name for this symbol.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal string GetFullyQualifiedNameWithNullabilityAnnotations() =>
             symbol.ToDisplayString(FullyQualifiedWithNullabilityFormat);
 
@@ -61,11 +64,13 @@ internal static class ISymbolExtensions
         {
             foreach (var attribute in symbol.GetAttributes())
             {
-                if (SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, typeSymbol))
+                if (!SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, typeSymbol))
                 {
-                    attributeData = attribute;
-                    return true;
+                    continue;
                 }
+
+                attributeData = attribute;
+                return true;
             }
 
             attributeData = null;
@@ -82,11 +87,13 @@ internal static class ISymbolExtensions
         {
             foreach (var attribute in symbol.GetAttributes())
             {
-                if (attribute.AttributeClass?.HasFullyQualifiedMetadataName(name) == true)
+                if (attribute.AttributeClass?.HasFullyQualifiedMetadataName(name) != true)
                 {
-                    attributeData = attribute;
-                    return true;
+                    continue;
                 }
+
+                attributeData = attribute;
+                return true;
             }
 
             attributeData = null;
@@ -137,6 +144,7 @@ internal static class ISymbolExtensions
 
         /// <summary>Gets the string representation of the accessibility level of this symbol.</summary>
         /// <returns>The accessibility string for this symbol.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if the accessibility is not recognized.</exception>
         internal string GetAccessibilityString() => symbol.DeclaredAccessibility switch
         {
             Accessibility.Public => "public",

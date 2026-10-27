@@ -1,0 +1,28 @@
+[*.cs]
+
+###################
+# Shared scenario fixtures
+#
+# These files are not only compiled by their own project - the runtime-execution tests read them as
+# text and compile them at C# 7.3 and C# 10 to prove the generated output works on the minimum
+# supported language version. A rule whose fix needs a newer language feature would make the
+# fixture stop compiling in exactly the test that matters, so those rules are off here.
+###################
+dotnet_diagnostic.SST2200.severity = none # 'field' is an ordinary identifier before C# 14
+dotnet_diagnostic.SST2202.severity = none # target-typed 'new' is C# 9
+dotnet_diagnostic.PSH1000.severity = none # 'static' lambdas are C# 9
+
+###################
+# The ReactiveUI.Binding import reads as unused in these fixtures and is not.
+#
+# From C# 10 the generated dispatch overload lives in a namespace private to the compilation, so it,
+# not the runtime stub, satisfies the binding call - and the import looks removable. It is not: the
+# overload only exists because the generator resolved the call against the stub in the first place.
+# Remove the import and the call no longer resolves, nothing is generated for it, and the build fails
+# with CS1061. Measured across all 73 fixtures, not assumed.
+#
+# Scoped to these fixtures because they are unusually bare - a single binding call and nothing else.
+# Real consumer files also use IViewFor<T>, IReactiveBinding<,> or the builder, which keep the import
+# obviously live.
+###################
+dotnet_diagnostic.SST1445.severity = none # the import is load-bearing; removing it breaks the build

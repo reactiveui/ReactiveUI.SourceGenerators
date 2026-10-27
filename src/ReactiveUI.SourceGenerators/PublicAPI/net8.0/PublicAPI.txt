@@ -1,0 +1,107 @@
+namespace ReactiveUI.SourceGenerators
+{
+    public enum AccessModifier
+    {
+        Public = 0,
+        Protected = 1,
+        Internal = 2,
+        Private = 3,
+        InternalProtected = 4,
+        PrivateProtected = 5,
+        Init = 6,
+    }
+    [System.AttributeUsage(System.AttributeTargets.Field, AllowMultiple=false, Inherited=false)]
+    [System.Diagnostics.Conditional("REACTIVEUI_SOURCEGENERATORS_KEEP_ATTRIBUTES")]
+    [System.Diagnostics.DebuggerDisplay("BindableDerivedListAttribute: AccessModifier = {AccessModifier}")]
+    public sealed class BindableDerivedListAttribute : System.Attribute
+    {
+        public BindableDerivedListAttribute() { }
+        public ReactiveUI.SourceGenerators.PropertyAccessModifier AccessModifier { get; set; }
+    }
+    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
+    [System.Diagnostics.Conditional("REACTIVEUI_SOURCEGENERATORS_KEEP_ATTRIBUTES")]
+    public sealed class IReactiveObjectAttribute : System.Attribute
+    {
+        public IReactiveObjectAttribute() { }
+    }
+    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
+    [System.Diagnostics.Conditional("REACTIVEUI_SOURCEGENERATORS_KEEP_ATTRIBUTES")]
+    [System.Diagnostics.DebuggerDisplay("IViewForAttribute: ViewModelType = {ViewModelType}")]
+    public sealed class IViewForAttribute : System.Attribute
+    {
+        public IViewForAttribute(string? viewModelType) { }
+        public string? ViewModelType { get; }
+    }
+    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
+    [System.Diagnostics.Conditional("REACTIVEUI_SOURCEGENERATORS_KEEP_ATTRIBUTES")]
+    [System.Diagnostics.DebuggerDisplay("IViewForAttribute<{ViewModelType.Name}>")]
+    public sealed class IViewForAttribute<T> : System.Attribute
+    {
+        public IViewForAttribute() { }
+        public System.Type ViewModelType { get; }
+    }
+    public enum InheritanceModifier
+    {
+        None = 0,
+        Virtual = 1,
+        Override = 2,
+        New = 3,
+    }
+    public enum PropertyAccessModifier
+    {
+        Public = 0,
+        Protected = 1,
+        Internal = 2,
+        Private = 3,
+        InternalProtected = 4,
+        PrivateProtected = 5,
+    }
+    [System.AttributeUsage(System.AttributeTargets.Property | System.AttributeTargets.Field, AllowMultiple=false, Inherited=false)]
+    [System.Diagnostics.Conditional("REACTIVEUI_SOURCEGENERATORS_KEEP_ATTRIBUTES")]
+    [System.Diagnostics.DebuggerDisplay("ReactiveAttribute: SetModifier = {SetModifier}, Inheritance = {Inheritance}, UseRequired = {UseRequired}")]
+    public sealed class ReactiveAttribute : System.Attribute
+    {
+        public ReactiveAttribute(params string[] alsoNotify) { }
+        public string[]? AlsoNotify { get; }
+        public ReactiveUI.SourceGenerators.InheritanceModifier Inheritance { get; set; }
+        public ReactiveUI.SourceGenerators.AccessModifier SetModifier { get; set; }
+        public bool UseRequired { get; set; }
+    }
+    [System.AttributeUsage(System.AttributeTargets.Property | System.AttributeTargets.Field, AllowMultiple=false, Inherited=false)]
+    [System.Diagnostics.Conditional("REACTIVEUI_SOURCEGENERATORS_KEEP_ATTRIBUTES")]
+    public sealed class ReactiveCollectionAttribute : System.Attribute
+    {
+        public ReactiveCollectionAttribute() { }
+    }
+    [System.AttributeUsage(System.AttributeTargets.Method, AllowMultiple=false, Inherited=false)]
+    [System.Diagnostics.Conditional("REACTIVEUI_SOURCEGENERATORS_KEEP_ATTRIBUTES")]
+    [System.Diagnostics.DebuggerDisplay("ReactiveCommandAttribute: CanExecute = {CanExecute}, RunInBackground = {RunInBackground}, AccessModifier = {AccessModifier}")]
+    public sealed class ReactiveCommandAttribute : System.Attribute
+    {
+        public ReactiveCommandAttribute() { }
+        public ReactiveUI.SourceGenerators.PropertyAccessModifier AccessModifier { get; set; }
+        public string? BackgroundScheduler { get; set; }
+        public string? CanExecute { get; set; }
+        public string? OutputScheduler { get; set; }
+        public bool RunInBackground { get; set; }
+    }
+}
+namespace ReactiveUI.SourceGenerators.WinForms
+{
+    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
+    [System.Diagnostics.Conditional("REACTIVEUI_SOURCEGENERATORS_KEEP_ATTRIBUTES")]
+    [System.Diagnostics.DebuggerDisplay("RoutedControlHostAttribute: BaseType = {BaseType}")]
+    public sealed class RoutedControlHostAttribute : System.Attribute
+    {
+        public RoutedControlHostAttribute(string? baseType) { }
+        public string? BaseType { get; }
+    }
+    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
+    [System.Diagnostics.Conditional("REACTIVEUI_SOURCEGENERATORS_KEEP_ATTRIBUTES")]
+    [System.Diagnostics.DebuggerDisplay("ViewModelControlHostAttribute: BaseType = {BaseType}")]
+    public sealed class ViewModelControlHostAttribute : System.Attribute
+    {
+        public ViewModelControlHostAttribute(string? baseType) { }
+        public string? BaseType { get; }
+    }
+}

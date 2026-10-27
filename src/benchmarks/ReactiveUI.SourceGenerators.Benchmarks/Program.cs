@@ -1,11 +1,12 @@
-// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
-// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI and Contributors. All rights reserved.
+// ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System.Diagnostics.Tracing;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Jobs;
+using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Running;
 using Microsoft.Diagnostics.NETCore.Client;
 using Microsoft.Diagnostics.Tracing.Parsers;
@@ -22,19 +23,20 @@ internal static class Program
 
     /// <summary>Runs the benchmarks the command line selects, <c>--smoke</c> to run each corpus once, or <c>--eventpipe dir</c> to trace allocations.</summary>
     /// <param name="args">The command-line arguments.</param>
-    internal static void Main(string[] args)
+    /// <returns>A task representing the run.</returns>
+    internal static async Task Main(string[] args)
     {
         if (args is ["--eventpipe", var outputDirectory])
         {
             // Allocation figures: GCAllocationTick events from an EventPipe session over a fixed number of runs.
-            _ = EventPipeAllocations.Measure(GenerationScenarios.Create(), outputDirectory);
+            _ = await EventPipeAllocations.MeasureAsync(GenerationScenarios.Create(), outputDirectory, CancellationToken.None).ConfigureAwait(false);
             return;
         }
 
         if (args is ["--eventpipe-discovery", var discoveryDirectory])
         {
             // Attribute discovery strategies against each other, measured the same way.
-            _ = EventPipeAllocations.Measure(DiscoveryScenarios.Create(), discoveryDirectory);
+            _ = await EventPipeAllocations.MeasureAsync(DiscoveryScenarios.Create(), discoveryDirectory, CancellationToken.None).ConfigureAwait(false);
             return;
         }
 
@@ -45,18 +47,18 @@ internal static class Program
             {
                 var benchmark = new GenerationBenchmarks { Corpus = corpus };
                 benchmark.Setup();
-                Console.WriteLine($"{corpus}: {benchmark.Generate():N0} characters, {GeneratorHarness.CountErrors(corpus)} compile errors");
+                ConsoleLogger.Default.WriteLine(LogKind.Info, $"{corpus}: {benchmark.Generate():N0} characters, {GeneratorHarness.CountErrors(corpus)} compile errors");
             }
 
             foreach (var finding in DiscoveryScenarios.DescribeFindings())
             {
-                Console.WriteLine(finding);
+                ConsoleLogger.Default.WriteLine(LogKind.Info, finding);
             }
 
             return;
         }
 
-        _ = BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, CreateConfig());
+        _ = await BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).RunAsync(args, CreateConfig(), CancellationToken.None).ConfigureAwait(false);
     }
 
     /// <summary>Creates the run configuration.</summary>

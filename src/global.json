@@ -1,5 +1,11 @@
 {
+  "sdk": {
+    "allowPrerelease": true
+  },
   "test": {
     "runner": "Microsoft.Testing.Platform"
+  },
+  "msbuild-sdks": {
+    "Uno.Sdk": "6.7.30"
   }
 }

@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- System.Reactive-flavoured WPF leaf: recompiles the shared WPF source against
+         ReactiveUI.Binding.Reactive, shifting its types to ReactiveUI.Binding.Reactive.Wpf.
+         REACTIVE_SHIM comes from ReactiveShim.props via the '.Reactive' name suffix. -->
+    <TargetFrameworks>$(BindingWindowsOnlyTargets)</TargetFrameworks>
+    <RootNamespace>ReactiveUI.Binding.Reactive.Wpf</RootNamespace>
+    <UseWpf>true</UseWpf>
+    <PackageDescription>WPF platform support for ReactiveUI.Binding.Reactive, for consumers on System.Reactive.</PackageDescription>
+    <PackageTags>reactiveui;binding;wpf;dependencyproperty;system.reactive</PackageTags>
+    <IsAotCompatible>false</IsAotCompatible>
+    <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
+    <EnableSingleFileAnalyzer>false</EnableSingleFileAnalyzer>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\ReactiveUI.Binding.Wpf.Shared\**\*.cs" Link="ReactiveUI.Binding.Wpf.Shared\%(RecursiveDir)%(Filename)%(Extension)"/>
+    <Compile Include="..\ReactiveUI.Binding.Platform.Shared\**\*.cs" Link="ReactiveUI.Binding.Platform.Shared\%(RecursiveDir)%(Filename)%(Extension)"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="ReactiveUI.Primitives.Disposables"/>
+    <Using Include="System"/>
+    <Using Include="System.ComponentModel"/>
+    <Using Include="System.Diagnostics"/>
+    <Using Include="System.Diagnostics.CodeAnalysis"/>
+    <Using Include="System.Runtime.CompilerServices"/>
+    <Using Include="Splat"/>
+    <Using Include="ReactiveUI.Primitives.Reactive.Concurrency.DispatcherSequencer" Alias="DispatcherSequencer"/>
+  </ItemGroup>
+
+  <!-- The shifted counterparts of the lean leaf's imports. -->
+  <ItemGroup>
+    <Using Include="ReactiveUI.Binding.Reactive.Builder"/>
+    <Using Include="ReactiveUI.Binding.Reactive.Helpers"/>
+    <Using Include="ReactiveUI.Binding.Reactive.ObservableForProperty"/>
+    <Using Include="ReactiveUI.Binding.Reactive.Observables"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ReactiveUI.Binding.Reactive\ReactiveUI.Binding.Reactive.csproj"/>
+    <PackageReference Include="ReactiveUI.Primitives.Wpf.Reactive"/>
+  </ItemGroup>
+
+  <!-- The mirror test project recompiles the lean project's test source, which reaches the platform
+       primitives, so it needs the same grant the lean leaf gives its own tests. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="ReactiveUI.Binding.Wpf.Tests.Reactive"/>
+  </ItemGroup>
+
+  <!-- A recompilation of ReactiveUI.Binding.Wpf.Shared, which ReactiveUI.Binding.Wpf already covers.
+       See the note on ReactiveUI.Binding.Reactive for why this is an attribute and not a module path. -->
+  <ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'netcoreapp3.0'))">
+    <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage"/>
+  </ItemGroup>
+</Project>

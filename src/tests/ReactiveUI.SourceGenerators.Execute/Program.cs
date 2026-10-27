@@ -1,0 +1,29 @@
+// Copyright (c) 2019-2026 ReactiveUI and Contributors. All rights reserved.
+// ReactiveUI and Contributors licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for full license information.
+
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using ReactiveUI;
+using Splat;
+
+namespace SGReactiveUI.SourceGenerators.Test;
+
+/// <summary>Provides the application entry point.</summary>
+[ExcludeFromCodeCoverage]
+public static class Program
+{
+    /// <summary>Defines the entry point of the application.</summary>
+    [System.STAThread]
+    public static void Main()
+    {
+        // The sample reports what the generated members do through Trace; this listener shows it on the console.
+        _ = Trace.Listeners.Add(new ConsoleTraceListener());
+
+        // The generated RegisterViewsForViewModelsSourceGenerated() is gone: ReactiveUI.Binding's view locator registers
+        // every IViewFor<T> at compile time. Without ReactiveUI.Binding, register the views with Splat yourself.
+        AppLocator.CurrentMutable.Register<IViewFor<TestViewModel>>(static () => new TestViewWinForms());
+        AppLocator.CurrentMutable.Register<IViewFor<TestViewModel2<int>>>(static () => new TestViewWpf2());
+        Application.Run(new TestViewWinForms());
+    }
+}

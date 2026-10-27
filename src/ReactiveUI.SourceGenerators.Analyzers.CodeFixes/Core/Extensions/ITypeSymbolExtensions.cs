@@ -1,10 +1,10 @@
-// Copyright (c) 2019-2026 ReactiveUI Association Incorporated. All rights reserved.
-// ReactiveUI Association Incorporated licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 ReactiveUI and Contributors. All rights reserved.
+// ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System;
+using System.Text;
 using Microsoft.CodeAnalysis;
-using ReactiveUI.SourceGenerators.CodeFixers.Helpers;
 
 namespace ReactiveUI.SourceGenerators.CodeFixers.Extensions;
 
@@ -72,51 +72,48 @@ internal static class ITypeSymbolExtensions
         /// <returns>Whether the type symbol has a full name equal to <paramref name="name"/>.</returns>
         internal bool HasFullyQualifiedMetadataName(string name)
         {
-            using var builder = ImmutableArrayBuilder<char>.Rent();
+            var builder = new StringBuilder();
 
             AppendFullyQualifiedMetadataName(typeSymbol, builder);
 
-            return builder.WrittenSpan.StartsWith(name.AsSpan());
+            return builder.ToString().StartsWith(name, StringComparison.Ordinal);
         }
     }
 
     /// <summary>Appends a symbol's fully qualified metadata name to a target builder.</summary>
     /// <param name="symbol">The symbol whose metadata name will be appended.</param>
     /// <param name="builder">The target builder.</param>
-    private static void AppendFullyQualifiedMetadataName(ITypeSymbol symbol, ImmutableArrayBuilder<char> builder)
+    private static void AppendFullyQualifiedMetadataName(ITypeSymbol symbol, StringBuilder builder)
     {
-        static void BuildFrom(ISymbol? current, ImmutableArrayBuilder<char> target)
+        static void BuildFrom(ISymbol? current, StringBuilder target)
         {
             switch (current)
             {
                 case INamespaceSymbol { ContainingNamespace.IsGlobalNamespace: false }:
                     {
                         BuildFrom(current.ContainingNamespace, target);
-                        target.Add('.');
-                        target.AddRange(current.MetadataName.AsSpan());
+                        _ = target.Append('.').Append(current.MetadataName);
                         break;
                     }
 
                 case INamespaceSymbol { IsGlobalNamespace: false }:
                 case ITypeSymbol { ContainingSymbol: INamespaceSymbol namespaceSymbol } when namespaceSymbol.IsGlobalNamespace:
                     {
-                        target.AddRange(current.MetadataName.AsSpan());
+                        _ = target.Append(current.MetadataName);
                         break;
                     }
 
                 case ITypeSymbol { ContainingSymbol: INamespaceSymbol namespaceSymbol }:
                     {
                         BuildFrom(namespaceSymbol, target);
-                        target.Add('.');
-                        target.AddRange(current.MetadataName.AsSpan());
+                        _ = target.Append('.').Append(current.MetadataName);
                         break;
                     }
 
                 case ITypeSymbol { ContainingSymbol: ITypeSymbol typeSymbol }:
                     {
                         BuildFrom(typeSymbol, target);
-                        target.Add('+');
-                        target.AddRange(current.MetadataName.AsSpan());
+                        _ = target.Append('+').Append(current.MetadataName);
                         break;
                     }
             }

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net10.0</TargetFrameworks>
+    <UseMaui>true</UseMaui>
+    <LangVersion>14.0</LangVersion>
+    <RootNamespace>ReactiveUI.Binding.Documentation</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Using Include="ReactiveUI.Binding" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../../ReactiveUI.Binding.Maui/ReactiveUI.Binding.Maui.csproj" />
+    <ProjectReference Include="../../../../ReactiveUI.Binding.SourceGenerators/ReactiveUI.Binding.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="../../../../ReactiveUI.Binding.Analyzer/ReactiveUI.Binding.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <PackageReference Include="Avalonia" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,18 @@
+<Project>
+  <!-- Platform-only sources, following ReactiveUI's Platforms layout. Nothing under Platforms compiles by default;
+       each head adds the folders it has the platform APIs for. Both runtime flavours import this file, so the
+       lean and System.Reactive leaves carry the same platform types. -->
+  <ItemGroup>
+    <Compile Remove="..\ReactiveUI.Binding.Shared\Platforms\**\*.cs"/>
+  </ItemGroup>
+
+  <!-- Key-value observing, on every Apple head. -->
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst' or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'macos' or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tvos'">
+    <Compile Include="..\ReactiveUI.Binding.Shared\Platforms\apple-common\**\*.cs" Link="ReactiveUI.Binding.Shared\Platforms\apple-common\%(RecursiveDir)%(Filename)%(Extension)"/>
+  </ItemGroup>
+
+  <!-- AppKit target/action, on macOS only. -->
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'macos'">
+    <Compile Include="..\ReactiveUI.Binding.Shared\Platforms\mac\**\*.cs" Link="ReactiveUI.Binding.Shared\Platforms\mac\%(RecursiveDir)%(Filename)%(Extension)"/>
+  </ItemGroup>
+</Project>
