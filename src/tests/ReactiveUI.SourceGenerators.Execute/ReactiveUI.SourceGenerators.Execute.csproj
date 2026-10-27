@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="DynamicData" />
-    <PackageReference Include="ReactiveUI.Reactive" VersionOverride="24.3.0" />
+    <PackageReference Include="ReactiveUI.Reactive" VersionOverride="26.0.1" />
     <PackageReference Include="Splat" />
   </ItemGroup>
 
