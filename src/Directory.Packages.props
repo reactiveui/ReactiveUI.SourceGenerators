@@ -67,7 +67,7 @@
 
     <!-- Uno Platform. Uno.WinUI is the release Uno.Sdk in global.json pins; the Windows head uses the App SDK. -->
     <PackageVersion Include="Uno.WinUI" Version="6.7.135"/>
-    <PackageVersion Include="Microsoft.WindowsAppSDK" Version="2.5.1"/>
+    <PackageVersion Include="Microsoft.WindowsAppSDK" Version="2.6.4"/>
     <PackageVersion Include="ReactiveUI.Primitives.Uno" Version="$(ReactiveUIPrimitivesVersion)"/>
     <PackageVersion Include="ReactiveUI.Primitives.Uno.Reactive" Version="$(ReactiveUIPrimitivesVersion)"/>
 
