@@ -195,15 +195,23 @@ internal static class SyntaxHelpers
                 memberType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                 owner.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                 memberType.IsReferenceType,
-                TypeDetectionExtractor.ExtractPropertyOwner(owner, propertySymbol, semanticModel.Compilation, ct))
+                TypeDetectionExtractor.ExtractPropertyOwner(owner, propertySymbol, semanticModel.Compilation, ct),
+                IsNullableReference: IsNullableReference(memberType))
             : new(
                 link.Name,
                 memberType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                 owner.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                 memberType.IsReferenceType,
                 TypeDetectionExtractor.ExtractFieldOwner(owner, semanticModel.Compilation, ct),
-                IsField: true);
+                IsField: true,
+                IsNullableReference: IsNullableReference(memberType));
     }
+
+    /// <summary>Determines whether a type is declared as a nullable reference type, such as <c>MyType?</c>.</summary>
+    /// <param name="type">The type.</param>
+    /// <returns><see langword="true"/> for an annotated reference type.</returns>
+    private static bool IsNullableReference(ITypeSymbol type) =>
+        type.IsReferenceType && type.NullableAnnotation == NullableAnnotation.Annotated;
 
     /// <summary>Determines whether a field can stand as a link of a generated path.</summary>
     /// <param name="field">The field.</param>

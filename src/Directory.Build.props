@@ -132,7 +132,10 @@
   <!-- Neither a test nor a benchmark ships, so there is nothing for a debugger to fetch sources for. The
        package also brings the git tasks, which warn on any working copy whose origin is not a GitHub URL. -->
   <ItemGroup Condition="'$(IsTestProject)' != 'true' and '$(IsBenchmarkProject)' != 'true'">
-    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
+    <!-- The SourceLink package's dependency chain reaches System.Memory 4.6 (assembly version 4.0.2.0). A generator or
+         analyzer compiled against it needs a System.Memory newer than the 4.0.1.2 that Visual Studio's compiler host
+         carries, and fails to load with a FileNotFoundException. Those projects use the SourceLink the SDK bundles. -->
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" Condition="'$(EnforceExtendedAnalyzerRules)' != 'true'"/>
   </ItemGroup>
 
   <!-- Alias Lock to the dedicated System.Threading.Lock on .NET 9+ (faster EnterScope fast path),

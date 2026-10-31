@@ -421,6 +421,13 @@ this.Bind(ViewModel, vm => vm.UserName, v => v.UserName.Text); // generated
 The pages reach the generator through the platform's own build, so there is nothing to set up. A control inside a
 template gets no field, and a generic control named with `x:TypeArguments` is not read.
 
+The generator accepts both the 2006 and the 2009 XAML namespace.
+
+A page can name its base class only in XAML, such as `<reactive:ReactiveContentPage x:TypeArguments="vm:LoginViewModel"
+x:Class="App.LoginPage">`, and leave the code-behind as `public partial class LoginPage`. The generator reads the root
+element and its `x:TypeArguments` and gives the class that base, so `ViewModel` and `IViewFor<T>` resolve. A code-behind
+class that names its own base keeps it.
+
 ## Installing
 
 ```

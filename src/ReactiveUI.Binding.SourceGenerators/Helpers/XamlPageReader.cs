@@ -116,7 +116,7 @@ internal static class XamlPageReader
             Collect(child, readsName, defaultAccessibility, elements);
         }
 
-        return new(className, new([.. elements]));
+        return new(className, new([.. elements]), ReadRoot(root));
     }
 
     /// <summary>Maps an <c>x:FieldModifier</c> value to accessibility keywords.</summary>
@@ -135,6 +135,48 @@ internal static class XamlPageReader
         }
 
         return defaultAccessibility;
+    }
+
+    /// <summary>Reads the type of a page's root element, with the generic arguments <c>x:TypeArguments</c> gives it.</summary>
+    /// <param name="root">The root element.</param>
+    /// <returns>The type, or null when an argument is not a prefixed type name.</returns>
+    private static XamlTypeReference? ReadRoot(XElement root)
+    {
+        List<XamlTypeReference> arguments = [];
+        if (LanguageAttribute(root, "TypeArguments")?.Value is { } text)
+        {
+            foreach (var argument in text.Split(','))
+            {
+                if (ReadTypeArgument(root, argument.Trim()) is not { } reference)
+                {
+                    return null;
+                }
+
+                arguments.Add(reference);
+            }
+        }
+
+        return new(root.Name.NamespaceName, root.Name.LocalName, new([.. arguments]));
+    }
+
+    /// <summary>Reads one generic argument, written as a type name with an optional XML namespace prefix.</summary>
+    /// <param name="root">The root element, whose namespace declarations the prefix is looked up in.</param>
+    /// <param name="argument">The argument, such as <c>vm:LoginViewModel</c>.</param>
+    /// <returns>The type, or null when the prefix is unknown or the name is empty.</returns>
+    private static XamlTypeReference? ReadTypeArgument(XElement root, string argument)
+    {
+        var colon = argument.IndexOf(':');
+        if (colon == 0)
+        {
+            return null;
+        }
+
+        var name = colon < 0 ? argument : argument[(colon + 1)..];
+        var xmlNamespace = colon < 0
+            ? root.GetDefaultNamespace()
+            : root.GetNamespaceOfPrefix(argument[..colon]);
+
+        return name.Length == 0 || xmlNamespace is null ? null : new(xmlNamespace.NamespaceName, name, new([]));
     }
 
     /// <summary>Collects the named elements of an element and its children, skipping templates.</summary>

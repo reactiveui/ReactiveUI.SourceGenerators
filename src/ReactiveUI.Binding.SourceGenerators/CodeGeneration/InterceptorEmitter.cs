@@ -133,7 +133,7 @@ internal static class InterceptorEmitter
                 AppendAttribute(builder, callSite.Interceptor);
             }
 
-            _ = builder.Append($"internal static {GeneratedTypeNames.IObservable}<").Append(first.ReturnTypeFullName)
+            _ = builder.Append($"internal static {GeneratedTypeNames.IObservable}<").Append(CodeGeneratorHelpers.ObservedReturnType(first, features.SupportsNullable))
                 .Append("> __Intercept_").Append(methodPrefix).Append('_').Append(entry.Key);
             AppendTypeParameterList(builder, first.GenericResult);
             _ = builder.OpenParameterList();

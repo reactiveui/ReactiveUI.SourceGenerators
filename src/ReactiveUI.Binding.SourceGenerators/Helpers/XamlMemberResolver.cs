@@ -48,12 +48,20 @@ internal static class XamlMemberResolver
                 continue;
             }
 
+            // The XAML source generator makes the root element's type the base of a code-behind class that names none,
+            // in a file this generator cannot read. Declaring the base lets a view's ViewModel and IViewFor<T> be seen.
+            if (owner.BaseType is { SpecialType: SpecialType.System_Object }
+                && FindRootType(page.Root, compilation, ref namespaces) is { } root)
+            {
+                builder.Add(new(declaration, root.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), null));
+            }
+
             foreach (var element in page.Elements)
             {
                 // A field the class declares already, as the XAML compilers that run before the compiler write them,
                 // is seen as it is; declaring it again would make it ambiguous.
                 if (!owner.GetMembers(element.Name).IsEmpty
-                    || FindType(element, compilation, ref namespaces) is not { } type)
+                    || FindType(element.XmlNamespace, element.TypeName, compilation, ref namespaces) is not { } type)
                 {
                     continue;
                 }
@@ -74,27 +82,67 @@ internal static class XamlMemberResolver
     internal static bool IsXmlnsDefinition(INamedTypeSymbol? attributeClass) =>
         attributeClass is { Name: XmlnsDefinitionName };
 
-    /// <summary>Finds the type an element names.</summary>
-    /// <param name="element">The element.</param>
+    /// <summary>Finds the type a page's root element names, closed over its <c>x:TypeArguments</c>.</summary>
+    /// <param name="root">The root element's type, or null when it could not be read.</param>
+    /// <param name="compilation">The compilation.</param>
+    /// <param name="namespaces">The CLR namespaces each XML namespace URI maps to, read on first use.</param>
+    /// <returns>The type, or null when it or one of its arguments does not resolve.</returns>
+    private static INamedTypeSymbol? FindRootType(XamlTypeReference? root, Compilation compilation, ref Dictionary<string, List<string>>? namespaces)
+    {
+        if (root is null)
+        {
+            return null;
+        }
+
+        var arity = root.TypeArguments.Length;
+        var metadataName = arity == 0 ? root.TypeName : $"{root.TypeName}`{arity}";
+        if (FindType(root.XmlNamespace, metadataName, compilation, ref namespaces) is not { } type || type.Arity != arity)
+        {
+            return null;
+        }
+
+        if (arity == 0)
+        {
+            return type;
+        }
+
+        var arguments = new ITypeSymbol[arity];
+        for (var i = 0; i < arity; i++)
+        {
+            var argument = root.TypeArguments[i];
+            if (FindType(argument.XmlNamespace, argument.TypeName, compilation, ref namespaces) is not { } resolved)
+            {
+                return null;
+            }
+
+            arguments[i] = resolved;
+        }
+
+        return type.Construct(arguments);
+    }
+
+    /// <summary>Finds a type by the XML namespace and metadata name XAML gives it.</summary>
+    /// <param name="xmlNamespace">The XML namespace the type is declared in.</param>
+    /// <param name="metadataName">The type's name without its namespace, with its generic arity when it has one.</param>
     /// <param name="compilation">The compilation.</param>
     /// <param name="namespaces">The CLR namespaces each XML namespace URI maps to, read on first use.</param>
     /// <returns>The type, or null when it does not resolve.</returns>
-    private static INamedTypeSymbol? FindType(XamlNamedElement element, Compilation compilation, ref Dictionary<string, List<string>>? namespaces)
+    private static INamedTypeSymbol? FindType(string xmlNamespace, string metadataName, Compilation compilation, ref Dictionary<string, List<string>>? namespaces)
     {
-        if (ClrNamespace(element.XmlNamespace) is { } clrNamespace)
+        if (ClrNamespace(xmlNamespace) is { } clrNamespace)
         {
-            return compilation.GetTypeByMetadataName($"{clrNamespace}.{element.TypeName}");
+            return compilation.GetTypeByMetadataName($"{clrNamespace}.{metadataName}");
         }
 
         namespaces ??= ReadXmlnsDefinitions(compilation);
-        if (!namespaces.TryGetValue(element.XmlNamespace, out var candidates))
+        if (!namespaces.TryGetValue(xmlNamespace, out var candidates))
         {
             return null;
         }
 
         foreach (var candidate in candidates)
         {
-            if (compilation.GetTypeByMetadataName($"{candidate}.{element.TypeName}") is { } type)
+            if (compilation.GetTypeByMetadataName($"{candidate}.{metadataName}") is { } type)
             {
                 return type;
             }

@@ -65,6 +65,11 @@ public class XamlDeclarationTests
             public class Entry { }
 
             public class Button { }
+
+            public class ReactivePage<TViewModel>
+            {
+                public TViewModel ViewModel { get; set; }
+            }
         }
 
         namespace Local
@@ -80,6 +85,10 @@ public class XamlDeclarationTests
             }
 
             public class Sealed { }
+
+            public class LoginViewModel { }
+
+            public partial class Based : Maui.Controls.Button { }
         }
         """;
 
@@ -139,6 +148,45 @@ public class XamlDeclarationTests
         await Assert.That(declarations).Contains("public global::Maui.Controls.Entry UserName;");
         await Assert.That(declarations).Contains("private global::Maui.Controls.Entry Password;");
         await Assert.That(declarations).DoesNotContain("Generic");
+    }
+
+    /// <summary>
+    /// A page whose generic base class is written only on its XAML root: the code-behind class gains that base, so the
+    /// view's ViewModel can be bound.
+    /// </summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task MauiPageWithBaseOnlyInXaml_DeclaresTheBase()
+    {
+        const string page = """
+            <ReactivePage xmlns="urn:maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                          xmlns:vm="clr-namespace:App" x:TypeArguments="vm:LoginViewModel" x:Class="App.LoginPage">
+            </ReactivePage>
+            """;
+
+        var declarations = Declarations(page, (MauiKind, "Xaml"));
+
+        await Assert.That(declarations).Contains("partial class LoginPage : global::Maui.Controls.ReactivePage<global::App.LoginViewModel>");
+    }
+
+    /// <summary>A root whose type arguments cannot be resolved, or a code-behind that names its own base, declares no base.</summary>
+    /// <param name="typeArguments">The root's <c>x:TypeArguments</c>, or null when it has none.</param>
+    /// <param name="className">The code-behind class.</param>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    [Arguments("missing:Nothing", "LoginPage")]
+    [Arguments("vm:Unknown", "LoginPage")]
+    [Arguments("vm:", "LoginPage")]
+    [Arguments(":LoginViewModel", "LoginPage")]
+    [Arguments(null, "LoginPage")]
+    [Arguments("vm:LoginViewModel", "Based")]
+    public async Task MauiPageWithUnusableRoot_DeclaresNoBase(string? typeArguments, string className)
+    {
+        var attribute = typeArguments is null ? string.Empty : $"x:TypeArguments=\"{typeArguments}\"";
+        var root = $"<ReactivePage xmlns=\"urn:maui\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\" xmlns:vm=\"clr-namespace:App\" {attribute} x:Class=\"App.{className}\" />";
+        var declarations = Declarations(root, (MauiKind, "Xaml"));
+
+        await Assert.That(declarations).DoesNotContain($"class {className} :");
     }
 
     /// <summary>An Avalonia view: a plain <c>Name</c> names a control too, and fields default to the build's modifier.</summary>
