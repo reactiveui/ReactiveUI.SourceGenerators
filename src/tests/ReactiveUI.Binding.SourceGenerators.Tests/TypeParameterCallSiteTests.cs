@@ -29,6 +29,9 @@ public class TypeParameterCallSiteTests
     /// <summary>The value a one-way binding wrote after the change.</summary>
     private static readonly int[] BoundValues = [3];
 
+    /// <summary>The values the generic view scenario returns: the error values seen, then the interactions handled.</summary>
+    private static readonly int[] ClassConstrainedViewValues = [2, 1];
+
     /// <summary>The values the every-API scenario returns, in the order it lists them.</summary>
     private static readonly int[] EveryApiValues = [2, 2, 5, 1, 2, 2, 7, 2, 1, 1];
 
@@ -38,6 +41,7 @@ public class TypeParameterCallSiteTests
     {
         yield return static () => (nameof(UnnameableTypeScenarios.TypeParameterReceiver), OnePropertyValues);
         yield return static () => (nameof(UnnameableTypeScenarios.TypeParameterClassConstrainedReceiver), OnePropertyValues);
+        yield return static () => (nameof(UnnameableTypeScenarios.TypeParameterClassConstrainedView), ClassConstrainedViewValues);
         yield return static () => (nameof(UnnameableTypeScenarios.TypeParameterValue), OnePropertyValues);
         yield return static () => (nameof(UnnameableTypeScenarios.TypeParameterResult), DoubledValues);
         yield return static () => (nameof(UnnameableTypeScenarios.TypeParameterViewBase), BoundValues);

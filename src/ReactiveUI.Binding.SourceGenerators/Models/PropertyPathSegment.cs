@@ -38,6 +38,10 @@ namespace ReactiveUI.Binding.SourceGenerators.Models;
 /// Whether the link is a field, such as a control named in XAML. A field raises no notification, so the link is
 /// read once and never resolves an observation mechanism.
 /// </param>
+/// <param name="IsNullableReference">
+/// Whether the link is declared as a nullable reference type, such as <c>MyType?</c>. An observation of the leaf
+/// carries that annotation, so the consumer's own flow analysis sees a value that may be null.
+/// </param>
 internal sealed record PropertyPathSegment(
     string PropertyName,
     string PropertyTypeFullName,
@@ -45,4 +49,5 @@ internal sealed record PropertyPathSegment(
     bool IsReferenceType,
     ClassBindingInfo? DeclaringTypeInfo,
     string? ReadCastTypeFullName = null,
-    bool IsField = false);
+    bool IsField = false,
+    bool IsNullableReference = false);

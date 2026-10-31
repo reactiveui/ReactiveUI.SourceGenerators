@@ -72,6 +72,27 @@ internal static class CodeGeneratorHelpers
         return NullableSelectorType(leaf.PropertyTypeFullName, leaf.IsReferenceType, supportsNullable);
     }
 
+    /// <summary>Returns the type of the values an observation delivers, as the consumer's code sees them.</summary>
+    /// <param name="inv">The observation.</param>
+    /// <param name="supportsNullable">Whether the target supports nullable reference types (C# 8+).</param>
+    /// <returns>
+    /// The return type name, suffixed with <c>?</c> when the observation delivers one property's value and that
+    /// property is declared as a nullable reference type.
+    /// </returns>
+    internal static string ObservedReturnType(InvocationInfo inv, bool supportsNullable)
+    {
+        if (supportsNullable && !inv.HasSelector && inv.PropertyPaths.Length == 1)
+        {
+            var path = inv.PropertyPaths[0];
+            if (path[path.Length - 1].IsNullableReference)
+            {
+                return $"{inv.ReturnTypeFullName}?";
+            }
+        }
+
+        return inv.ReturnTypeFullName;
+    }
+
     /// <summary>Annotates a selector's produced type the way the stub declares it.</summary>
     /// <param name="typeFullName">The fully qualified produced type.</param>
     /// <param name="isReferenceType">Whether that type is a reference type.</param>

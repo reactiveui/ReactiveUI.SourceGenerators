@@ -1078,7 +1078,7 @@ internal static class ObservationCodeGenerator
         _ = sb.OpenSummary()
             .BeginDocLine().Append("Concrete typed overload for ").Append(methodPrefix).Append(" on ").Append(first.SourceTypeFullName).Line(".")
             .CloseSummary()
-            .Append($"public static {IObservable}<").Append(first.ReturnTypeFullName).Append("> ").Append(methodPrefix)
+            .Append($"public static {IObservable}<").Append(CodeGeneratorHelpers.ObservedReturnType(first, supportsNullable)).Append("> ").Append(methodPrefix)
             .OpenParameterList();
 
         AppendParameterList(

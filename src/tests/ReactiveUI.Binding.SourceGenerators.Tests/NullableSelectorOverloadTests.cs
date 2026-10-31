@@ -126,6 +126,39 @@ public class NullableSelectorOverloadTests
     public Task NullableReferenceProperty_InterceptedCallSite_ReportsNoNullabilityWarnings(string call) =>
         AssertNoNullabilityWarnings(call, optIn: true);
 
+    /// <summary>
+    /// A nullable reference property is observed as a nullable value, so the consumer's flow analysis sees that it may
+    /// be null, and the generated code draws no nullable-flow warning of its own.
+    /// </summary>
+    /// <param name="optIn">Whether the build lists the generated namespace for interception.</param>
+    /// <returns>A task representing the asynchronous test.</returns>
+    [Test]
+    [Arguments(false)]
+    [Arguments(true)]
+    public async Task NullableReferenceProperty_IsObservedAsNullable(bool optIn)
+    {
+        var source = ScenarioTemplate.Replace(
+            "GC.KeepAlive(__CALL__);",
+            "IObservable<User> values = issue.WhenAnyValue(x => x.Assignee);",
+            StringComparison.Ordinal);
+        var parseOptions = optIn
+            ? TestHelper.InterceptingParseOptionsFor(LanguageVersion.CSharp11)
+            : TestHelper.ParseOptionsFor(LanguageVersion.CSharp11);
+        var compilation = TestHelper.CreateCompilation(source, parseOptions, false, "TestAssembly", []);
+
+        var result = TestHelper.RunGenerator(compilation, parseOptions, RootNamespace, false);
+        await result.CompilationSucceeds();
+
+        var warnings = result.OutputCompilation.GetDiagnostics()
+            .Where(static d => d.Severity == DiagnosticSeverity.Warning && d.Id.StartsWith(NullabilityDiagnosticPrefix, StringComparison.Ordinal))
+            .Select(static d => $"{d.Id} at {d.Location.SourceTree?.FilePath}")
+            .ToArray();
+
+        await Assert.That(warnings).HasSingleItem().Because(string.Join(Environment.NewLine, warnings));
+        await Assert.That(warnings[0]).StartsWith("CS8619");
+        await Assert.That(warnings[0]).DoesNotContain(".g.cs");
+    }
+
     /// <summary>Generates the scenario and asserts the compilation reports no nullable-flow warning and no error.</summary>
     /// <param name="call">The call site the scenario makes.</param>
     /// <param name="optIn">Whether the build lists the generated namespace for interception.</param>
@@ -141,10 +174,8 @@ public class NullableSelectorOverloadTests
         var result = TestHelper.RunGenerator(compilation, parseOptions, RootNamespace, false);
         await result.CompilationSucceeds();
 
-        var consumerTree = compilation.SyntaxTrees.First();
         var warnings = result.OutputCompilation.GetDiagnostics()
-            .Where(d => d.Severity == DiagnosticSeverity.Warning
-                && d.Location.SourceTree == consumerTree
+            .Where(static d => d.Severity == DiagnosticSeverity.Warning
                 && d.Id.StartsWith(NullabilityDiagnosticPrefix, StringComparison.Ordinal))
             .Select(static d => $"{d.Id}: {d.GetMessage()} at {d.Location}")
             .ToArray();

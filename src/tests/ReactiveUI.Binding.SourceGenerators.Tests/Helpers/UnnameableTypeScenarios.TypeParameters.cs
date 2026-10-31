@@ -138,6 +138,81 @@ internal static partial class UnnameableTypeScenarios
         }
         """;
 
+    /// <summary>
+    /// A WhenAnyValue and a BindInteraction call in a generic view base class whose type parameter is constrained to a
+    /// view model base class. The class constraint already makes the type parameter a reference type, so the generated
+    /// code must not add the stubs' own class constraint beside it (CS0450).
+    /// </summary>
+    internal const string TypeParameterClassConstrainedView = """
+        public static class Scenario
+        {
+            public static int[] Run()
+            {
+                var vm = new ChildViewModel { Error = "a" };
+                var view = new ChildView { ViewModel = vm };
+                var errors = view.Wire();
+                vm.Error = "b";
+                _ = Recorder.Watch(vm.Confirm.Handle("question"));
+                return new[] { errors.Values.Count, view.Handled };
+            }
+        }
+
+        public class ViewModelBase : INotifyPropertyChanged
+        {
+            private string? _error;
+
+            public event PropertyChangedEventHandler? PropertyChanged;
+
+            public string? Error
+            {
+                get => _error;
+                set
+                {
+                    _error = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Error)));
+                }
+            }
+
+            public IInteraction<string, bool> Confirm { get; } = new Interaction<string, bool>();
+        }
+
+        public sealed class ChildViewModel : ViewModelBase
+        {
+        }
+
+        public abstract class ViewBase<TViewModel> : IViewFor<TViewModel>
+            where TViewModel : ViewModelBase
+        {
+            public TViewModel? ViewModel { get; set; }
+
+            object? IViewFor.ViewModel
+            {
+                get => ViewModel;
+                set => ViewModel = (TViewModel?)value;
+            }
+
+            public int Handled { get; private set; }
+
+            public Recorder<string?> Wire()
+            {
+                var errors = Recorder.Watch(this.ViewModel!.WhenAnyValue(vm => vm.Error));
+                _ = this.BindInteraction(this.ViewModel, vm => vm.Confirm, Handle);
+                return errors;
+            }
+
+            private System.Threading.Tasks.Task Handle(IInteractionContext<string, bool> context)
+            {
+                Handled++;
+                context.SetOutput(true);
+                return System.Threading.Tasks.Task.CompletedTask;
+            }
+        }
+
+        public sealed class ChildView : ViewBase<ChildViewModel>
+        {
+        }
+        """;
+
     /// <summary>A OneWayBind call in a generic view base class, onto a view model typed by the class's type parameter.</summary>
     internal const string TypeParameterViewBase = """
         public static class Scenario
