@@ -169,6 +169,20 @@ public class XamlDeclarationTests
         await Assert.That(declarations).Contains("partial class LoginPage : global::Maui.Controls.ReactivePage<global::App.LoginViewModel>");
     }
 
+    /// <summary>A page whose non-generic base class is written only on its XAML root: the code-behind class gains that base.</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task MauiPageWithNonGenericBaseOnlyInXaml_DeclaresTheBase()
+    {
+        const string page = """
+            <Button xmlns="urn:maui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="App.LoginPage" />
+            """;
+
+        var declarations = Declarations(page, (MauiKind, "Xaml"));
+
+        await Assert.That(declarations).Contains("partial class LoginPage : global::Maui.Controls.Button");
+    }
+
     /// <summary>A root whose type arguments cannot be resolved, or a code-behind that names its own base, declares no base.</summary>
     /// <param name="typeArguments">The root's <c>x:TypeArguments</c>, or null when it has none.</param>
     /// <param name="className">The code-behind class.</param>
