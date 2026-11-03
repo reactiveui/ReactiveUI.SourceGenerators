@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <!-- Testing Framework. The tests run on Microsoft Testing Platform, so do not add Microsoft.NET.Test.Sdk. -->
-    <PackageVersion Include="TUnit" Version="1.76.28"/>
+    <PackageVersion Include="TUnit" Version="1.76.45"/>
 
     <!-- Roslyn Framework -->
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="5.9.0"/>
