@@ -24,11 +24,11 @@
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.9.0"/>
 
     <!-- Test Infrastructure -->
-    <PackageVersion Include="Basic.Reference.Assemblies.Net110" Version="1.8.13"/>
-    <PackageVersion Include="Basic.Reference.Assemblies.Net100" Version="1.8.13"/>
-    <PackageVersion Include="Basic.Reference.Assemblies.Net90" Version="1.8.13"/>
-    <PackageVersion Include="Basic.Reference.Assemblies.Net80" Version="1.8.13"/>
-    <PackageVersion Include="Basic.Reference.Assemblies.Net472" Version="1.8.13"/>
+    <PackageVersion Include="Basic.Reference.Assemblies.Net110" Version="1.8.14"/>
+    <PackageVersion Include="Basic.Reference.Assemblies.Net100" Version="1.8.14"/>
+    <PackageVersion Include="Basic.Reference.Assemblies.Net90" Version="1.8.14"/>
+    <PackageVersion Include="Basic.Reference.Assemblies.Net80" Version="1.8.14"/>
+    <PackageVersion Include="Basic.Reference.Assemblies.Net472" Version="1.8.14"/>
 
     <!-- Dependencies -->
     <PackageVersion Include="Splat" Version="21.0.0"/>
