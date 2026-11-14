@@ -5,7 +5,7 @@ Every project here runs. Each one prints what it does, so you can compare the ou
 | Folder | What it holds |
 |--------|---------------|
 | `Documentation/Pages/<page>` | One project per page of the ReactiveUI.Binding documentation. Each snippet on a page comes from its project. |
-| `Platforms/ToPropertyVerification` | A self-check of `ToProperty` and `[ObservableAsProperty]` on every runtime target, from .NET Framework 4.6.2 to .NET 11. |
+| `Platforms/ToPropertyVerification` | A self-check of `ToProperty` and `[ObservableAsProperty]` on every runtime target, from .NET Framework 4.7 to .NET 11. |
 | `Platforms/PlatformBindingsVerification` | A self-check of `ToProperty` feeding a real WPF, WinForms or MAUI control from a background thread. Run it with `--verify`. |
 
 ## The System.Reactive package

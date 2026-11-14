@@ -448,13 +448,10 @@ every method in scope.
 |--------|----------|------------------------|
 | .NET | 10.0, 11.0 | November 2028 for .NET 10 |
 | .NET Framework | 4.7, 4.7.1, 4.7.2, 4.8, 4.8.1 | tied to the Windows version |
-| .NET Framework | 4.6.2 | 12 January 2027 |
 
-> [!WARNING]
-> .NET Framework 4.6.2 leaves support on 12 January 2027, and this library drops it then. Before that date, move to
-> .NET Framework 4.7 or later. See the
-> [.NET support policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core) and the
-> [.NET Framework support policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-framework).
+See the
+[.NET support policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core) and the
+[.NET Framework support policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-framework).
 
 The WPF and WinForms packages target the .NET Framework versions and the Windows targets of .NET 10 and 11.
 

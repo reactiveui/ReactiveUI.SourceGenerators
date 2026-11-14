@@ -45,7 +45,7 @@ Run the full examples suite on every pull request:
 - **Linux:** every `Documentation/Pages` project, `ToPropertyVerification` on net10.0 and net11.0,
   `PlatformBindingsVerification -- --verify` on net10.0, and a native AOT publish of `setup/aot` that reports no
   trim or AOT warnings and runs.
-- **Windows** (a real Windows machine or VM): `ToPropertyVerification` on net462 to net481, net10.0 and net11.0,
+- **Windows** (a real Windows machine or VM): `ToPropertyVerification` on net47 to net481, net10.0 and net11.0,
   `PlatformBindingsVerification -- --verify` and `threading` on net10.0-windows10.0.19041.0.
 - Apple targets are exempt when no Apple host is available.
 
@@ -322,7 +322,7 @@ src/
 │   ├── Observables/                             # Hand-rolled observables and disposables
 │   └── View/                                    # ViewLocator, DefaultViewLocator, IViewFor<T>, attributes
 │
-├── ReactiveUI.Binding/                          # Lean leaf (net10.0-net11.0;net462-net481)
+├── ReactiveUI.Binding/                          # Lean leaf (net10.0-net11.0;net47-net481)
 ├── ReactiveUI.Binding.Reactive/                 # System.Reactive leaf: same source, REACTIVE_SHIM
 │
 ├── build/                                       # SkipMakePriOnNonWindows.targets (see below)
@@ -1398,7 +1398,7 @@ build keeps working right up until Wine starts. Each copy chains to the reposito
 
 - **Test and benchmark runtimes:** .NET 10.0 and 11.0
 - **Generator + Analyzer targets:** netstandard2.0 (Roslyn requirement)
-- **Runtime library targets:** net10.0;net11.0;net462;net47;net471;net472;net48;net481
+- **Runtime library targets:** net10.0;net11.0;net47;net471;net472;net48;net481
 - **Two separate version streams:** The attribute packages (`ReactiveUI.SourceGenerators`) continue their `v4.x` tags.
   Every `ReactiveUI.Binding*` project continues from 9.1.0 on its own `binding-v` tags with a 9.2 floor
   (`src/Directory.Build.props`). Each family has its own release workflow: `release.yml` builds

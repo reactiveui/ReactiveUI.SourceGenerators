@@ -71,7 +71,7 @@ Reference one binding runtime package, not both. Add `PrivateAssets="all"` to `R
 |---|---|---|
 | Language | C# 12 | C# 7.3 for generated code; interceptors need C# 11 |
 | Compiler | Roslyn 4.8 or later | Roslyn 4.8 or later; interceptors need 4.13 |
-| Runtime | .NET 10 and 11, .NET Framework 4.6.2 to 4.8.1 | The same |
+| Runtime | .NET 10 and 11, .NET Framework 4.7 to 4.8.1 | The same |
 
 ## Examples
 
