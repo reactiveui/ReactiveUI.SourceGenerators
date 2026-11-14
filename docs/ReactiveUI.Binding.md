@@ -447,27 +447,25 @@ every method in scope.
 | Target | Versions | Microsoft support ends |
 |--------|----------|------------------------|
 | .NET | 10.0, 11.0 | November 2028 for .NET 10 |
-| .NET | 8.0, 9.0 | 10 November 2026 |
 | .NET Framework | 4.7, 4.7.1, 4.7.2, 4.8, 4.8.1 | tied to the Windows version |
 | .NET Framework | 4.6.2 | 12 January 2027 |
 
 > [!WARNING]
-> .NET 8 and .NET 9 leave Microsoft support on 10 November 2026. This library drops them on that date. .NET
-> Framework 4.6.2 leaves support on 12 January 2027, and this library drops it then. Before those dates, move to
-> .NET 10 or later, or to .NET Framework 4.7 or later. See the
+> .NET Framework 4.6.2 leaves support on 12 January 2027, and this library drops it then. Before that date, move to
+> .NET Framework 4.7 or later. See the
 > [.NET support policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core) and the
 > [.NET Framework support policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-framework).
 
-The WPF and WinForms packages target the .NET Framework versions and the Windows targets of .NET 8 to 11.
+The WPF and WinForms packages target the .NET Framework versions and the Windows targets of .NET 10 and 11.
 
 The MAUI packages start at .NET 10. They add Android, iOS, macOS, Mac Catalyst and tvOS targets. The Apple
 targets build only on Windows and macOS.
 
-The Avalonia packages target .NET 8 to 11. They are trim and NativeAOT safe.
+The Avalonia packages target .NET 10 and 11. They are trim and NativeAOT safe.
 
 The Uno packages target the Uno Platform heads of .NET 10 and 11: desktop, WebAssembly, Android, iOS and Windows.
 
-NativeAOT works on .NET 8 and later. Only the generated code runs there. The `Unsafe` overloads compile
+NativeAOT works on .NET 10 and later. Only the generated code runs there. The `Unsafe` overloads compile
 expressions at run time, and NativeAOT cannot do that.
 
 ## Packages

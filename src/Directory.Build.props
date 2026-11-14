@@ -6,7 +6,7 @@
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
 
     <!-- Granular Target Framework definitions for cross-platform builds -->
-    <BindingCoreTargets>net8.0;net9.0;net10.0;net11.0</BindingCoreTargets>
+    <BindingCoreTargets>net10.0;net11.0</BindingCoreTargets>
 
     <!-- Legacy .NET Framework targets (Windows only) -->
     <BindingLegacyTargets>net462;net47;net471;net472;net48;net481</BindingLegacyTargets>
@@ -16,10 +16,8 @@
     <BindingRuntimeTargets Condition=" '$(BindingLegacyTargets)' != '' ">$(BindingRuntimeTargets);$(BindingLegacyTargets)</BindingRuntimeTargets>
 
     <!-- Windows-specific platform targets (WPF, WinForms) -->
-    <BindingWindowsTargets>net8.0-windows10.0.19041.0;net9.0-windows10.0.19041.0;net10.0-windows10.0.19041.0;net11.0-windows10.0.19041.0</BindingWindowsTargets>
+    <BindingWindowsTargets>net10.0-windows10.0.19041.0;net11.0-windows10.0.19041.0</BindingWindowsTargets>
 
-    <!-- MAUI targets. The net8 and net9 heads are end of life, so MAUI starts at net10 while everything
-         else still offers net8. -->
     <BindingMauiWindowsTargets>net10.0-windows10.0.19041.0;net11.0-windows10.0.19041.0</BindingMauiWindowsTargets>
     <!-- net10 pins the compile-SDK to API 36 (Android 16) and net11 to API 37, the latest released stable
          levels, both above Google Play's API 35 floor. -->
@@ -45,7 +43,7 @@
 
     <!-- Plain desktop targets (windows7.0) for the WPF and WinForms packages. A net*-windows app cannot consume a
          -windows10.0.19041.0 asset, so without these it falls back to the .NET Framework asset via AssetTargetFallback. -->
-    <BindingDesktopTargets>net8.0-windows;net9.0-windows;net10.0-windows;net11.0-windows</BindingDesktopTargets>
+    <BindingDesktopTargets>net10.0-windows;net11.0-windows</BindingDesktopTargets>
 
     <!-- Windows-only targets (Framework + desktop + Windows-specific) -->
     <BindingWindowsOnlyTargets>$(BindingWindowsTargets)</BindingWindowsOnlyTargets>
@@ -55,7 +53,6 @@
     <BindingTestTargets>net10.0;net11.0</BindingTestTargets>
     <BindingTestPlatformTargets>net10.0-windows10.0.19041.0;net11.0-windows10.0.19041.0</BindingTestPlatformTargets>
 
-    <!-- MAUI's net9 heads are end of life, so its tests start where the package does. -->
     <BindingMauiTestTargets>net10.0;net11.0</BindingMauiTestTargets>
 
     <!-- Windows-specific test targets: use Windows TFMs on Windows, core TFMs elsewhere -->
@@ -140,10 +137,10 @@
 
   <!-- Alias Lock to the dedicated System.Threading.Lock on .NET 9+ (faster EnterScope fast path),
        and to a plain object elsewhere (the lock statement falls back to Monitor). -->
-  <ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net9.0'))">
+  <ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net10.0'))">
     <Using Include="System.Threading.Lock" Alias="Lock"/>
   </ItemGroup>
-  <ItemGroup Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net9.0'))">
+  <ItemGroup Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net10.0'))">
     <Using Include="System.Object" Alias="Lock"/>
   </ItemGroup>
 
