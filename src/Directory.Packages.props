@@ -39,7 +39,7 @@
     <PackageVersion Include="Basic.Reference.Assemblies.Net472" Version="1.8.15"/>
 
     <!-- Dependencies -->
-    <PackageVersion Include="Splat" Version="22.0.0"/>
+    <PackageVersion Include="Splat" Version="22.0.1"/>
     <PackageVersion Include="ReactiveUI.Primitives" Version="$(ReactiveUIPrimitivesVersion)"/>
     <PackageVersion Include="ReactiveUI.Primitives.Reactive" Version="$(ReactiveUIPrimitivesVersion)"/>
     <PackageVersion Include="ReactiveUI.Primitives.Wpf" Version="$(ReactiveUIPrimitivesVersion)"/>
