@@ -1,10 +1,10 @@
-name: Release ReactiveUI.SourceGenerators
+name: Release
 
 on:
   workflow_dispatch:
     inputs:
       bump:
-        description: 'Release level'
+        description: 'Release level applied to both package families'
         required: true
         type: choice
         options:
@@ -24,13 +24,88 @@ permissions:
   packages: read
 
 jobs:
+  versions:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      sourceSha: ${{ steps.source.outputs.sha }}
+      matrix: |
+        {
+          "include": [
+            {
+              "family": "sourcegenerators",
+              "title": "ReactiveUI.SourceGenerators",
+              "solutionFile": "ReactiveUI.SourceGenerators.Package.slnf",
+              "msbuildSolutionFile": "",
+              "installWorkloads": false,
+              "minimumMajorMinor": "",
+              "tagPrefix": "v",
+              "version": "${{ steps.sourcegenerators.outputs.version }}",
+              "tag": "${{ steps.sourcegenerators.outputs.tag }}"
+            },
+            {
+              "family": "binding",
+              "title": "ReactiveUI.Binding",
+              "solutionFile": "ReactiveUI.Binding.slnf",
+              "msbuildSolutionFile": "ReactiveUI.Binding.Uno.slnf",
+              "installWorkloads": true,
+              "minimumMajorMinor": "9.2",
+              "tagPrefix": "binding-v",
+              "version": "${{ steps.binding.outputs.version }}",
+              "tag": "${{ steps.binding.outputs.tag }}"
+            }
+          ]
+        }
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ inputs.sourceRef }}
+          fetch-depth: 0
+
+      - name: Setup .NET Environment
+        uses: reactiveui/actions-common/.github/actions/dotnet-environment@main
+        with:
+          dotnet-versions: 11.0.x
+          stamp-version: 'false'
+
+      - name: Resolve source commit
+        id: source
+        uses: reactiveui/actions-common/.github/actions/release-tag-resolve@main
+
+      - name: Compute attribute generator version
+        id: sourcegenerators
+        uses: reactiveui/actions-common/.github/actions/compute-version-and-tag@main
+        with:
+          bump: ${{ inputs.bump }}
+          tag-prefix: v
+          push-tag: 'false'
+
+      - name: Compute binding version
+        id: binding
+        uses: reactiveui/actions-common/.github/actions/compute-version-and-tag@main
+        with:
+          bump: ${{ inputs.bump }}
+          tag-prefix: binding-v
+          push-tag: 'false'
+
   release:
+    needs: versions
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.versions.outputs.matrix) }}
     uses: reactiveui/actions-common/.github/workflows/workflow-common-release.yml@main
     with:
-      solutionFile: ReactiveUI.SourceGenerators.Package.slnf
-      minverTagPrefix: v
-      bump: ${{ inputs.bump }}
-      sourceRef: ${{ inputs.sourceRef }}
+      dotnetVersions: 11.0.x
+      solutionFile: ${{ matrix.solutionFile }}
+      msbuildSolutionFile: ${{ matrix.msbuildSolutionFile }}
+      installWorkloads: ${{ matrix.installWorkloads }}
+      minverTagPrefix: ${{ matrix.tagPrefix }}
+      minverMinimumMajorMinor: ${{ matrix.minimumMajorMinor }}
+      versionOverride: ${{ matrix.version }}
+      sourceRef: ${{ needs.versions.outputs.sourceSha }}
+      artifactSuffix: -${{ matrix.family }}
     secrets:
       CERTUM_USER_ID: ${{ secrets.CERTUM_USER_ID }}
       CERTUM_OTP_URI: ${{ secrets.CERTUM_OTP_URI }}
@@ -47,7 +122,8 @@ jobs:
       - name: Download signed packages
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
-          name: signed-nuget
+          pattern: signed-nuget-*
+          merge-multiple: true
 
       - name: Setup .NET
         uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6
@@ -66,11 +142,15 @@ jobs:
           NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
         run: dotnet nuget push "*.nupkg" --source https://api.nuget.org/v3/index.json --api-key "$NUGET_API_KEY"
   create-release:
-    needs: [release, publish-nuget]
+    needs: [versions, publish-nuget]
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.versions.outputs.matrix) }}
     uses: reactiveui/actions-common/.github/workflows/workflow-common-create-release.yml@main
     with:
-      version: ${{ needs.release.outputs.semver2 }}
-      tag: ${{ needs.release.outputs.tag }}
-      tagPrefix: v
-      title: ReactiveUI.SourceGenerators ${{ needs.release.outputs.semver2 }}
-      target: ${{ needs.release.outputs.sourceSha }}
+      version: ${{ matrix.version }}
+      tag: ${{ matrix.tag }}
+      tagPrefix: ${{ matrix.tagPrefix }}
+      title: ${{ matrix.title }} ${{ matrix.version }}
+      artifactName: signed-nuget-${{ matrix.family }}
+      target: ${{ needs.versions.outputs.sourceSha }}

@@ -67,15 +67,18 @@ Reference one binding runtime package, not both. Add `PrivateAssets="all"` to `R
 
 ## Independent releases
 
-The two package families have separate versions and release notes:
+Run [release.yml](.github/workflows/release.yml) once and choose `major`, `minor` or `patch`. The workflow applies
+that bump to each family's latest tag and releases both families from the same commit. Each family keeps its own
+version and release notes:
 
-| Family | Release workflow | Tag prefix | GitHub release title |
-|---|---|---|---|
-| Attribute generators | [release.yml](.github/workflows/release.yml) | `v` | `ReactiveUI.SourceGenerators <version>` |
-| Binding packages | [release-binding.yml](.github/workflows/release-binding.yml) | `binding-v` | `ReactiveUI.Binding <version>` |
+| Family | Tag prefix | GitHub release title |
+|---|---|---|
+| Attribute generators | `v` | `ReactiveUI.SourceGenerators <version>` |
+| Binding packages | `binding-v` | `ReactiveUI.Binding <version>` |
 
-Each workflow computes the next version from its family's tags and builds only that family's solution filters.
-Releasing one family does not change the other's package version.
+The build matrix uses each family's solution filters and version. Its signed packages are published together,
+then attached to that family's GitHub release. For example, a minor bump from `v4.2.0` and `binding-v9.1.0`
+produces `v4.3.0` and `binding-v9.2.0` in one run.
 
 Release notes compare that family's most recently published stable release with the exact commit that was built.
 Changelog links use the new family's tag. For a family's first published stable release, the notes include all

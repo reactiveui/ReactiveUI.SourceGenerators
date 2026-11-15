@@ -156,8 +156,8 @@
 
   <!-- The two families are versioned completely separately. The attribute generators continue their v4.x tags.
        ReactiveUI.Binding continues from 9.1.0 on its own binding-v tags, and untagged builds produce
-       9.2.0-alpha.0.<height>. Each family has its own release workflow (release.yml and release-binding.yml) that
-       computes its version from its own tags and stamps it on the projects of its solution filter. -->
+       9.2.0-alpha.0.<height>. The single release.yml workflow applies one bump to both families' tags and
+       stamps each computed version on the projects of that family's solution filters. -->
   <PropertyGroup>
     <MinVerAutoIncrement>minor</MinVerAutoIncrement>
     <MinVerDefaultPreReleaseIdentifiers>alpha.0</MinVerDefaultPreReleaseIdentifiers>
