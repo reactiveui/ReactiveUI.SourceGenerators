@@ -65,26 +65,6 @@ Reference one binding runtime package, not both. Add `PrivateAssets="all"` to `R
 | `ReactiveUI.Binding.Wpf`, `.WinForms`, `.Maui`, `.Avalonia`, `.Uno` | Platform property observation and view thread routing |
 | `*.Reactive` platform packages | The same, for System.Reactive apps |
 
-## Independent releases
-
-Run [release.yml](.github/workflows/release.yml) once and choose `major`, `minor` or `patch`. The workflow applies
-that bump to each family's latest tag and releases both families from the same commit. Each family keeps its own
-version and release notes:
-
-| Family | Tag prefix | GitHub release title |
-|---|---|---|
-| Attribute generators | `v` | `ReactiveUI.SourceGenerators <version>` |
-| Binding packages | `binding-v` | `ReactiveUI.Binding <version>` |
-
-The build matrix uses each family's solution filters and version. Its signed packages are published together,
-then attached to that family's GitHub release. For example, a minor bump from `v4.2.0` and `binding-v9.1.0`
-produces `v4.3.0` and `binding-v9.2.0` in one run.
-
-Release notes compare that family's most recently published stable release with the exact commit that was built.
-Changelog links use the new family's tag. For a family's first published stable release, the notes include all
-history reachable from the built commit. Each comparison includes every commit in its range, without filtering
-by package or file path.
-
 ## Requirements
 
 | | Attribute generators | Binding generators |
