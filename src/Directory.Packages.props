@@ -24,7 +24,7 @@
 
   <ItemGroup>
     <!-- Testing Framework. The tests run on Microsoft Testing Platform, so do not add Microsoft.NET.Test.Sdk. -->
-    <PackageVersion Include="TUnit" Version="1.84.0"/>
+    <PackageVersion Include="TUnit" Version="1.85.0"/>
 
     <!-- Roslyn Framework -->
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="5.12.0"/>
@@ -89,7 +89,8 @@
     <PackageVersion Include="Avalonia.Diagnostics" Version="11.3.23"/>
     <PackageVersion Include="Avalonia.Desktop" Version="12.1.6"/>
     <PackageVersion Include="ReactiveUI.Avalonia" Version="12.1.6"/>
-    <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.15"/>
+    <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="11.0.0" Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net11.0'))"/>
+    <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.15" Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net11.0'))"/>
 
     <!-- Test App Dependencies-->
     <PackageVersion Include="ReactiveUI" Version="26.0.1"/>
