@@ -71,4 +71,6 @@ jobs:
     with:
       version: ${{ needs.release.outputs.semver2 }}
       tag: ${{ needs.release.outputs.tag }}
+      tagPrefix: v
+      title: ReactiveUI.SourceGenerators ${{ needs.release.outputs.semver2 }}
       target: ${{ needs.release.outputs.sourceSha }}

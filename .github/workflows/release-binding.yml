@@ -74,4 +74,6 @@ jobs:
     with:
       version: ${{ needs.release.outputs.semver2 }}
       tag: ${{ needs.release.outputs.tag }}
+      tagPrefix: binding-v
+      title: ReactiveUI.Binding ${{ needs.release.outputs.semver2 }}
       target: ${{ needs.release.outputs.sourceSha }}
