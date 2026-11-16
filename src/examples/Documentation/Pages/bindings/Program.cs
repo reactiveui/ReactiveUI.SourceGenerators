@@ -235,6 +235,8 @@ BindingErrorExamples.FaultWithInnerExceptionIsRethrown();
 
 BindingErrorExamples.SetterThatThrowsReachesTheCaller();
 
+BindingErrorExamples.FailedTwoWayBindingReleasesTheSource();
+
 BindingErrorExamples.SubscribeAppliesTheFaultContract();
 
 await BindingHookExamples.BindWithoutHook();

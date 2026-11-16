@@ -192,18 +192,26 @@ namespace ReactiveUI.Binding
 
                 target.FirstNameText = value;
             }, "x => x.FirstNameText");
-
-            var d2 = global::ReactiveUI.Binding.BindingErrors.Subscribe(sourceThreadObs, value =>
+            try
             {
-                if (global::System.Collections.Generic.EqualityComparer<string>.Default.Equals(source.FirstName, value))
+
+                var d2 = global::ReactiveUI.Binding.BindingErrors.Subscribe(sourceThreadObs, value =>
                 {
-                    return;
-                }
+                    if (global::System.Collections.Generic.EqualityComparer<string>.Default.Equals(source.FirstName, value))
+                    {
+                        return;
+                    }
 
-                source.FirstName = value;
-            }, "x => x.FirstName");
+                    source.FirstName = value;
+                }, "x => x.FirstName");
 
-            return new global::ReactiveUI.Primitives.Disposables.MultipleDisposable(d1, d2);
+                return new global::ReactiveUI.Primitives.Disposables.MultipleDisposable(d1, d2);
+            }
+            catch
+            {
+                d1.Dispose();
+                throw;
+            }
         }
 
         private static global::System.IDisposable __BindTwoWay_7FFFD5F5F103D3C2(global::SharedScenarios.BindTwoWay.MultipleSameTypeBindings.MyViewModel source, global::SharedScenarios.BindTwoWay.MultipleSameTypeBindings.MyView target)
@@ -361,18 +369,26 @@ namespace ReactiveUI.Binding
 
                 target.LastNameText = value;
             }, "x => x.LastNameText");
-
-            var d2 = global::ReactiveUI.Binding.BindingErrors.Subscribe(sourceThreadObs, value =>
+            try
             {
-                if (global::System.Collections.Generic.EqualityComparer<string>.Default.Equals(source.LastName, value))
+
+                var d2 = global::ReactiveUI.Binding.BindingErrors.Subscribe(sourceThreadObs, value =>
                 {
-                    return;
-                }
+                    if (global::System.Collections.Generic.EqualityComparer<string>.Default.Equals(source.LastName, value))
+                    {
+                        return;
+                    }
 
-                source.LastName = value;
-            }, "x => x.LastName");
+                    source.LastName = value;
+                }, "x => x.LastName");
 
-            return new global::ReactiveUI.Primitives.Disposables.MultipleDisposable(d1, d2);
+                return new global::ReactiveUI.Primitives.Disposables.MultipleDisposable(d1, d2);
+            }
+            catch
+            {
+                d1.Dispose();
+                throw;
+            }
         }
 
     }

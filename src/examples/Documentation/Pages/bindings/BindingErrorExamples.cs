@@ -137,6 +137,32 @@ public static class BindingErrorExamples
         // A statement reference has at most 18 characters. (Parameter 'value')
     }
 
+    /// <summary>A reverse converter that fails during setup leaves the source disconnected.</summary>
+    public static void FailedTwoWayBindingReleasesTheSource()
+    {
+        TransferDraft draft = new() { Reference = ShortReference };
+        Label label = new();
+
+        try
+        {
+            using IDisposable binding = draft.BindTwoWay(
+                label,
+                x => x.Reference,
+                x => x.Text,
+                static reference => reference,
+                static reference => throw new InvalidOperationException(ConversionMessage, new FormatException(CauseMessage)));
+        }
+        catch (TargetInvocationException)
+        {
+            draft.Reference = AprilReference;
+            Console.WriteLine(label.Text == ShortReference);
+        }
+
+        // Output:
+        // LogHost: x => x.Reference Binding received an Exception! (OnError)
+        // True
+    }
+
     /// <summary>Applies the fault contract directly with <see cref="BindingErrors.Subscribe{T}"/>: values reach the write, and each kind of fault is handled as a binding handles it.</summary>
     public static void SubscribeAppliesTheFaultContract()
     {
