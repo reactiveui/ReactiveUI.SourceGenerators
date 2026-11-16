@@ -1,4 +1,4 @@
-<Project Sdk="Uno.Sdk">
+<Project Sdk="Uno.Sdk/7.0.22">
   <PropertyGroup>
     <!-- System.Reactive-flavoured Uno leaf: recompiles the shared Uno source against
          ReactiveUI.Binding.Reactive, shifting its types to ReactiveUI.Binding.Reactive.Uno.

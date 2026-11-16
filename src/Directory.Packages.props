@@ -73,7 +73,7 @@
     <PackageVersion Include="ReactiveUI.Primitives.Avalonia" Version="$(ReactiveUIPrimitivesVersion)"/>
     <PackageVersion Include="ReactiveUI.Primitives.Avalonia.Reactive" Version="$(ReactiveUIPrimitivesVersion)"/>
 
-    <!-- Uno Platform. Uno.WinUI is the release Uno.Sdk in global.json pins; the Windows head uses the App SDK. -->
+    <!-- Uno Platform. Uno.WinUI matches the project SDK; the Windows head uses the App SDK. -->
     <PackageVersion Include="Uno.WinUI" Version="7.0.65"/>
     <PackageVersion Include="Microsoft.WindowsAppSDK" Version="2.6.5"/>
     <PackageVersion Include="ReactiveUI.Primitives.Uno" Version="$(ReactiveUIPrimitivesVersion)"/>
