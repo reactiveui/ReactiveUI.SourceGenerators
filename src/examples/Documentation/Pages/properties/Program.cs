@@ -24,3 +24,5 @@ ObservableAsPropertyHelperExamples.CreateAHelperThatNeverChanges();
 ObservableAsPropertyAttributeExamples.DeclareAPropertyWithTheAttribute();
 
 ObservableAsPropertyAttributeExamples.StartFromAnInitialValue();
+
+ObservableAsPropertyAttributeExamples.ReplaceAHelperWhileObserved();
