@@ -14,47 +14,6 @@
                 "/^Microsoft\\.CodeAnalysis\\.CSharp$/",
                 "/^Microsoft\\.CodeAnalysis\\.CSharp\\.Workspaces$/"
             ]
-        },
-        {
-            "description": "Analyzer packages all gate the build through the same warnings-as-errors pass, so landing them separately just means several red CI runs in a row. Move them in one PR.",
-            "matchManagers": [
-                "nuget"
-            ],
-            "groupName": "analyzers",
-            "matchPackageNames": [
-                "/^(Style|Performance|Security|PublicApi)Sharp\\.Analyzers$/"
-            ]
-        },
-        {
-            "description": "Packaging, versioning and symbol tooling. These affect how the package is produced, never the shipped API, so they are safe to move as one.",
-            "matchManagers": [
-                "nuget"
-            ],
-            "groupName": "build tooling",
-            "matchPackageNames": [
-                "/^MinVer$/",
-                "/^Microsoft\\.SourceLink\\./"
-            ]
-        },
-        {
-            "description": "Basic.Reference.Assemblies ships one package per target runtime and the generator tests compile against all of them. A partial bump leaves the suite straddling two versions.",
-            "matchManagers": [
-                "nuget"
-            ],
-            "groupName": "reference assemblies",
-            "matchPackageNames": [
-                "/^Basic\\.Reference\\.Assemblies(\\.|$)/"
-            ]
-        },
-        {
-            "description": "Test and benchmark helpers that sit outside the framework cohorts the shared preset already groups.",
-            "matchManagers": [
-                "nuget"
-            ],
-            "groupName": "test tooling",
-            "matchPackageNames": [
-                "/^BenchmarkDotNet(\\.|$)/"
-            ]
         }
     ]
 }
