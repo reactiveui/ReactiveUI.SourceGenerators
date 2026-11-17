@@ -180,6 +180,22 @@ public class ToPropertyTests
         await Assert.That(vm.Shown).IsTrue();
     }
 
+    /// <summary>Replacing a helper exposes the new value during notifications, before the helper field is reassigned.</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task HelperReassigned_ListenerReadsTheNewValue()
+    {
+        var vm = new StartupViewModel();
+        vm.Show(new BehaviorSubject<bool>(true));
+        var read = new List<bool>();
+        vm.PropertyChanged += (_, _) => read.Add(vm.Shown);
+
+        vm.Show(new BehaviorSubject<bool>(false));
+
+        await Assert.That(read[^1]).IsFalse();
+        await Assert.That(vm.Shown).IsFalse();
+    }
+
     /// <summary>
     /// A property created first that follows one created second sees the second's value as it starts, since reading it
     /// from the notification finds the value (ReactiveUI #4541).

@@ -148,6 +148,7 @@ internal static class BindTwoWayCodeGenerator
             TargetParameterName,
             inv.TargetPropertyPath,
             inv.TargetExpressionText);
+        _ = sb.Try();
         BindingEmitterHelpers.AppendWriteSubscription(
             sb.BlankLine().BeginVar("d2"),
             targetVar,
@@ -156,6 +157,12 @@ internal static class BindTwoWayCodeGenerator
             inv.SourceExpressionText);
         _ = sb.BlankLine()
             .Return($"new {GeneratedTypeNames.MultipleDisposable}(d1, d2)")
+            .CloseBlock()
+            .Line("catch")
+            .OpenBlock()
+            .Line("d1.Dispose();")
+            .Line("throw;")
+            .CloseBlock()
             .CloseBlock()
             .BlankLine();
     }

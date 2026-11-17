@@ -114,18 +114,26 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
 
                 target.CountText = value;
             }, "x => x.CountText");
-
-            var d2 = global::ReactiveUI.Binding.BindingErrors.Subscribe(sourceThreadObs, value =>
+            try
             {
-                if (global::System.Collections.Generic.EqualityComparer<int>.Default.Equals(source.Count, value))
+
+                var d2 = global::ReactiveUI.Binding.BindingErrors.Subscribe(sourceThreadObs, value =>
                 {
-                    return;
-                }
+                    if (global::System.Collections.Generic.EqualityComparer<int>.Default.Equals(source.Count, value))
+                    {
+                        return;
+                    }
 
-                source.Count = value;
-            }, "x => x.Count");
+                    source.Count = value;
+                }, "x => x.Count");
 
-            return new global::ReactiveUI.Primitives.Disposables.MultipleDisposable(d1, d2);
+                return new global::ReactiveUI.Primitives.Disposables.MultipleDisposable(d1, d2);
+            }
+            catch
+            {
+                d1.Dispose();
+                throw;
+            }
         }
 
     }

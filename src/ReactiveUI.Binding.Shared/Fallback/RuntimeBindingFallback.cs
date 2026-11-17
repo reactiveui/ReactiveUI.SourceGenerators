@@ -448,17 +448,25 @@ public static partial class RuntimeBindingFallback
         where TView : IViewFor
     {
         var toViewWrite = Write(toView, view, viewProperty, bindingExpression);
-        var toViewModelWrite = WriteViewModel(fromView, view, viewModel, viewModelProperty, bindingExpression);
+        try
+        {
+            var toViewModelWrite = WriteViewModel(fromView, view, viewModel, viewModelProperty, bindingExpression);
 
-        var changed = new MergeSignal<BindingChange>(
-            new MapSignal<TViewProp, BindingChange>(toView, static v => new BindingChange(v, true)),
-            new MapSignal<TViewModelProp, BindingChange>(fromView, static v => new BindingChange(v, false)));
+            var changed = new MergeSignal<BindingChange>(
+                new MapSignal<TViewProp, BindingChange>(toView, static v => new BindingChange(v, true)),
+                new MapSignal<TViewModelProp, BindingChange>(fromView, static v => new BindingChange(v, false)));
 
-        return new(
-            view,
-            changed,
-            BindingDirection.TwoWay,
-            new MultipleDisposable(toViewWrite, toViewModelWrite));
+            return new(
+                view,
+                changed,
+                BindingDirection.TwoWay,
+                new MultipleDisposable(toViewWrite, toViewModelWrite));
+        }
+        catch
+        {
+            toViewWrite.Dispose();
+            throw;
+        }
     }
 
     /// <summary>Wraps a one-way write as the binding value the view-first APIs hand back.</summary>
@@ -558,11 +566,19 @@ public static partial class RuntimeBindingFallback
     {
         var toTarget = Write(forward, target, targetProperty, bindingExpression);
 
-        // The target's own current value is not a change the source asked for, so it is dropped rather
-        // than written straight back over the value that just seeded it.
-        var toSource = Write(reverse.Skip(1), source, sourceProperty, bindingExpression);
+        try
+        {
+            // The target's own current value is not a change the source asked for, so it is dropped rather
+            // than written straight back over the value that just seeded it.
+            var toSource = Write(reverse.Skip(1), source, sourceProperty, bindingExpression);
 
-        return new(toTarget, toSource);
+            return new(toTarget, toSource);
+        }
+        catch
+        {
+            toTarget.Dispose();
+            throw;
+        }
     }
 
     /// <summary>Delivers a sequence of values onto a property of the written object.</summary>
