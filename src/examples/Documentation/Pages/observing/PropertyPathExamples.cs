@@ -76,7 +76,7 @@ public static class PropertyPathExamples
 
         List<string> logins = [];
 
-        using (board.WhenChanged(x => x.SelectedIssue!.Assignee!.Login).Subscribe(logins.Add))
+        using (board.WhenChanged(static x => x.SelectedIssue!.Assignee!.Login).Subscribe(logins.Add))
         {
             // Nothing is selected yet, so the path has no value to read.
             Console.WriteLine(logins.Count);
@@ -105,7 +105,7 @@ public static class PropertyPathExamples
 
         List<string> logins = [];
 
-        using (board.WhenChanged(x => x.SelectedIssue!.Assignee!.Login).Subscribe(logins.Add))
+        using (board.WhenChanged(static x => x.SelectedIssue!.Assignee!.Login).Subscribe(logins.Add))
         {
             User newAssignee = new() { Login = TomasLogin };
 
@@ -132,7 +132,7 @@ public static class PropertyPathExamples
 
         List<string> logins = [];
 
-        using (board.WhenChanged(x => x.SelectedIssue!.Assignee!.Login).Subscribe(logins.Add))
+        using (board.WhenChanged(static x => x.SelectedIssue!.Assignee!.Login).Subscribe(logins.Add))
         {
             // The issue has no assignee, so there is no login to report.
             board.SelectedIssue = giftCards;
@@ -164,7 +164,7 @@ public static class PropertyPathExamples
         // The trailing ! only satisfies the compiler: the emitted values include null.
         List<string> assignees = [];
 
-        using (board.WhenChanged(x => x.SelectedIssue!.Assignee!).Subscribe(assignee => assignees.Add(assignee?.Login ?? Unassigned)))
+        using (board.WhenChanged(static x => x.SelectedIssue!.Assignee!).Subscribe(assignee => assignees.Add(assignee?.Login ?? Unassigned)))
         {
             board.SelectedIssue = giftCards;
 
@@ -193,7 +193,7 @@ public static class PropertyPathExamples
 
         List<string> logins = [];
 
-        using (board.WhenChanged(x => x.SelectedIssue!.Assignee!.Login).Subscribe(logins.Add))
+        using (board.WhenChanged(static x => x.SelectedIssue!.Assignee!.Login).Subscribe(logins.Add))
         {
             // The same login again.
             checkoutBug.Assignee!.Login = PriyaLogin;
@@ -226,7 +226,7 @@ public static class PropertyPathExamples
 
         List<int> gradeCounts = [];
 
-        using (gradebook.WhenChanged(x => x.SelectedStudent!.Enrolments).Subscribe(enrolments => gradeCounts.Add(CountGrades(enrolments))))
+        using (gradebook.WhenChanged(static x => x.SelectedStudent!.Enrolments).Subscribe(enrolments => gradeCounts.Add(CountGrades(enrolments))))
         {
             gradebook.SelectedStudent = chloe;
 
@@ -254,7 +254,7 @@ public static class PropertyPathExamples
 
         List<decimal> available = [];
 
-        using (transfer.WhenChanged(x => x.Draft.Source!.AvailableBalance).Subscribe(available.Add))
+        using (transfer.WhenChanged(static x => x.Draft.Source!.AvailableBalance).Subscribe(available.Add))
         {
             transfer.Draft.Source = everyday;
 
@@ -291,7 +291,7 @@ public static class PropertyPathExamples
 
         browser.SelectedObject = launchBanner;
 
-        using (browser.WhenChanged(x => x.SelectedObject!).Subscribe(selected => keys.Add(selected.Key)))
+        using (browser.WhenChanged(static x => x.SelectedObject!).Subscribe(selected => keys.Add(selected.Key)))
         {
             // A plain setter raises nothing, so the subscriber is not told.
             launchBanner.Key = RenamedLaunchBannerKey;

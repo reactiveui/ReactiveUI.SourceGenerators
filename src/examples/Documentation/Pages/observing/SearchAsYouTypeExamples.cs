@@ -60,7 +60,7 @@ public static class SearchAsYouTypeExamples
         InMemoryGitHubServer server = InMemoryGitHubServer.CreateSeeded();
         IssueSearchViewModel viewModel = new(server, Webshop);
 
-        using IDisposable subscription = viewModel.WhenChanged(x => x.SearchTerm)
+        using IDisposable subscription = viewModel.WhenChanged(static x => x.SearchTerm)
             .Select(static term => term.Trim())
             .DistinctUntilChanged()
             .Where(static term => term.Length > 0)
@@ -83,7 +83,7 @@ public static class SearchAsYouTypeExamples
         InMemoryGitHubServer server = InMemoryGitHubServer.CreateSeeded();
         IssueSearchViewModel viewModel = new(server, Webshop);
 
-        using IDisposable subscription = viewModel.WhenAnyValue(x => x.SearchTerm)
+        using IDisposable subscription = viewModel.WhenAnyValue(static x => x.SearchTerm)
             .Throttle(_quietPeriod, clock)
             .Subscribe(Console.WriteLine);
 
@@ -155,10 +155,10 @@ public static class SearchAsYouTypeExamples
         IssueSearchView view = new() { ViewModel = viewModel };
 
         using IDisposable search = viewModel.StartSearching(Sequencer.Default, _quietPeriod);
-        using IDisposable typing = viewModel.BindTwoWay(view, x => x.SearchTerm, v => v.SearchBox.Text);
-        using IDisposable buttonBinding = viewModel.BindOneWay(view, x => x.IsSearching, v => v.SearchButton.IsEnabled, static searching => !searching);
-        using IDisposable barBinding = viewModel.BindOneWay(view, x => x.IsSearching, v => v.BusyBar.IsVisible);
-        using IDisposable listBinding = viewModel.BindOneWay(view, x => x.Results, v => v.ResultList.ItemsSource, static results => results);
+        using IDisposable typing = viewModel.BindTwoWay(view, static x => x.SearchTerm, static v => v.SearchBox.Text);
+        using IDisposable buttonBinding = viewModel.BindOneWay(view, static x => x.IsSearching, static v => v.SearchButton.IsEnabled, static searching => !searching);
+        using IDisposable barBinding = viewModel.BindOneWay(view, static x => x.IsSearching, static v => v.BusyBar.IsVisible);
+        using IDisposable listBinding = viewModel.BindOneWay(view, static x => x.Results, static v => v.ResultList.ItemsSource, static results => results);
 
         Console.WriteLine(view.SearchButton.IsEnabled);
         Console.WriteLine(view.BusyBar.IsVisible);
@@ -228,7 +228,7 @@ public static class SearchAsYouTypeExamples
         TransferViewModel screen = new(new InMemoryBankingBackend());
         TransferView view = new() { ViewModel = screen };
 
-        using IDisposable subscription = view.AmountTextBox.WhenChanged(x => x.Text)
+        using IDisposable subscription = view.AmountTextBox.WhenChanged(static x => x.Text)
             .Where(static text => !string.IsNullOrEmpty(text))
             .Throttle(_quietPeriod, clock)
             .Subscribe(text => screen.Draft.Amount = decimal.Parse(text, CultureInfo.InvariantCulture));

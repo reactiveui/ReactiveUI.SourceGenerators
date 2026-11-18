@@ -16,8 +16,8 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         public static global::System.IDisposable BindCommand(
             this global::TestApp.MyView view,
             global::TestApp.MyViewModel? viewModel,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::TestApp.MyViewModel, global::System.Windows.Input.ICommand?>> propertyName,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::TestApp.MyView, global::TestApp.CommandButton>> controlName,
+            global::System.Func<global::TestApp.MyViewModel, global::System.Windows.Input.ICommand?> propertyName,
+            global::System.Func<global::TestApp.MyView, global::TestApp.CommandButton> controlName,
             string? toEvent = null,
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("propertyName")] string propertyNameExpression = "",
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("controlName")] string controlNameExpression = "",

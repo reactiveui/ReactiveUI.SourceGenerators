@@ -78,7 +78,7 @@ public static class SliceExamples
     {
         TodoItem item = new() { Title = DraftTitle };
 
-        using IDisposable subscription = item.WhenChanged(x => x.Title)
+        using IDisposable subscription = item.WhenChanged(static x => x.Title)
             .Skip(1)
             .Slice(EditsPerSlice)
             .SelectMany(static slice => slice.ToList())
@@ -98,7 +98,7 @@ public static class SliceExamples
     {
         TodoItem item = new() { Title = DraftTitle };
 
-        using IDisposable subscription = item.WhenChanged(x => x.Title)
+        using IDisposable subscription = item.WhenChanged(static x => x.Title)
             .Slice(EditsPerPair, EditsBetweenSlices)
             .SelectMany(static slice => slice.ToList())
             .Subscribe(static pair => Console.WriteLine(string.Join(" -> ", pair)));
@@ -119,7 +119,7 @@ public static class SliceExamples
         VirtualClock clock = new();
         TransferDraft draft = new();
 
-        using IDisposable subscription = draft.WhenChanged(x => x.Amount)
+        using IDisposable subscription = draft.WhenChanged(static x => x.Amount)
             .Skip(1)
             .Slice(_sliceLength, clock)
             .SelectMany(static slice => slice.ToList())
@@ -143,7 +143,7 @@ public static class SliceExamples
         VirtualClock clock = new();
         TransferDraft draft = new();
 
-        using IDisposable subscription = draft.WhenChanged(x => x.Amount)
+        using IDisposable subscription = draft.WhenChanged(static x => x.Amount)
             .Skip(1)
             .Slice(_sliceLength, EditsPerSlice, clock)
             .SelectMany(static slice => slice.ToList())
@@ -166,7 +166,7 @@ public static class SliceExamples
         VirtualClock clock = new();
         TransferDraft draft = new();
 
-        using IDisposable subscription = draft.WhenChanged(x => x.Amount)
+        using IDisposable subscription = draft.WhenChanged(static x => x.Amount)
             .Skip(1)
             .Slice(_sliceLength, _sliceShift, clock)
             .SelectMany(static slice => slice.ToList())
@@ -189,7 +189,7 @@ public static class SliceExamples
         VirtualClock clock = new();
         TodoItem item = new();
 
-        using IDisposable subscription = item.WhenChanged(x => x.Notes)
+        using IDisposable subscription = item.WhenChanged(static x => x.Notes)
             .Skip(1)
             .Slice(Signal.Every(_autosaveInterval, clock))
             .SelectMany(static slice => slice.ToList())
@@ -211,9 +211,9 @@ public static class SliceExamples
     {
         TodoItem item = new() { Title = DraftTitle };
 
-        using IDisposable subscription = item.WhenChanged(x => x.Title)
+        using IDisposable subscription = item.WhenChanged(static x => x.Title)
             .Skip(1)
-            .Slice(() => item.WhenChanged(x => x.IsDone).Skip(1))
+            .Slice(() => item.WhenChanged(static x => x.IsDone).Skip(1))
             .SelectMany(static slice => slice.ToList())
             .Subscribe(static titles => Console.WriteLine(string.Join(Separator, titles)));
 
@@ -232,11 +232,11 @@ public static class SliceExamples
     public static void SliceEditsWhileTheTaskIsUrgent()
     {
         TodoItem item = new() { Title = DraftTitle };
-        IObservable<TodoPriority> becameUrgent = item.WhenChanged(x => x.Priority).Where(static priority => priority == TodoPriority.High);
+        IObservable<TodoPriority> becameUrgent = item.WhenChanged(static x => x.Priority).Where(static priority => priority == TodoPriority.High);
 
-        using IDisposable subscription = item.WhenChanged(x => x.Title)
+        using IDisposable subscription = item.WhenChanged(static x => x.Title)
             .Skip(1)
-            .Slice(becameUrgent, _ => item.WhenChanged(x => x.Priority).Where(static priority => priority != TodoPriority.High))
+            .Slice(becameUrgent, _ => item.WhenChanged(static x => x.Priority).Where(static priority => priority != TodoPriority.High))
             .SelectMany(static slice => slice.ToList())
             .Subscribe(static titles => Console.WriteLine(string.Join(Separator, titles)));
 

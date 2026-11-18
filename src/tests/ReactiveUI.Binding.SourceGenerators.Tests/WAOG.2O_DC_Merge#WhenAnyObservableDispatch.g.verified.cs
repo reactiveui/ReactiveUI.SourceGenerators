@@ -14,8 +14,8 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         /// </summary>
         public static global::System.IObservable<string> WhenAnyObservable(
             this global::SharedScenarios.WhenAnyObservable.DeepObservableMerge.ParentViewModel objectToMonitor,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.WhenAnyObservable.DeepObservableMerge.ParentViewModel, global::System.IObservable<string>?>> obs1,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.WhenAnyObservable.DeepObservableMerge.ParentViewModel, global::System.IObservable<string>?>> obs2,
+            global::System.Func<global::SharedScenarios.WhenAnyObservable.DeepObservableMerge.ParentViewModel, global::System.IObservable<string>?> obs1,
+            global::System.Func<global::SharedScenarios.WhenAnyObservable.DeepObservableMerge.ParentViewModel, global::System.IObservable<string>?> obs2,
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("obs1")] string obs1Expression = "",
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("obs2")] string obs2Expression = "",
             [global::System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "",

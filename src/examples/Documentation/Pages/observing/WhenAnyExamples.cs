@@ -125,7 +125,7 @@ public static class WhenAnyExamples
     {
         TodoItem item = CreateRegistrationTask();
 
-        using IDisposable subscription = item.WhenAny(x => x.Title, static change => change).Subscribe(static change => Console.WriteLine(change.Value));
+        using IDisposable subscription = item.WhenAny(static x => x.Title, static change => change).Subscribe(static change => Console.WriteLine(change.Value));
 
         item.Title = RenamedTitle;
 
@@ -139,7 +139,7 @@ public static class WhenAnyExamples
     {
         TodoItem item = CreateRegistrationTask();
 
-        using IDisposable subscription = item.WhenAny(x => x.Title, static title => title.Value.Length).Subscribe(Console.WriteLine);
+        using IDisposable subscription = item.WhenAny(static x => x.Title, static title => title.Value.Length).Subscribe(Console.WriteLine);
 
         item.Title = RenamedTitle;
 
@@ -154,7 +154,7 @@ public static class WhenAnyExamples
         TodoItem item = CreateRegistrationTask();
 
         using IDisposable subscription = item
-            .WhenAny(x => x.Title, x => x.IsDone, static (title, isDone) => (isDone.Value ? DoneMark : OpenMark) + title.Value)
+            .WhenAny(static x => x.Title, static x => x.IsDone, static (title, isDone) => (isDone.Value ? DoneMark : OpenMark) + title.Value)
             .Subscribe(Console.WriteLine);
 
         item.IsDone = true;
@@ -170,7 +170,7 @@ public static class WhenAnyExamples
         TodoItem item = CreateRegistrationTask();
 
         using IDisposable subscription = item
-            .WhenAny(x => x.Title, x => x.IsDone, x => x.Priority, static (_, isDone, priority) => isDone.Value ? TodoPriority.Low : priority.Value)
+            .WhenAny(static x => x.Title, static x => x.IsDone, static x => x.Priority, static (_, isDone, priority) => isDone.Value ? TodoPriority.Low : priority.Value)
             .Subscribe(static priority => Console.WriteLine(priority));
 
         item.Priority = TodoPriority.High;
@@ -189,10 +189,10 @@ public static class WhenAnyExamples
 
         using IDisposable subscription = item
             .WhenAny(
-                x => x.Title,
-                x => x.Notes,
-                x => x.IsDone,
-                x => x.DueDate,
+                static x => x.Title,
+                static x => x.Notes,
+                static x => x.IsDone,
+                static x => x.DueDate,
                 static (title, _, isDone, due) =>
                     due.Value is { } day && !isDone.Value ? $"{title.Value} due {day.ToString(IsoDay, CultureInfo.InvariantCulture)}" : title.Value)
             .Subscribe(Console.WriteLine);
@@ -211,11 +211,11 @@ public static class WhenAnyExamples
 
         using IDisposable subscription = item
             .WhenAny(
-                x => x.Title,
-                x => x.Notes,
-                x => x.IsDone,
-                x => x.DueDate,
-                x => x.Priority,
+                static x => x.Title,
+                static x => x.Notes,
+                static x => x.IsDone,
+                static x => x.DueDate,
+                static x => x.Priority,
                 static (_, _, isDone, due, priority) => !isDone.Value && due.Value is not null && priority.Value == TodoPriority.High)
             .Subscribe(Console.WriteLine);
 
@@ -233,12 +233,12 @@ public static class WhenAnyExamples
 
         using IDisposable subscription = item
             .WhenAny(
-                x => x.Title,
-                x => x.Notes,
-                x => x.IsDone,
-                x => x.DueDate,
-                x => x.Priority,
-                x => x.Tags,
+                static x => x.Title,
+                static x => x.Notes,
+                static x => x.IsDone,
+                static x => x.DueDate,
+                static x => x.Priority,
+                static x => x.Tags,
                 static (title, _, _, _, _, tags) => $"{title.Value} #{string.Join(" #", tags.Value)}")
             .Subscribe(Console.WriteLine);
 
@@ -256,13 +256,13 @@ public static class WhenAnyExamples
 
         using IDisposable subscription = item
             .WhenAny(
-                x => x.Id,
-                x => x.Title,
-                x => x.Notes,
-                x => x.IsDone,
-                x => x.DueDate,
-                x => x.Priority,
-                x => x.Tags,
+                static x => x.Id,
+                static x => x.Title,
+                static x => x.Notes,
+                static x => x.IsDone,
+                static x => x.DueDate,
+                static x => x.Priority,
+                static x => x.Tags,
                 static (id, title, _, isDone, _, _, _) => $"{(isDone.Value ? DoneMark : OpenMark)}{id.Value}: {title.Value}")
             .Subscribe(Console.WriteLine);
 
@@ -282,14 +282,14 @@ public static class WhenAnyExamples
 
         using IDisposable subscription = draft
             .WhenAny(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.Source!.Name,
-                x => x.Source!.Currency,
-                x => x.Source!.Balance,
-                x => x.Source!.OverdraftLimit,
-                x => x.Source!.AvailableBalance,
-                x => x.Payee!,
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.Source!.Name,
+                static x => x.Source!.Currency,
+                static x => x.Source!.Balance,
+                static x => x.Source!.OverdraftLimit,
+                static x => x.Source!.AvailableBalance,
+                static x => x.Payee!,
                 static (amount, _, _, _, _, _, available, _) => available.Value - amount.Value)
             .Subscribe(Console.WriteLine);
 
@@ -307,15 +307,15 @@ public static class WhenAnyExamples
 
         using IDisposable subscription = draft
             .WhenAny(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.Source!.Name,
-                x => x.Source!.Currency,
-                x => x.Source!.Balance,
-                x => x.Source!.OverdraftLimit,
-                x => x.Source!.AvailableBalance,
-                x => x.Payee!,
-                x => x.Source!.Id,
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.Source!.Name,
+                static x => x.Source!.Currency,
+                static x => x.Source!.Balance,
+                static x => x.Source!.OverdraftLimit,
+                static x => x.Source!.AvailableBalance,
+                static x => x.Payee!,
+                static x => x.Source!.Id,
                 static (amount, _, _, _, _, _, available, payee, _) => amount.Value <= available.Value && payee.Value.AccountNumber.Length > 0)
             .Subscribe(Console.WriteLine);
 
@@ -333,16 +333,16 @@ public static class WhenAnyExamples
 
         using IDisposable subscription = draft
             .WhenAny(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.Source!.Name,
-                x => x.Source!.Currency,
-                x => x.Source!.Balance,
-                x => x.Source!.OverdraftLimit,
-                x => x.Source!.AvailableBalance,
-                x => x.Payee!,
-                x => x.Source!.Id,
-                x => x.Source!.Kind,
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.Source!.Name,
+                static x => x.Source!.Currency,
+                static x => x.Source!.Balance,
+                static x => x.Source!.OverdraftLimit,
+                static x => x.Source!.AvailableBalance,
+                static x => x.Payee!,
+                static x => x.Source!.Id,
+                static x => x.Source!.Kind,
                 static (amount, _, _, _, _, _, available, payee, _, _) =>
                     amount.Value <= available.Value && (payee.Value.TransferLimit is not { } max || amount.Value <= max))
             .Subscribe(Console.WriteLine);
@@ -361,17 +361,17 @@ public static class WhenAnyExamples
 
         using IDisposable subscription = draft
             .WhenAny(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.Source!.Name,
-                x => x.Source!.Currency,
-                x => x.Source!.Balance,
-                x => x.Source!.OverdraftLimit,
-                x => x.Source!.AvailableBalance,
-                x => x.Payee!,
-                x => x.Source!.Id,
-                x => x.Source!.Kind,
-                x => x.Source!,
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.Source!.Name,
+                static x => x.Source!.Currency,
+                static x => x.Source!.Balance,
+                static x => x.Source!.OverdraftLimit,
+                static x => x.Source!.AvailableBalance,
+                static x => x.Payee!,
+                static x => x.Source!.Id,
+                static x => x.Source!.Kind,
+                static x => x.Source!,
                 static (_, reference, _, _, _, _, _, payee, sourceId, _, _) => $"{sourceId.Value} -> {payee.Value.Name}: {reference.Value}")
             .Subscribe(Console.WriteLine);
 
@@ -394,18 +394,18 @@ public static class WhenAnyExamples
 
         using IDisposable subscription = screen
             .WhenAny(
-                x => x.Draft.Amount,
-                x => x.Draft.Reference,
-                x => x.Draft.Source!.Name,
-                x => x.Draft.Source!.Currency,
-                x => x.Draft.Source!.Balance,
-                x => x.Draft.Source!.OverdraftLimit,
-                x => x.Draft.Source!.AvailableBalance,
-                x => x.Draft.Payee!,
-                x => x.Draft.Source!.Id,
-                x => x.Draft.Source!.Kind,
-                x => x.IsValid,
-                x => x.ErrorMessage,
+                static x => x.Draft.Amount,
+                static x => x.Draft.Reference,
+                static x => x.Draft.Source!.Name,
+                static x => x.Draft.Source!.Currency,
+                static x => x.Draft.Source!.Balance,
+                static x => x.Draft.Source!.OverdraftLimit,
+                static x => x.Draft.Source!.AvailableBalance,
+                static x => x.Draft.Payee!,
+                static x => x.Draft.Source!.Id,
+                static x => x.Draft.Source!.Kind,
+                static x => x.IsValid,
+                static x => x.ErrorMessage,
                 static (amount, _, _, _, _, _, available, _, _, kind, _, _) => kind.Value == AccountKind.Savings || amount.Value > available.Value)
             .Subscribe(Console.WriteLine);
 
@@ -423,7 +423,7 @@ public static class WhenAnyExamples
         IssueSearchViewModel viewModel = new(server, Webshop) { SearchTerm = FirstIssueNumber };
 
         using IDisposable subscription = viewModel
-            .WhenAny(x => x.SearchTerm, static term => int.Parse(term.Value, CultureInfo.InvariantCulture))
+            .WhenAny(static x => x.SearchTerm, static term => int.Parse(term.Value, CultureInfo.InvariantCulture))
             .Catch<int, FormatException>(static _ => Signal.Return(NotANumber))
             .Subscribe(Console.WriteLine);
 
@@ -446,7 +446,7 @@ public static class WhenAnyExamples
         IssueSearchViewModel viewModel = new(server, Webshop) { SearchTerm = FirstIssueNumber };
 
         using IDisposable subscription = viewModel
-            .WhenAny(x => x.SearchTerm, static term => int.TryParse(term.Value, CultureInfo.InvariantCulture, out var number) ? number : NotANumber)
+            .WhenAny(static x => x.SearchTerm, static term => int.TryParse(term.Value, CultureInfo.InvariantCulture, out var number) ? number : NotANumber)
             .Subscribe(Console.WriteLine);
 
         viewModel.SearchTerm = SecondIssueNumber;

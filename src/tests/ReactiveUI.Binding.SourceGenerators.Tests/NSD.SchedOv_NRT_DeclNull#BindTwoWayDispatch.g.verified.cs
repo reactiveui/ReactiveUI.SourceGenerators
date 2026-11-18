@@ -16,8 +16,8 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         public static global::System.IDisposable BindTwoWay(
             this global::NullableSchedulerProbe.ProbeViewModel source,
             global::NullableSchedulerProbe.ProbeView target,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::NullableSchedulerProbe.ProbeViewModel, string?>> sourceProperty,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::NullableSchedulerProbe.ProbeView, string?>> targetProperty,
+            global::System.Func<global::NullableSchedulerProbe.ProbeViewModel, string?> sourceProperty,
+            global::System.Func<global::NullableSchedulerProbe.ProbeView, string?> targetProperty,
             global::ReactiveUI.Primitives.Concurrency.ISequencer? scheduler,
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("sourceProperty")] string sourcePropertyExpression = "",
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("targetProperty")] string targetPropertyExpression = "",
@@ -219,8 +219,8 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         public static global::System.IDisposable BindTwoWay(
             this global::NullableSchedulerProbe.ProbeViewModel source,
             global::NullableSchedulerProbe.ProbeView target,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::NullableSchedulerProbe.ProbeViewModel, string?>> sourceProperty,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::NullableSchedulerProbe.ProbeView, string?>> targetProperty,
+            global::System.Func<global::NullableSchedulerProbe.ProbeViewModel, string?> sourceProperty,
+            global::System.Func<global::NullableSchedulerProbe.ProbeView, string?> targetProperty,
             global::System.Func<string, string> sourceToTargetConv,
             global::System.Func<string, string> targetToSourceConv,
             global::ReactiveUI.Primitives.Concurrency.ISequencer? scheduler,

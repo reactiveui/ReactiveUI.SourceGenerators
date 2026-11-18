@@ -184,7 +184,7 @@ public static class WhenChangingExamples
     {
         TodoItemDraft item = CreateRegistrationTask();
 
-        using IDisposable subscription = item.WhenChanging(x => x.Title).Subscribe(Console.WriteLine);
+        using IDisposable subscription = item.WhenChanging(static x => x.Title).Subscribe(Console.WriteLine);
 
         item.Title = RenamedTitle;
 
@@ -201,7 +201,7 @@ public static class WhenChangingExamples
     {
         TodoItemDraft item = CreateRegistrationTask();
 
-        using IDisposable subscription = item.WhenChanging(x => x.Title, x => x.IsDone).Subscribe(static values => Console.WriteLine(values.Property2));
+        using IDisposable subscription = item.WhenChanging(static x => x.Title, static x => x.IsDone).Subscribe(static values => Console.WriteLine(values.Property2));
 
         item.IsDone = true;
 
@@ -219,7 +219,7 @@ public static class WhenChangingExamples
         TodoItemDraft item = CreateRegistrationTask();
 
         using IDisposable subscription = item
-            .WhenChanging(x => x.Title, x => x.IsDone, static (title, isDone) => $"{title} ({(isDone ? DoneText : OpenText)})")
+            .WhenChanging(static x => x.Title, static x => x.IsDone, static (title, isDone) => $"{title} ({(isDone ? DoneText : OpenText)})")
             .Subscribe(Console.WriteLine);
 
         item.IsDone = true;
@@ -235,7 +235,7 @@ public static class WhenChangingExamples
         TodoItemDraft item = CreateRegistrationTask();
 
         using IDisposable subscription = item
-            .WhenChanging(x => x.Title, x => x.IsDone, x => x.Priority)
+            .WhenChanging(static x => x.Title, static x => x.IsDone, static x => x.Priority)
             .Subscribe(static values => Console.WriteLine(values.Property3));
 
         item.Priority = TodoPriority.High;
@@ -254,7 +254,7 @@ public static class WhenChangingExamples
         TodoItemDraft item = CreateRegistrationTask();
 
         using IDisposable subscription = item
-            .WhenChanging(x => x.Title, x => x.IsDone, x => x.Priority, static (_, isDone, priority) => isDone ? TodoPriority.Low : priority)
+            .WhenChanging(static x => x.Title, static x => x.IsDone, static x => x.Priority, static (_, isDone, priority) => isDone ? TodoPriority.Low : priority)
             .Subscribe(static priority => Console.WriteLine(priority));
 
         item.Priority = TodoPriority.High;
@@ -270,7 +270,7 @@ public static class WhenChangingExamples
         TodoItemDraft item = CreateRegistrationTask();
 
         using IDisposable subscription = item
-            .WhenChanging(x => x.Title, x => x.Notes, x => x.IsDone, x => x.DueDate)
+            .WhenChanging(static x => x.Title, static x => x.Notes, static x => x.IsDone, static x => x.DueDate)
             .Subscribe(static values => Console.WriteLine(values.Property4));
 
         item.DueDate = _movedDue;
@@ -290,10 +290,10 @@ public static class WhenChangingExamples
 
         using IDisposable subscription = item
             .WhenChanging(
-                x => x.Title,
-                x => x.Notes,
-                x => x.IsDone,
-                x => x.DueDate,
+                static x => x.Title,
+                static x => x.Notes,
+                static x => x.IsDone,
+                static x => x.DueDate,
                 static (title, _, isDone, due) => isDone || due is null ? title : $"{title} due {due.Value.ToString(IsoDay, CultureInfo.InvariantCulture)}")
             .Subscribe(Console.WriteLine);
 
@@ -310,7 +310,7 @@ public static class WhenChangingExamples
         TodoItemDraft item = CreateRegistrationTask();
 
         using IDisposable subscription = item
-            .WhenChanging(x => x.Title, x => x.Notes, x => x.IsDone, x => x.DueDate, x => x.Priority)
+            .WhenChanging(static x => x.Title, static x => x.Notes, static x => x.IsDone, static x => x.DueDate, static x => x.Priority)
             .Subscribe(static values => Console.WriteLine(values.Property5));
 
         item.Priority = TodoPriority.High;
@@ -332,11 +332,11 @@ public static class WhenChangingExamples
 
         using IDisposable subscription = item
             .WhenChanging(
-                x => x.Title,
-                x => x.Notes,
-                x => x.IsDone,
-                x => x.DueDate,
-                x => x.Priority,
+                static x => x.Title,
+                static x => x.Notes,
+                static x => x.IsDone,
+                static x => x.DueDate,
+                static x => x.Priority,
                 static (_, _, isDone, due, priority) => !isDone && due is not null && priority == TodoPriority.High)
             .Subscribe(Console.WriteLine);
 
@@ -353,7 +353,7 @@ public static class WhenChangingExamples
         TodoItemDraft item = CreateRegistrationTask();
 
         using IDisposable subscription = item
-            .WhenChanging(x => x.Title, x => x.Notes, x => x.IsDone, x => x.DueDate, x => x.Priority, x => x.Tags)
+            .WhenChanging(static x => x.Title, static x => x.Notes, static x => x.IsDone, static x => x.DueDate, static x => x.Priority, static x => x.Tags)
             .Subscribe(static values => Console.WriteLine(string.Join(", ", values.Property6)));
 
         item.Tags = _urgentTags;
@@ -373,12 +373,12 @@ public static class WhenChangingExamples
 
         using IDisposable subscription = item
             .WhenChanging(
-                x => x.Title,
-                x => x.Notes,
-                x => x.IsDone,
-                x => x.DueDate,
-                x => x.Priority,
-                x => x.Tags,
+                static x => x.Title,
+                static x => x.Notes,
+                static x => x.IsDone,
+                static x => x.DueDate,
+                static x => x.Priority,
+                static x => x.Tags,
                 static (title, _, _, _, _, tags) => $"{title} #{string.Join(" #", tags)}")
             .Subscribe(Console.WriteLine);
 
@@ -395,7 +395,7 @@ public static class WhenChangingExamples
         IssueDraft issue = CreateCheckoutIssue();
 
         using IDisposable subscription = issue
-            .WhenChanging(x => x.Number, x => x.Title, x => x.State, x => x.Author, x => x.Assignee!, x => x.Labels, x => x.UpdatedAt)
+            .WhenChanging(static x => x.Number, static x => x.Title, static x => x.State, static x => x.Author, static x => x.Assignee!, static x => x.Labels, static x => x.UpdatedAt)
             .Subscribe(static values => Console.WriteLine(values.Property7));
 
         issue.UpdatedAt = _repliedAt;
@@ -415,13 +415,13 @@ public static class WhenChangingExamples
 
         using IDisposable subscription = issue
             .WhenChanging(
-                x => x.Number,
-                x => x.Title,
-                x => x.State,
-                x => x.Author,
-                x => x.Assignee!,
-                x => x.Labels,
-                x => x.UpdatedAt,
+                static x => x.Number,
+                static x => x.Title,
+                static x => x.State,
+                static x => x.Author,
+                static x => x.Assignee!,
+                static x => x.Labels,
+                static x => x.UpdatedAt,
                 static (number, title, _, _, assignee, _, _) => $"#{number} {title} -> {assignee?.Login ?? Unassigned}")
             .Subscribe(Console.WriteLine);
 
@@ -441,7 +441,15 @@ public static class WhenChangingExamples
         IssueDraft issue = CreateCheckoutIssue();
 
         using IDisposable subscription = issue
-            .WhenChanging(x => x.Number, x => x.Title, x => x.State, x => x.Author, x => x.Assignee!, x => x.Labels, x => x.UpdatedAt, x => x.Comments)
+            .WhenChanging(
+                static x => x.Number,
+                static x => x.Title,
+                static x => x.State,
+                static x => x.Author,
+                static x => x.Assignee!,
+                static x => x.Labels,
+                static x => x.UpdatedAt,
+                static x => x.Comments)
             .Subscribe(static values => Console.WriteLine(values.Property8.Count));
 
         issue.Comments = _firstReply;
@@ -461,14 +469,14 @@ public static class WhenChangingExamples
 
         using IDisposable subscription = issue
             .WhenChanging(
-                x => x.Number,
-                x => x.Title,
-                x => x.State,
-                x => x.Author,
-                x => x.Assignee!,
-                x => x.Labels,
-                x => x.UpdatedAt,
-                x => x.Comments,
+                static x => x.Number,
+                static x => x.Title,
+                static x => x.State,
+                static x => x.Author,
+                static x => x.Assignee!,
+                static x => x.Labels,
+                static x => x.UpdatedAt,
+                static x => x.Comments,
                 static (_, _, state, _, _, _, _, comments) => state == IssueState.Open && comments.Count == 0)
             .Subscribe(Console.WriteLine);
 
@@ -486,15 +494,15 @@ public static class WhenChangingExamples
 
         using IDisposable subscription = form
             .WhenChanging(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance,
-                x => x.OverdraftLimit,
-                x => x.AvailableBalance)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance,
+                static x => x.OverdraftLimit,
+                static x => x.AvailableBalance)
             .Subscribe(static values => Console.WriteLine(values.Property9));
 
         form.AvailableBalance = EverydayBalance;
@@ -514,15 +522,15 @@ public static class WhenChangingExamples
 
         using IDisposable subscription = form
             .WhenChanging(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance,
-                x => x.OverdraftLimit,
-                x => x.AvailableBalance,
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance,
+                static x => x.OverdraftLimit,
+                static x => x.AvailableBalance,
                 static (amount, _, _, _, _, _, _, _, available) => amount <= available)
             .Subscribe(Console.WriteLine);
 
@@ -540,16 +548,16 @@ public static class WhenChangingExamples
 
         using IDisposable subscription = form
             .WhenChanging(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance,
-                x => x.OverdraftLimit,
-                x => x.AvailableBalance,
-                x => x.Payee!)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance,
+                static x => x.OverdraftLimit,
+                static x => x.AvailableBalance,
+                static x => x.Payee!)
             .Subscribe(static values => Console.WriteLine(values.Property10?.Name));
 
         form.Payee = _strata;
@@ -569,16 +577,16 @@ public static class WhenChangingExamples
 
         using IDisposable subscription = form
             .WhenChanging(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance,
-                x => x.OverdraftLimit,
-                x => x.AvailableBalance,
-                x => x.Payee!,
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance,
+                static x => x.OverdraftLimit,
+                static x => x.AvailableBalance,
+                static x => x.Payee!,
                 static (amount, _, _, _, _, _, _, _, available, payee) =>
                     payee is not null && amount <= available && (payee.TransferLimit is not { } limit || amount <= limit))
             .Subscribe(Console.WriteLine);
@@ -597,17 +605,17 @@ public static class WhenChangingExamples
 
         using IDisposable subscription = form
             .WhenChanging(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance,
-                x => x.OverdraftLimit,
-                x => x.AvailableBalance,
-                x => x.Payee!,
-                x => x.ScheduledFor)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance,
+                static x => x.OverdraftLimit,
+                static x => x.AvailableBalance,
+                static x => x.Payee!,
+                static x => x.ScheduledFor)
             .Subscribe(static values => Console.WriteLine(values.Property11));
 
         form.ScheduledFor = _rescheduledFor;
@@ -627,17 +635,17 @@ public static class WhenChangingExamples
 
         using IDisposable subscription = form
             .WhenChanging(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance,
-                x => x.OverdraftLimit,
-                x => x.AvailableBalance,
-                x => x.Payee!,
-                x => x.ScheduledFor,
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance,
+                static x => x.OverdraftLimit,
+                static x => x.AvailableBalance,
+                static x => x.Payee!,
+                static x => x.ScheduledFor,
                 static (_, reference, _, _, _, _, _, _, _, _, scheduledFor) => $"{reference} on {scheduledFor.ToString(IsoDay, CultureInfo.InvariantCulture)}")
             .Subscribe(Console.WriteLine);
 
@@ -655,18 +663,18 @@ public static class WhenChangingExamples
 
         using IDisposable subscription = form
             .WhenChanging(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance,
-                x => x.OverdraftLimit,
-                x => x.AvailableBalance,
-                x => x.Payee!,
-                x => x.ScheduledFor,
-                x => x.IsRecurring)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance,
+                static x => x.OverdraftLimit,
+                static x => x.AvailableBalance,
+                static x => x.Payee!,
+                static x => x.ScheduledFor,
+                static x => x.IsRecurring)
             .Subscribe(static values => Console.WriteLine(values.Property12));
 
         form.IsRecurring = false;
@@ -686,18 +694,18 @@ public static class WhenChangingExamples
 
         using IDisposable subscription = form
             .WhenChanging(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance,
-                x => x.OverdraftLimit,
-                x => x.AvailableBalance,
-                x => x.Payee!,
-                x => x.ScheduledFor,
-                x => x.IsRecurring,
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance,
+                static x => x.OverdraftLimit,
+                static x => x.AvailableBalance,
+                static x => x.Payee!,
+                static x => x.ScheduledFor,
+                static x => x.IsRecurring,
                 static (_, reference, _, _, _, _, _, _, _, _, _, isRecurring) => $"{reference} ({(isRecurring ? MonthlyText : OnceText)})")
             .Subscribe(Console.WriteLine);
 
@@ -715,19 +723,19 @@ public static class WhenChangingExamples
 
         using IDisposable subscription = form
             .WhenChanging(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance,
-                x => x.OverdraftLimit,
-                x => x.AvailableBalance,
-                x => x.Payee!,
-                x => x.ScheduledFor,
-                x => x.IsRecurring,
-                x => x.NotifyPayee)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance,
+                static x => x.OverdraftLimit,
+                static x => x.AvailableBalance,
+                static x => x.Payee!,
+                static x => x.ScheduledFor,
+                static x => x.IsRecurring,
+                static x => x.NotifyPayee)
             .Subscribe(static values => Console.WriteLine(values.Property13));
 
         form.NotifyPayee = false;
@@ -747,19 +755,19 @@ public static class WhenChangingExamples
 
         using IDisposable subscription = form
             .WhenChanging(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance,
-                x => x.OverdraftLimit,
-                x => x.AvailableBalance,
-                x => x.Payee!,
-                x => x.ScheduledFor,
-                x => x.IsRecurring,
-                x => x.NotifyPayee,
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance,
+                static x => x.OverdraftLimit,
+                static x => x.AvailableBalance,
+                static x => x.Payee!,
+                static x => x.ScheduledFor,
+                static x => x.IsRecurring,
+                static x => x.NotifyPayee,
                 static (_, _, _, _, _, _, _, _, _, payee, _, _, notifyPayee) => notifyPayee && payee is not null)
             .Subscribe(Console.WriteLine);
 
@@ -777,20 +785,20 @@ public static class WhenChangingExamples
 
         using IDisposable subscription = form
             .WhenChanging(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance,
-                x => x.OverdraftLimit,
-                x => x.AvailableBalance,
-                x => x.Payee!,
-                x => x.ScheduledFor,
-                x => x.IsRecurring,
-                x => x.NotifyPayee,
-                x => x.Memo)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance,
+                static x => x.OverdraftLimit,
+                static x => x.AvailableBalance,
+                static x => x.Payee!,
+                static x => x.ScheduledFor,
+                static x => x.IsRecurring,
+                static x => x.NotifyPayee,
+                static x => x.Memo)
             .Subscribe(static values => Console.WriteLine(values.Property14));
 
         form.Memo = MemoRevised;
@@ -810,20 +818,20 @@ public static class WhenChangingExamples
 
         using IDisposable subscription = form
             .WhenChanging(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance,
-                x => x.OverdraftLimit,
-                x => x.AvailableBalance,
-                x => x.Payee!,
-                x => x.ScheduledFor,
-                x => x.IsRecurring,
-                x => x.NotifyPayee,
-                x => x.Memo,
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance,
+                static x => x.OverdraftLimit,
+                static x => x.AvailableBalance,
+                static x => x.Payee!,
+                static x => x.ScheduledFor,
+                static x => x.IsRecurring,
+                static x => x.NotifyPayee,
+                static x => x.Memo,
                 static (_, reference, _, _, _, _, _, _, _, _, _, _, _, memo) => memo.Length > 0 ? memo : reference)
             .Subscribe(Console.WriteLine);
 
@@ -841,21 +849,21 @@ public static class WhenChangingExamples
 
         using IDisposable subscription = form
             .WhenChanging(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance,
-                x => x.OverdraftLimit,
-                x => x.AvailableBalance,
-                x => x.Payee!,
-                x => x.ScheduledFor,
-                x => x.IsRecurring,
-                x => x.NotifyPayee,
-                x => x.Memo,
-                x => x.Purpose)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance,
+                static x => x.OverdraftLimit,
+                static x => x.AvailableBalance,
+                static x => x.Payee!,
+                static x => x.ScheduledFor,
+                static x => x.IsRecurring,
+                static x => x.NotifyPayee,
+                static x => x.Memo,
+                static x => x.Purpose)
             .Subscribe(static values => Console.WriteLine(values.Property15));
 
         form.Purpose = PurposeRevised;
@@ -875,21 +883,21 @@ public static class WhenChangingExamples
 
         using IDisposable subscription = form
             .WhenChanging(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance,
-                x => x.OverdraftLimit,
-                x => x.AvailableBalance,
-                x => x.Payee!,
-                x => x.ScheduledFor,
-                x => x.IsRecurring,
-                x => x.NotifyPayee,
-                x => x.Memo,
-                x => x.Purpose,
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance,
+                static x => x.OverdraftLimit,
+                static x => x.AvailableBalance,
+                static x => x.Payee!,
+                static x => x.ScheduledFor,
+                static x => x.IsRecurring,
+                static x => x.NotifyPayee,
+                static x => x.Memo,
+                static x => x.Purpose,
                 static (_, reference, _, _, _, _, _, _, _, _, _, _, _, _, purpose) => $"{purpose}: {reference}")
             .Subscribe(Console.WriteLine);
 
@@ -907,22 +915,22 @@ public static class WhenChangingExamples
 
         using IDisposable subscription = form
             .WhenChanging(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance,
-                x => x.OverdraftLimit,
-                x => x.AvailableBalance,
-                x => x.Payee!,
-                x => x.ScheduledFor,
-                x => x.IsRecurring,
-                x => x.NotifyPayee,
-                x => x.Memo,
-                x => x.Purpose,
-                x => x.Fee)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance,
+                static x => x.OverdraftLimit,
+                static x => x.AvailableBalance,
+                static x => x.Payee!,
+                static x => x.ScheduledFor,
+                static x => x.IsRecurring,
+                static x => x.NotifyPayee,
+                static x => x.Memo,
+                static x => x.Purpose,
+                static x => x.Fee)
             .Subscribe(static values => Console.WriteLine(values.Property16));
 
         form.Fee = 0M;
@@ -942,22 +950,22 @@ public static class WhenChangingExamples
 
         using IDisposable subscription = form
             .WhenChanging(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance,
-                x => x.OverdraftLimit,
-                x => x.AvailableBalance,
-                x => x.Payee!,
-                x => x.ScheduledFor,
-                x => x.IsRecurring,
-                x => x.NotifyPayee,
-                x => x.Memo,
-                x => x.Purpose,
-                x => x.Fee,
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance,
+                static x => x.OverdraftLimit,
+                static x => x.AvailableBalance,
+                static x => x.Payee!,
+                static x => x.ScheduledFor,
+                static x => x.IsRecurring,
+                static x => x.NotifyPayee,
+                static x => x.Memo,
+                static x => x.Purpose,
+                static x => x.Fee,
                 static (amount, _, _, _, _, _, _, _, available, _, _, _, _, _, _, fee) => amount + fee <= available)
             .Subscribe(Console.WriteLine);
 

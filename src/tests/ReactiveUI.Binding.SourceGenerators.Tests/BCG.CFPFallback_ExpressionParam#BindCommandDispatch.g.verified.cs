@@ -16,9 +16,9 @@ namespace ReactiveUI.Binding
         public static global::System.IDisposable BindCommand(
             this global::SharedScenarios.BindCommand.ExpressionParam.MyView view,
             global::SharedScenarios.BindCommand.ExpressionParam.MyViewModel? viewModel,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.BindCommand.ExpressionParam.MyViewModel, global::System.Windows.Input.ICommand?>> propertyName,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.BindCommand.ExpressionParam.MyView, global::SharedScenarios.BindCommand.ExpressionParam.MyButton>> controlName,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.BindCommand.ExpressionParam.MyViewModel, string?>> withParameter,
+            global::System.Func<global::SharedScenarios.BindCommand.ExpressionParam.MyViewModel, global::System.Windows.Input.ICommand?> propertyName,
+            global::System.Func<global::SharedScenarios.BindCommand.ExpressionParam.MyView, global::SharedScenarios.BindCommand.ExpressionParam.MyButton> controlName,
+            global::System.Func<global::SharedScenarios.BindCommand.ExpressionParam.MyViewModel, string?> withParameter,
             string? toEvent = null,
             string propertyNameExpression = "",
             string controlNameExpression = "",

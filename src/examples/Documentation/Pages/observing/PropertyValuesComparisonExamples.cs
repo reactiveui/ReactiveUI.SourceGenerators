@@ -47,7 +47,7 @@ public static class PropertyValuesComparisonExamples
     {
         TransferForm form = CreateTransferForm();
 
-        PropertyValues<decimal, string> values = await form.WhenChanged(x => x.Amount, x => x.Reference).FirstAsync();
+        PropertyValues<decimal, string> values = await form.WhenChanged(static x => x.Amount, static x => x.Reference).FirstAsync();
 
         string text = values.ToString();
 
@@ -65,9 +65,9 @@ public static class PropertyValuesComparisonExamples
 
         PropertyValues<decimal, string, string> values = await form
             .WhenChanged(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId)
             .FirstAsync();
         PropertyValues<decimal, string, string> copy = values with { };
         PropertyValues<decimal, string, string> edited = values with { Property1 = default };
@@ -94,10 +94,10 @@ public static class PropertyValuesComparisonExamples
 
         PropertyValues<decimal, string, string, string> values = await form
             .WhenChanged(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName)
             .FirstAsync();
         PropertyValues<decimal, string, string, string> copy = values with { };
         PropertyValues<decimal, string, string, string> edited = values with { Property1 = default };
@@ -124,11 +124,11 @@ public static class PropertyValuesComparisonExamples
 
         PropertyValues<decimal, string, string, string, AccountKind> values = await form
             .WhenChanged(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind)
             .FirstAsync();
         PropertyValues<decimal, string, string, string, AccountKind> copy = values with { };
         PropertyValues<decimal, string, string, string, AccountKind> edited = values with { Property1 = default };
@@ -155,12 +155,12 @@ public static class PropertyValuesComparisonExamples
 
         PropertyValues<decimal, string, string, string, AccountKind, string> values = await form
             .WhenChanged(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency)
             .FirstAsync();
         PropertyValues<decimal, string, string, string, AccountKind, string> copy = values with { };
         PropertyValues<decimal, string, string, string, AccountKind, string> edited = values with { Property1 = default };
@@ -187,13 +187,13 @@ public static class PropertyValuesComparisonExamples
 
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal> values = await form
             .WhenChanged(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance)
             .FirstAsync();
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal> copy = values with { };
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal> edited = values with { Property1 = default };
@@ -220,14 +220,14 @@ public static class PropertyValuesComparisonExamples
 
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal> values = await form
             .WhenChanged(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance,
-                x => x.OverdraftLimit)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance,
+                static x => x.OverdraftLimit)
             .FirstAsync();
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal> copy = values with { };
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal> edited = values with { Property1 = default };
@@ -254,15 +254,15 @@ public static class PropertyValuesComparisonExamples
 
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal, decimal> values = await form
             .WhenChanged(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance,
-                x => x.OverdraftLimit,
-                x => x.AvailableBalance)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance,
+                static x => x.OverdraftLimit,
+                static x => x.AvailableBalance)
             .FirstAsync();
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal, decimal> copy = values with { };
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal, decimal> edited = values with { Property1 = default };
@@ -289,16 +289,16 @@ public static class PropertyValuesComparisonExamples
 
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal, decimal, DateOnly> values = await form
             .WhenChanged(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance,
-                x => x.OverdraftLimit,
-                x => x.AvailableBalance,
-                x => x.ScheduledFor)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance,
+                static x => x.OverdraftLimit,
+                static x => x.AvailableBalance,
+                static x => x.ScheduledFor)
             .FirstAsync();
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal, decimal, DateOnly> copy = values with { };
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal, decimal, DateOnly> edited = values with { Property1 = default };
@@ -325,17 +325,17 @@ public static class PropertyValuesComparisonExamples
 
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal, decimal, DateOnly, bool> values = await form
             .WhenChanged(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance,
-                x => x.OverdraftLimit,
-                x => x.AvailableBalance,
-                x => x.ScheduledFor,
-                x => x.IsRecurring)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance,
+                static x => x.OverdraftLimit,
+                static x => x.AvailableBalance,
+                static x => x.ScheduledFor,
+                static x => x.IsRecurring)
             .FirstAsync();
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal, decimal, DateOnly, bool> copy = values with { };
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal, decimal, DateOnly, bool> edited = values with { Property1 = default };
@@ -362,18 +362,18 @@ public static class PropertyValuesComparisonExamples
 
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal, decimal, DateOnly, bool, bool> values = await form
             .WhenChanged(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance,
-                x => x.OverdraftLimit,
-                x => x.AvailableBalance,
-                x => x.ScheduledFor,
-                x => x.IsRecurring,
-                x => x.NotifyPayee)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance,
+                static x => x.OverdraftLimit,
+                static x => x.AvailableBalance,
+                static x => x.ScheduledFor,
+                static x => x.IsRecurring,
+                static x => x.NotifyPayee)
             .FirstAsync();
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal, decimal, DateOnly, bool, bool> copy = values with { };
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal, decimal, DateOnly, bool, bool> edited = values with { Property1 = default };
@@ -400,19 +400,19 @@ public static class PropertyValuesComparisonExamples
 
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal, decimal, DateOnly, bool, bool, string> values = await form
             .WhenChanged(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance,
-                x => x.OverdraftLimit,
-                x => x.AvailableBalance,
-                x => x.ScheduledFor,
-                x => x.IsRecurring,
-                x => x.NotifyPayee,
-                x => x.Memo)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance,
+                static x => x.OverdraftLimit,
+                static x => x.AvailableBalance,
+                static x => x.ScheduledFor,
+                static x => x.IsRecurring,
+                static x => x.NotifyPayee,
+                static x => x.Memo)
             .FirstAsync();
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal, decimal, DateOnly, bool, bool, string> copy = values with { };
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal, decimal, DateOnly, bool, bool, string> edited = values with { Property1 = default };
@@ -439,20 +439,20 @@ public static class PropertyValuesComparisonExamples
 
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal, decimal, DateOnly, bool, bool, string, string> values = await form
             .WhenChanged(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance,
-                x => x.OverdraftLimit,
-                x => x.AvailableBalance,
-                x => x.ScheduledFor,
-                x => x.IsRecurring,
-                x => x.NotifyPayee,
-                x => x.Memo,
-                x => x.Purpose)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance,
+                static x => x.OverdraftLimit,
+                static x => x.AvailableBalance,
+                static x => x.ScheduledFor,
+                static x => x.IsRecurring,
+                static x => x.NotifyPayee,
+                static x => x.Memo,
+                static x => x.Purpose)
             .FirstAsync();
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal, decimal, DateOnly, bool, bool, string, string> copy = values with { };
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal, decimal, DateOnly, bool, bool, string, string> edited = values with { Property1 = default };
@@ -479,21 +479,21 @@ public static class PropertyValuesComparisonExamples
 
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal, decimal, DateOnly, bool, bool, string, string, decimal> values = await form
             .WhenChanged(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance,
-                x => x.OverdraftLimit,
-                x => x.AvailableBalance,
-                x => x.ScheduledFor,
-                x => x.IsRecurring,
-                x => x.NotifyPayee,
-                x => x.Memo,
-                x => x.Purpose,
-                x => x.Fee)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance,
+                static x => x.OverdraftLimit,
+                static x => x.AvailableBalance,
+                static x => x.ScheduledFor,
+                static x => x.IsRecurring,
+                static x => x.NotifyPayee,
+                static x => x.Memo,
+                static x => x.Purpose,
+                static x => x.Fee)
             .FirstAsync();
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal, decimal, DateOnly, bool, bool, string, string, decimal> copy = values with { };
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal, decimal, DateOnly, bool, bool, string, string, decimal> edited = values with { Property1 = default };
@@ -520,22 +520,22 @@ public static class PropertyValuesComparisonExamples
 
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal, decimal, DateOnly, bool, bool, string, string, decimal, Payee> values = await form
             .WhenChanged(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.SourceId,
-                x => x.SourceName,
-                x => x.SourceKind,
-                x => x.Currency,
-                x => x.Balance,
-                x => x.OverdraftLimit,
-                x => x.AvailableBalance,
-                x => x.ScheduledFor,
-                x => x.IsRecurring,
-                x => x.NotifyPayee,
-                x => x.Memo,
-                x => x.Purpose,
-                x => x.Fee,
-                x => x.Payee!)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.SourceId,
+                static x => x.SourceName,
+                static x => x.SourceKind,
+                static x => x.Currency,
+                static x => x.Balance,
+                static x => x.OverdraftLimit,
+                static x => x.AvailableBalance,
+                static x => x.ScheduledFor,
+                static x => x.IsRecurring,
+                static x => x.NotifyPayee,
+                static x => x.Memo,
+                static x => x.Purpose,
+                static x => x.Fee,
+                static x => x.Payee!)
             .FirstAsync();
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal, decimal, DateOnly, bool, bool, string, string, decimal, Payee> copy = values with { };
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal, decimal, DateOnly, bool, bool, string, string, decimal, Payee> edited =

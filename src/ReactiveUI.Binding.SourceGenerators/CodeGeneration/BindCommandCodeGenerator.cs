@@ -357,8 +357,8 @@ internal static class BindCommandCodeGenerator
         _ = sb.Append("this ").Append(group.ViewTypeFullName).Line(ViewParameterSuffix)
             .Append(CodeGeneratorHelpers.NullableSelectorType(group.ViewModelTypeFullName, true, supportsNullable)).Line(" viewModel,")
             .Append(GeneratedSyntax.SelectorTypeOpen).Append(group.ViewModelTypeFullName).Append(", ")
-            .Append(commandType).Line(">> propertyName,")
-            .Append(GeneratedSyntax.SelectorTypeOpen).Append(group.ViewTypeFullName).Append(", ").Append(group.ControlTypeFullName).Line(">> controlName,");
+            .Append(commandType).Line("> propertyName,")
+            .Append(GeneratedSyntax.SelectorTypeOpen).Append(group.ViewTypeFullName).Append(", ").Append(group.ControlTypeFullName).Line("> controlName,");
 
         if (group.HasObservableParameter)
         {
@@ -367,7 +367,7 @@ internal static class BindCommandCodeGenerator
         else if (group.HasExpressionParameter)
         {
             _ = sb.Append(GeneratedSyntax.SelectorTypeOpen).Append(group.ViewModelTypeFullName).Append(", ").Append(group.ParameterTypeFullName)
-                .Append(supportsNullable && group.Invocations[0].ParameterIsReferenceType ? "?" : string.Empty).Line(">> withParameter,");
+                .Append(supportsNullable && group.Invocations[0].ParameterIsReferenceType ? "?" : string.Empty).Line("> withParameter,");
         }
 
         _ = sb.Append("string").Append(supportsNullable ? "?" : string.Empty).Line(" toEvent = null,");

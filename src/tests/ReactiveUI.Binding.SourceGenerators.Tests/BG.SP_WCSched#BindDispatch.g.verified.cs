@@ -16,8 +16,8 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         public static global::ReactiveUI.Binding.IReactiveBinding<global::SharedScenarios.Bind.SinglePropertyWithConvertersAndScheduler.MyView, global::ReactiveUI.Binding.BindingChange> Bind(
             this global::SharedScenarios.Bind.SinglePropertyWithConvertersAndScheduler.MyView view,
             global::SharedScenarios.Bind.SinglePropertyWithConvertersAndScheduler.MyViewModel? viewModel,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.Bind.SinglePropertyWithConvertersAndScheduler.MyViewModel, int>> viewModelProperty,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.Bind.SinglePropertyWithConvertersAndScheduler.MyView, string?>> viewProperty,
+            global::System.Func<global::SharedScenarios.Bind.SinglePropertyWithConvertersAndScheduler.MyViewModel, int> viewModelProperty,
+            global::System.Func<global::SharedScenarios.Bind.SinglePropertyWithConvertersAndScheduler.MyView, string?> viewProperty,
             global::System.Func<int, string> viewModelToViewConverter,
             global::System.Func<string, int> viewToViewModelConverter,
             global::ReactiveUI.Primitives.Concurrency.ISequencer? scheduler,

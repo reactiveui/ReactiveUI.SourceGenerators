@@ -41,7 +41,7 @@ public class BindCommandBenchmark
     public void SetupDelivery()
     {
         Setup();
-        _binding = _view.BindCommand(_model, x => x.Command, x => x.Button);
+        _binding = _view.BindCommand(_model, static x => x.Command, static x => x.Button);
     }
 
     /// <summary>Releases the established command binding.</summary>
@@ -53,14 +53,14 @@ public class BindCommandBenchmark
     [Benchmark]
     public void Subscribe()
     {
-        using var binding = _view.BindCommand(_model, x => x.Command, x => x.Button);
+        using var binding = _view.BindCommand(_model, static x => x.Command, static x => x.Button);
     }
 
     /// <summary>Creates a generated binding that names the event the control is bound through.</summary>
     [Benchmark]
     public void SubscribeWithExplicitEvent()
     {
-        using var binding = _view.BindCommand(_model, x => x.Command, x => x.Button, toEvent: "Click");
+        using var binding = _view.BindCommand(_model, static x => x.Command, static x => x.Button, toEvent: "Click");
     }
 
     /// <summary>Writes alternating commands through a live binding on the calling thread.</summary>

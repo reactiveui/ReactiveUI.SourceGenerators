@@ -14,7 +14,7 @@ namespace ReactiveUI.Binding
         /// </summary>
         public static global::System.IObservable<string> WhenAnyObservable(
             this global::SharedScenarios.WhenAnyObservable.SingleObservable.MyViewModel objectToMonitor,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.WhenAnyObservable.SingleObservable.MyViewModel, global::System.IObservable<string>?>> obs1,
+            global::System.Func<global::SharedScenarios.WhenAnyObservable.SingleObservable.MyViewModel, global::System.IObservable<string>?> obs1,
             string obs1Expression = "",
             [global::System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "",
             [global::System.Runtime.CompilerServices.CallerLineNumber] int callerLineNumber = 0)

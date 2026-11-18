@@ -27,7 +27,7 @@ public static class LatestValueExamples
         VirtualClock uiThread = new();
         TransferDraft draft = new();
 
-        using IDisposable subscription = draft.WhenChanged(x => x.Amount)
+        using IDisposable subscription = draft.WhenChanged(static x => x.Amount)
             .Skip(1)
             .WitnessOn(uiThread)
             .Subscribe(static amount => Console.WriteLine($"Preview {amount}"));
@@ -51,7 +51,7 @@ public static class LatestValueExamples
         VirtualClock uiThread = new();
         TransferDraft draft = new();
 
-        using IDisposable subscription = draft.WhenChanged(x => x.Amount)
+        using IDisposable subscription = draft.WhenChanged(static x => x.Amount)
             .Skip(1)
             .WitnessLatestOn(uiThread)
             .Subscribe(static amount => Console.WriteLine($"Preview {amount}"));

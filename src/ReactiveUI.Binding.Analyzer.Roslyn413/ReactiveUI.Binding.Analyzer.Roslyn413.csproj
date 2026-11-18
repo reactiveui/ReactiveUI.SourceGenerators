@@ -34,6 +34,7 @@
     <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Models\InterceptorLocation.cs" Link="Models\InterceptorLocation.cs"/>
     <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Helpers\InterceptableLocationReader.cs" Link="Helpers\InterceptableLocationReader.cs"/>
     <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Helpers\ExtractorValidation.cs" Link="Helpers\ExtractorValidation.cs"/>
+    <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Helpers\PathSyntax.cs" Link="Helpers\PathSyntax.cs"/>
     <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Helpers\NativeCommandMembers.cs" Link="Helpers\NativeCommandMembers.cs"/>
     <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Helpers\NativeTypeIdentity.cs" Link="Helpers\NativeTypeIdentity.cs"/>
     <Compile Include="..\ReactiveUI.Binding.SourceGenerators\Plugins\CommandBinding\AppKitCommandSymbols.cs" Link="Helpers\AppKitCommandSymbols.cs"/>

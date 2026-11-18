@@ -16,8 +16,8 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         public static global::System.IDisposable BindOneWay(
             this global::SharedScenarios.BindOneWay.SinglePropertyIntToInt.MyViewModel source,
             global::SharedScenarios.BindOneWay.SinglePropertyIntToInt.MyView target,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.BindOneWay.SinglePropertyIntToInt.MyViewModel, int>> sourceProperty,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.BindOneWay.SinglePropertyIntToInt.MyView, int>> targetProperty,
+            global::System.Func<global::SharedScenarios.BindOneWay.SinglePropertyIntToInt.MyViewModel, int> sourceProperty,
+            global::System.Func<global::SharedScenarios.BindOneWay.SinglePropertyIntToInt.MyView, int> targetProperty,
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("sourceProperty")] string sourcePropertyExpression = "",
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("targetProperty")] string targetPropertyExpression = "",
             [global::System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "",

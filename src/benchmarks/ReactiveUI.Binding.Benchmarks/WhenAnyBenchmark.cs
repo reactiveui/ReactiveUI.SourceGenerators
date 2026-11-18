@@ -26,7 +26,7 @@ public class WhenAnyBenchmark
     public void SingleProperty()
     {
         var last = string.Empty;
-        using var sub = _vm.WhenAny(x => x.Name, static c => c.Value)
+        using var sub = _vm.WhenAny(static x => x.Name, static c => c.Value)
             .Subscribe(v => last = v);
 
         for (var i = 0; i < PropertyChangeCount; i++)
@@ -40,7 +40,7 @@ public class WhenAnyBenchmark
     public void TwoProperties()
     {
         var last = string.Empty;
-        using var sub = _vm.WhenAny(x => x.Name, x => x.Age, static (name, age) => name.Value + age.Value)
+        using var sub = _vm.WhenAny(static x => x.Name, static x => x.Age, static (name, age) => name.Value + age.Value)
             .Subscribe(v => last = v);
 
         for (var i = 0; i < PropertyChangeCount; i++)
@@ -56,7 +56,7 @@ public class WhenAnyBenchmark
     public string FirstObservation()
     {
         var result = string.Empty;
-        using var sub = _vm.WhenAny(x => x.Name, static c => c.Value)
+        using var sub = _vm.WhenAny(static x => x.Name, static c => c.Value)
             .Subscribe(v => result = v);
         return result;
     }

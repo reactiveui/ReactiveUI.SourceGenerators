@@ -16,7 +16,7 @@ namespace ReactiveUI.Binding
         public static global::System.IDisposable BindInteraction(
             this global::SharedScenarios.BindInteraction.ObservableHandler.MyView view,
             global::SharedScenarios.BindInteraction.ObservableHandler.MyViewModel? viewModel,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.BindInteraction.ObservableHandler.MyViewModel, global::ReactiveUI.Binding.IInteraction<string, bool>>> propertyName,
+            global::System.Func<global::SharedScenarios.BindInteraction.ObservableHandler.MyViewModel, global::ReactiveUI.Binding.IInteraction<string, bool>> propertyName,
             global::System.Func<global::ReactiveUI.Binding.IInteractionContext<string, bool>, global::System.IObservable<int>> handler,
             string propertyNameExpression = "",
             [global::System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "",

@@ -26,7 +26,7 @@ public class WhenChangingBenchmark
     public void SingleProperty()
     {
         var last = string.Empty;
-        using var sub = _vm.WhenChanging(x => x.Name)
+        using var sub = _vm.WhenChanging(static x => x.Name)
             .Subscribe(v => last = v);
 
         for (var i = 0; i < PropertyChangeCount; i++)
@@ -40,7 +40,7 @@ public class WhenChangingBenchmark
     public void TwoProperties()
     {
         PropertyValues<string, int> last = default;
-        using var sub = _vm.WhenChanging(x => x.Name, x => x.Age)
+        using var sub = _vm.WhenChanging(static x => x.Name, static x => x.Age)
             .Subscribe(v => last = v);
 
         for (var i = 0; i < PropertyChangeCount; i++)
@@ -56,7 +56,7 @@ public class WhenChangingBenchmark
     public string FirstObservation()
     {
         var result = string.Empty;
-        using var sub = _vm.WhenChanging(x => x.Name)
+        using var sub = _vm.WhenChanging(static x => x.Name)
             .Subscribe(v => result = v);
         return result;
     }

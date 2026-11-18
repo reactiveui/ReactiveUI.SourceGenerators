@@ -34,7 +34,7 @@ public static partial class ReactiveUIBindingExtensions
     public static IDisposable BindTo<TValue, TTarget, TTargetValue>(
         this IObservable<TValue> source,
         TTarget? target,
-        Expression<Func<TTarget, TTargetValue?>> property,
+        Func<TTarget, TTargetValue?> property,
         [CallerArgumentExpression("property")] string propertyExpression = "",
         [CallerFilePath] string callerFilePath = "",
         [CallerLineNumber] int callerLineNumber = 0)
@@ -62,7 +62,7 @@ public static partial class ReactiveUIBindingExtensions
     public static IDisposable BindTo<TValue, TTarget, TTargetValue>(
         this IObservable<TValue> source,
         TTarget? target,
-        Expression<Func<TTarget, TTargetValue?>> property,
+        Func<TTarget, TTargetValue?> property,
         object? conversionHint,
         [CallerArgumentExpression("property")] string propertyExpression = "",
         [CallerFilePath] string callerFilePath = "",
@@ -91,7 +91,7 @@ public static partial class ReactiveUIBindingExtensions
     public static IDisposable BindTo<TValue, TTarget, TTargetValue>(
         this IObservable<TValue> source,
         TTarget? target,
-        Expression<Func<TTarget, TTargetValue?>> property,
+        Func<TTarget, TTargetValue?> property,
         IBindingTypeConverter? converterOverride,
         [CallerArgumentExpression("property")] string propertyExpression = "",
         [CallerFilePath] string callerFilePath = "",
@@ -122,7 +122,7 @@ public static partial class ReactiveUIBindingExtensions
     public static IDisposable BindTo<TValue, TTarget, TTargetValue>(
         this IObservable<TValue> source,
         TTarget? target,
-        Expression<Func<TTarget, TTargetValue?>> property,
+        Func<TTarget, TTargetValue?> property,
         object? conversionHint,
         IBindingTypeConverter? converterOverride,
         [CallerArgumentExpression("property")] string propertyExpression = "",

@@ -477,7 +477,7 @@ public class CommandExtractorHelperTests
                                   {
                                       public void Go() => Method(v => v.Button, "Click");
 
-                                      public void Method(System.Linq.Expressions.Expression<Func<View, ButtonControl>> controlName, string toEvent) { }
+                                      public void Method(System.Func<View, ButtonControl> controlName, string toEvent) { }
                                   }
                               }
                               """;

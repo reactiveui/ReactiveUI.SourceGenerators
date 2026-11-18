@@ -96,7 +96,7 @@ public class BindToGeneratorTests
                                       public static IDisposable BindTo<TValue, TTarget, TProp>(
                                           this IObservable<TValue> source,
                                           TTarget target,
-                                          System.Linq.Expressions.Expression<Func<TTarget, TProp>> property) => null!;
+                                          System.Func<TTarget, TProp> property) => null!;
                                   }
 
                                   public static class Scenario
@@ -305,7 +305,7 @@ public class BindToGeneratorTests
                                   {
                                       public static IDisposable Execute(IObservable<string> source, MyView view)
                                       {
-                                          Expression<Func<MyView, string>> property = x => x.Caption;
+                                          Func<MyView, string> property = x => x.Caption;
                                           return source.BindTo(view, property);
                                       }
                                   }

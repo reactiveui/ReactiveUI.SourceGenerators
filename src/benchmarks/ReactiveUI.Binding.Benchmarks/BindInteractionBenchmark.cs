@@ -40,7 +40,7 @@ public class BindInteractionBenchmark
     public void SetupDelivery()
     {
         Setup();
-        _binding = _view.BindInteraction(_model, x => x.Question, Answer);
+        _binding = _view.BindInteraction(_model, static x => x.Question, Answer);
     }
 
     /// <summary>Releases the binding and its final handler.</summary>
@@ -52,7 +52,7 @@ public class BindInteractionBenchmark
     [Benchmark]
     public void Subscribe()
     {
-        using var binding = _view.BindInteraction(_model, x => x.Question, Answer);
+        using var binding = _view.BindInteraction(_model, static x => x.Question, Answer);
     }
 
     /// <summary>Moves the registered handler between existing interactions through the live binding.</summary>

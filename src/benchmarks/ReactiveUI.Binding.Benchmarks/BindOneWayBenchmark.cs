@@ -35,7 +35,7 @@ public class BindOneWayBenchmark
     [Benchmark(Description = "BindOneWay")]
     public void Standard()
     {
-        using var binding = _source.BindOneWay(_target, x => x.Name, x => x.DisplayName);
+        using var binding = _source.BindOneWay(_target, static x => x.Name, static x => x.DisplayName);
 
         for (var i = 0; i < PropertyChangeCount; i++)
         {
@@ -47,7 +47,7 @@ public class BindOneWayBenchmark
     [Benchmark(Description = "BindOneWay + Scheduler")]
     public void WithScheduler()
     {
-        using var binding = _source.BindOneWay(_target, x => x.Name, x => x.DisplayName, ImmediateSequencer.Instance);
+        using var binding = _source.BindOneWay(_target, static x => x.Name, static x => x.DisplayName, ImmediateSequencer.Instance);
 
         for (var i = 0; i < PropertyChangeCount; i++)
         {
@@ -59,7 +59,7 @@ public class BindOneWayBenchmark
     [Benchmark(Description = "First Binding")]
     public void FirstBinding()
     {
-        using var binding = _source.BindOneWay(_target, x => x.Name, x => x.DisplayName);
+        using var binding = _source.BindOneWay(_target, static x => x.Name, static x => x.DisplayName);
     }
 
     /// <summary>Setup and teardown cost of 10 consecutive bindings.</summary>
@@ -71,7 +71,7 @@ public class BindOneWayBenchmark
         for (var i = 0; i < BindingCount; i++)
         {
             _source.Name = $"VM_{i}";
-            bindings[i] = _source.BindOneWay(_target, x => x.Name, x => x.DisplayName);
+            bindings[i] = _source.BindOneWay(_target, static x => x.Name, static x => x.DisplayName);
         }
 
         for (var i = 0; i < BindingCount; i++)

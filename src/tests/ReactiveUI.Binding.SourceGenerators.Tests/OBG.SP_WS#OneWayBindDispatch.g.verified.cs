@@ -16,8 +16,8 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         public static global::ReactiveUI.Binding.IReactiveBinding<global::SharedScenarios.OneWayBind.SinglePropertyWithSelector.MyView, string> OneWayBind(
             this global::SharedScenarios.OneWayBind.SinglePropertyWithSelector.MyView view,
             global::SharedScenarios.OneWayBind.SinglePropertyWithSelector.MyViewModel? viewModel,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.OneWayBind.SinglePropertyWithSelector.MyViewModel, int>> viewModelProperty,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.OneWayBind.SinglePropertyWithSelector.MyView, string?>> viewProperty,
+            global::System.Func<global::SharedScenarios.OneWayBind.SinglePropertyWithSelector.MyViewModel, int> viewModelProperty,
+            global::System.Func<global::SharedScenarios.OneWayBind.SinglePropertyWithSelector.MyView, string?> viewProperty,
             global::System.Func<int, string> selector,
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("viewModelProperty")] string viewModelPropertyExpression = "",
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("viewProperty")] string viewPropertyExpression = "",

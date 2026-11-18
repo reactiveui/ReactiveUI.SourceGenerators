@@ -150,7 +150,7 @@ public static class WhenChangedExamples
     {
         TodoItem item = CreateRegistrationTask();
 
-        using IDisposable subscription = item.WhenChanged(x => x.Title).Subscribe(Console.WriteLine);
+        using IDisposable subscription = item.WhenChanged(static x => x.Title).Subscribe(Console.WriteLine);
 
         item.Title = RenamedTitle;
 
@@ -164,7 +164,7 @@ public static class WhenChangedExamples
     {
         TodoItem item = CreateRegistrationTask();
 
-        using IDisposable subscription = item.WhenChanged(x => x.Title, x => x.IsDone).Subscribe(static values => Console.WriteLine(values.Property2));
+        using IDisposable subscription = item.WhenChanged(static x => x.Title, static x => x.IsDone).Subscribe(static values => Console.WriteLine(values.Property2));
 
         item.IsDone = true;
 
@@ -179,7 +179,7 @@ public static class WhenChangedExamples
         TodoItem item = CreateRegistrationTask();
 
         using IDisposable subscription = item
-            .WhenChanged(x => x.Title, x => x.IsDone, static (title, isDone) => (isDone ? DoneMark : OpenMark) + title)
+            .WhenChanged(static x => x.Title, static x => x.IsDone, static (title, isDone) => (isDone ? DoneMark : OpenMark) + title)
             .Subscribe(Console.WriteLine);
 
         item.IsDone = true;
@@ -195,7 +195,7 @@ public static class WhenChangedExamples
         TodoItem item = CreateRegistrationTask();
 
         using IDisposable subscription = item
-            .WhenChanged(x => x.Title, x => x.IsDone, x => x.Priority)
+            .WhenChanged(static x => x.Title, static x => x.IsDone, static x => x.Priority)
             .Subscribe(static values => Console.WriteLine(values.Property3));
 
         item.Priority = TodoPriority.High;
@@ -211,7 +211,7 @@ public static class WhenChangedExamples
         TodoItem item = CreateRegistrationTask();
 
         using IDisposable subscription = item
-            .WhenChanged(x => x.Title, x => x.IsDone, x => x.Priority, static (_, isDone, priority) => isDone ? TodoPriority.Low : priority)
+            .WhenChanged(static x => x.Title, static x => x.IsDone, static x => x.Priority, static (_, isDone, priority) => isDone ? TodoPriority.Low : priority)
             .Subscribe(static priority => Console.WriteLine(priority));
 
         item.Priority = TodoPriority.High;
@@ -229,7 +229,7 @@ public static class WhenChangedExamples
         TodoItem item = CreateRegistrationTask();
 
         using IDisposable subscription = item
-            .WhenChanged(x => x.Title, x => x.Notes, x => x.IsDone, x => x.DueDate)
+            .WhenChanged(static x => x.Title, static x => x.Notes, static x => x.IsDone, static x => x.DueDate)
             .Subscribe(static values => Console.WriteLine(values.Property4));
 
         item.DueDate = _movedDue;
@@ -246,10 +246,10 @@ public static class WhenChangedExamples
 
         using IDisposable subscription = item
             .WhenChanged(
-                x => x.Title,
-                x => x.Notes,
-                x => x.IsDone,
-                x => x.DueDate,
+                static x => x.Title,
+                static x => x.Notes,
+                static x => x.IsDone,
+                static x => x.DueDate,
                 static (title, _, isDone, due) => isDone || due is null ? title : $"{title} due {due.Value.ToString(IsoDay, CultureInfo.InvariantCulture)}")
             .Subscribe(Console.WriteLine);
 
@@ -266,7 +266,7 @@ public static class WhenChangedExamples
         TodoItem item = CreateRegistrationTask();
 
         using IDisposable subscription = item
-            .WhenChanged(x => x.Title, x => x.Notes, x => x.IsDone, x => x.DueDate, x => x.Priority)
+            .WhenChanged(static x => x.Title, static x => x.Notes, static x => x.IsDone, static x => x.DueDate, static x => x.Priority)
             .Subscribe(static values => Console.WriteLine(values.Property5));
 
         item.Priority = TodoPriority.High;
@@ -283,11 +283,11 @@ public static class WhenChangedExamples
 
         using IDisposable subscription = item
             .WhenChanged(
-                x => x.Title,
-                x => x.Notes,
-                x => x.IsDone,
-                x => x.DueDate,
-                x => x.Priority,
+                static x => x.Title,
+                static x => x.Notes,
+                static x => x.IsDone,
+                static x => x.DueDate,
+                static x => x.Priority,
                 static (_, _, isDone, due, priority) => !isDone && due is not null && priority == TodoPriority.High)
             .Subscribe(Console.WriteLine);
 
@@ -304,7 +304,7 @@ public static class WhenChangedExamples
         TodoItem item = CreateRegistrationTask();
 
         using IDisposable subscription = item
-            .WhenChanged(x => x.Title, x => x.Notes, x => x.IsDone, x => x.DueDate, x => x.Priority, x => x.Tags)
+            .WhenChanged(static x => x.Title, static x => x.Notes, static x => x.IsDone, static x => x.DueDate, static x => x.Priority, static x => x.Tags)
             .Subscribe(static values => Console.WriteLine(string.Join(", ", values.Property6)));
 
         item.Tags = _urgentTags;
@@ -321,12 +321,12 @@ public static class WhenChangedExamples
 
         using IDisposable subscription = item
             .WhenChanged(
-                x => x.Title,
-                x => x.Notes,
-                x => x.IsDone,
-                x => x.DueDate,
-                x => x.Priority,
-                x => x.Tags,
+                static x => x.Title,
+                static x => x.Notes,
+                static x => x.IsDone,
+                static x => x.DueDate,
+                static x => x.Priority,
+                static x => x.Tags,
                 static (title, _, _, _, _, tags) => $"{title} #{string.Join(" #", tags)}")
             .Subscribe(Console.WriteLine);
 
@@ -342,7 +342,7 @@ public static class WhenChangedExamples
     {
         Issue issue = CreateCheckoutIssue();
 
-        using IDisposable subscription = issue.WhenChanged(x => x.Assignee)
+        using IDisposable subscription = issue.WhenChanged(static x => x.Assignee)
             .Subscribe(static assignee => Console.WriteLine(assignee?.Login ?? Unassigned));
 
         issue.Assignee = null;
@@ -360,7 +360,7 @@ public static class WhenChangedExamples
         Issue issue = CreateCheckoutIssue();
 
         using IDisposable subscription = issue
-            .WhenChanged(x => x.Number, x => x.Title, x => x.State, x => x.Author, x => x.Assignee!, x => x.Labels, x => x.UpdatedAt)
+            .WhenChanged(static x => x.Number, static x => x.Title, static x => x.State, static x => x.Author, static x => x.Assignee!, static x => x.Labels, static x => x.UpdatedAt)
             .Subscribe(static values => Console.WriteLine(values.Property2));
 
         issue.Title = RenamedIssueTitle;
@@ -377,13 +377,13 @@ public static class WhenChangedExamples
 
         using IDisposable subscription = issue
             .WhenChanged(
-                x => x.Number,
-                x => x.Title,
-                x => x.State,
-                x => x.Author,
-                x => x.Assignee!,
-                x => x.Labels,
-                x => x.UpdatedAt,
+                static x => x.Number,
+                static x => x.Title,
+                static x => x.State,
+                static x => x.Author,
+                static x => x.Assignee!,
+                static x => x.Labels,
+                static x => x.UpdatedAt,
                 static (number, title, _, _, assignee, _, _) => $"#{number} {title} -> {assignee?.Login ?? Unassigned}")
             .Subscribe(Console.WriteLine);
 
@@ -400,7 +400,15 @@ public static class WhenChangedExamples
         Issue issue = CreateCheckoutIssue();
 
         using IDisposable subscription = issue
-            .WhenChanged(x => x.Number, x => x.Title, x => x.State, x => x.Author, x => x.Assignee!, x => x.Labels, x => x.UpdatedAt, x => x.Comments)
+            .WhenChanged(
+                static x => x.Number,
+                static x => x.Title,
+                static x => x.State,
+                static x => x.Author,
+                static x => x.Assignee!,
+                static x => x.Labels,
+                static x => x.UpdatedAt,
+                static x => x.Comments)
             .Subscribe(static values => Console.WriteLine(values.Property3));
 
         issue.State = IssueState.Closed;
@@ -417,14 +425,14 @@ public static class WhenChangedExamples
 
         using IDisposable subscription = issue
             .WhenChanged(
-                x => x.Number,
-                x => x.Title,
-                x => x.State,
-                x => x.Author,
-                x => x.Assignee!,
-                x => x.Labels,
-                x => x.UpdatedAt,
-                x => x.Comments,
+                static x => x.Number,
+                static x => x.Title,
+                static x => x.State,
+                static x => x.Author,
+                static x => x.Assignee!,
+                static x => x.Labels,
+                static x => x.UpdatedAt,
+                static x => x.Comments,
                 static (_, _, state, _, _, _, _, comments) => state == IssueState.Open && comments.Count == 0)
             .Subscribe(Console.WriteLine);
 
@@ -442,15 +450,15 @@ public static class WhenChangedExamples
 
         using IDisposable subscription = draft
             .WhenChanged(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.Source!.Id,
-                x => x.Source!.Name,
-                x => x.Source!.Kind,
-                x => x.Source!.Currency,
-                x => x.Source!.Balance,
-                x => x.Source!.OverdraftLimit,
-                x => x.Source!.AvailableBalance)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.Source!.Id,
+                static x => x.Source!.Name,
+                static x => x.Source!.Kind,
+                static x => x.Source!.Currency,
+                static x => x.Source!.Balance,
+                static x => x.Source!.OverdraftLimit,
+                static x => x.Source!.AvailableBalance)
             .Subscribe(static values => Console.WriteLine(values.Property2));
 
         draft.Reference = RentReferenceRevised;
@@ -467,15 +475,15 @@ public static class WhenChangedExamples
 
         using IDisposable subscription = draft
             .WhenChanged(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.Source!.Id,
-                x => x.Source!.Name,
-                x => x.Source!.Kind,
-                x => x.Source!.Currency,
-                x => x.Source!.Balance,
-                x => x.Source!.OverdraftLimit,
-                x => x.Source!.AvailableBalance,
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.Source!.Id,
+                static x => x.Source!.Name,
+                static x => x.Source!.Kind,
+                static x => x.Source!.Currency,
+                static x => x.Source!.Balance,
+                static x => x.Source!.OverdraftLimit,
+                static x => x.Source!.AvailableBalance,
                 static (amount, _, _, _, _, _, _, _, available) => amount <= available)
             .Subscribe(Console.WriteLine);
 
@@ -493,16 +501,16 @@ public static class WhenChangedExamples
 
         using IDisposable subscription = draft
             .WhenChanged(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.Source!.Id,
-                x => x.Source!.Name,
-                x => x.Source!.Kind,
-                x => x.Source!.Currency,
-                x => x.Source!.Balance,
-                x => x.Source!.OverdraftLimit,
-                x => x.Source!.AvailableBalance,
-                x => x.Payee!)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.Source!.Id,
+                static x => x.Source!.Name,
+                static x => x.Source!.Kind,
+                static x => x.Source!.Currency,
+                static x => x.Source!.Balance,
+                static x => x.Source!.OverdraftLimit,
+                static x => x.Source!.AvailableBalance,
+                static x => x.Payee!)
             .Subscribe(static values => Console.WriteLine(values.Property2));
 
         draft.Reference = RentReferenceRevised;
@@ -519,16 +527,16 @@ public static class WhenChangedExamples
 
         using IDisposable subscription = draft
             .WhenChanged(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.Source!.Id,
-                x => x.Source!.Name,
-                x => x.Source!.Kind,
-                x => x.Source!.Currency,
-                x => x.Source!.Balance,
-                x => x.Source!.OverdraftLimit,
-                x => x.Source!.AvailableBalance,
-                x => x.Payee!,
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.Source!.Id,
+                static x => x.Source!.Name,
+                static x => x.Source!.Kind,
+                static x => x.Source!.Currency,
+                static x => x.Source!.Balance,
+                static x => x.Source!.OverdraftLimit,
+                static x => x.Source!.AvailableBalance,
+                static x => x.Payee!,
                 static (amount, _, _, _, _, _, _, _, available, payee) =>
                     payee is not null && amount <= available && (payee.TransferLimit is not { } limit || amount <= limit))
             .Subscribe(Console.WriteLine);
@@ -547,17 +555,17 @@ public static class WhenChangedExamples
 
         using IDisposable subscription = draft
             .WhenChanged(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.Source!.Id,
-                x => x.Source!.Name,
-                x => x.Source!.Kind,
-                x => x.Source!.Currency,
-                x => x.Source!.Balance,
-                x => x.Source!.OverdraftLimit,
-                x => x.Source!.AvailableBalance,
-                x => x.Payee!,
-                x => x.Source!)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.Source!.Id,
+                static x => x.Source!.Name,
+                static x => x.Source!.Kind,
+                static x => x.Source!.Currency,
+                static x => x.Source!.Balance,
+                static x => x.Source!.OverdraftLimit,
+                static x => x.Source!.AvailableBalance,
+                static x => x.Payee!,
+                static x => x.Source!)
             .Subscribe(static values => Console.WriteLine(values.Property2));
 
         draft.Reference = RentReferenceRevised;
@@ -574,17 +582,17 @@ public static class WhenChangedExamples
 
         using IDisposable subscription = draft
             .WhenChanged(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.Source!.Id,
-                x => x.Source!.Name,
-                x => x.Source!.Kind,
-                x => x.Source!.Currency,
-                x => x.Source!.Balance,
-                x => x.Source!.OverdraftLimit,
-                x => x.Source!.AvailableBalance,
-                x => x.Payee!,
-                x => x.Source!,
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.Source!.Id,
+                static x => x.Source!.Name,
+                static x => x.Source!.Kind,
+                static x => x.Source!.Currency,
+                static x => x.Source!.Balance,
+                static x => x.Source!.OverdraftLimit,
+                static x => x.Source!.AvailableBalance,
+                static x => x.Payee!,
+                static x => x.Source!,
                 static (amount, _, _, _, _, _, _, _, available, payee, source) => source is not null && payee is not null && amount <= available)
             .Subscribe(Console.WriteLine);
 
@@ -603,18 +611,18 @@ public static class WhenChangedExamples
 
         using IDisposable subscription = board
             .WhenChanged(
-                x => x.IsSignedIn,
-                x => x.CurrentUser!.Login,
-                x => x.CurrentUser!.DisplayName,
-                x => x.SelectedIssue!.Number,
-                x => x.SelectedIssue!.Title,
-                x => x.SelectedIssue!.State,
-                x => x.SelectedIssue!.Assignee!.Login,
-                x => x.SelectedIssue!.Assignee!.DisplayName,
-                x => x.SelectedIssue!.Labels,
-                x => x.SelectedIssue!.UpdatedAt,
-                x => x.NewCommentText,
-                x => x.RateLimitRemaining)
+                static x => x.IsSignedIn,
+                static x => x.CurrentUser!.Login,
+                static x => x.CurrentUser!.DisplayName,
+                static x => x.SelectedIssue!.Number,
+                static x => x.SelectedIssue!.Title,
+                static x => x.SelectedIssue!.State,
+                static x => x.SelectedIssue!.Assignee!.Login,
+                static x => x.SelectedIssue!.Assignee!.DisplayName,
+                static x => x.SelectedIssue!.Labels,
+                static x => x.SelectedIssue!.UpdatedAt,
+                static x => x.NewCommentText,
+                static x => x.RateLimitRemaining)
             .Subscribe(static values => Console.WriteLine(values.Property11.Length));
 
         board.NewCommentText = CommentDraft;
@@ -632,18 +640,18 @@ public static class WhenChangedExamples
 
         using IDisposable subscription = board
             .WhenChanged(
-                x => x.IsSignedIn,
-                x => x.CurrentUser!.Login,
-                x => x.CurrentUser!.DisplayName,
-                x => x.SelectedIssue!.Number,
-                x => x.SelectedIssue!.Title,
-                x => x.SelectedIssue!.State,
-                x => x.SelectedIssue!.Assignee!.Login,
-                x => x.SelectedIssue!.Assignee!.DisplayName,
-                x => x.SelectedIssue!.Labels,
-                x => x.SelectedIssue!.UpdatedAt,
-                x => x.NewCommentText,
-                x => x.RateLimitRemaining,
+                static x => x.IsSignedIn,
+                static x => x.CurrentUser!.Login,
+                static x => x.CurrentUser!.DisplayName,
+                static x => x.SelectedIssue!.Number,
+                static x => x.SelectedIssue!.Title,
+                static x => x.SelectedIssue!.State,
+                static x => x.SelectedIssue!.Assignee!.Login,
+                static x => x.SelectedIssue!.Assignee!.DisplayName,
+                static x => x.SelectedIssue!.Labels,
+                static x => x.SelectedIssue!.UpdatedAt,
+                static x => x.NewCommentText,
+                static x => x.RateLimitRemaining,
                 static (signedIn, _, _, _, _, state, _, _, _, _, _, remaining) => signedIn && state == IssueState.Open && remaining > 0)
             .Subscribe(Console.WriteLine);
 
@@ -663,19 +671,19 @@ public static class WhenChangedExamples
 
         using IDisposable subscription = board
             .WhenChanged(
-                x => x.IsSignedIn,
-                x => x.CurrentUser!.Login,
-                x => x.CurrentUser!.DisplayName,
-                x => x.SelectedIssue!.Number,
-                x => x.SelectedIssue!.Title,
-                x => x.SelectedIssue!.State,
-                x => x.SelectedIssue!.Assignee!.Login,
-                x => x.SelectedIssue!.Assignee!.DisplayName,
-                x => x.SelectedIssue!.Labels,
-                x => x.SelectedIssue!.UpdatedAt,
-                x => x.NewCommentText,
-                x => x.RateLimitRemaining,
-                x => x.ErrorMessage)
+                static x => x.IsSignedIn,
+                static x => x.CurrentUser!.Login,
+                static x => x.CurrentUser!.DisplayName,
+                static x => x.SelectedIssue!.Number,
+                static x => x.SelectedIssue!.Title,
+                static x => x.SelectedIssue!.State,
+                static x => x.SelectedIssue!.Assignee!.Login,
+                static x => x.SelectedIssue!.Assignee!.DisplayName,
+                static x => x.SelectedIssue!.Labels,
+                static x => x.SelectedIssue!.UpdatedAt,
+                static x => x.NewCommentText,
+                static x => x.RateLimitRemaining,
+                static x => x.ErrorMessage)
             .Subscribe(static values => Console.WriteLine(values.Property5));
 
         issue.Title = RenamedIssueTitle;
@@ -693,19 +701,19 @@ public static class WhenChangedExamples
 
         using IDisposable subscription = board
             .WhenChanged(
-                x => x.IsSignedIn,
-                x => x.CurrentUser!.Login,
-                x => x.CurrentUser!.DisplayName,
-                x => x.SelectedIssue!.Number,
-                x => x.SelectedIssue!.Title,
-                x => x.SelectedIssue!.State,
-                x => x.SelectedIssue!.Assignee!.Login,
-                x => x.SelectedIssue!.Assignee!.DisplayName,
-                x => x.SelectedIssue!.Labels,
-                x => x.SelectedIssue!.UpdatedAt,
-                x => x.NewCommentText,
-                x => x.RateLimitRemaining,
-                x => x.ErrorMessage,
+                static x => x.IsSignedIn,
+                static x => x.CurrentUser!.Login,
+                static x => x.CurrentUser!.DisplayName,
+                static x => x.SelectedIssue!.Number,
+                static x => x.SelectedIssue!.Title,
+                static x => x.SelectedIssue!.State,
+                static x => x.SelectedIssue!.Assignee!.Login,
+                static x => x.SelectedIssue!.Assignee!.DisplayName,
+                static x => x.SelectedIssue!.Labels,
+                static x => x.SelectedIssue!.UpdatedAt,
+                static x => x.NewCommentText,
+                static x => x.RateLimitRemaining,
+                static x => x.ErrorMessage,
                 static (signedIn, _, _, _, _, state, _, _, _, _, _, remaining, error) =>
                     signedIn && state == IssueState.Open && remaining > 0 && error.Length == 0)
             .Subscribe(Console.WriteLine);
@@ -726,20 +734,20 @@ public static class WhenChangedExamples
 
         using IDisposable subscription = board
             .WhenChanged(
-                x => x.IsSignedIn,
-                x => x.CurrentUser!.Login,
-                x => x.CurrentUser!.DisplayName,
-                x => x.SelectedIssue!.Number,
-                x => x.SelectedIssue!.Title,
-                x => x.SelectedIssue!.State,
-                x => x.SelectedIssue!.Assignee!.Login,
-                x => x.SelectedIssue!.Assignee!.DisplayName,
-                x => x.SelectedIssue!.Labels,
-                x => x.SelectedIssue!.UpdatedAt,
-                x => x.NewCommentText,
-                x => x.RateLimitRemaining,
-                x => x.ErrorMessage,
-                x => x.Token)
+                static x => x.IsSignedIn,
+                static x => x.CurrentUser!.Login,
+                static x => x.CurrentUser!.DisplayName,
+                static x => x.SelectedIssue!.Number,
+                static x => x.SelectedIssue!.Title,
+                static x => x.SelectedIssue!.State,
+                static x => x.SelectedIssue!.Assignee!.Login,
+                static x => x.SelectedIssue!.Assignee!.DisplayName,
+                static x => x.SelectedIssue!.Labels,
+                static x => x.SelectedIssue!.UpdatedAt,
+                static x => x.NewCommentText,
+                static x => x.RateLimitRemaining,
+                static x => x.ErrorMessage,
+                static x => x.Token)
             .Subscribe(static values => Console.WriteLine(values.Property5));
 
         issue.Title = RenamedIssueTitle;
@@ -757,20 +765,20 @@ public static class WhenChangedExamples
 
         using IDisposable subscription = board
             .WhenChanged(
-                x => x.IsSignedIn,
-                x => x.CurrentUser!.Login,
-                x => x.CurrentUser!.DisplayName,
-                x => x.SelectedIssue!.Number,
-                x => x.SelectedIssue!.Title,
-                x => x.SelectedIssue!.State,
-                x => x.SelectedIssue!.Assignee!.Login,
-                x => x.SelectedIssue!.Assignee!.DisplayName,
-                x => x.SelectedIssue!.Labels,
-                x => x.SelectedIssue!.UpdatedAt,
-                x => x.NewCommentText,
-                x => x.RateLimitRemaining,
-                x => x.ErrorMessage,
-                x => x.Token,
+                static x => x.IsSignedIn,
+                static x => x.CurrentUser!.Login,
+                static x => x.CurrentUser!.DisplayName,
+                static x => x.SelectedIssue!.Number,
+                static x => x.SelectedIssue!.Title,
+                static x => x.SelectedIssue!.State,
+                static x => x.SelectedIssue!.Assignee!.Login,
+                static x => x.SelectedIssue!.Assignee!.DisplayName,
+                static x => x.SelectedIssue!.Labels,
+                static x => x.SelectedIssue!.UpdatedAt,
+                static x => x.NewCommentText,
+                static x => x.RateLimitRemaining,
+                static x => x.ErrorMessage,
+                static x => x.Token,
                 static (signedIn, _, _, _, _, state, _, _, _, _, _, remaining, error, token) =>
                     signedIn && state == IssueState.Open && remaining > 0 && error.Length == 0 && token.Length > 0)
             .Subscribe(Console.WriteLine);
@@ -790,21 +798,21 @@ public static class WhenChangedExamples
 
         using IDisposable subscription = board
             .WhenChanged(
-                x => x.IsSignedIn,
-                x => x.CurrentUser!.Login,
-                x => x.CurrentUser!.DisplayName,
-                x => x.SelectedIssue!.Number,
-                x => x.SelectedIssue!.Title,
-                x => x.SelectedIssue!.State,
-                x => x.SelectedIssue!.Assignee!.Login,
-                x => x.SelectedIssue!.Assignee!.DisplayName,
-                x => x.SelectedIssue!.Labels,
-                x => x.SelectedIssue!.UpdatedAt,
-                x => x.NewCommentText,
-                x => x.RateLimitRemaining,
-                x => x.ErrorMessage,
-                x => x.Token,
-                x => x.Issues)
+                static x => x.IsSignedIn,
+                static x => x.CurrentUser!.Login,
+                static x => x.CurrentUser!.DisplayName,
+                static x => x.SelectedIssue!.Number,
+                static x => x.SelectedIssue!.Title,
+                static x => x.SelectedIssue!.State,
+                static x => x.SelectedIssue!.Assignee!.Login,
+                static x => x.SelectedIssue!.Assignee!.DisplayName,
+                static x => x.SelectedIssue!.Labels,
+                static x => x.SelectedIssue!.UpdatedAt,
+                static x => x.NewCommentText,
+                static x => x.RateLimitRemaining,
+                static x => x.ErrorMessage,
+                static x => x.Token,
+                static x => x.Issues)
             .Subscribe(static values => Console.WriteLine(values.Property11.Length));
 
         board.NewCommentText = CommentDraft;
@@ -822,21 +830,21 @@ public static class WhenChangedExamples
 
         using IDisposable subscription = board
             .WhenChanged(
-                x => x.IsSignedIn,
-                x => x.CurrentUser!.Login,
-                x => x.CurrentUser!.DisplayName,
-                x => x.SelectedIssue!.Number,
-                x => x.SelectedIssue!.Title,
-                x => x.SelectedIssue!.State,
-                x => x.SelectedIssue!.Assignee!.Login,
-                x => x.SelectedIssue!.Assignee!.DisplayName,
-                x => x.SelectedIssue!.Labels,
-                x => x.SelectedIssue!.UpdatedAt,
-                x => x.NewCommentText,
-                x => x.RateLimitRemaining,
-                x => x.ErrorMessage,
-                x => x.Token,
-                x => x.Issues,
+                static x => x.IsSignedIn,
+                static x => x.CurrentUser!.Login,
+                static x => x.CurrentUser!.DisplayName,
+                static x => x.SelectedIssue!.Number,
+                static x => x.SelectedIssue!.Title,
+                static x => x.SelectedIssue!.State,
+                static x => x.SelectedIssue!.Assignee!.Login,
+                static x => x.SelectedIssue!.Assignee!.DisplayName,
+                static x => x.SelectedIssue!.Labels,
+                static x => x.SelectedIssue!.UpdatedAt,
+                static x => x.NewCommentText,
+                static x => x.RateLimitRemaining,
+                static x => x.ErrorMessage,
+                static x => x.Token,
+                static x => x.Issues,
                 static (signedIn, _, _, _, _, state, _, _, _, _, _, remaining, error, token, issues) =>
                     signedIn && state == IssueState.Open && remaining > 0 && error.Length == 0 && token.Length > 0 && issues.Count > 0)
             .Subscribe(Console.WriteLine);
@@ -856,22 +864,22 @@ public static class WhenChangedExamples
 
         using IDisposable subscription = board
             .WhenChanged(
-                x => x.IsSignedIn,
-                x => x.CurrentUser!.Login,
-                x => x.CurrentUser!.DisplayName,
-                x => x.SelectedIssue!.Number,
-                x => x.SelectedIssue!.Title,
-                x => x.SelectedIssue!.State,
-                x => x.SelectedIssue!.Assignee!.Login,
-                x => x.SelectedIssue!.Assignee!.DisplayName,
-                x => x.SelectedIssue!.Labels,
-                x => x.SelectedIssue!.UpdatedAt,
-                x => x.NewCommentText,
-                x => x.RateLimitRemaining,
-                x => x.ErrorMessage,
-                x => x.Token,
-                x => x.Issues,
-                x => x.Repositories)
+                static x => x.IsSignedIn,
+                static x => x.CurrentUser!.Login,
+                static x => x.CurrentUser!.DisplayName,
+                static x => x.SelectedIssue!.Number,
+                static x => x.SelectedIssue!.Title,
+                static x => x.SelectedIssue!.State,
+                static x => x.SelectedIssue!.Assignee!.Login,
+                static x => x.SelectedIssue!.Assignee!.DisplayName,
+                static x => x.SelectedIssue!.Labels,
+                static x => x.SelectedIssue!.UpdatedAt,
+                static x => x.NewCommentText,
+                static x => x.RateLimitRemaining,
+                static x => x.ErrorMessage,
+                static x => x.Token,
+                static x => x.Issues,
+                static x => x.Repositories)
             .Subscribe(static values => Console.WriteLine(values.Property11.Length));
 
         board.NewCommentText = CommentDraft;
@@ -889,22 +897,22 @@ public static class WhenChangedExamples
 
         using IDisposable subscription = board
             .WhenChanged(
-                x => x.IsSignedIn,
-                x => x.CurrentUser!.Login,
-                x => x.CurrentUser!.DisplayName,
-                x => x.SelectedIssue!.Number,
-                x => x.SelectedIssue!.Title,
-                x => x.SelectedIssue!.State,
-                x => x.SelectedIssue!.Assignee!.Login,
-                x => x.SelectedIssue!.Assignee!.DisplayName,
-                x => x.SelectedIssue!.Labels,
-                x => x.SelectedIssue!.UpdatedAt,
-                x => x.NewCommentText,
-                x => x.RateLimitRemaining,
-                x => x.ErrorMessage,
-                x => x.Token,
-                x => x.Issues,
-                x => x.Repositories,
+                static x => x.IsSignedIn,
+                static x => x.CurrentUser!.Login,
+                static x => x.CurrentUser!.DisplayName,
+                static x => x.SelectedIssue!.Number,
+                static x => x.SelectedIssue!.Title,
+                static x => x.SelectedIssue!.State,
+                static x => x.SelectedIssue!.Assignee!.Login,
+                static x => x.SelectedIssue!.Assignee!.DisplayName,
+                static x => x.SelectedIssue!.Labels,
+                static x => x.SelectedIssue!.UpdatedAt,
+                static x => x.NewCommentText,
+                static x => x.RateLimitRemaining,
+                static x => x.ErrorMessage,
+                static x => x.Token,
+                static x => x.Issues,
+                static x => x.Repositories,
                 static (signedIn, _, _, _, _, state, _, _, _, _, _, remaining, error, token, issues, repositories) =>
                     signedIn && state == IssueState.Open && remaining > 0 && error.Length == 0 && token.Length > 0 && issues.Count > 0 && repositories.Count > 0)
             .Subscribe(Console.WriteLine);

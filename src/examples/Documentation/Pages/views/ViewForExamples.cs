@@ -62,7 +62,7 @@ public static class ViewForExamples
         TodoListViewModel viewModel = new(InMemoryTodoStore.CreateSeeded());
         List<TodoListViewModel?> shown = [];
 
-        using (view.WhenChanged(x => x.ViewModel!).Subscribe(shown.Add))
+        using (view.WhenChanged(static x => x.ViewModel!).Subscribe(shown.Add))
         {
             view.ViewModel = viewModel;
         }
@@ -145,8 +145,8 @@ public static class ViewForExamples
         // The bindings follow view.ViewModel, so the screen shows the view model they read.
         _ = Present(view, viewModel);
 
-        using (view.OneWayBind(viewModel, x => x.RemainingCount, v => v.RemainingLabel.Text, static count => count.ToString(CultureInfo.InvariantCulture)))
-        using (view.Bind(viewModel, x => x.NewTitle, v => v.NewTitleTextBox.Text))
+        using (view.OneWayBind(viewModel, static x => x.RemainingCount, static v => v.RemainingLabel.Text, static count => count.ToString(CultureInfo.InvariantCulture)))
+        using (view.Bind(viewModel, static x => x.NewTitle, static v => v.NewTitleTextBox.Text))
         {
             Console.WriteLine(view.RemainingLabel.Text);
 
@@ -173,7 +173,7 @@ public static class ViewForExamples
         TodoView view = new();
 
         // The binding follows view.ViewModel, which is still empty, so the label is left alone.
-        using (view.OneWayBind(household, x => x.RemainingCount, v => v.RemainingLabel.Text, static count => count.ToString(CultureInfo.InvariantCulture)))
+        using (view.OneWayBind(household, static x => x.RemainingCount, static v => v.RemainingLabel.Text, static count => count.ToString(CultureInfo.InvariantCulture)))
         {
             Console.WriteLine(view.RemainingLabel.Text ?? NoViewModelText);
 
@@ -200,7 +200,7 @@ public static class ViewForExamples
         AccountsView view = new();
         _ = Present(view, viewModel);
 
-        using (view.OneWayBind(viewModel, x => x.TotalBalance, v => v.TotalBalanceLabel.Text, static total => total.ToString("N2", CultureInfo.InvariantCulture)))
+        using (view.OneWayBind(viewModel, static x => x.TotalBalance, static v => v.TotalBalanceLabel.Text, static total => total.ToString("N2", CultureInfo.InvariantCulture)))
         {
             await viewModel.LoadAccountsAsync();
 

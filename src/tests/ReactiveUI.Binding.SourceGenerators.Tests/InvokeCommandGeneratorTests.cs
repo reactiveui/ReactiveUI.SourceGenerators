@@ -83,7 +83,7 @@ public class InvokeCommandGeneratorTests
                                       public static IDisposable InvokeCommand<T, TTarget>(
                                           this IObservable<T> source,
                                           TTarget target,
-                                          Expression<Func<TTarget, ICommand?>> commandProperty) => throw new NotImplementedException();
+                                          Func<TTarget, ICommand?> commandProperty) => throw new NotImplementedException();
                                   }
 
                                   public static class Scenario
@@ -277,7 +277,7 @@ public class InvokeCommandGeneratorTests
                                   {
                                       public static IDisposable Execute(IObservable<string> values, MyViewModel vm)
                                       {
-                                          Expression<Func<MyViewModel, ICommand?>> selector = x => x.Save;
+                                          Func<MyViewModel, ICommand?> selector = x => x.Save;
                                           return values.InvokeCommand(vm, selector);
                                       }
                                   }

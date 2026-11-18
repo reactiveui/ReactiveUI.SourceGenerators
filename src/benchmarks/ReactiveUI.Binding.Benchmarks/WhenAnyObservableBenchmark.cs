@@ -36,7 +36,7 @@ public class WhenAnyObservableBenchmark
     public void SingleStream()
     {
         var last = string.Empty;
-        using var sub = _vm.WhenAnyObservable(x => x.Signal!)
+        using var sub = _vm.WhenAnyObservable(static x => x.Signal!)
             .Subscribe(v => last = v);
 
         for (var i = 0; i < ValueCount; i++)
@@ -50,7 +50,7 @@ public class WhenAnyObservableBenchmark
     public void TwoStreams()
     {
         var last = string.Empty;
-        using var sub = _vm.WhenAnyObservable(x => x.Signal!, x => x.OtherSignal!)
+        using var sub = _vm.WhenAnyObservable(static x => x.Signal!, static x => x.OtherSignal!)
             .Subscribe(v => last = v);
 
         for (var i = 0; i < ValueCount; i++)
@@ -65,7 +65,7 @@ public class WhenAnyObservableBenchmark
     public void FirstObservation()
     {
         var result = string.Empty;
-        using var sub = _vm.WhenAnyObservable(x => x.Signal!)
+        using var sub = _vm.WhenAnyObservable(static x => x.Signal!)
             .Subscribe(v => result = v);
     }
 }

@@ -43,7 +43,7 @@ public class NoGeneratedBindingAnalyzerTests
 
             public static class Usage
             {
-                public static void Run(Person person, Expression<Func<Person, string?>> stored, ICommand command)
+                public static void Run(Person person, Func<Person, string?> stored, ICommand command)
                 {
                     CALLS
                 }
@@ -148,7 +148,7 @@ public class NoGeneratedBindingAnalyzerTests
                 {
                     extension<T>(T source)
                     {
-                        public IObservable<int> WhenChanged(Expression<Func<T, int>> property) => throw new InvalidOperationException();
+                        public IObservable<int> WhenChanged(Func<T, int> property) => throw new InvalidOperationException();
                     }
                 }
 

@@ -68,7 +68,7 @@ public static class ReactiveBindingExamples
         StorageBrowserView view = new() { ViewModel = browser };
         List<double> written = [];
 
-        using (var binding = view.OneWayBind(browser, x => x.UploadPercent, v => v.UploadProgressBar.Progress, static percent => percent / PercentPerBar))
+        using (var binding = view.OneWayBind(browser, static x => x.UploadPercent, static v => v.UploadProgressBar.Progress, static percent => percent / PercentPerBar))
         {
             Console.WriteLine(binding.Direction);
             Console.WriteLine(ReferenceEquals(view, binding.View));
@@ -96,7 +96,7 @@ public static class ReactiveBindingExamples
         TodoView view = new() { ViewModel = list };
         List<BindingChange> changes = [];
 
-        using (var binding = view.Bind(list, x => x.FilterText, v => v.FilterTextBox.Text))
+        using (var binding = view.Bind(list, static x => x.FilterText, static v => v.FilterTextBox.Text))
         using (binding.Changed.Subscribe(changes.Add))
         {
             Console.WriteLine(binding.Direction);
@@ -135,7 +135,7 @@ public static class ReactiveBindingExamples
         TodoListViewModel list = await OpenTodoListAsync();
         TodoView view = new() { ViewModel = list };
 
-        using IReactiveBinding<TodoView, BindingChange> binding = view.Bind(list, x => x.FilterText, v => v.FilterTextBox.Text);
+        using IReactiveBinding<TodoView, BindingChange> binding = view.Bind(list, static x => x.FilterText, static v => v.FilterTextBox.Text);
 
         Console.WriteLine(binding.ViewModelExpression is null);
         Console.WriteLine(binding.ViewExpression is null);

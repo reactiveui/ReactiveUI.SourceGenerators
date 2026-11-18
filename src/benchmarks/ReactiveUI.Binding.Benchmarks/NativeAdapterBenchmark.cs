@@ -57,10 +57,10 @@ public class NativeAdapterBenchmark : IObserver<int>
     public void Setup()
     {
         _view.ViewModel = new() { Run = _command };
-        _observation = _picker.WhenChanged(picker => picker.Value).Subscribe(this);
+        _observation = _picker.WhenChanged(static picker => picker.Value).Subscribe(this);
         _observed = 0;
-        _commandBinding = _view.BindCommand(_view.ViewModel, model => model.Run, view => view.Button);
-        _collectionBinding = _source.BindTo(_view, view => view.Controls);
+        _commandBinding = _view.BindCommand(_view.ViewModel, static model => model.Run, static view => view.Button);
+        _collectionBinding = _source.BindTo(_view, static view => view.Controls);
     }
 
     /// <summary>Checks every native operation was delivered and releases the bindings.</summary>

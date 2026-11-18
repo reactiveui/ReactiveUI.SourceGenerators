@@ -17,6 +17,12 @@ internal static class ExtractorValidation
     /// <summary>The number of parameters on a standard .NET event handler delegate (sender, event args).</summary>
     private const int StandardEventHandlerParameterCount = 2;
 
+    /// <summary>The number of type arguments of a delegate that reads a path: the source and the value.</summary>
+    private const int PathDelegateArity = 2;
+
+    /// <summary>The prefix of the parameters of <c>WhenAnyObservable</c> that take a path to an observable.</summary>
+    private const string ObservablePathPrefix = "obs";
+
     /// <summary>
     /// Checks whether a containing type name matches one of the recognized
     /// extension class names used by this generator (stub, scheduler, or generated).
@@ -49,6 +55,29 @@ internal static class ExtractorValidation
         && (IsRecognizedExtensionClass(containingType.Name)
             || (IsExtensionGroupingType(containingType)
                 && IsRecognizedExtensionClass(containingType.ContainingType?.Name)));
+
+    /// <summary>Determines whether a parameter of a binding entry point takes a property path.</summary>
+    /// <param name="parameter">The parameter of the resolved method.</param>
+    /// <returns><see langword="true"/> when the argument is a lambda naming a property path.</returns>
+    /// <remarks>
+    /// The generated entry points take the path as a delegate, so that the compiler builds no expression tree at
+    /// the call site. A delegate type alone does not mark a path out from a result selector or a converter, so the
+    /// stub's parameter name decides.
+    /// </remarks>
+    internal static bool IsPropertySelector(IParameterSymbol parameter) =>
+        parameter.Type is INamedTypeSymbol { Name: "Func", TypeArguments.Length: PathDelegateArity }
+        && IsPropertySelectorName(parameter.Name);
+
+    /// <summary>Determines whether a stub parameter name is one that takes a property path.</summary>
+    /// <param name="name">The parameter name.</param>
+    /// <returns><see langword="true"/> for <c>property1</c>, <c>obs1</c>, <c>sourceProperty</c> and the other path parameters.</returns>
+    internal static bool IsPropertySelectorName(string name) =>
+        name.StartsWith("property", StringComparison.Ordinal)
+        || name.EndsWith("Property", StringComparison.Ordinal)
+        || name is "controlName" or "withParameter"
+        || (name.Length > ObservablePathPrefix.Length
+            && name.StartsWith(ObservablePathPrefix, StringComparison.Ordinal)
+            && char.IsDigit(name[ObservablePathPrefix.Length]));
 
     /// <summary>Checks whether an invocation has at least the required number of arguments.</summary>
     /// <param name="argumentCount">The actual argument count.</param>

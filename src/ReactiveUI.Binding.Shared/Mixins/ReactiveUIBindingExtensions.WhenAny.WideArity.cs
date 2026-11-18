@@ -31,7 +31,7 @@ public static partial class ReactiveUIBindingExtensions
     /// <exception cref="InvalidOperationException">No generated WhenAny dispatch matched this call site. Use WhenAnyUnsafe to resolve the expression at run time.</exception>
     public static IObservable<TRet> WhenAny<TSender, TRet, T1>(
         this TSender sender,
-        Expression<Func<TSender, T1>> property1,
+        Func<TSender, T1> property1,
         Func<IObservedChange<TSender, T1>, TRet> selector,
         [CallerArgumentExpression("property1")]
         string property1Expression = "",
@@ -60,8 +60,8 @@ public static partial class ReactiveUIBindingExtensions
     [SuppressMessage("Design", "SST1472", Justification = "one selector per observed property; the parameter count is the shape of this overload")]
     public static IObservable<TRet> WhenAny<TSender, TRet, T1, T2>(
         this TSender sender,
-        Expression<Func<TSender, T1>> property1,
-        Expression<Func<TSender, T2>> property2,
+        Func<TSender, T1> property1,
+        Func<TSender, T2> property2,
         Func<IObservedChange<TSender, T1>, IObservedChange<TSender, T2>, TRet> selector,
         [CallerArgumentExpression("property1")]
         string property1Expression = "",
@@ -96,9 +96,9 @@ public static partial class ReactiveUIBindingExtensions
     [SuppressMessage("Design", "SST1523", Justification = "one observation step per observed property; the length is the shape of this overload")]
     public static IObservable<TRet> WhenAny<TSender, TRet, T1, T2, T3>(
         this TSender sender,
-        Expression<Func<TSender, T1>> property1,
-        Expression<Func<TSender, T2>> property2,
-        Expression<Func<TSender, T3>> property3,
+        Func<TSender, T1> property1,
+        Func<TSender, T2> property2,
+        Func<TSender, T3> property3,
         Func<IObservedChange<TSender, T1>, IObservedChange<TSender, T2>, IObservedChange<TSender, T3>, TRet> selector,
         [CallerArgumentExpression("property1")]
         string property1Expression = "",
@@ -138,10 +138,10 @@ public static partial class ReactiveUIBindingExtensions
     [SuppressMessage("Design", "SST1523", Justification = "one observation step per observed property; the length is the shape of this overload")]
     public static IObservable<TRet> WhenAny<TSender, TRet, T1, T2, T3, T4>(
         this TSender sender,
-        Expression<Func<TSender, T1>> property1,
-        Expression<Func<TSender, T2>> property2,
-        Expression<Func<TSender, T3>> property3,
-        Expression<Func<TSender, T4>> property4,
+        Func<TSender, T1> property1,
+        Func<TSender, T2> property2,
+        Func<TSender, T3> property3,
+        Func<TSender, T4> property4,
         Func<
             IObservedChange<TSender, T1>,
             IObservedChange<TSender, T2>,
@@ -191,11 +191,11 @@ public static partial class ReactiveUIBindingExtensions
     [SuppressMessage("Design", "SST1523", Justification = "one observation step per observed property; the length is the shape of this overload")]
     public static IObservable<TRet> WhenAny<TSender, TRet, T1, T2, T3, T4, T5>(
         this TSender sender,
-        Expression<Func<TSender, T1>> property1,
-        Expression<Func<TSender, T2>> property2,
-        Expression<Func<TSender, T3>> property3,
-        Expression<Func<TSender, T4>> property4,
-        Expression<Func<TSender, T5>> property5,
+        Func<TSender, T1> property1,
+        Func<TSender, T2> property2,
+        Func<TSender, T3> property3,
+        Func<TSender, T4> property4,
+        Func<TSender, T5> property5,
         Func<
             IObservedChange<TSender, T1>,
             IObservedChange<TSender, T2>,
@@ -251,12 +251,12 @@ public static partial class ReactiveUIBindingExtensions
     [SuppressMessage("Design", "SST1523", Justification = "one observation step per observed property; the length is the shape of this overload")]
     public static IObservable<TRet> WhenAny<TSender, TRet, T1, T2, T3, T4, T5, T6>(
         this TSender sender,
-        Expression<Func<TSender, T1>> property1,
-        Expression<Func<TSender, T2>> property2,
-        Expression<Func<TSender, T3>> property3,
-        Expression<Func<TSender, T4>> property4,
-        Expression<Func<TSender, T5>> property5,
-        Expression<Func<TSender, T6>> property6,
+        Func<TSender, T1> property1,
+        Func<TSender, T2> property2,
+        Func<TSender, T3> property3,
+        Func<TSender, T4> property4,
+        Func<TSender, T5> property5,
+        Func<TSender, T6> property6,
         Func<
             IObservedChange<TSender, T1>,
             IObservedChange<TSender, T2>,
@@ -318,13 +318,13 @@ public static partial class ReactiveUIBindingExtensions
     [SuppressMessage("Design", "SST1523", Justification = "one observation step per observed property; the length is the shape of this overload")]
     public static IObservable<TRet> WhenAny<TSender, TRet, T1, T2, T3, T4, T5, T6, T7>(
         this TSender sender,
-        Expression<Func<TSender, T1>> property1,
-        Expression<Func<TSender, T2>> property2,
-        Expression<Func<TSender, T3>> property3,
-        Expression<Func<TSender, T4>> property4,
-        Expression<Func<TSender, T5>> property5,
-        Expression<Func<TSender, T6>> property6,
-        Expression<Func<TSender, T7>> property7,
+        Func<TSender, T1> property1,
+        Func<TSender, T2> property2,
+        Func<TSender, T3> property3,
+        Func<TSender, T4> property4,
+        Func<TSender, T5> property5,
+        Func<TSender, T6> property6,
+        Func<TSender, T7> property7,
         Func<
             IObservedChange<TSender, T1>,
             IObservedChange<TSender, T2>,
@@ -392,14 +392,14 @@ public static partial class ReactiveUIBindingExtensions
     [SuppressMessage("Design", "SST1523", Justification = "one observation step per observed property; the length is the shape of this overload")]
     public static IObservable<TRet> WhenAny<TSender, TRet, T1, T2, T3, T4, T5, T6, T7, T8>(
         this TSender sender,
-        Expression<Func<TSender, T1>> property1,
-        Expression<Func<TSender, T2>> property2,
-        Expression<Func<TSender, T3>> property3,
-        Expression<Func<TSender, T4>> property4,
-        Expression<Func<TSender, T5>> property5,
-        Expression<Func<TSender, T6>> property6,
-        Expression<Func<TSender, T7>> property7,
-        Expression<Func<TSender, T8>> property8,
+        Func<TSender, T1> property1,
+        Func<TSender, T2> property2,
+        Func<TSender, T3> property3,
+        Func<TSender, T4> property4,
+        Func<TSender, T5> property5,
+        Func<TSender, T6> property6,
+        Func<TSender, T7> property7,
+        Func<TSender, T8> property8,
         Func<
             IObservedChange<TSender, T1>,
             IObservedChange<TSender, T2>,
@@ -473,15 +473,15 @@ public static partial class ReactiveUIBindingExtensions
     [SuppressMessage("Design", "SST1523", Justification = "one observation step per observed property; the length is the shape of this overload")]
     public static IObservable<TRet> WhenAny<TSender, TRet, T1, T2, T3, T4, T5, T6, T7, T8, T9>(
         this TSender sender,
-        Expression<Func<TSender, T1>> property1,
-        Expression<Func<TSender, T2>> property2,
-        Expression<Func<TSender, T3>> property3,
-        Expression<Func<TSender, T4>> property4,
-        Expression<Func<TSender, T5>> property5,
-        Expression<Func<TSender, T6>> property6,
-        Expression<Func<TSender, T7>> property7,
-        Expression<Func<TSender, T8>> property8,
-        Expression<Func<TSender, T9>> property9,
+        Func<TSender, T1> property1,
+        Func<TSender, T2> property2,
+        Func<TSender, T3> property3,
+        Func<TSender, T4> property4,
+        Func<TSender, T5> property5,
+        Func<TSender, T6> property6,
+        Func<TSender, T7> property7,
+        Func<TSender, T8> property8,
+        Func<TSender, T9> property9,
         Func<
             IObservedChange<TSender, T1>,
             IObservedChange<TSender, T2>,
@@ -561,16 +561,16 @@ public static partial class ReactiveUIBindingExtensions
     [SuppressMessage("Design", "SST1523", Justification = "one observation step per observed property; the length is the shape of this overload")]
     public static IObservable<TRet> WhenAny<TSender, TRet, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
         this TSender sender,
-        Expression<Func<TSender, T1>> property1,
-        Expression<Func<TSender, T2>> property2,
-        Expression<Func<TSender, T3>> property3,
-        Expression<Func<TSender, T4>> property4,
-        Expression<Func<TSender, T5>> property5,
-        Expression<Func<TSender, T6>> property6,
-        Expression<Func<TSender, T7>> property7,
-        Expression<Func<TSender, T8>> property8,
-        Expression<Func<TSender, T9>> property9,
-        Expression<Func<TSender, T10>> property10,
+        Func<TSender, T1> property1,
+        Func<TSender, T2> property2,
+        Func<TSender, T3> property3,
+        Func<TSender, T4> property4,
+        Func<TSender, T5> property5,
+        Func<TSender, T6> property6,
+        Func<TSender, T7> property7,
+        Func<TSender, T8> property8,
+        Func<TSender, T9> property9,
+        Func<TSender, T10> property10,
         Func<
             IObservedChange<TSender, T1>,
             IObservedChange<TSender, T2>,
@@ -656,17 +656,17 @@ public static partial class ReactiveUIBindingExtensions
     [SuppressMessage("Design", "SST1523", Justification = "one observation step per observed property; the length is the shape of this overload")]
     public static IObservable<TRet> WhenAny<TSender, TRet, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(
         this TSender sender,
-        Expression<Func<TSender, T1>> property1,
-        Expression<Func<TSender, T2>> property2,
-        Expression<Func<TSender, T3>> property3,
-        Expression<Func<TSender, T4>> property4,
-        Expression<Func<TSender, T5>> property5,
-        Expression<Func<TSender, T6>> property6,
-        Expression<Func<TSender, T7>> property7,
-        Expression<Func<TSender, T8>> property8,
-        Expression<Func<TSender, T9>> property9,
-        Expression<Func<TSender, T10>> property10,
-        Expression<Func<TSender, T11>> property11,
+        Func<TSender, T1> property1,
+        Func<TSender, T2> property2,
+        Func<TSender, T3> property3,
+        Func<TSender, T4> property4,
+        Func<TSender, T5> property5,
+        Func<TSender, T6> property6,
+        Func<TSender, T7> property7,
+        Func<TSender, T8> property8,
+        Func<TSender, T9> property9,
+        Func<TSender, T10> property10,
+        Func<TSender, T11> property11,
         Func<
             IObservedChange<TSender, T1>,
             IObservedChange<TSender, T2>,
@@ -758,18 +758,18 @@ public static partial class ReactiveUIBindingExtensions
     [SuppressMessage("Design", "SST1523", Justification = "one observation step per observed property; the length is the shape of this overload")]
     public static IObservable<TRet> WhenAny<TSender, TRet, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(
         this TSender sender,
-        Expression<Func<TSender, T1>> property1,
-        Expression<Func<TSender, T2>> property2,
-        Expression<Func<TSender, T3>> property3,
-        Expression<Func<TSender, T4>> property4,
-        Expression<Func<TSender, T5>> property5,
-        Expression<Func<TSender, T6>> property6,
-        Expression<Func<TSender, T7>> property7,
-        Expression<Func<TSender, T8>> property8,
-        Expression<Func<TSender, T9>> property9,
-        Expression<Func<TSender, T10>> property10,
-        Expression<Func<TSender, T11>> property11,
-        Expression<Func<TSender, T12>> property12,
+        Func<TSender, T1> property1,
+        Func<TSender, T2> property2,
+        Func<TSender, T3> property3,
+        Func<TSender, T4> property4,
+        Func<TSender, T5> property5,
+        Func<TSender, T6> property6,
+        Func<TSender, T7> property7,
+        Func<TSender, T8> property8,
+        Func<TSender, T9> property9,
+        Func<TSender, T10> property10,
+        Func<TSender, T11> property11,
+        Func<TSender, T12> property12,
         Func<
             IObservedChange<TSender, T1>,
             IObservedChange<TSender, T2>,

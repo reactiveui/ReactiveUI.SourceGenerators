@@ -25,21 +25,21 @@ public partial class BindingInvocationAnalyzerTests
                                         {
                                             public static object WhenChanged<TObj, TReturn>(
                                                 this TObj obj,
-                                                Expression<Func<TObj, TReturn>> property)
+                                                Func<TObj, TReturn> property)
                                                 where TObj : class
                                                 => throw new NotImplementedException();
 
                                             public static object WhenChanging<TObj, TReturn>(
                                                 this TObj obj,
-                                                Expression<Func<TObj, TReturn>> property)
+                                                Func<TObj, TReturn> property)
                                                 where TObj : class
                                                 => throw new NotImplementedException();
 
                                             public static object BindOneWay<TSource, TTarget, TValue>(
                                                 this TSource source,
                                                 TTarget target,
-                                                Expression<Func<TSource, TValue>> sourceProperty,
-                                                Expression<Func<TTarget, TValue>> targetProperty)
+                                                Func<TSource, TValue> sourceProperty,
+                                                Func<TTarget, TValue> targetProperty)
                                                 where TSource : class
                                                 where TTarget : class
                                                 => throw new NotImplementedException();
@@ -47,8 +47,8 @@ public partial class BindingInvocationAnalyzerTests
                                             public static object BindTwoWay<TSource, TTarget, TValue>(
                                                 this TSource source,
                                                 TTarget target,
-                                                Expression<Func<TSource, TValue>> sourceProperty,
-                                                Expression<Func<TTarget, TValue>> targetProperty)
+                                                Func<TSource, TValue> sourceProperty,
+                                                Func<TTarget, TValue> targetProperty)
                                                 where TSource : class
                                                 where TTarget : class
                                                 => throw new NotImplementedException();
@@ -56,7 +56,7 @@ public partial class BindingInvocationAnalyzerTests
                                             public static IDisposable BindTo<TValue, TTarget, TTargetValue>(
                                                 this IObservable<TValue> source,
                                                 TTarget target,
-                                                Expression<Func<TTarget, TTargetValue>> property)
+                                                Func<TTarget, TTargetValue> property)
                                                 where TTarget : class
                                                 => throw new NotImplementedException();
                                         }
@@ -82,7 +82,7 @@ public partial class BindingInvocationAnalyzerTests
                                                               public static IDisposable BindInteraction<TViewModel, TView, TInput, TOutput>(
                                                                   this TView view,
                                                                   TViewModel? viewModel,
-                                                                  Expression<Func<TViewModel, IInteraction<TInput, TOutput>>> propertyName,
+                                                                  Func<TViewModel, IInteraction<TInput, TOutput>> propertyName,
                                                                   Func<IInteractionContext<TInput, TOutput>, Task> handler)
                                                                   where TViewModel : class
                                                                   where TView : class, IViewFor
@@ -92,7 +92,7 @@ public partial class BindingInvocationAnalyzerTests
                                                               public static IDisposable BindInteraction<TViewModel, TView, TProperty>(
                                                                   this TView view,
                                                                   TViewModel? viewModel,
-                                                                  Expression<Func<TViewModel, TProperty>> propertyName,
+                                                                  Func<TViewModel, TProperty> propertyName,
                                                                   Func<object, Task> handler)
                                                                   where TViewModel : class
                                                                   where TView : class, IViewFor
@@ -101,8 +101,8 @@ public partial class BindingInvocationAnalyzerTests
                                                               public static IDisposable BindCommand<TView, TViewModel, TProp, TControl>(
                                                                   this TView view,
                                                                   TViewModel? viewModel,
-                                                                  Expression<Func<TViewModel, TProp?>> propertyName,
-                                                                  Expression<Func<TView, TControl>> controlName,
+                                                                  Func<TViewModel, TProp?> propertyName,
+                                                                  Func<TView, TControl> controlName,
                                                                   string? toEvent = null)
                                                                   where TView : class, IViewFor
                                                                   where TViewModel : class

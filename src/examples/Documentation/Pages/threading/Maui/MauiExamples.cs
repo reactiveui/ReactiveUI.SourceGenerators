@@ -184,7 +184,7 @@ public static class MauiExamples
         MauiTodoPage view = new();
         List<string?> texts = [];
 
-        using (view.FilterEntry.WhenChanged(x => x.Text).Subscribe(texts.Add))
+        using (view.FilterEntry.WhenChanged(static x => x.Text).Subscribe(texts.Add))
         {
             view.FilterEntry.Text = CarFilter;
         }
@@ -206,10 +206,10 @@ public static class MauiExamples
         viewModel.Draft.Source = viewModel.Accounts[0];
         viewModel.Draft.Payee = viewModel.Payees[0];
 
-        using (viewModel.Draft.BindTwoWay(view, x => x.Amount, v => v.AmountEntry.Text, new DecimalToStringTypeConverter(), new StringToDecimalTypeConverter()))
-        using (view.OneWayBind(viewModel, x => x.IsValid, v => v.ValidationVisibility, new BooleanToVisibilityTypeConverter(), BooleanToVisibilityHints.Inverse))
-        using (viewModel.BindOneWay(view, x => x.ValidationSummary, v => v.ValidationLabel.Text))
-        using (view.BindCommand(viewModel, x => x.TransferCommand, v => v.TransferButton))
+        using (viewModel.Draft.BindTwoWay(view, static x => x.Amount, static v => v.AmountEntry.Text, new DecimalToStringTypeConverter(), new StringToDecimalTypeConverter()))
+        using (view.OneWayBind(viewModel, static x => x.IsValid, static v => v.ValidationVisibility, new BooleanToVisibilityTypeConverter(), BooleanToVisibilityHints.Inverse))
+        using (viewModel.BindOneWay(view, static x => x.ValidationSummary, static v => v.ValidationLabel.Text))
+        using (view.BindCommand(viewModel, static x => x.TransferCommand, static v => v.TransferButton))
         {
             Console.WriteLine(view.AmountEntry.Text);
             Console.WriteLine(view.ValidationVisibility);
@@ -254,9 +254,9 @@ public static class MauiExamples
         int allItems = viewModel.Items.Count;
         viewModel.SelectedItem = viewModel.Items[0];
 
-        using (viewModel.BindTwoWay(view, x => x.FilterText, v => v.FilterEntry.Text))
-        using (viewModel.BindTwoWay(view, x => x.SelectedItem!.IsDone, v => v.DoneCheckBox.IsChecked))
-        using (viewModel.BindOneWay(view, x => x.RemainingCount, v => v.RemainingLabel.Text, static count => count.ToString(CultureInfo.InvariantCulture)))
+        using (viewModel.BindTwoWay(view, static x => x.FilterText, static v => v.FilterEntry.Text))
+        using (viewModel.BindTwoWay(view, static x => x.SelectedItem!.IsDone, static v => v.DoneCheckBox.IsChecked))
+        using (viewModel.BindOneWay(view, static x => x.RemainingCount, static v => v.RemainingLabel.Text, static count => count.ToString(CultureInfo.InvariantCulture)))
         {
             Console.WriteLine(view.RemainingLabel.Text);
             Console.WriteLine(view.DoneCheckBox.IsChecked);
@@ -289,7 +289,7 @@ public static class MauiExamples
         TodoItem item = new() { Title = CarRegistrationTitle };
         MauiTodoPage view = new();
 
-        using (item.BindTwoWay(view, x => x.IsDone, v => v.DoneMarkVisibility, new BooleanToVisibilityTypeConverter(), new VisibilityToBooleanTypeConverter()))
+        using (item.BindTwoWay(view, static x => x.IsDone, static v => v.DoneMarkVisibility, new BooleanToVisibilityTypeConverter(), new VisibilityToBooleanTypeConverter()))
         {
             Console.WriteLine(view.DoneMarkVisibility);
             Console.WriteLine(view.DoneMark.IsVisible);
@@ -320,8 +320,8 @@ public static class MauiExamples
         await viewModel.LoadAsync();
         TodoView view = new() { ViewModel = viewModel };
 
-        using (viewModel.BindOneWay(view, x => x.Items, v => v.ItemsList.ItemsSource, static items => (IEnumerable)items))
-        using (viewModel.BindTwoWay(view, x => x.SelectedItem, v => v.ItemsList.SelectedItem, static item => item, static selected => (TodoItem)selected!))
+        using (viewModel.BindOneWay(view, static x => x.Items, static v => v.ItemsList.ItemsSource, static items => (IEnumerable)items))
+        using (viewModel.BindTwoWay(view, static x => x.SelectedItem, static v => v.ItemsList.SelectedItem, static item => item, static selected => (TodoItem)selected!))
         {
             Console.WriteLine(view.ItemsList.ItemsSource.Cast<object>().Count());
 
@@ -471,8 +471,8 @@ public static class MauiExamples
         UploadRequest photo = new(OffsitePhotoName, OffsitePhotoSize, JpegType);
         bool writtenOnPoolThread = false;
 
-        using (view.UploadProgressBar.WhenChanged(x => x.Progress).Subscribe(_ => writtenOnPoolThread |= Thread.CurrentThread.IsThreadPoolThread))
-        using (viewModel.BindOneWay(view, x => x.UploadPercent, v => v.UploadProgressBar.Progress, static percent => percent / FullPercent))
+        using (view.UploadProgressBar.WhenChanged(static x => x.Progress).Subscribe(_ => writtenOnPoolThread |= Thread.CurrentThread.IsThreadPoolThread))
+        using (viewModel.BindOneWay(view, static x => x.UploadPercent, static v => v.UploadProgressBar.Progress, static percent => percent / FullPercent))
         {
             await viewModel.UploadAsync(photo);
 

@@ -232,8 +232,7 @@ internal static class ObservationExtractor
                 break;
             }
 
-            // Check if parameter type is Expression<Func<...>>
-            if (parameter.Type is INamedTypeSymbol { Name: "Expression" })
+            if (ExtractorValidation.IsPropertySelector(parameter))
             {
                 // One path generated code cannot read leaves the whole call to the runtime stub. Keeping the
                 // others would generate a method with fewer parameters than the call, which an interceptor cannot claim.

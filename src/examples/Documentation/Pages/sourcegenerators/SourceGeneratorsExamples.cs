@@ -17,7 +17,7 @@ public static class SourceGeneratorsExamples
     {
         ProfileViewModel profile = new ProfileViewModel();
 
-        using IDisposable subscription = profile.WhenAnyValue(x => x.DisplayName).Subscribe(Console.WriteLine);
+        using IDisposable subscription = profile.WhenAnyValue(static x => x.DisplayName).Subscribe(Console.WriteLine);
 
         profile.DisplayName = "Grace";
 
@@ -31,7 +31,7 @@ public static class SourceGeneratorsExamples
     {
         ProfileCard card = new ProfileCard();
 
-        using IDisposable subscription = card.WhenAnyValue(x => x.Title).Subscribe(Console.WriteLine);
+        using IDisposable subscription = card.WhenAnyValue(static x => x.Title).Subscribe(Console.WriteLine);
 
         card.Title = "Lead engineer";
 
@@ -46,7 +46,7 @@ public static class SourceGeneratorsExamples
         ProfileViewModel profile = new ProfileViewModel();
         ProfileView view = new ProfileView { ViewModel = profile };
 
-        using IDisposable binding = view.Bind(profile, x => x.DisplayName, v => v.NameText);
+        using IDisposable binding = view.Bind(profile, static x => x.DisplayName, static v => v.NameText);
 
         Console.WriteLine(view.NameText);
 
@@ -84,7 +84,7 @@ public static class SourceGeneratorsExamples
         ProfileViewModel profile = new ProfileViewModel();
         ProfileView view = new ProfileView { ViewModel = profile };
 
-        using IDisposable binding = view.BindCommand(profile, x => x.SaveCommand, v => v.Save);
+        using IDisposable binding = view.BindCommand(profile, static x => x.SaveCommand, static v => v.Save);
 
         view.Save.Press();
 

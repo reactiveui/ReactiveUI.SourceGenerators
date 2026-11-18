@@ -53,7 +53,7 @@ public static class AffinityExamples
     /// <param name="item">The item to observe.</param>
     public static void ObserveNotifyingClass(TodoItem item)
     {
-        using (item.WhenChanged(x => x.IsDone).Subscribe(Console.WriteLine))
+        using (item.WhenChanged(static x => x.IsDone).Subscribe(Console.WriteLine))
         {
             item.IsDone = true;
         }
@@ -67,7 +67,7 @@ public static class AffinityExamples
     /// <param name="stored">The stored object to observe.</param>
     public static void ObservePlainClass(StorageObject stored)
     {
-        using (stored.WhenChanged(x => x.Size).Subscribe(Console.WriteLine))
+        using (stored.WhenChanged(static x => x.Size).Subscribe(Console.WriteLine))
         {
             stored.Size = ResizedBytes;
         }
@@ -140,8 +140,8 @@ public static class AffinityExamples
     /// <param name="item">The item to observe.</param>
     public static void ObserveWithTiedAndOutrankingProviders(TodoItem item)
     {
-        using (item.WhenChanged(x => x.Notes).Subscribe(Console.WriteLine))
-        using (item.WhenChanged(x => x.Title).Subscribe(Console.WriteLine))
+        using (item.WhenChanged(static x => x.Notes).Subscribe(Console.WriteLine))
+        using (item.WhenChanged(static x => x.Title).Subscribe(Console.WriteLine))
         {
             item.Notes = EditedNotes;
             item.Title = EditedTitle;

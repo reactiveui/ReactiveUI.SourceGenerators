@@ -38,7 +38,7 @@ public class BindBenchmark
     [Benchmark(Description = "Bind")]
     public void Standard()
     {
-        using var binding = _view.Bind(_viewModel, x => x.Name, x => x.DisplayName);
+        using var binding = _view.Bind(_viewModel, static x => x.Name, static x => x.DisplayName);
 
         for (var i = 0; i < PropertyChangeCount; i++)
         {
@@ -50,7 +50,7 @@ public class BindBenchmark
     [Benchmark(Description = "Bind bidirectional")]
     public void Bidirectional()
     {
-        using var binding = _view.Bind(_viewModel, x => x.Name, x => x.DisplayName);
+        using var binding = _view.Bind(_viewModel, static x => x.Name, static x => x.DisplayName);
 
         for (var i = 0; i < PropertyChangeCount; i++)
         {
@@ -72,7 +72,7 @@ public class BindBenchmark
     [Benchmark(Description = "Bind + observed changes")]
     public void WithObservedChanges()
     {
-        using var binding = _view.Bind(_viewModel, x => x.Name, x => x.DisplayName);
+        using var binding = _view.Bind(_viewModel, static x => x.Name, static x => x.DisplayName);
         using var watching = binding.Changed.Subscribe(new CountingObserver());
 
         for (var i = 0; i < PropertyChangeCount; i++)

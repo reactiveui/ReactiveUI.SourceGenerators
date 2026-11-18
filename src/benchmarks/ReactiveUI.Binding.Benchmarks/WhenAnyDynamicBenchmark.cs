@@ -107,7 +107,7 @@ public class WhenAnyDynamicBenchmark
     public void SingleChainGenerated()
     {
         var last = string.Empty;
-        using var sub = _vm.WhenChanged(x => x.Name)
+        using var sub = _vm.WhenChanged(static x => x.Name)
             .Subscribe(v => last = v);
 
         for (var i = 0; i < PropertyChangeCount; i++)

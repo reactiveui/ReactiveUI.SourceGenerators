@@ -16,9 +16,9 @@ public static class XamlExamples
         SignInViewModel viewModel = new SignInViewModel { UserName = "ada" };
         MauiSignInPage page = new MauiSignInPage { ViewModel = viewModel };
 
-        using IDisposable name = page.Bind(viewModel, x => x.UserName, v => v.UserNameEntry.Text);
-        using IDisposable status = page.OneWayBind(viewModel, x => x.Status, v => v.StatusLabel.Text);
-        using IDisposable signIn = page.BindCommand(viewModel, x => x.SignIn, v => v.SignInButton);
+        using IDisposable name = page.Bind(viewModel, static x => x.UserName, static v => v.UserNameEntry.Text);
+        using IDisposable status = page.OneWayBind(viewModel, static x => x.Status, static v => v.StatusLabel.Text);
+        using IDisposable signIn = page.BindCommand(viewModel, static x => x.SignIn, static v => v.SignInButton);
 
         page.UserNameEntry.Text = "grace";
         page.SignInButton.Command.Execute(null);
@@ -37,8 +37,8 @@ public static class XamlExamples
         SignInViewModel viewModel = new SignInViewModel { UserName = "ada" };
         AvaloniaSignInView view = new AvaloniaSignInView { ViewModel = viewModel };
 
-        using IDisposable name = view.Bind(viewModel, x => x.UserName, v => v.UserNameBox.Text);
-        using IDisposable status = view.OneWayBind(viewModel, x => x.Status, v => v.StatusText.Text);
+        using IDisposable name = view.Bind(viewModel, static x => x.UserName, static v => v.UserNameBox.Text);
+        using IDisposable status = view.OneWayBind(viewModel, static x => x.Status, static v => v.StatusText.Text);
 
         Console.WriteLine(view.UserNameBox.Text);
 

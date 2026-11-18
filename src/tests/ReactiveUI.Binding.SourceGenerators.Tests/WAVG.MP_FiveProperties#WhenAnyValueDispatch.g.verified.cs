@@ -14,11 +14,11 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         /// </summary>
         public static global::System.IObservable<global::ReactiveUI.Binding.PropertyValues<string, int, double, bool, string>> WhenAnyValue(
             this global::SharedScenarios.WhenAnyValue.MultiPropertyFiveProperties.MyViewModel objectToMonitor,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.WhenAnyValue.MultiPropertyFiveProperties.MyViewModel, string?>> property1,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.WhenAnyValue.MultiPropertyFiveProperties.MyViewModel, int>> property2,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.WhenAnyValue.MultiPropertyFiveProperties.MyViewModel, double>> property3,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.WhenAnyValue.MultiPropertyFiveProperties.MyViewModel, bool>> property4,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.WhenAnyValue.MultiPropertyFiveProperties.MyViewModel, string?>> property5,
+            global::System.Func<global::SharedScenarios.WhenAnyValue.MultiPropertyFiveProperties.MyViewModel, string?> property1,
+            global::System.Func<global::SharedScenarios.WhenAnyValue.MultiPropertyFiveProperties.MyViewModel, int> property2,
+            global::System.Func<global::SharedScenarios.WhenAnyValue.MultiPropertyFiveProperties.MyViewModel, double> property3,
+            global::System.Func<global::SharedScenarios.WhenAnyValue.MultiPropertyFiveProperties.MyViewModel, bool> property4,
+            global::System.Func<global::SharedScenarios.WhenAnyValue.MultiPropertyFiveProperties.MyViewModel, string?> property5,
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("property1")] string property1Expression = "",
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("property2")] string property2Expression = "",
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("property3")] string property3Expression = "",

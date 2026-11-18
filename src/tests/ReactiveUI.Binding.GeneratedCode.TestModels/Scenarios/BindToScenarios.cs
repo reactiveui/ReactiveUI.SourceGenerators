@@ -17,5 +17,5 @@ public static class BindToScenarios
     /// <returns>A disposable that, when disposed, disconnects the binding.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IDisposable StringToString(IObservable<string> source, BigView target) =>
-        source.BindTo(target, x => x.ViewProp1);
+        source.BindTo(target, static x => x.ViewProp1);
 }

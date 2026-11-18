@@ -64,7 +64,7 @@ public static class AvaloniaExamples
         AvaloniaTodoView view = new();
         List<string?> texts = [];
 
-        using (view.FilterTextBox.WhenChanged(x => x.Text).Subscribe(texts.Add))
+        using (view.FilterTextBox.WhenChanged(static x => x.Text).Subscribe(texts.Add))
         {
             view.FilterTextBox.Text = CarFilter;
         }
@@ -85,9 +85,9 @@ public static class AvaloniaExamples
         int allItems = viewModel.Items.Count;
         viewModel.SelectedItem = viewModel.Items[0];
 
-        using (viewModel.BindTwoWay(view, x => x.FilterText, v => v.FilterTextBox.Text))
-        using (viewModel.BindTwoWay(view, x => x.SelectedItem!.IsDone, v => v.DoneCheckBox.IsChecked, static done => done, static isChecked => isChecked == true))
-        using (viewModel.BindOneWay(view, x => x.RemainingCount, v => v.RemainingLabel.Text, static count => count.ToString(CultureInfo.InvariantCulture)))
+        using (viewModel.BindTwoWay(view, static x => x.FilterText, static v => v.FilterTextBox.Text))
+        using (viewModel.BindTwoWay(view, static x => x.SelectedItem!.IsDone, static v => v.DoneCheckBox.IsChecked, static done => done, static isChecked => isChecked == true))
+        using (viewModel.BindOneWay(view, static x => x.RemainingCount, static v => v.RemainingLabel.Text, static count => count.ToString(CultureInfo.InvariantCulture)))
         {
             Console.WriteLine(view.RemainingLabel.Text);
             Console.WriteLine(view.DoneCheckBox.IsChecked);
@@ -122,8 +122,8 @@ public static class AvaloniaExamples
         await viewModel.LoadAsync();
         AvaloniaTodoView view = new() { ViewModel = viewModel };
 
-        using (viewModel.BindOneWay(view, x => x.Items, v => v.ItemsList.ItemsSource, static items => (IEnumerable)items))
-        using (viewModel.BindTwoWay(view, x => x.SelectedItem, v => v.ItemsList.SelectedItem, static item => item, static selected => (TodoItem)selected!))
+        using (viewModel.BindOneWay(view, static x => x.Items, static v => v.ItemsList.ItemsSource, static items => (IEnumerable)items))
+        using (viewModel.BindTwoWay(view, static x => x.SelectedItem, static v => v.ItemsList.SelectedItem, static item => item, static selected => (TodoItem)selected!))
         {
             Console.WriteLine(view.ItemsList.ItemCount);
 
@@ -148,9 +148,9 @@ public static class AvaloniaExamples
         viewModel.Draft.Source = viewModel.Accounts[0];
         viewModel.Draft.Payee = viewModel.Payees[0];
 
-        using (viewModel.Draft.BindTwoWay(view, x => x.Amount, v => v.AmountTextBox.Text, static amount => amount.ToString(TwoDecimalPlaces, CultureInfo.InvariantCulture), ParseAmount))
-        using (viewModel.BindOneWay(view, x => x.ValidationSummary, v => v.ValidationLabel.Text))
-        using (viewModel.BindOneWay(view, x => x.TransferCommand, v => v.TransferButton.Command, static command => command))
+        using (viewModel.Draft.BindTwoWay(view, static x => x.Amount, static v => v.AmountTextBox.Text, static amount => amount.ToString(TwoDecimalPlaces, CultureInfo.InvariantCulture), ParseAmount))
+        using (viewModel.BindOneWay(view, static x => x.ValidationSummary, static v => v.ValidationLabel.Text))
+        using (viewModel.BindOneWay(view, static x => x.TransferCommand, static v => v.TransferButton.Command, static command => command))
         {
             Console.WriteLine(view.AmountTextBox.Text);
             Console.WriteLine(view.ValidationLabel.Text);
@@ -222,7 +222,7 @@ public static class AvaloniaExamples
         AvaloniaUploadView view = new() { ViewModel = viewModel };
         UploadRequest photo = new(OffsitePhotoName, OffsitePhotoSize, JpegType);
 
-        using (viewModel.BindOneWay(view, x => x.UploadPercent, v => v.UploadProgressBar.Value))
+        using (viewModel.BindOneWay(view, static x => x.UploadPercent, static v => v.UploadProgressBar.Value))
         {
             Console.WriteLine(view.UploadProgressBar.Value);
 

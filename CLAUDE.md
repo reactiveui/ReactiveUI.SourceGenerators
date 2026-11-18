@@ -386,6 +386,7 @@ src/
 │   │   └── ToPropertyInvocationGenerator.cs     # Observable-backed read-only property
 │   ├── Helpers/                                 # Extraction and validation helpers
 │   │   ├── ViewRegistrationExtractor.cs         # IViewFor<T> → ViewRegistrationInfo extraction
+│   │   ├── PathSyntax.cs                        # Walks a selector's path through !, parentheses and ?. (linked to Analyzer)
 │   │   ├── SourceGeneratorsMemberExtractor.cs   # ReactiveUI.SourceGenerators' naming and typing rules
 │   │   ├── XamlPageReader.cs                    # Named elements of MAUI and Avalonia XAML pages
 │   │   ├── XamlMemberResolver.cs                # Those elements' types, as fields of the code-behind class
@@ -404,7 +405,7 @@ src/
 │
 ├── ReactiveUI.Binding.Analyzer/                 # Roslyn analyzer (netstandard2.0)
 │   ├── Analyzers/
-│   │   ├── BindingInvocationAnalyzer.cs          # RXUIBIND001, 003, 004, 005, 006, 007, 008
+│   │   ├── BindingInvocationAnalyzer.cs          # RXUIBIND001, 003, 004, 005, 006, 007, 008, 010, 022
 │   │   ├── DispatchReachAnalyzer.cs              # RXUIBIND009
 │   │   ├── ServiceLocatorViewAnalyzer.cs         # RXUIBIND020
 │   │   ├── TypeAnalyzer.cs                       # RXUIBIND002
@@ -522,12 +523,25 @@ two ways.
 A call site the generator cannot read has to use the `Unsafe` overload. That overload finds properties by
 reflection.
 
+**Every property path is a delegate.** The stubs, the generated overloads and the interceptors take a path as
+`Func<TSource, TValue>`. An expression tree parameter makes the compiler build the tree at the call site on every
+call, by reflection, even though generated code never reads it. Only the `Unsafe` overloads take
+`Expression<Func<TSource, TValue>>`, because they read the tree. Three things follow:
+
+- A delegate type alone does not mark a path out from a result selector or a converter, so
+  `ExtractorValidation.IsPropertySelector` decides by the stub's parameter name (`property1`, `obs1`,
+  `sourceProperty`, `controlName` and the rest). A new stub's path parameters have to pass that test.
+- A delegate accepts any lambda body. `PathSyntax` is the one reader of a path for the generator and the
+  analyzers: `!`, parentheses and `?.` name the same members. RXUIBIND022 reports a statement body, a computed
+  value, a member of anything but the parameter, and `?.` ahead of a plain value, which makes the result nullable.
+- A selector lambda is real code to the other analyzers, so the examples, tests and benchmarks mark it `static`.
+
 ```csharp
 // User writes:
 var obs = vm.WhenChanged(x => x.Name);
 
 // The runtime stub, which throws when nothing replaces the call:
-public static IObservable<TReturn> WhenChanged<TObj, TReturn>(this TObj obj, Expression<Func<TObj, TReturn>> property, ...)
+public static IObservable<TReturn> WhenChanged<TObj, TReturn>(this TObj obj, Func<TObj, TReturn> property, ...)
 
 // The generator writes one method per call site:
 private static IObservable<string> __WhenChanged_7FFFD2E8D6FC818E(MyViewModel obj)
@@ -537,11 +551,11 @@ private static IObservable<string> __WhenChanged_7FFFD2E8D6FC818E(MyViewModel ob
 
 // Roslyn 4.13 and newer: an interceptor claims the call site.
 [InterceptsLocation(1, "...")]
-internal static IObservable<string> __Intercept_WhenChanged_7FFFD2E8D6FC818E(this MyViewModel obj, Expression<Func<MyViewModel, string>> property, ...)
+internal static IObservable<string> __Intercept_WhenChanged_7FFFD2E8D6FC818E(this MyViewModel obj, Func<MyViewModel, string> property, ...)
     => __WhenChanged_7FFFD2E8D6FC818E(obj);
 
 // Roslyn 4.8 to 4.12: a concrete overload wins lookup and matches the call site.
-public static IObservable<string> WhenChanged(this MyViewModel obj, Expression<Func<MyViewModel, string>> property, [CallerArgumentExpression("property")] string propertyExpression = "", ...)
+public static IObservable<string> WhenChanged(this MyViewModel obj, Func<MyViewModel, string> property, [CallerArgumentExpression("property")] string propertyExpression = "", ...)
 {
     if (propertyExpression == "x => x.Name")
     {
@@ -1099,6 +1113,7 @@ Not all platforms support before-change notifications (WPF DP, WinUI DP, WinForm
 | RXUIBIND019 | Warning | ObservableAsProperty method takes parameters |
 | RXUIBIND020 | Info | View is registered only in the service locator |
 | RXUIBIND021 | Warning | Binding call has no generated binding |
+| RXUIBIND022 | Error | Selector is not a property path |
 
 ## Code Style & Quality Requirements
 

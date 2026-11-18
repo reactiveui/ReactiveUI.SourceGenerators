@@ -36,7 +36,7 @@ public partial class BindingInvocationAnalyzerTests
                                                  public void Test()
                                                  {
                                                      var vm = new MyViewModel();
-                                                     Expression<Func<MyViewModel, string>> expr = x => x.Name;
+                                                     Func<MyViewModel, string> expr = x => x.Name;
                                                      ReactiveUI.Binding.__ReactiveUIGeneratedBindings.WhenChanged(vm, expr);
                                                  }
                                              }
@@ -98,7 +98,7 @@ public partial class BindingInvocationAnalyzerTests
                                                  public void Test()
                                                  {
                                                      var vm = new MyViewModel();
-                                                     Expression<Func<MyViewModel, string>> expr = x => x.Name;
+                                                     Func<MyViewModel, string> expr = x => x.Name;
                                                      ReactiveUI.Binding.__ReactiveUIGeneratedBindings.WhenChanging(vm, expr);
                                                  }
                                              }
@@ -139,7 +139,7 @@ public partial class BindingInvocationAnalyzerTests
                                                  {
                                                      var vm = new MyViewModel();
                                                      var view = new MyView();
-                                                     Expression<Func<MyViewModel, string>> expr = x => x.Name;
+                                                     Func<MyViewModel, string> expr = x => x.Name;
                                                      ReactiveUI.Binding.__ReactiveUIGeneratedBindings.BindOneWay(vm, view, expr, x => x.NameText);
                                                  }
                                              }
@@ -178,7 +178,7 @@ public partial class BindingInvocationAnalyzerTests
                                                  {
                                                      var vm = new MyViewModel();
                                                      var view = new MyView();
-                                                     Expression<Func<MyView, string>> targetExpr = x => x.NameText;
+                                                     Func<MyView, string> targetExpr = x => x.NameText;
                                                      ReactiveUI.Binding.__ReactiveUIGeneratedBindings.BindTwoWay(vm, view, x => x.Name, targetExpr);
                                                  }
                                              }
@@ -221,8 +221,8 @@ public partial class BindingInvocationAnalyzerTests
                                                  {
                                                      var vm = new MyViewModel();
                                                      var view = new MyView();
-                                                     Expression<Func<MyViewModel, string>> srcExpr = x => x.Name;
-                                                     Expression<Func<MyView, string>> tgtExpr = x => x.NameText;
+                                                     Func<MyViewModel, string> srcExpr = x => x.Name;
+                                                     Func<MyView, string> tgtExpr = x => x.NameText;
                                                      ReactiveUI.Binding.__ReactiveUIGeneratedBindings.BindTwoWay(vm, view, srcExpr, tgtExpr);
                                                  }
                                              }
@@ -232,7 +232,7 @@ public partial class BindingInvocationAnalyzerTests
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync<BindingInvocationAnalyzer>(Source);
         var nonInlineDiags = diagnostics.Where(static d => d.Id == NonInlineLambdaDiagnosticId).ToArray();
 
-        // Both source and target Expression<Func<>> args are non-inline
+        // Both source and target Func<> args are non-inline
         await Assert.That(nonInlineDiags.Length).IsEqualTo(BothSelectorsNonInlineCount);
     }
 
@@ -265,7 +265,7 @@ public partial class BindingInvocationAnalyzerTests
                                                                    {
                                                                        var vm = new MyViewModel();
                                                                        var view = new MyView();
-                                                                       Expression<Func<MyViewModel, ReactiveUI.Binding.IInteraction<string, bool>>> expr = x => x.Confirm;
+                                                                       Func<MyViewModel, ReactiveUI.Binding.IInteraction<string, bool>> expr = x => x.Confirm;
                                                                        ReactiveUI.Binding.ReactiveUIBindingExtensions.BindInteraction(
                                                                            view, vm, expr, ctx => Task.CompletedTask);
                                                                    }
@@ -299,7 +299,7 @@ public partial class BindingInvocationAnalyzerTests
                                                  {
                                                      IObservable<string> source = null!;
                                                      var view = new MyView();
-                                                     Expression<Func<MyView, string>> expr = x => x.NameText;
+                                                     Func<MyView, string> expr = x => x.NameText;
                                                      ReactiveUI.Binding.__ReactiveUIGeneratedBindings.BindTo(source, view, expr);
                                                  }
                                              }

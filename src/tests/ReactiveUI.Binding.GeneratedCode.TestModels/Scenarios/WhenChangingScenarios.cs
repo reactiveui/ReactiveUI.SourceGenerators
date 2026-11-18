@@ -19,28 +19,28 @@ public static class WhenChangingScenarios
     /// <returns>An observable of the Name property value before changes.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IObservable<string> SingleProperty_Name(TestViewModel vm) =>
-        vm.WhenChanging(x => x.Name);
+        vm.WhenChanging(static x => x.Name);
 
     /// <summary>Single property before-change observation on BigViewModel.Prop1.</summary>
     /// <param name="vm">The view model to observe.</param>
     /// <returns>An observable of the Prop1 property value before changes.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IObservable<string> SingleProperty_Prop1(BigViewModel vm) =>
-        vm.WhenChanging(x => x.Prop1);
+        vm.WhenChanging(static x => x.Prop1);
 
     /// <summary>Two-property before-change observation returning a tuple.</summary>
     /// <param name="vm">The view model to observe.</param>
     /// <returns>An observable of the property value tuple before changes.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IObservable<PropertyValues<string, int>> TwoProperties(BigViewModel vm) =>
-        vm.WhenChanging(x => x.Prop1, x => x.Prop2);
+        vm.WhenChanging(static x => x.Prop1, static x => x.Prop2);
 
     /// <summary>Three-property before-change observation returning a tuple.</summary>
     /// <param name="vm">The view model to observe.</param>
     /// <returns>An observable of the property value tuple before changes.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IObservable<PropertyValues<string, int, double>> ThreeProperties(BigViewModel vm) =>
-        vm.WhenChanging(x => x.Prop1, x => x.Prop2, x => x.Prop3);
+        vm.WhenChanging(static x => x.Prop1, static x => x.Prop2, static x => x.Prop3);
 
     /// <summary>Four-property before-change observation returning a tuple.</summary>
     /// <param name="vm">The view model to observe.</param>
@@ -48,12 +48,12 @@ public static class WhenChangingScenarios
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IObservable<PropertyValues<string, int, double, bool>> FourProperties(
         BigViewModel vm) =>
-        vm.WhenChanging(x => x.Prop1, x => x.Prop2, x => x.Prop3, x => x.Prop4);
+        vm.WhenChanging(static x => x.Prop1, static x => x.Prop2, static x => x.Prop3, static x => x.Prop4);
 
     /// <summary>Deep property chain before-change observation on BigViewModel.Address.City.</summary>
     /// <param name="vm">The view model to observe.</param>
     /// <returns>An observable of the nested City property value before changes.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IObservable<string> DeepChain_AddressCity(BigViewModel vm) =>
-        vm.WhenChanging(x => x.Address.City);
+        vm.WhenChanging(static x => x.Address.City);
 }

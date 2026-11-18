@@ -36,7 +36,7 @@ public static class BindToExamples
         StorageBrowserViewModel browser = await OpenBucketAsync();
         StorageBrowserView view = new();
 
-        using (browser.WhenChanged(x => x.UploadPercent).Select(static percent => percent / PercentPerBar).BindTo(view, v => v.UploadProgressBar.Progress))
+        using (browser.WhenChanged(static x => x.UploadPercent).Select(static percent => percent / PercentPerBar).BindTo(view, static v => v.UploadProgressBar.Progress))
         {
             Console.WriteLine(view.UploadProgressBar.Progress);
 
@@ -56,7 +56,7 @@ public static class BindToExamples
         TodoListViewModel list = await OpenTodoListAsync();
         TodoView view = new();
 
-        using (list.WhenChanged(x => x.RemainingCount).BindTo(view, v => v.RemainingLabel.Text))
+        using (list.WhenChanged(static x => x.RemainingCount).BindTo(view, static v => v.RemainingLabel.Text))
         {
             Console.WriteLine(view.RemainingLabel.Text);
 
@@ -82,7 +82,7 @@ public static class BindToExamples
         AccountsViewModel accounts = await OpenAccountsAsync();
         AccountsView view = new();
 
-        using (accounts.WhenChanged(x => x.TotalBalance).BindTo(view, v => v.TotalBalanceLabel.Text, TwoDecimalPlaces))
+        using (accounts.WhenChanged(static x => x.TotalBalance).BindTo(view, static v => v.TotalBalanceLabel.Text, TwoDecimalPlaces))
         {
             Console.WriteLine(view.TotalBalanceLabel.Text);
         }
@@ -98,7 +98,7 @@ public static class BindToExamples
         AccountsViewModel accounts = await OpenAccountsAsync();
         AccountsView view = new();
 
-        using (accounts.WhenChanged(x => x.TotalBalance).BindTo(view, v => v.TotalBalanceLabel.Text, conversionHint: GroupedFormat))
+        using (accounts.WhenChanged(static x => x.TotalBalance).BindTo(view, static v => v.TotalBalanceLabel.Text, conversionHint: GroupedFormat))
         {
             Console.WriteLine(view.TotalBalanceLabel.Text);
         }
@@ -114,7 +114,7 @@ public static class BindToExamples
         AccountsViewModel accounts = await OpenAccountsAsync();
         AccountsView view = new();
 
-        using (accounts.WhenChanged(x => x.TotalBalance).BindTo(view, v => v.TotalBalanceLabel.Text, new CurrencyTextConverter()))
+        using (accounts.WhenChanged(static x => x.TotalBalance).BindTo(view, static v => v.TotalBalanceLabel.Text, new CurrencyTextConverter()))
         {
             Console.WriteLine(view.TotalBalanceLabel.Text);
         }
@@ -130,7 +130,7 @@ public static class BindToExamples
         AccountsViewModel accounts = await OpenAccountsAsync();
         AccountsView view = new();
 
-        using (accounts.WhenChanged(x => x.TotalBalance).BindTo(view, v => v.TotalBalanceLabel.Text, GroupedFormat, new CurrencyTextConverter()))
+        using (accounts.WhenChanged(static x => x.TotalBalance).BindTo(view, static v => v.TotalBalanceLabel.Text, GroupedFormat, new CurrencyTextConverter()))
         {
             Console.WriteLine(view.TotalBalanceLabel.Text);
         }
@@ -148,7 +148,7 @@ public static class BindToExamples
         IObservable<string> typedTexts = Signal.FromEventPattern<TextChangedEventArgs>(handler => view.FilterTextBox.TextChanged += handler, handler => view.FilterTextBox.TextChanged -= handler)
             .Select(static pattern => pattern.EventArgs.NewTextValue);
 
-        using (typedTexts.BindTo(list, x => x.FilterText))
+        using (typedTexts.BindTo(list, static x => x.FilterText))
         {
             Console.WriteLine(list.Items.Count);
 
@@ -175,10 +175,10 @@ public static class BindToExamples
         StorageBrowserView view = new();
         int callerThread = Environment.CurrentManagedThreadId;
 
-        using (browser.WhenChanged(x => x.ConnectionStatus)
+        using (browser.WhenChanged(static x => x.ConnectionStatus)
             .Do(state => Console.WriteLine($"{state} arrived on another thread: {Environment.CurrentManagedThreadId != callerThread}"))
             .Select(static state => state.ToString())
-            .BindTo(view, v => v.ConnectionLabel.Text))
+            .BindTo(view, static v => v.ConnectionLabel.Text))
         {
             // The connection drops on a thread of its own, as a socket callback does.
             Thread socketThread = new(storage.Disconnect);

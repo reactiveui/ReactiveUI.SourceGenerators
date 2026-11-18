@@ -196,7 +196,7 @@ public static class WpfExamples
         WpfTodoWindow view = new();
         List<string> texts = [];
 
-        using (view.FilterTextBox.WhenChanged(x => x.Text).Subscribe(texts.Add))
+        using (view.FilterTextBox.WhenChanged(static x => x.Text).Subscribe(texts.Add))
         {
             view.FilterTextBox.Text = CarFilter;
         }
@@ -213,7 +213,7 @@ public static class WpfExamples
         WpfTodoWindow view = new();
         TodoListViewModel viewModel = new(InMemoryTodoStore.CreateSeeded());
 
-        using (view.WhenChanged(x => x.ViewModel).BindTo(view, x => x.DataContext))
+        using (view.WhenChanged(static x => x.ViewModel).BindTo(view, static x => x.DataContext))
         {
             Console.WriteLine(view.DataContext is null);
 
@@ -310,11 +310,11 @@ public static class WpfExamples
         viewModel.Draft.Source = viewModel.Accounts[0];
         viewModel.Draft.Payee = viewModel.Payees[0];
 
-        using (viewModel.Draft.BindTwoWay(view, x => x.Amount, v => v.AmountTextBox.Text, new DecimalToStringTypeConverter(), new StringToDecimalTypeConverter()))
-        using (view.OneWayBind(viewModel, x => x.IsValid, v => v.ValidationLabel.Visibility, new BooleanToVisibilityTypeConverter(), BooleanToVisibilityHints.Inverse))
-        using (view.OneWayBind(viewModel, x => x.ValidationSummary, v => v.ValidationLabel.Text))
+        using (viewModel.Draft.BindTwoWay(view, static x => x.Amount, static v => v.AmountTextBox.Text, new DecimalToStringTypeConverter(), new StringToDecimalTypeConverter()))
+        using (view.OneWayBind(viewModel, static x => x.IsValid, static v => v.ValidationLabel.Visibility, new BooleanToVisibilityTypeConverter(), BooleanToVisibilityHints.Inverse))
+        using (view.OneWayBind(viewModel, static x => x.ValidationSummary, static v => v.ValidationLabel.Text))
         {
-            using (view.BindCommand(viewModel, x => x.TransferCommand, v => v.TransferButton))
+            using (view.BindCommand(viewModel, static x => x.TransferCommand, static v => v.TransferButton))
             {
                 Console.WriteLine(view.AmountTextBox.Text);
                 Console.WriteLine(view.ValidationLabel.Visibility);
@@ -358,9 +358,9 @@ public static class WpfExamples
         int allItems = viewModel.Items.Count;
         viewModel.SelectedItem = viewModel.Items[0];
 
-        using (viewModel.BindTwoWay(view, x => x.FilterText, v => v.FilterTextBox.Text))
-        using (viewModel.BindTwoWay(view, x => x.SelectedItem!.IsDone, v => v.DoneCheckBox.IsChecked, static done => done, static isChecked => isChecked == true))
-        using (viewModel.BindOneWay(view, x => x.RemainingCount, v => v.RemainingLabel.Text, static count => count.ToString(CultureInfo.InvariantCulture)))
+        using (viewModel.BindTwoWay(view, static x => x.FilterText, static v => v.FilterTextBox.Text))
+        using (viewModel.BindTwoWay(view, static x => x.SelectedItem!.IsDone, static v => v.DoneCheckBox.IsChecked, static done => done, static isChecked => isChecked == true))
+        using (viewModel.BindOneWay(view, static x => x.RemainingCount, static v => v.RemainingLabel.Text, static count => count.ToString(CultureInfo.InvariantCulture)))
         {
             Console.WriteLine(view.RemainingLabel.Text);
             Console.WriteLine(view.DoneCheckBox.IsChecked);
@@ -393,7 +393,7 @@ public static class WpfExamples
         TodoItem item = new() { Title = CarRegistrationTitle };
         WpfTodoWindow view = new();
 
-        using (item.BindTwoWay(view, x => x.IsDone, v => v.DoneMark.Visibility, new BooleanToVisibilityTypeConverter(), new VisibilityToBooleanTypeConverter()))
+        using (item.BindTwoWay(view, static x => x.IsDone, static v => v.DoneMark.Visibility, new BooleanToVisibilityTypeConverter(), new VisibilityToBooleanTypeConverter()))
         {
             Console.WriteLine(view.DoneMark.Visibility);
 
@@ -555,7 +555,7 @@ public static class WpfExamples
         viewModel.SelectedBucket = viewModel.Buckets[0];
         UploadRequest photo = new(OffsitePhotoName, OffsitePhotoSize, JpegType);
 
-        using (viewModel.BindOneWay(view, x => x.UploadPercent, v => v.UploadProgressBar.Value))
+        using (viewModel.BindOneWay(view, static x => x.UploadPercent, static v => v.UploadProgressBar.Value))
         {
             await viewModel.UploadAsync(photo);
 

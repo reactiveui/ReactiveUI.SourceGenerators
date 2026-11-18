@@ -25,7 +25,7 @@ public partial class TypeAnalyzerTests
                                         {
                                             public static object WhenChanged<TObj, TReturn>(
                                                 this TObj obj,
-                                                Expression<Func<TObj, TReturn>> property)
+                                                Func<TObj, TReturn> property)
                                                 where TObj : class
                                                 => throw new NotImplementedException();
                                         }
@@ -75,7 +75,7 @@ public partial class TypeAnalyzerTests
                                              {
                                                  public static object WhenAnyValueUnsafe<TObj, TReturn>(
                                                      this TObj obj,
-                                                     Expression<Func<TObj, TReturn>> property)
+                                                     Func<TObj, TReturn> property)
                                                      where TObj : class
                                                      => throw new NotImplementedException();
                                              }
@@ -1087,7 +1087,7 @@ public partial class TypeAnalyzerTests
                                       public static IDisposable BindTo<TValue, TTarget, TTargetValue>(
                                           this IObservable<TValue> source,
                                           TTarget target,
-                                          Expression<Func<TTarget, TTargetValue>> property)
+                                          Func<TTarget, TTargetValue> property)
                                           => throw new NotImplementedException();
                                   }
                               }

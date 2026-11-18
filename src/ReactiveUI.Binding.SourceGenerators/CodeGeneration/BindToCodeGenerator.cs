@@ -392,7 +392,7 @@ internal static class BindToCodeGenerator
 
         _ = sb.Append("this ").Append(ObservableOf(group.SourceValueTypeFullName)).Line(" source,")
             .Append(CodeGeneratorHelpers.NullableSelectorType(group.TargetTypeFullName, true, supportsNullable)).Line(" target,")
-            .Append(PropertyExpression(group.TargetTypeFullName, targetPropType)).Line(" property,");
+            .Append(FuncOf(group.TargetTypeFullName, targetPropType)).Line(" property,");
 
         AppendExtraParameters(sb, group);
 

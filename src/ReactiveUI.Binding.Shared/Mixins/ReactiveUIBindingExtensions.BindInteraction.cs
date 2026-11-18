@@ -32,7 +32,7 @@ public static partial class ReactiveUIBindingExtensions
     public static IDisposable BindInteraction<TViewModel, TView, TInput, TOutput>(
         this TView view,
         TViewModel? viewModel,
-        Expression<Func<TViewModel, IInteraction<TInput, TOutput>>> propertyName,
+        Func<TViewModel, IInteraction<TInput, TOutput>> propertyName,
         Func<IInteractionContext<TInput, TOutput>, Task> handler,
         [CallerArgumentExpression("propertyName")]
         string propertyNameExpression = "",
@@ -62,7 +62,7 @@ public static partial class ReactiveUIBindingExtensions
     public static IDisposable BindInteraction<TViewModel, TView, TInput, TOutput, TDontCare>(
         this TView view,
         TViewModel? viewModel,
-        Expression<Func<TViewModel, IInteraction<TInput, TOutput>>> propertyName,
+        Func<TViewModel, IInteraction<TInput, TOutput>> propertyName,
         Func<IInteractionContext<TInput, TOutput>, IObservable<TDontCare>> handler,
         [CallerArgumentExpression("propertyName")]
         string propertyNameExpression = "",

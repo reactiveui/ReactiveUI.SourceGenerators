@@ -10,11 +10,11 @@ namespace ReactiveUI.Binding.Generated.Interceptors.TestAssembly
     internal static partial class __ReactiveUIGeneratedBindings
     {
         [global::System.Runtime.CompilerServices.InterceptsLocation(1, "Zs4qObJpfhfSQ83m5yXFVaIMAAA=")]
-        internal static global::System.IDisposable __InterceptHosted_7FFFDC4D3D7713C4<__S0, __S1, __S2, __S3>(
+        internal static global::System.IDisposable __InterceptHosted_7FFFDC4D952B1E16<__S0, __S1, __S2, __S3>(
             this __S0 view,
             __S1? viewModel,
-            global::System.Linq.Expressions.Expression<global::System.Func<__S1, __S2?>> propertyName,
-            global::System.Linq.Expressions.Expression<global::System.Func<__S0, __S3>> controlName,
+            global::System.Func<__S1, __S2?> propertyName,
+            global::System.Func<__S0, __S3> controlName,
             string? toEvent,
             string propertyNameExpression,
             string controlNameExpression,
@@ -24,7 +24,7 @@ namespace ReactiveUI.Binding.Generated.Interceptors.TestAssembly
             where __S1 : class
             where __S2 : global::System.Windows.Input.ICommand
             where __S3 : class
-            => global::TestApp.Scenario.__ReactiveUIHostedEntries.__Entry_7FFFDC4D3D7713C4<__S0, __S1, __S2, __S3>(view, viewModel, propertyName, controlName, toEvent, propertyNameExpression, controlNameExpression, callerFilePath, callerLineNumber);
+            => global::TestApp.Scenario.__ReactiveUIHostedEntries.__Entry_7FFFDC4D952B1E16<__S0, __S1, __S2, __S3>(view, viewModel, propertyName, controlName, toEvent, propertyNameExpression, controlNameExpression, callerFilePath, callerLineNumber);
 
     }
 }
@@ -35,11 +35,11 @@ namespace TestApp
     {
         internal static partial class __ReactiveUIHostedEntries
         {
-            internal static global::System.IDisposable __Entry_7FFFDC4D3D7713C4<__S0, __S1, __S2, __S3>(
+            internal static global::System.IDisposable __Entry_7FFFDC4D952B1E16<__S0, __S1, __S2, __S3>(
                 __S0 view,
                 __S1? viewModel,
-                global::System.Linq.Expressions.Expression<global::System.Func<__S1, __S2?>> propertyName,
-                global::System.Linq.Expressions.Expression<global::System.Func<__S0, __S3>> controlName,
+                global::System.Func<__S1, __S2?> propertyName,
+                global::System.Func<__S0, __S3> controlName,
                 string? toEvent,
                 string propertyNameExpression,
                 string controlNameExpression,
@@ -49,15 +49,15 @@ namespace TestApp
                 where __S1 : class
                 where __S2 : global::System.Windows.Input.ICommand
                 where __S3 : class
-                => __ReactiveUIHostedBindings.__Intercept_BindCommand_00001EF5029F9CF6((global::TestApp.Scenario.View)(object)view, (global::TestApp.Scenario.ViewModel?)(object)viewModel, (global::System.Linq.Expressions.Expression<global::System.Func<global::TestApp.Scenario.ViewModel, global::System.Windows.Input.ICommand?>>)(object)propertyName, (global::System.Linq.Expressions.Expression<global::System.Func<global::TestApp.Scenario.View, global::TestApp.MyButton>>)(object)controlName, toEvent, propertyNameExpression, controlNameExpression, callerFilePath, callerLineNumber);
+                => __ReactiveUIHostedBindings.__Intercept_BindCommand_00001EF5029F9CF6((global::TestApp.Scenario.View)(object)view, (global::TestApp.Scenario.ViewModel?)(object)viewModel, (global::System.Func<global::TestApp.Scenario.ViewModel, global::System.Windows.Input.ICommand?>)(object)propertyName, (global::System.Func<global::TestApp.Scenario.View, global::TestApp.MyButton>)(object)controlName, toEvent, propertyNameExpression, controlNameExpression, callerFilePath, callerLineNumber);
 
             private static partial class __ReactiveUIHostedBindings
             {
                 internal static global::System.IDisposable __Intercept_BindCommand_00001EF5029F9CF6(
                     global::TestApp.Scenario.View view,
                     global::TestApp.Scenario.ViewModel? viewModel,
-                    global::System.Linq.Expressions.Expression<global::System.Func<global::TestApp.Scenario.ViewModel, global::System.Windows.Input.ICommand?>> propertyName,
-                    global::System.Linq.Expressions.Expression<global::System.Func<global::TestApp.Scenario.View, global::TestApp.MyButton>> controlName,
+                    global::System.Func<global::TestApp.Scenario.ViewModel, global::System.Windows.Input.ICommand?> propertyName,
+                    global::System.Func<global::TestApp.Scenario.View, global::TestApp.MyButton> controlName,
                     string? toEvent = null,
                     [global::System.Runtime.CompilerServices.CallerArgumentExpression("propertyName")] string propertyNameExpression = "",
                     [global::System.Runtime.CompilerServices.CallerArgumentExpression("controlName")] string controlNameExpression = "",

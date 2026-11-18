@@ -28,7 +28,7 @@ public static class UnsafeSetupExamples
     {
         TodoItem item = new TodoItem { Title = OriginalTitle };
 
-        using IDisposable subscription = item.WhenChanged(x => x.Title).Subscribe(Console.WriteLine);
+        using IDisposable subscription = item.WhenChanged(static x => x.Title).Subscribe(Console.WriteLine);
 
         // Output:
         // Renew car registration

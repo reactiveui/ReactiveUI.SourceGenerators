@@ -50,14 +50,14 @@ public static class InvokeCommandExamples
     {
         IssueBoardViewModel viewModel = new(InMemoryGitHubServer.CreateSeeded());
 
-        using IDisposable subscription = viewModel.WhenChanged(x => x.Token).InvokeCommand(viewModel.SignInCommand);
+        using IDisposable subscription = viewModel.WhenChanged(static x => x.Token).InvokeCommand(viewModel.SignInCommand);
 
         viewModel.Token = "   ";
 
         Console.WriteLine(viewModel.IsSignedIn);
         Console.WriteLine(viewModel.RateLimitRemaining);
 
-        Task<IReadOnlyList<Repository>> loaded = viewModel.WhenChanged(x => x.Repositories).Where(static repositories => repositories.Count > 0).FirstAsync();
+        Task<IReadOnlyList<Repository>> loaded = viewModel.WhenChanged(static x => x.Repositories).Where(static repositories => repositories.Count > 0).FirstAsync();
         viewModel.Token = InMemoryGitHubServer.PriyaToken;
         await loaded;
 
@@ -76,11 +76,11 @@ public static class InvokeCommandExamples
         StorageBrowserViewModel browser = await OpenPhotosFolderAsync();
         UploadPanelViewModel viewModel = new(browser);
 
-        using IDisposable subscription = viewModel.WhenChanged(x => x.PendingUpload!).InvokeCommand(browser.UploadCommand);
+        using IDisposable subscription = viewModel.WhenChanged(static x => x.PendingUpload!).InvokeCommand(browser.UploadCommand);
 
         Console.WriteLine(browser.Objects.Count);
 
-        Task<bool> uploaded = browser.WhenChanged(x => x.IsUploading).Skip(1).Where(static uploading => !uploading).FirstAsync();
+        Task<bool> uploaded = browser.WhenChanged(static x => x.IsUploading).Skip(1).Where(static uploading => !uploading).FirstAsync();
         viewModel.PendingUpload = new(SpringCampaignFileName, SpringCampaignSize, "image/png");
         await uploaded;
 
@@ -97,11 +97,11 @@ public static class InvokeCommandExamples
     {
         IssueBoardViewModel viewModel = await SignInAsync();
 
-        using IDisposable subscription = viewModel.WhenChanged(x => x.SelectedRepository!).InvokeCommand(viewModel, x => x.LoadIssuesCommand);
+        using IDisposable subscription = viewModel.WhenChanged(static x => x.SelectedRepository!).InvokeCommand(viewModel, static x => x.LoadIssuesCommand);
 
         Console.WriteLine(viewModel.Issues.Count);
 
-        Task<int> loaded = viewModel.WhenChanged(x => x.RateLimitRemaining).Skip(1).FirstAsync();
+        Task<int> loaded = viewModel.WhenChanged(static x => x.RateLimitRemaining).Skip(1).FirstAsync();
         viewModel.SelectedRepository = viewModel.Repositories[0];
         await loaded;
 
@@ -121,17 +121,17 @@ public static class InvokeCommandExamples
         Repository payments = viewModel.Repositories[1];
 
         // The stream starts with the current selection, which is null. The command refuses it, so nothing loads yet.
-        using (viewModel.WhenChanged(x => x.SelectedRepository!).InvokeCommand(viewModel.LoadIssuesCommand))
+        using (viewModel.WhenChanged(static x => x.SelectedRepository!).InvokeCommand(viewModel.LoadIssuesCommand))
         {
             Console.WriteLine(viewModel.Issues.Count);
 
-            Task<int>? loaded = viewModel.WhenChanged(x => x.RateLimitRemaining).Skip(1).FirstAsync();
+            Task<int>? loaded = viewModel.WhenChanged(static x => x.RateLimitRemaining).Skip(1).FirstAsync();
             viewModel.SelectedRepository = webshop;
             await loaded;
 
             Console.WriteLine(string.Join(", ", viewModel.Issues.Select(static issue => issue.Title)));
 
-            loaded = viewModel.WhenChanged(x => x.RateLimitRemaining).Skip(1).FirstAsync();
+            loaded = viewModel.WhenChanged(static x => x.RateLimitRemaining).Skip(1).FirstAsync();
             viewModel.SelectedRepository = payments;
             await loaded;
 
@@ -153,12 +153,12 @@ public static class InvokeCommandExamples
         GradebookView view = new() { ViewModel = viewModel };
         view.CourseList.ItemsSource = viewModel.Courses;
 
-        using (view.Bind(viewModel, x => x.SelectedCourse, v => v.CourseList.SelectedItem, static course => course, static selected => (selected as Course)!))
-        using (viewModel.WhenChanged(x => x.SelectedCourse).Where(static course => course is not null).InvokeCommand(viewModel.OpenCourseCommand))
+        using (view.Bind(viewModel, static x => x.SelectedCourse, static v => v.CourseList.SelectedItem, static course => course, static selected => (selected as Course)!))
+        using (viewModel.WhenChanged(static x => x.SelectedCourse).Where(static course => course is not null).InvokeCommand(viewModel.OpenCourseCommand))
         {
             Console.WriteLine(viewModel.Roster.Count);
 
-            Task<IReadOnlyList<Student>> opened = viewModel.WhenChanged(x => x.Roster).Skip(1).FirstAsync();
+            Task<IReadOnlyList<Student>> opened = viewModel.WhenChanged(static x => x.Roster).Skip(1).FirstAsync();
             view.CourseList.SelectedItem = viewModel.Courses[0];
             await opened;
 
@@ -227,11 +227,11 @@ public static class InvokeCommandExamples
         VirtualClock clock = new();
         TimeSpan interval = TimeSpan.FromSeconds(RefreshSeconds);
 
-        using (Signal.Every(interval, clock).InvokeCommand(viewModel, x => x.LoadCommand))
+        using (Signal.Every(interval, clock).InvokeCommand(viewModel, static x => x.LoadCommand))
         {
             Console.WriteLine(viewModel.Items.Count);
 
-            Task<IReadOnlyList<TodoItem>>? refreshed = viewModel.WhenChanged(x => x.Items).Skip(1).FirstAsync();
+            Task<IReadOnlyList<TodoItem>>? refreshed = viewModel.WhenChanged(static x => x.Items).Skip(1).FirstAsync();
             clock.AdvanceBy(interval);
             await refreshed;
 
@@ -241,7 +241,7 @@ public static class InvokeCommandExamples
 
             Console.WriteLine(viewModel.Items.Count);
 
-            refreshed = viewModel.WhenChanged(x => x.Items).Skip(1).FirstAsync();
+            refreshed = viewModel.WhenChanged(static x => x.Items).Skip(1).FirstAsync();
             clock.AdvanceBy(interval);
             await refreshed;
 
@@ -341,7 +341,7 @@ public static class InvokeCommandExamples
             Console.WriteLine(viewModel.IsValid);
 
             // The transfer resets the amount once the bank has answered.
-            Task<decimal> sent = viewModel.Draft.WhenChanged(x => x.Amount).Where(static amount => amount == 0M).FirstAsync();
+            Task<decimal> sent = viewModel.Draft.WhenChanged(static x => x.Amount).Where(static amount => amount == 0M).FirstAsync();
             submit.OnNext(RxVoid.Default);
             await sent;
 
@@ -363,7 +363,7 @@ public static class InvokeCommandExamples
     public static async Task LoadOnceAtStartUp()
     {
         TodoListViewModel viewModel = new(InMemoryTodoStore.CreateSeeded());
-        Task<IReadOnlyList<TodoItem>> loaded = viewModel.WhenChanged(x => x.Items).Skip(1).FirstAsync();
+        Task<IReadOnlyList<TodoItem>> loaded = viewModel.WhenChanged(static x => x.Items).Skip(1).FirstAsync();
 
         using (Signal.Emit(RxVoid.Default).InvokeCommand(viewModel.LoadCommand))
         {

@@ -16,7 +16,7 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         public static global::System.IDisposable BindInteraction(
             this global::SharedScenarios.BindInteraction.NonINPCViewModel.MyView view,
             global::SharedScenarios.BindInteraction.NonINPCViewModel.MyViewModel? viewModel,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.BindInteraction.NonINPCViewModel.MyViewModel, global::ReactiveUI.Binding.IInteraction<string, bool>>> propertyName,
+            global::System.Func<global::SharedScenarios.BindInteraction.NonINPCViewModel.MyViewModel, global::ReactiveUI.Binding.IInteraction<string, bool>> propertyName,
             global::System.Func<global::ReactiveUI.Binding.IInteractionContext<string, bool>, global::System.Threading.Tasks.Task> handler,
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("propertyName")] string propertyNameExpression = "",
             [global::System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "",

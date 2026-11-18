@@ -16,8 +16,8 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         public static global::ReactiveUI.Binding.IReactiveBinding<global::SharedScenarios.OneWayBind.TwoSameTypeBindings.MyView, string> OneWayBind(
             this global::SharedScenarios.OneWayBind.TwoSameTypeBindings.MyView view,
             global::SharedScenarios.OneWayBind.TwoSameTypeBindings.MyViewModel? viewModel,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.OneWayBind.TwoSameTypeBindings.MyViewModel, string?>> viewModelProperty,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.OneWayBind.TwoSameTypeBindings.MyView, string?>> viewProperty,
+            global::System.Func<global::SharedScenarios.OneWayBind.TwoSameTypeBindings.MyViewModel, string?> viewModelProperty,
+            global::System.Func<global::SharedScenarios.OneWayBind.TwoSameTypeBindings.MyView, string?> viewProperty,
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("viewModelProperty")] string viewModelPropertyExpression = "",
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("viewProperty")] string viewPropertyExpression = "",
             [global::System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "",

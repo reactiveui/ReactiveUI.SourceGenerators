@@ -80,7 +80,7 @@ public static class CustomProviderExamples
     /// <param name="storage">The storage service that owns the connection.</param>
     public static void ObserveConnectionWithWhenChanged(StorageBrowserViewModel browser, InMemoryObjectStorage storage)
     {
-        using (browser.Connection.WhenChanged(x => x.State).Subscribe(static state => Console.WriteLine(state)))
+        using (browser.Connection.WhenChanged(static x => x.State).Subscribe(static state => Console.WriteLine(state)))
         {
             storage.Disconnect();
             storage.Connection.State = ConnectionState.Connected;

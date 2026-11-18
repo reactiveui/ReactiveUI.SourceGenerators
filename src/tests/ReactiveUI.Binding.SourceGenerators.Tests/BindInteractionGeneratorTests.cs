@@ -183,7 +183,7 @@ public class BindInteractionGeneratorTests
 
                                   public static class Scenario
                                   {
-                                      public static void Execute(MyView view, MyViewModel vm, Expression<Func<MyViewModel, object?>> property)
+                                      public static void Execute(MyView view, MyViewModel vm, Func<MyViewModel, object?> property)
                                       {
                                           view.BindInteraction(vm, property, x => Task.CompletedTask);
                                       }

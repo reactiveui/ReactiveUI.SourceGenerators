@@ -123,7 +123,7 @@ public static class CustomConvertersExamples
         TodoItem item = new() { Title = CarRegistrationTitle, Priority = TodoPriority.High };
         Label badge = new();
 
-        using IDisposable binding = item.BindOneWay(badge, x => x.Priority, x => x.Text, new PriorityColourConverter());
+        using IDisposable binding = item.BindOneWay(badge, static x => x.Priority, static x => x.Text, new PriorityColourConverter());
         Console.WriteLine(badge.Text);
 
         item.Priority = TodoPriority.Low;
@@ -140,7 +140,7 @@ public static class CustomConvertersExamples
         TodoItem item = new() { Title = CarRegistrationTitle, Tags = ["car", "admin"] };
         Entry tagsBox = new();
 
-        using IDisposable binding = item.BindTwoWay(tagsBox, x => x.Tags, x => x.Text, new TagListToTextConverter(), new TextToTagListConverter());
+        using IDisposable binding = item.BindTwoWay(tagsBox, static x => x.Tags, static x => x.Text, new TagListToTextConverter(), new TextToTagListConverter());
         Console.WriteLine(tagsBox.Text);
 
         tagsBox.Text = TypedTags;

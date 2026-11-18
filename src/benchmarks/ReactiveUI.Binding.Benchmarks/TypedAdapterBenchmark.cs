@@ -38,8 +38,8 @@ public class TypedAdapterBenchmark
     [GlobalSetup]
     public void Setup()
     {
-        _nullableBinding = _nullableSource.BindTo(_target, target => target.Number);
-        _formatBinding = _formatSource.BindTo(_target, target => target.Text);
+        _nullableBinding = _nullableSource.BindTo(_target, static target => target.Number);
+        _formatBinding = _formatSource.BindTo(_target, static target => target.Text);
     }
 
     /// <summary>Releases both subscriptions.</summary>

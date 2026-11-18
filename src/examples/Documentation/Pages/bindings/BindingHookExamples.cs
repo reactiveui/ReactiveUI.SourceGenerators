@@ -22,7 +22,7 @@ public static class BindingHookExamples
 
         Console.WriteLine(BindingHooks.Any);
 
-        using (accounts.BindOneWay(view, x => x.SelectedAccount!.Name, v => v.NameTextBox.Text))
+        using (accounts.BindOneWay(view, static x => x.SelectedAccount!.Name, static v => v.NameTextBox.Text))
         {
             Console.WriteLine(view.NameTextBox.Text);
         }
@@ -44,10 +44,10 @@ public static class BindingHookExamples
 
         Console.WriteLine(BindingHooks.Any);
 
-        using (accounts.BindOneWay(view, x => x.SelectedAccount!.Name, v => v.NameTextBox.Text))
-        using (accounts.BindTwoWay(view, x => x.SelectedAccount!.Name, v => v.NameTextBox.Text))
-        using (view.OneWayBind(accounts, x => x.SelectedAccount!.Name, v => v.NameTextBox.Text))
-        using (view.Bind(accounts, x => x.SelectedAccount!.Name, v => v.NameTextBox.Text))
+        using (accounts.BindOneWay(view, static x => x.SelectedAccount!.Name, static v => v.NameTextBox.Text))
+        using (accounts.BindTwoWay(view, static x => x.SelectedAccount!.Name, static v => v.NameTextBox.Text))
+        using (view.OneWayBind(accounts, static x => x.SelectedAccount!.Name, static v => v.NameTextBox.Text))
+        using (view.Bind(accounts, static x => x.SelectedAccount!.Name, static v => v.NameTextBox.Text))
         {
             Console.WriteLine("all four bound");
         }
@@ -74,7 +74,7 @@ public static class BindingHookExamples
         AppLocator.CurrentMutable.RegisterConstant<IPropertyBindingHook>(new ReadOnlyAccountHook());
         BindingHooks.Refresh();
 
-        using (accounts.BindTwoWay(view, x => x.SelectedAccount!.Name, v => v.NameTextBox.Text))
+        using (accounts.BindTwoWay(view, static x => x.SelectedAccount!.Name, static v => v.NameTextBox.Text))
         {
             // The refused binding is an empty disposable: nothing was written to the view either.
             Console.WriteLine($"'{view.NameTextBox.Text}'");
@@ -84,7 +84,7 @@ public static class BindingHookExamples
         }
 
         // One-way bindings pass the hook.
-        using (accounts.BindOneWay(view, x => x.SelectedAccount!.Name, v => v.NameTextBox.Text))
+        using (accounts.BindOneWay(view, static x => x.SelectedAccount!.Name, static v => v.NameTextBox.Text))
         {
             Console.WriteLine(view.NameTextBox.Text);
         }
@@ -92,7 +92,7 @@ public static class BindingHookExamples
         RemoveHooks();
 
         // With the hook gone the same two-way binding writes the edit to the account.
-        using (accounts.BindTwoWay(view, x => x.SelectedAccount!.Name, v => v.NameTextBox.Text))
+        using (accounts.BindTwoWay(view, static x => x.SelectedAccount!.Name, static v => v.NameTextBox.Text))
         {
             view.NameTextBox.Text = RenamedEverydayName;
             Console.WriteLine(accounts.SelectedAccount.Name);
@@ -116,8 +116,8 @@ public static class BindingHookExamples
         AppLocator.CurrentMutable.RegisterConstant<IPropertyBindingHook>(new ReadOnlyAccountHook());
         BindingHooks.Refresh();
 
-        IReactiveBinding<AccountNameView, BindingChange> refused = view.Bind(accounts, x => x.SelectedAccount!.Name, v => v.NameTextBox.Text);
-        using IReactiveBinding<AccountNameView, string> allowed = view.OneWayBind(accounts, x => x.SelectedAccount!.Name, v => v.NameTextBox.Text);
+        IReactiveBinding<AccountNameView, BindingChange> refused = view.Bind(accounts, static x => x.SelectedAccount!.Name, static v => v.NameTextBox.Text);
+        using IReactiveBinding<AccountNameView, string> allowed = view.OneWayBind(accounts, static x => x.SelectedAccount!.Name, static v => v.NameTextBox.Text);
 
         Console.WriteLine(refused is null);
         Console.WriteLine(allowed is null);
@@ -173,7 +173,7 @@ public static class BindingHookExamples
         AppLocator.CurrentMutable.RegisterConstant<IPropertyBindingHook>(new LoggingBindingHook("late"));
 
         // The hook is registered, but the registrations were read before it arrived, so this binding does not ask it.
-        using (accounts.BindOneWay(view, x => x.SelectedAccount!.Name, v => v.NameTextBox.Text))
+        using (accounts.BindOneWay(view, static x => x.SelectedAccount!.Name, static v => v.NameTextBox.Text))
         {
             Console.WriteLine("bound without the hook");
         }
@@ -182,7 +182,7 @@ public static class BindingHookExamples
 
         Console.WriteLine(BindingHooks.Any);
 
-        using (accounts.BindOneWay(view, x => x.SelectedAccount!.Name, v => v.NameTextBox.Text))
+        using (accounts.BindOneWay(view, static x => x.SelectedAccount!.Name, static v => v.NameTextBox.Text))
         {
             Console.WriteLine("bound with the hook");
         }

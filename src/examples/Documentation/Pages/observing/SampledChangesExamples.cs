@@ -57,7 +57,7 @@ public static class SampledChangesExamples
         VirtualClock clock = new();
         TransferDraft draft = new();
 
-        using IDisposable subscription = draft.WhenChanged(x => x.Amount)
+        using IDisposable subscription = draft.WhenChanged(static x => x.Amount)
             .Skip(1)
             .Sample(_sampleInterval, clock)
             .Subscribe(static amount => Console.WriteLine($"Preview {amount}"));
@@ -81,7 +81,7 @@ public static class SampledChangesExamples
         VirtualClock clock = new();
         TodoItem item = new();
 
-        using IDisposable subscription = item.WhenChanged(x => x.Notes)
+        using IDisposable subscription = item.WhenChanged(static x => x.Notes)
             .Skip(1)
             .Throttle(_quietPeriod, clock)
             .Subscribe(static notes => Console.WriteLine($"Saved: {notes}"));

@@ -14,7 +14,7 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         /// </summary>
         public static global::System.IObservable<string> WhenChanging(
             this global::TestApp.MyReactiveViewModel objectToMonitor,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::TestApp.MyReactiveViewModel, string?>> property1,
+            global::System.Func<global::TestApp.MyReactiveViewModel, string?> property1,
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("property1")] string property1Expression = "",
             [global::System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "",
             [global::System.Runtime.CompilerServices.CallerLineNumber] int callerLineNumber = 0)

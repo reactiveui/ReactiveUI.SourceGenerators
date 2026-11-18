@@ -322,7 +322,7 @@ internal static class CommandExtractor
                 continue;
             }
 
-            if (param.Type is INamedTypeSymbol { Name: "Expression" })
+            if (ExtractorValidation.IsPropertySelector(param))
             {
                 result.HasExpressionParameter = true;
 

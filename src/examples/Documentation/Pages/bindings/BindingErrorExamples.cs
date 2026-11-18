@@ -47,7 +47,11 @@ public static class BindingErrorExamples
         TransferDraft draft = new() { Reference = ShortReference };
         Label label = new();
 
-        using (draft.BindOneWay(label, x => x.Reference, v => v.Text, static reference => reference == ForbiddenReference ? throw new InvalidOperationException(ConversionMessage) : reference))
+        using (draft.BindOneWay(
+            label,
+            static x => x.Reference,
+            static v => v.Text,
+            static reference => reference == ForbiddenReference ? throw new InvalidOperationException(ConversionMessage) : reference))
         {
             Console.WriteLine(label.Text);
 
@@ -77,7 +81,11 @@ public static class BindingErrorExamples
         Label label = new();
         InvalidOperationException cause = new(CauseMessage);
 
-        using (draft.BindOneWay(label, x => x.Reference, v => v.Text, reference => reference == ForbiddenReference ? throw new InvalidOperationException(ConversionMessage, cause) : reference))
+        using (draft.BindOneWay(
+            label,
+            static x => x.Reference,
+            static v => v.Text,
+            reference => reference == ForbiddenReference ? throw new InvalidOperationException(ConversionMessage, cause) : reference))
         {
             try
             {
@@ -105,7 +113,7 @@ public static class BindingErrorExamples
         TransferDraft draft = new() { Reference = ShortReference };
         StatementReferenceView field = new();
 
-        using (draft.BindOneWay(field, x => x.Reference, v => v.Reference))
+        using (draft.BindOneWay(field, static x => x.Reference, static v => v.Reference))
         {
             Console.WriteLine(field.Reference);
 
@@ -123,7 +131,7 @@ public static class BindingErrorExamples
 
         try
         {
-            using IDisposable second = draft.BindOneWay(field, x => x.Reference, v => v.Reference);
+            using IDisposable second = draft.BindOneWay(field, static x => x.Reference, static v => v.Reference);
         }
         catch (ArgumentException ex)
         {
@@ -147,8 +155,8 @@ public static class BindingErrorExamples
         {
             using IDisposable binding = draft.BindTwoWay(
                 label,
-                x => x.Reference,
-                x => x.Text,
+                static x => x.Reference,
+                static x => x.Text,
                 static reference => reference,
                 static reference => throw new InvalidOperationException(ConversionMessage, new FormatException(CauseMessage)));
         }

@@ -33,7 +33,7 @@ public static class ObservedChangeExamples
     {
         TodoItem item = new TodoItem { Id = 1, Title = ReviewPrTitle };
 
-        using IDisposable subscription = item.WhenAny(x => x.Title, static change => change)
+        using IDisposable subscription = item.WhenAny(static x => x.Title, static change => change)
             .Subscribe(static change => Console.WriteLine($"Item {change.Sender.Id} is now '{change.Value}'"));
 
         item.Title = RenamedTitle;
@@ -48,7 +48,7 @@ public static class ObservedChangeExamples
     {
         TodoItem item = new TodoItem { Id = 1, Title = ReviewPrTitle };
 
-        using IDisposable subscription = item.WhenAny(x => x.Title, static change => change)
+        using IDisposable subscription = item.WhenAny(static x => x.Title, static change => change)
             .Subscribe(static change => Console.WriteLine(change.Expression is null));
 
         // Output:
@@ -154,7 +154,7 @@ public static class ObservedChangeExamples
     {
         TodoItem item = new TodoItem { Id = 1, Title = ReviewPrTitle };
 
-        using IDisposable subscription = item.WhenAny(x => x.Title, static change => change)
+        using IDisposable subscription = item.WhenAny(static x => x.Title, static change => change)
             .Value()
             .Subscribe(Console.WriteLine);
 

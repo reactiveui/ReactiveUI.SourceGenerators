@@ -32,7 +32,7 @@ public static class BindingConverterOverloadsExamples
         TodoItem item = new() { Title = CarRegistrationTitle, Priority = TodoPriority.High };
         Label badge = new();
 
-        using IDisposable binding = item.BindOneWay(badge, x => x.Priority, x => x.Text, new TodoPriorityToColorConverter());
+        using IDisposable binding = item.BindOneWay(badge, static x => x.Priority, static x => x.Text, new TodoPriorityToColorConverter());
         Console.WriteLine(badge.Text);
 
         item.Priority = TodoPriority.Low;
@@ -49,7 +49,7 @@ public static class BindingConverterOverloadsExamples
         TodoItem item = new() { Title = CarRegistrationTitle, Priority = TodoPriority.High };
         CheckBox highPriorityBox = new();
 
-        using IDisposable binding = item.BindOneWay(highPriorityBox, x => x.Priority, x => x.IsChecked, new PriorityMatchesHintConverter(), TodoPriority.High);
+        using IDisposable binding = item.BindOneWay(highPriorityBox, static x => x.Priority, static x => x.IsChecked, new PriorityMatchesHintConverter(), TodoPriority.High);
         Console.WriteLine(highPriorityBox.IsChecked);
 
         item.Priority = TodoPriority.Low;
@@ -70,8 +70,8 @@ public static class BindingConverterOverloadsExamples
 
         using IDisposable binding = item.BindTwoWay(
             dueDateBox,
-            x => x.DueDate,
-            x => x.Text,
+            static x => x.DueDate,
+            static x => x.Text,
             new NullableDateOnlyToStringTypeConverter(),
             new StringToNullableDateOnlyTypeConverter());
         Console.WriteLine(dueDateBox.Text);
@@ -92,7 +92,7 @@ public static class BindingConverterOverloadsExamples
         AccountsViewModel viewModel = new(new InMemoryBankingBackend());
         view.ViewModel = viewModel;
 
-        using IReactiveBinding<AccountsView, string> binding = view.OneWayBind(viewModel, x => x.TotalBalance, v => v.TotalBalanceLabel.Text, new DecimalToStringTypeConverter());
+        using IReactiveBinding<AccountsView, string> binding = view.OneWayBind(viewModel, static x => x.TotalBalance, static v => v.TotalBalanceLabel.Text, new DecimalToStringTypeConverter());
         await viewModel.LoadAccountsAsync();
 
         Console.WriteLine(view.TotalBalanceLabel.Text);
@@ -110,8 +110,8 @@ public static class BindingConverterOverloadsExamples
 
         using IReactiveBinding<TransferView, BindingChange> binding = view.Bind(
             viewModel,
-            x => x.Draft.Amount,
-            v => v.AmountTextBox.Text,
+            static x => x.Draft.Amount,
+            static v => v.AmountTextBox.Text,
             new DecimalToStringTypeConverter(),
             new StringToDecimalTypeConverter());
 
@@ -132,7 +132,7 @@ public static class BindingConverterOverloadsExamples
         TodoItem item = new() { Title = CarRegistrationTitle, Priority = TodoPriority.High };
         CheckBox highPriorityBox = new();
 
-        using (item.WhenChanged(x => x.Priority).BindTo(highPriorityBox, x => x.IsChecked, TodoPriority.High, new PriorityMatchesHintConverter()))
+        using (item.WhenChanged(static x => x.Priority).BindTo(highPriorityBox, static x => x.IsChecked, TodoPriority.High, new PriorityMatchesHintConverter()))
         {
             Console.WriteLine(highPriorityBox.IsChecked);
 

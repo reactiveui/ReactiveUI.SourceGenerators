@@ -78,7 +78,7 @@ public partial class BindingInvocationAnalyzerTests
 
                                                  public void Test()
                                                  {
-                                                     Expression<Func<MyViewModel, string>> expr = x => x.Secret;
+                                                     Func<MyViewModel, string> expr = x => x.Secret;
                                                      ReactiveUI.Binding.__ReactiveUIGeneratedBindings.WhenChanged(this, expr);
                                                  }
                                              }
@@ -238,7 +238,7 @@ public partial class BindingInvocationAnalyzerTests
                                   {
                                       public static object CustomMethod<TObj, TReturn>(
                                           this TObj obj,
-                                          Expression<Func<TObj, TReturn>> property)
+                                          Func<TObj, TReturn> property)
                                           where TObj : class
                                           => throw new NotImplementedException();
                                   }

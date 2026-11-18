@@ -26,8 +26,15 @@ public class BindingInvocationAnalyzer : DiagnosticAnalyzer
     /// <summary>Runtime entry points accept expressions that the generator cannot inspect.</summary>
     private const string UnsafeMethodSuffix = "Unsafe";
 
-    /// <summary>The parameter type a property path arrives as, which marks it out from the other arguments.</summary>
-    private const string ExpressionTypeName = "System.Linq.Expressions.Expression`1";
+    /// <summary>Why a selector with a statement body is not a path.</summary>
+    private const string StatementBodyFault = "it has a statement body, where a single expression such as 'x => x.Child.Name' is read";
+
+    /// <summary>Why a selector that computes a value, or reads something other than its parameter, is not a path.</summary>
+    private const string NotParameterPathFault = "it is not a chain of properties or fields read from its own parameter";
+
+    /// <summary>Why a selector with a null-conditional operator ahead of a value is not a path.</summary>
+    private const string LiftedValueFault =
+        "'?.' ahead of a value makes the result nullable, which the member is not; end the path at a reference or a nullable member, or write '!.'";
 
     /// <summary>The diagnostics this analyzer reports.</summary>
     private static readonly ImmutableArray<DiagnosticDescriptor> ReportedDiagnostics =
@@ -41,6 +48,7 @@ public class BindingInvocationAnalyzer : DiagnosticAnalyzer
             DiagnosticWarnings.NoBindableEvent,
             DiagnosticWarnings.InvalidInteractionType,
             DiagnosticWarnings.SilentPathLink,
+            DiagnosticWarnings.SelectorNotPropertyPath,
         }.ToImmutableArray();
 
     /// <inheritdoc/>
@@ -74,13 +82,14 @@ public class BindingInvocationAnalyzer : DiagnosticAnalyzer
         var methodName = methodSymbol.Name;
         var arguments = invocationOp.Arguments;
 
-        // RXUIBIND001, 003 and 006 name a path the generator cannot read, so the call throws. A call an interceptor
-        // claims was read after all, from the caller's own partial class, and has nothing to report.
+        // RXUIBIND001, 003, 006 and 022 name a path the generator cannot read, so the call throws. A call an
+        // interceptor claims was read after all, from the caller's own partial class, and has nothing to report.
         if (!AnalyzerHelpers.IsIntercepted(invocationOp, context.CancellationToken))
         {
             CheckNonInlineLambda(context, arguments);
             CheckPrivateMember(context, arguments);
             CheckUnsupportedPathSegment(context, arguments);
+            CheckSelectorShape(context, arguments);
         }
 
         // Check RXUIBIND010: A link in the middle of the path that raises no notification
@@ -120,7 +129,7 @@ public class BindingInvocationAnalyzer : DiagnosticAnalyzer
         in OperationAnalysisContext context,
         ImmutableArray<IArgumentOperation> arguments)
     {
-        // Find the Expression<Func<...>> arguments
+        // Find the arguments that name a property path
         for (var i = 0; i < arguments.Length; i++)
         {
             var arg = arguments[i];
@@ -129,10 +138,7 @@ public class BindingInvocationAnalyzer : DiagnosticAnalyzer
                 continue;
             }
 
-            // Check if this is an Expression<Func<...>> parameter
-            var parameterType = arg.Parameter!.Type;
-
-            if (!NativeTypeIdentity.Matches(parameterType, ExpressionTypeName))
+            if (!ExtractorValidation.IsPropertySelector(arg.Parameter!))
             {
                 continue;
             }
@@ -168,23 +174,90 @@ public class BindingInvocationAnalyzer : DiagnosticAnalyzer
                 continue;
             }
 
-            var current = AnalyzerHelpers.SkipNullForgivingAndParentheses(body);
-            while (current is MemberAccessExpressionSyntax memberAccess)
+            var current = PathSyntax.Link(body);
+            while (PathSyntax.IsMember(current))
             {
-                var memberSymbol = context.Operation.SemanticModel!.GetSymbolInfo(memberAccess, context.CancellationToken).Symbol;
+                var memberSymbol = context.Operation.SemanticModel!.GetSymbolInfo(current, context.CancellationToken).Symbol;
                 if (memberSymbol is { DeclaredAccessibility: Accessibility.Private or Accessibility.Protected })
                 {
                     context.ReportDiagnostic(
                         Diagnostic.Create(
                             DiagnosticWarnings.PrivateMember,
-                            memberAccess.Name.GetLocation(),
+                            PathSyntax.Name(current).GetLocation(),
                             memberSymbol.Name));
                     break;
                 }
 
-                current = AnalyzerHelpers.SkipNullForgivingAndParentheses(memberAccess.Expression);
+                current = PathSyntax.Link(PathSyntax.Receiver(current));
             }
         }
+    }
+
+    /// <summary>Checks for RXUIBIND022: a selector lambda that is not a chain of members read from its parameter.</summary>
+    /// <param name="context">The operation analysis context.</param>
+    /// <param name="arguments">The invocation arguments to inspect.</param>
+    /// <remarks>
+    /// A selector is a delegate, so the compiler accepts a statement body, an operator or a captured variable in
+    /// it. The generator reads none of those. A method call or an indexer in the path is left to RXUIBIND006.
+    /// </remarks>
+    internal static void CheckSelectorShape(
+        in OperationAnalysisContext context,
+        ImmutableArray<IArgumentOperation> arguments)
+    {
+        for (var i = 0; i < arguments.Length; i++)
+        {
+            if (!IsExpressionArgument(arguments[i], out var lambda))
+            {
+                continue;
+            }
+
+            var reason = SelectorShapeFault(lambda!, context.Operation.SemanticModel!, context.CancellationToken);
+            if (reason is null)
+            {
+                continue;
+            }
+
+            context.ReportDiagnostic(
+                Diagnostic.Create(DiagnosticWarnings.SelectorNotPropertyPath, lambda!.GetLocation(), lambda.ToString(), reason));
+        }
+    }
+
+    /// <summary>Finds why a selector lambda is not a property path the generator reads.</summary>
+    /// <param name="lambda">The selector lambda.</param>
+    /// <param name="model">The semantic model the lambda is read through.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The reason, or <see langword="null"/> for a path, and for one RXUIBIND006 reports.</returns>
+    internal static string? SelectorShapeFault(LambdaExpressionSyntax lambda, SemanticModel model, CancellationToken cancellationToken)
+    {
+        var body = GetLambdaBody(lambda);
+        if (body is null)
+        {
+            return StatementBodyFault;
+        }
+
+        var links = 0;
+        var isConditional = false;
+        var current = PathSyntax.Link(body);
+        while (PathSyntax.IsMember(current))
+        {
+            links++;
+            isConditional |= PathSyntax.IsConditional(current);
+            current = PathSyntax.Link(PathSyntax.Receiver(current));
+        }
+
+        if (current is InvocationExpressionSyntax or ElementAccessExpressionSyntax)
+        {
+            return null;
+        }
+
+        if (links == 0 || !IsParameterOf(current, lambda))
+        {
+            return NotParameterPathFault;
+        }
+
+        return isConditional && IsPlainValue(model.GetTypeInfo(PathSyntax.Link(body), cancellationToken).Type)
+            ? LiftedValueFault
+            : null;
     }
 
     /// <summary>Checks for RXUIBIND004: WhenChanging invocations on types that do not support before-change notifications.</summary>
@@ -395,10 +468,7 @@ public class BindingInvocationAnalyzer : DiagnosticAnalyzer
         {
             var arg = arguments[i];
 
-            // Only check Expression<Func<...>> parameters
-            var parameterType = arg.Parameter!.Type;
-
-            if (!NativeTypeIdentity.Matches(parameterType, ExpressionTypeName))
+            if (!ExtractorValidation.IsPropertySelector(arg.Parameter!))
             {
                 continue;
             }
@@ -455,7 +525,7 @@ public class BindingInvocationAnalyzer : DiagnosticAnalyzer
         in OperationAnalysisContext context,
         ExpressionSyntax expression)
     {
-        var current = AnalyzerHelpers.SkipNullForgivingAndParentheses(expression);
+        var current = PathSyntax.Link(expression);
         var isLeaf = true;
         while (current is not null)
         {
@@ -481,10 +551,10 @@ public class BindingInvocationAnalyzer : DiagnosticAnalyzer
                 return;
             }
 
-            if (current is MemberAccessExpressionSyntax memberAccess)
+            if (PathSyntax.IsMember(current))
             {
                 // Check if the member is a field
-                var memberSymbol = context.Operation.SemanticModel!.GetSymbolInfo(memberAccess, context.CancellationToken).Symbol;
+                var memberSymbol = context.Operation.SemanticModel!.GetSymbolInfo(current, context.CancellationToken).Symbol;
 
                 // An instance field is read once, like any link that raises no notification. The leaf may be
                 // assigned, so a read-only one there is not generated.
@@ -493,13 +563,13 @@ public class BindingInvocationAnalyzer : DiagnosticAnalyzer
                     context.ReportDiagnostic(
                         Diagnostic.Create(
                             DiagnosticWarnings.UnsupportedPathSegment,
-                            memberAccess.Name.GetLocation(),
+                            PathSyntax.Name(current).GetLocation(),
                             memberSymbol.Name));
                     return;
                 }
 
                 isLeaf = false;
-                current = AnalyzerHelpers.SkipNullForgivingAndParentheses(memberAccess.Expression);
+                current = PathSyntax.Link(PathSyntax.Receiver(current));
                 continue;
             }
 
@@ -526,11 +596,11 @@ public class BindingInvocationAnalyzer : DiagnosticAnalyzer
 
         // The path is written outermost-first, so walking down it reaches the root last. Every access whose
         // own receiver is itself an access is a link past the first.
-        var current = AnalyzerHelpers.SkipNullForgivingAndParentheses(body) as MemberAccessExpressionSyntax;
-        while (current is not null)
+        var current = PathSyntax.Link(body);
+        while (PathSyntax.IsMember(current))
         {
-            var parent = AnalyzerHelpers.SkipNullForgivingAndParentheses(current.Expression) as MemberAccessExpressionSyntax;
-            if (parent is not null)
+            var parent = PathSyntax.Link(PathSyntax.Receiver(current));
+            if (PathSyntax.IsMember(parent))
             {
                 ReportIfSilent(context, model, parent);
             }
@@ -539,6 +609,30 @@ public class BindingInvocationAnalyzer : DiagnosticAnalyzer
         }
     }
 
+    /// <summary>Determines whether an expression names the single parameter of a lambda.</summary>
+    /// <param name="expression">The expression a member chain ended at.</param>
+    /// <param name="lambda">The lambda the chain was read from.</param>
+    /// <returns><see langword="true"/> when the expression is the lambda's parameter.</returns>
+    private static bool IsParameterOf(ExpressionSyntax expression, LambdaExpressionSyntax lambda)
+    {
+        var parameter = lambda switch
+        {
+            SimpleLambdaExpressionSyntax simple => simple.Parameter,
+            ParenthesizedLambdaExpressionSyntax { ParameterList.Parameters.Count: 1 } parenthesized => parenthesized.ParameterList.Parameters[0],
+            _ => null,
+        };
+
+        return parameter is not null
+            && expression is IdentifierNameSyntax identifier
+            && identifier.Identifier.ValueText == parameter.Identifier.ValueText;
+    }
+
+    /// <summary>Determines whether a type is a value type that cannot hold null.</summary>
+    /// <param name="type">The type of the last member of a path.</param>
+    /// <returns><see langword="true"/> for a value type other than a nullable value.</returns>
+    private static bool IsPlainValue(ITypeSymbol? type) =>
+        type is { IsValueType: true } && type.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T;
+
     /// <summary>Reports a link when the type it yields raises no notification.</summary>
     /// <param name="context">The operation analysis context.</param>
     /// <param name="model">The semantic model the link is read through.</param>
@@ -546,7 +640,7 @@ public class BindingInvocationAnalyzer : DiagnosticAnalyzer
     private static void ReportIfSilent(
         in OperationAnalysisContext context,
         SemanticModel model,
-        MemberAccessExpressionSyntax link)
+        ExpressionSyntax link)
     {
         if (model.GetSymbolInfo(link, context.CancellationToken).Symbol
             is not IPropertySymbol { Type: INamedTypeSymbol linkType })
@@ -567,15 +661,15 @@ public class BindingInvocationAnalyzer : DiagnosticAnalyzer
                 link.ToString()));
     }
 
-    /// <summary>Determines whether an argument is an inline lambda passed as an expression tree.</summary>
+    /// <summary>Determines whether an argument is an inline lambda naming a property path.</summary>
     /// <param name="argument">The argument to inspect.</param>
     /// <param name="lambda">The lambda, when the argument is one.</param>
-    /// <returns><see langword="true"/> when the argument is an expression-tree lambda.</returns>
+    /// <returns><see langword="true"/> when the argument is a lambda for a path parameter.</returns>
     private static bool IsExpressionArgument(IArgumentOperation argument, out LambdaExpressionSyntax? lambda)
     {
         lambda = null;
 
-        return NativeTypeIdentity.Matches(argument.Parameter!.Type, ExpressionTypeName)
+        return ExtractorValidation.IsPropertySelector(argument.Parameter!)
             && (lambda = argument.Value.Syntax as LambdaExpressionSyntax) is not null;
     }
 

@@ -16,8 +16,8 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         public static global::ReactiveUI.Binding.IReactiveBinding<global::TestApp.PersonView, string> OneWayBind(
             this global::TestApp.PersonView view,
             global::TestApp.Person? viewModel,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::TestApp.Person, int>> viewModelProperty,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::TestApp.PersonView, string?>> viewProperty,
+            global::System.Func<global::TestApp.Person, int> viewModelProperty,
+            global::System.Func<global::TestApp.PersonView, string?> viewProperty,
             global::ReactiveUI.Binding.IBindingTypeConverter converter,
             object? conversionHint = null,
             global::ReactiveUI.Primitives.Concurrency.ISequencer? scheduler = null,

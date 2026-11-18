@@ -27,13 +27,13 @@ public class UnreachableTypeAnalyzerTests
                                         {
                                             public static IObservable<TReturn> WhenChanged<TObj, TReturn>(
                                                 this TObj objectToMonitor,
-                                                Expression<Func<TObj, TReturn>> property)
+                                                Func<TObj, TReturn> property)
                                                 where TObj : class
                                                 => throw new InvalidOperationException();
 
                                             public static IObservable<TRet> WhenAnyValue<TSender, T1, TRet>(
                                                 this TSender sender,
-                                                Expression<Func<TSender, T1>> property1,
+                                                Func<TSender, T1> property1,
                                                 Func<T1, TRet> selector)
                                                 => throw new InvalidOperationException();
 
@@ -45,7 +45,7 @@ public class UnreachableTypeAnalyzerTests
 
                                             public static IObservable<TReturn> WhenChangedUnsafe<TObj, TReturn>(
                                                 this TObj objectToMonitor,
-                                                Expression<Func<TObj, TReturn>> property)
+                                                Func<TObj, TReturn> property)
                                                 where TObj : class
                                                 => throw new InvalidOperationException();
                                         }

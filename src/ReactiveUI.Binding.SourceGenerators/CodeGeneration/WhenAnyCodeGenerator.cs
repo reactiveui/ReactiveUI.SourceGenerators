@@ -313,7 +313,7 @@ internal static class WhenAnyCodeGenerator
         {
             var type = CodeGeneratorHelpers.NullableSelectorLeafType(first.PropertyPaths[i], supportsNullable);
             _ = sb.Append(GeneratedSyntax.SelectorTypeOpen).Append(first.SourceTypeFullName).Append(", ")
-                .Append(type).Append(">> ").Append(SelectorParameterPrefix).Append(i + 1).Line(",");
+                .Append(type).Append("> ").Append(SelectorParameterPrefix).Append(i + 1).Line(",");
         }
 
         _ = sb.Append(GetWhenAnySelectorType(first)).Line(" selector,");

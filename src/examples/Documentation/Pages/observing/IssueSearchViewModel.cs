@@ -48,7 +48,7 @@ public sealed class IssueSearchViewModel(IGitHubApi api, string repository) : Ob
     /// <param name="quietPeriod">How long the term must stay unchanged before a search starts.</param>
     /// <returns>A subscription that stops the reaction when disposed.</returns>
     public IDisposable StartSearching(ISequencer sequencer, TimeSpan quietPeriod) =>
-        this.WhenAnyValue(x => x.SearchTerm)
+        this.WhenAnyValue(static x => x.SearchTerm)
             .Throttle(quietPeriod, sequencer)
             .Select(static term => term.Trim())
             .DistinctUntilChanged()

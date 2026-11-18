@@ -243,9 +243,9 @@ internal static class BindInteractionCodeGenerator
 
         _ = sb.Append("this ").Append(group.ViewTypeFullName).Line(ViewParameterSuffix)
             .Append(CodeGeneratorHelpers.NullableSelectorType(group.ViewModelTypeFullName, true, supportsNullable)).Line(ViewModelParameterSuffix)
-            .Append(Expression).Append('<').Append(Func).Append('<')
+            .Append(Func).Append('<')
             .Append(group.ViewModelTypeFullName).Append(", ").Append(IInteraction).Append('<').Append(group.InputTypeFullName).Append(", ")
-            .Append(group.OutputTypeFullName).Line(">>> propertyName,")
+            .Append(group.OutputTypeFullName).Line(">> propertyName,")
             .Append(handlerType).Line(" handler,");
 
         if (dispatchesOnExpressionText || stubHasExpressionParameters)

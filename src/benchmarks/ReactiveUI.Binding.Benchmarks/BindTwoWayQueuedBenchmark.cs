@@ -38,7 +38,7 @@ public class BindTwoWayQueuedBenchmark
     [Benchmark(Description = "Queued BindTwoWay initial delivery")]
     public void InitialDelivery()
     {
-        using var binding = _source.BindTwoWay(_target, x => x.Name, x => x.DisplayName, _sequencer);
+        using var binding = _source.BindTwoWay(_target, static x => x.Name, static x => x.DisplayName, _sequencer);
 
         _sequencer.Drain();
     }
@@ -47,7 +47,7 @@ public class BindTwoWayQueuedBenchmark
     [Benchmark(Description = "Queued BindTwoWay model to view")]
     public void ModelToView()
     {
-        using var binding = _source.BindTwoWay(_target, x => x.Name, x => x.DisplayName, _sequencer);
+        using var binding = _source.BindTwoWay(_target, static x => x.Name, static x => x.DisplayName, _sequencer);
         _sequencer.Drain();
 
         for (var i = 0; i < PropertyChangeCount; i++)
@@ -61,7 +61,7 @@ public class BindTwoWayQueuedBenchmark
     [Benchmark(Description = "Queued BindTwoWay model to view burst")]
     public void ModelToViewBurst()
     {
-        using var binding = _source.BindTwoWay(_target, x => x.Name, x => x.DisplayName, _sequencer);
+        using var binding = _source.BindTwoWay(_target, static x => x.Name, static x => x.DisplayName, _sequencer);
         _sequencer.Drain();
 
         for (var i = 0; i < PropertyChangeCount; i++)
@@ -76,7 +76,7 @@ public class BindTwoWayQueuedBenchmark
     [Benchmark(Description = "Queued BindTwoWay view to model")]
     public void ViewToModel()
     {
-        using var binding = _source.BindTwoWay(_target, x => x.Name, x => x.DisplayName, _sequencer);
+        using var binding = _source.BindTwoWay(_target, static x => x.Name, static x => x.DisplayName, _sequencer);
         _sequencer.Drain();
 
         for (var i = 0; i < PropertyChangeCount; i++)

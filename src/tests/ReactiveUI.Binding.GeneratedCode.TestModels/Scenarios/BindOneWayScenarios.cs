@@ -20,7 +20,7 @@ public static class BindOneWayScenarios
     /// <returns>A disposable that, when disposed, disconnects the binding.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IDisposable StringProperty(BigViewModel source, BigView target) =>
-        source.BindOneWay(target, x => x.Prop1, x => x.ViewProp1);
+        source.BindOneWay(target, static x => x.Prop1, static x => x.ViewProp1);
 
     /// <summary>One-way binding for an int property.</summary>
     /// <param name="source">The source view model.</param>
@@ -28,7 +28,7 @@ public static class BindOneWayScenarios
     /// <returns>A disposable that, when disposed, disconnects the binding.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IDisposable IntProperty(BigViewModel source, BigView target) =>
-        source.BindOneWay(target, x => x.Prop2, x => x.ViewProp2);
+        source.BindOneWay(target, static x => x.Prop2, static x => x.ViewProp2);
 
     /// <summary>One-way binding for a double property.</summary>
     /// <param name="source">The source view model.</param>
@@ -36,7 +36,7 @@ public static class BindOneWayScenarios
     /// <returns>A disposable that, when disposed, disconnects the binding.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IDisposable DoubleProperty(BigViewModel source, BigView target) =>
-        source.BindOneWay(target, x => x.Prop3, x => x.ViewProp3);
+        source.BindOneWay(target, static x => x.Prop3, static x => x.ViewProp3);
 
     /// <summary>One-way binding for a bool property.</summary>
     /// <param name="source">The source view model.</param>
@@ -44,7 +44,7 @@ public static class BindOneWayScenarios
     /// <returns>A disposable that, when disposed, disconnects the binding.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IDisposable BoolProperty(BigViewModel source, BigView target) =>
-        source.BindOneWay(target, x => x.Prop4, x => x.ViewProp4);
+        source.BindOneWay(target, static x => x.Prop4, static x => x.ViewProp4);
 
     /// <summary>One-way binding with a deep chain source property (Address.City).</summary>
     /// <param name="source">The source view model.</param>
@@ -52,7 +52,7 @@ public static class BindOneWayScenarios
     /// <returns>A disposable that, when disposed, disconnects the binding.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IDisposable DeepChainProperty(BigViewModel source, BigView target) =>
-        source.BindOneWay(target, x => x.Address.City, x => x.ViewProp1);
+        source.BindOneWay(target, static x => x.Address.City, static x => x.ViewProp1);
 
     /// <summary>One-way binding for a second string property (for multiple binding tests).</summary>
     /// <param name="source">The source view model.</param>
@@ -60,5 +60,5 @@ public static class BindOneWayScenarios
     /// <returns>A disposable that, when disposed, disconnects the binding.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IDisposable StringProperty5(BigViewModel source, BigView target) =>
-        source.BindOneWay(target, x => x.Prop5, x => x.ViewProp5);
+        source.BindOneWay(target, static x => x.Prop5, static x => x.ViewProp5);
 }
