@@ -269,7 +269,7 @@ public class SymbolHelpersTests
                                   {
                                       public void Test()
                                       {
-                                          Expression<Func<MyVm, Subject<int>>> expr = x => x.Count;
+                                          Func<MyVm, Subject<int>> expr = x => x.Count;
                                       }
                                   }
                               }
@@ -305,7 +305,7 @@ public class SymbolHelpersTests
                                   {
                                       public void Test()
                                       {
-                                          Expression<Func<MyVm, IObservable<string>>> expr = x => x.Obs;
+                                          Func<MyVm, IObservable<string>> expr = x => x.Obs;
                                       }
                                   }
                               }
@@ -443,7 +443,7 @@ public class SymbolHelpersTests
                                   {
                                       public void Test()
                                       {
-                                          Expression<Func<MyVm, string>> expr = x => x.Name;
+                                          Func<MyVm, string> expr = x => x.Name;
                                       }
                                   }
                               }

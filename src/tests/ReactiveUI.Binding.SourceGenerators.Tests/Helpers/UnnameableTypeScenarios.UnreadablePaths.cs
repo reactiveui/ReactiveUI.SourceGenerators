@@ -82,7 +82,7 @@ internal static partial class UnnameableTypeScenarios
         {
             public static int[] Run()
             {
-                System.Linq.Expressions.Expression<Func<Vm, int>> path = x => x.A;
+                System.Func<Vm, int> path = x => x.A;
                 var recorder = Recorder.Watch(new Vm { A = 1 }.WhenChanged(path));
                 return recorder.Values.ToArray();
             }
@@ -97,7 +97,7 @@ internal static partial class UnnameableTypeScenarios
             {
                 var executed = 0;
                 var view = new View { ViewModel = new ViewModel { Save = new RecordingCommand(() => executed++) } };
-                System.Linq.Expressions.Expression<Func<ViewModel, string?>> parameter = x => x.Name;
+                System.Func<ViewModel, string?> parameter = x => x.Name;
                 using (view.BindCommand(view.ViewModel, vm => vm.Save, v => v.SaveButton, parameter))
                 {
                     view.SaveButton.PerformClick();

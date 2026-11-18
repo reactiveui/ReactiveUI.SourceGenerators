@@ -16,8 +16,8 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         public static global::ReactiveUI.Binding.IReactiveBinding<global::NullableSchedulerProbe.ProbeView, global::ReactiveUI.Binding.BindingChange> Bind(
             this global::NullableSchedulerProbe.ProbeView view,
             global::NullableSchedulerProbe.ProbeViewModel? viewModel,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::NullableSchedulerProbe.ProbeViewModel, string?>> viewModelProperty,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::NullableSchedulerProbe.ProbeView, string?>> viewProperty,
+            global::System.Func<global::NullableSchedulerProbe.ProbeViewModel, string?> viewModelProperty,
+            global::System.Func<global::NullableSchedulerProbe.ProbeView, string?> viewProperty,
             global::System.Func<string, string> viewModelToViewConverter,
             global::System.Func<string, string> viewToViewModelConverter,
             global::ReactiveUI.Primitives.Concurrency.ISequencer? scheduler,

@@ -16,7 +16,7 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         public static global::System.IDisposable InvokeCommand(
             this global::System.IObservable<int> source,
             global::SharedScenarios.InvokeCommand.DeepCommandPath.MyViewModel? target,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.InvokeCommand.DeepCommandPath.MyViewModel, global::System.Windows.Input.ICommand?>> commandProperty,
+            global::System.Func<global::SharedScenarios.InvokeCommand.DeepCommandPath.MyViewModel, global::System.Windows.Input.ICommand?> commandProperty,
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("commandProperty")] string commandPropertyExpression = "",
             [global::System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "",
             [global::System.Runtime.CompilerServices.CallerLineNumber] int callerLineNumber = 0)

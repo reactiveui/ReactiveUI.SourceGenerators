@@ -75,23 +75,32 @@ internal static class SyntaxHelpers
         }
 
         // Decompose member access chain: x.A.B.C → [A, B, C]
-        // Also handles null-forgiving operator: x.A!.B!.C → [A, B, C]
+        // The null-forgiving and null-conditional operators name the same members: x.A!.B?.C → [A, B, C]
         const int TypicalPathDepth = 4;
 
         var segments = new List<PropertyPathSegment>(TypicalPathDepth);
-        var current = UnwrapNullForgiving(body);
+        var current = PathSyntax.Link(body);
+        var isConditional = false;
 
-        while (current is MemberAccessExpressionSyntax memberAccess)
+        while (PathSyntax.IsMember(current))
         {
             ct.ThrowIfCancellationRequested();
 
-            if (ReadPathSegment(memberAccess, semanticModel, scope, segments.Count == 0, ct) is not { } segment)
+            if (ReadPathSegment(current, semanticModel, scope, segments.Count == 0, ct) is not { } segment)
             {
                 return null;
             }
 
             segments.Add(segment);
-            current = UnwrapNullForgiving(memberAccess.Expression);
+            isConditional |= PathSyntax.IsConditional(current);
+            current = PathSyntax.Link(PathSyntax.Receiver(current));
+        }
+
+        // A '?.' ahead of a value makes the lambda produce a nullable value, which is not the type the member has.
+        // The generated method is typed from the member, so it would not match the call.
+        if (isConditional && LiftsLeafValue(body, semanticModel, ct))
+        {
+            return null;
         }
 
         // The chain has to end at the lambda's own parameter. Anything else - an indexer, a method call, a local -
@@ -113,36 +122,6 @@ internal static class SyntaxHelpers
     internal static ExpressionSyntax? GetLambdaBody(LambdaExpressionSyntax lambda) =>
         lambda.Body as ExpressionSyntax;
 
-    /// <summary>
-    /// Unwraps null-forgiving operators (!) and parentheses from an expression.
-    /// For example, <c>x.Child!</c> is a <see cref="PostfixUnaryExpressionSyntax"/>
-    /// wrapping the <see cref="MemberAccessExpressionSyntax"/> for <c>x.Child</c>, and <c>(x.Child)</c> a
-    /// <see cref="ParenthesizedExpressionSyntax"/> around it. Neither changes which member is named, so this
-    /// method strips both wrappers so the path extraction loop can proceed.
-    /// </summary>
-    /// <param name="expression">The expression to unwrap.</param>
-    /// <returns>The unwrapped expression.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static ExpressionSyntax UnwrapNullForgiving(ExpressionSyntax expression)
-    {
-        while (true)
-        {
-            var inner = expression switch
-            {
-                PostfixUnaryExpressionSyntax postfix when postfix.IsKind(SyntaxKind.SuppressNullableWarningExpression) => postfix.Operand,
-                ParenthesizedExpressionSyntax parenthesized => parenthesized.Expression,
-                _ => null,
-            };
-
-            if (inner is null)
-            {
-                return expression;
-            }
-
-            expression = inner;
-        }
-    }
-
     /// <summary>Reads one link of an observed property path.</summary>
     /// <param name="memberAccess">The member access naming the link.</param>
     /// <param name="semanticModel">The semantic model.</param>
@@ -151,7 +130,7 @@ internal static class SyntaxHelpers
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The segment, or null when the link is not a property or field generated code can read.</returns>
     private static PropertyPathSegment? ReadPathSegment(
-        MemberAccessExpressionSyntax memberAccess,
+        ExpressionSyntax memberAccess,
         SemanticModel semanticModel,
         ReachScope scope,
         bool isLeaf,
@@ -171,7 +150,7 @@ internal static class SyntaxHelpers
         }
 
         var link = member!;
-        var owner = semanticModel.GetTypeInfo(memberAccess.Expression, ct).Type as INamedTypeSymbol ?? link.ContainingType;
+        var owner = WithoutNullableValue(semanticModel.GetTypeInfo(PathSyntax.Receiver(memberAccess), ct).Type) as INamedTypeSymbol ?? link.ContainingType;
 
         // A private or protected member is only in reach of code in the caller's own partial class.
         if (!scope.CanRead(link, owner))
@@ -206,6 +185,23 @@ internal static class SyntaxHelpers
                 IsField: true,
                 IsNullableReference: IsNullableReference(memberType));
     }
+
+    /// <summary>Reads the value type a nullable value holds, which is the type a member after <c>?.</c> is read from.</summary>
+    /// <param name="type">The type of the expression before the member.</param>
+    /// <returns>The held type for a nullable value, otherwise the type itself.</returns>
+    private static ITypeSymbol? WithoutNullableValue(ITypeSymbol? type) =>
+        type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T } nullable
+            ? nullable.TypeArguments[0]
+            : type;
+
+    /// <summary>Determines whether a path with a <c>?.</c> in it ends at a value the operator makes nullable.</summary>
+    /// <param name="body">The lambda body.</param>
+    /// <param name="semanticModel">The semantic model.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns><see langword="true"/> when the last member is a value type that is not already nullable.</returns>
+    private static bool LiftsLeafValue(ExpressionSyntax body, SemanticModel semanticModel, CancellationToken ct) =>
+        semanticModel.GetTypeInfo(PathSyntax.Link(body), ct).Type is { IsValueType: true } leaf
+        && leaf.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T;
 
     /// <summary>Determines whether a type is declared as a nullable reference type, such as <c>MyType?</c>.</summary>
     /// <param name="type">The type.</param>

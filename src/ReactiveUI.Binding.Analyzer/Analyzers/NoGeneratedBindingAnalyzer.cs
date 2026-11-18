@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using ReactiveUI.Binding.Helpers;
 using ReactiveUI.Binding.SourceGenerators;
+using ReactiveUI.Binding.SourceGenerators.Helpers;
 
 namespace ReactiveUI.Binding.Analyzer.Analyzers;
 
@@ -94,11 +95,11 @@ public class NoGeneratedBindingAnalyzer : DiagnosticAnalyzer
                 continue;
             }
 
-            for (var current = AnalyzerHelpers.SkipNullForgivingAndParentheses(body);
-                 current is MemberAccessExpressionSyntax access;
-                 current = AnalyzerHelpers.SkipNullForgivingAndParentheses(access.Expression))
+            for (var current = PathSyntax.Link(body);
+                 PathSyntax.IsMember(current);
+                 current = PathSyntax.Link(PathSyntax.Receiver(current)))
             {
-                if (model.GetSymbolInfo(access, cancellationToken).Symbol is { } member && IsDeclaredOnlyInGeneratedCode(member))
+                if (model.GetSymbolInfo(current, cancellationToken).Symbol is { } member && IsDeclaredOnlyInGeneratedCode(member))
                 {
                     return true;
                 }
@@ -143,10 +144,10 @@ public class NoGeneratedBindingAnalyzer : DiagnosticAnalyzer
 
     /// <summary>Determines whether a stub class's method throws, rather than doing the work itself.</summary>
     /// <param name="method">The method.</param>
-    /// <returns><see langword="true"/> for <c>ToProperty</c> and for every method that takes an expression tree.</returns>
+    /// <returns><see langword="true"/> for <c>ToProperty</c> and for every method that takes a property path.</returns>
     /// <remarks>
-    /// Every method that takes an expression tree throws, and so does every <c>ToProperty</c> overload, which names its
-    /// property by a delegate or a string. <c>InvokeCommand</c> with a command object runs the command itself.
+    /// Every method that takes a property path throws, and so does every <c>ToProperty</c> overload, which may name
+    /// its property by a string. <c>InvokeCommand</c> with a command object runs the command itself.
     /// </remarks>
     private static bool Throws(IMethodSymbol method)
     {
@@ -157,7 +158,7 @@ public class NoGeneratedBindingAnalyzer : DiagnosticAnalyzer
 
         foreach (var parameter in method.Parameters)
         {
-            if (parameter.Type is INamedTypeSymbol { Name: "Expression", Arity: 1 })
+            if (ExtractorValidation.IsPropertySelector(parameter))
             {
                 return true;
             }

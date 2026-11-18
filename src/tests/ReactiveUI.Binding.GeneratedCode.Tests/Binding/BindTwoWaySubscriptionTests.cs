@@ -27,8 +27,8 @@ public class BindTwoWaySubscriptionTests
         var target = new Endpoint { RejectSubscription = !rejectSource };
 
         var createBinding = withConverters
-            ? (Func<IDisposable>)(() => source.BindTwoWay(target, x => x.Text, x => x.Text, static value => value, static value => value))
-            : () => source.BindTwoWay(target, x => x.Text, x => x.Text);
+            ? (Func<IDisposable>)(() => source.BindTwoWay(target, static x => x.Text, static x => x.Text, static value => value, static value => value))
+            : () => source.BindTwoWay(target, static x => x.Text, static x => x.Text);
 
         await Assert.That(createBinding).Throws<InvalidOperationException>();
 

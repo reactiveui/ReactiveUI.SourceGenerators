@@ -16,8 +16,8 @@ namespace ReactiveUI.Binding
         public static global::System.IDisposable BindTwoWay(
             this global::SharedScenarios.BindTwoWay.MultipleSameTypeBindings.MyViewModel source,
             global::SharedScenarios.BindTwoWay.MultipleSameTypeBindings.MyView target,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.BindTwoWay.MultipleSameTypeBindings.MyViewModel, string?>> sourceProperty,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.BindTwoWay.MultipleSameTypeBindings.MyView, string?>> targetProperty,
+            global::System.Func<global::SharedScenarios.BindTwoWay.MultipleSameTypeBindings.MyViewModel, string?> sourceProperty,
+            global::System.Func<global::SharedScenarios.BindTwoWay.MultipleSameTypeBindings.MyView, string?> targetProperty,
             string sourcePropertyExpression = "",
             string targetPropertyExpression = "",
             [global::System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "",

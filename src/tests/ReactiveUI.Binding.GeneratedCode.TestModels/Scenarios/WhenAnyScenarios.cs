@@ -19,7 +19,7 @@ public static class WhenAnyScenarios
     /// <returns>An observable of the Name property value.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IObservable<string> SingleProperty_Name(TestViewModel vm) =>
-        vm.WhenAny(x => x.Name, static c => c.Value);
+        vm.WhenAny(static x => x.Name, static c => c.Value);
 
     /// <summary>Single property WhenAny observation returning the IObservedChange directly.</summary>
     /// <param name="vm">The view model to observe.</param>
@@ -27,12 +27,12 @@ public static class WhenAnyScenarios
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IObservable<IObservedChange<TestViewModel, string>> SingleProperty_Name_ObservedChange(
         TestViewModel vm) =>
-        vm.WhenAny(x => x.Name, static c => c);
+        vm.WhenAny(static x => x.Name, static c => c);
 
     /// <summary>Two-property WhenAny observation with a selector combining values.</summary>
     /// <param name="vm">The view model to observe.</param>
     /// <returns>An observable of the combined name and age string.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IObservable<string> TwoProperties_NameAge(TestViewModel vm) =>
-        vm.WhenAny(x => x.Name, x => x.Age, static (name, age) => $"{name.Value}_{age.Value}");
+        vm.WhenAny(static x => x.Name, static x => x.Age, static (name, age) => $"{name.Value}_{age.Value}");
 }

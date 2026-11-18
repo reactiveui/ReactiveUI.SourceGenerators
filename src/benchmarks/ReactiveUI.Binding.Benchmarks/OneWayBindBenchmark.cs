@@ -31,7 +31,7 @@ public class OneWayBindBenchmark
     [Benchmark(Description = "OneWayBind")]
     public void Standard()
     {
-        using var binding = _view.OneWayBind(_vm, x => x.Name, v => v.DisplayName);
+        using var binding = _view.OneWayBind(_vm, static x => x.Name, static v => v.DisplayName);
 
         for (var i = 0; i < PropertyChangeCount; i++)
         {
@@ -44,7 +44,7 @@ public class OneWayBindBenchmark
     [Benchmark(Description = "First Binding")]
     public string FirstBinding()
     {
-        using var binding = _view.OneWayBind(_vm, x => x.Name, v => v.DisplayName);
+        using var binding = _view.OneWayBind(_vm, static x => x.Name, static v => v.DisplayName);
         return _view.DisplayName;
     }
 }

@@ -358,7 +358,7 @@ public class BindingDispatchStubTests
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task WhenChanged_WithNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefusedNaming(
-            () => ReactiveUIBindingExtensions.WhenChanged(_viewModel, x => x.Caption),
+            () => ReactiveUIBindingExtensions.WhenChanged(_viewModel, static x => x.Caption),
             "WhenChangedUnsafe");
 
     /// <summary>WhenChanging refuses a call no generated dispatch claimed.</summary>
@@ -367,7 +367,7 @@ public class BindingDispatchStubTests
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task WhenChanging_WithNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefusedNaming(
-            () => ReactiveUIBindingExtensions.WhenChanging(_viewModel, x => x.Caption),
+            () => ReactiveUIBindingExtensions.WhenChanging(_viewModel, static x => x.Caption),
             "WhenChangingUnsafe");
 
     /// <summary>WhenAnyValue refuses a call no generated dispatch claimed.</summary>
@@ -376,7 +376,7 @@ public class BindingDispatchStubTests
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task WhenAnyValue_WithNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefusedNaming(
-            () => ReactiveUIBindingExtensions.WhenAnyValue(_viewModel, x => x.Caption),
+            () => ReactiveUIBindingExtensions.WhenAnyValue(_viewModel, static x => x.Caption),
             "WhenAnyValueUnsafe");
 
     /// <summary>The multi-property selector overload refuses a call no generated dispatch claimed.</summary>
@@ -387,8 +387,8 @@ public class BindingDispatchStubTests
         AssertRefusedNaming(
             () => ReactiveUIBindingExtensions.WhenChanged(
                 _viewModel,
-                x => x.Caption,
-                x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
                 static (first, second) => first + second),
             "WhenChangedUnsafe");
 
@@ -398,7 +398,7 @@ public class BindingDispatchStubTests
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task BindOneWay_WithNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefusedNaming(
-            () => ReactiveUIBindingExtensions.BindOneWay(_viewModel, _view, x => x.Caption, x => x.Caption),
+            () => ReactiveUIBindingExtensions.BindOneWay(_viewModel, _view, static x => x.Caption, static x => x.Caption),
             "BindOneWayUnsafe");
 
     /// <summary>BindTwoWay refuses a call no generated dispatch claimed.</summary>
@@ -407,7 +407,7 @@ public class BindingDispatchStubTests
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task BindTwoWay_WithNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefusedNaming(
-            () => ReactiveUIBindingExtensions.BindTwoWay(_viewModel, _view, x => x.Caption, x => x.Caption),
+            () => ReactiveUIBindingExtensions.BindTwoWay(_viewModel, _view, static x => x.Caption, static x => x.Caption),
             "BindTwoWayUnsafe");
 
     /// <summary>OneWayBind refuses a call no generated dispatch claimed.</summary>
@@ -416,7 +416,7 @@ public class BindingDispatchStubTests
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task OneWayBind_WithNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefusedNaming(
-            () => ReactiveUIBindingExtensions.OneWayBind(_view, _viewModel, x => x.Caption, x => x.Caption),
+            () => ReactiveUIBindingExtensions.OneWayBind(_view, _viewModel, static x => x.Caption, static x => x.Caption),
             "OneWayBindUnsafe");
 
     /// <summary>Bind refuses a call no generated dispatch claimed.</summary>
@@ -425,7 +425,7 @@ public class BindingDispatchStubTests
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task Bind_WithNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefusedNaming(
-            () => ReactiveUIBindingExtensions.Bind(_view, _viewModel, x => x.Caption, x => x.Caption),
+            () => ReactiveUIBindingExtensions.Bind(_view, _viewModel, static x => x.Caption, static x => x.Caption),
             "BindUnsafe");
 
     /// <summary>BindTo refuses a call no generated dispatch claimed.</summary>
@@ -434,7 +434,7 @@ public class BindingDispatchStubTests
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task BindTo_WithNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefusedNaming(
-            () => ReactiveUIBindingExtensions.BindTo(_source, _view, x => x.Caption),
+            () => ReactiveUIBindingExtensions.BindTo(_source, _view, static x => x.Caption),
             BindToTwin);
 
     /// <summary>BindCommand refuses a call no generated dispatch claimed.</summary>
@@ -443,7 +443,7 @@ public class BindingDispatchStubTests
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task BindCommand_WithNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefusedNaming(
-            () => ReactiveUIBindingExtensions.BindCommand(_view, _viewModel, x => x.Run, x => x.Control),
+            () => ReactiveUIBindingExtensions.BindCommand(_view, _viewModel, static x => x.Run, static x => x.Control),
             BindCommandTwin);
 
     /// <summary>BindInteraction refuses a call no generated dispatch claimed.</summary>
@@ -455,7 +455,7 @@ public class BindingDispatchStubTests
             () => ReactiveUIBindingExtensions.BindInteraction(
                 _view,
                 _viewModel,
-                x => x.Confirm,
+                static x => x.Confirm,
                 static context =>
                 {
                     context.SetOutput(true);
@@ -469,7 +469,7 @@ public class BindingDispatchStubTests
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task InvokeCommand_WithNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefusedNaming(
-            () => ReactiveUIBindingExtensions.InvokeCommand(_source, _viewModel, x => x.Run),
+            () => ReactiveUIBindingExtensions.InvokeCommand(_source, _viewModel, static x => x.Run),
             "InvokeCommandUnsafe");
 
     /// <summary>A command binding executes with the value its parameter stream produced.</summary>
@@ -573,7 +573,7 @@ public class BindingDispatchStubTests
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task WhenAny_WithNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefusedNaming(
-            () => ReactiveUIBindingExtensions.WhenAny(_viewModel, x => x.Caption, static c => c.Value),
+            () => ReactiveUIBindingExtensions.WhenAny(_viewModel, static x => x.Caption, static c => c.Value),
             "WhenAnyUnsafe");
 
     /// <summary>WhenAnyObservable refuses a call no generated dispatch claimed.</summary>
@@ -582,7 +582,7 @@ public class BindingDispatchStubTests
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task WhenAnyObservable_WithNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefusedNaming(
-            () => ReactiveUIBindingExtensions.WhenAnyObservable(_viewModel, x => x.Signal!),
+            () => ReactiveUIBindingExtensions.WhenAnyObservable(_viewModel, static x => x.Signal!),
             "WhenAnyObservableUnsafe");
 
     /// <summary>The converting one-way overload refuses a call no generated dispatch claimed.</summary>
@@ -594,8 +594,8 @@ public class BindingDispatchStubTests
             () => ReactiveUIBindingExtensions.BindOneWay(
                 _viewModel,
                 _view,
-                x => x.Caption,
-                x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
                 static value => value + ReverseValue),
             "BindOneWayUnsafe");
 
@@ -608,8 +608,8 @@ public class BindingDispatchStubTests
             () => ReactiveUIBindingExtensions.BindTwoWay(
                 _viewModel,
                 _view,
-                x => x.Caption,
-                x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
                 static value => value + ReverseValue,
                 static value => value + BoundValue),
             "BindTwoWayUnsafe");
@@ -623,8 +623,8 @@ public class BindingDispatchStubTests
             () => ReactiveUIBindingExtensions.OneWayBind(
                 _view,
                 _viewModel,
-                x => x.Caption,
-                x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
                 static value => value + ReverseValue),
             "OneWayBindUnsafe");
 
@@ -637,8 +637,8 @@ public class BindingDispatchStubTests
             () => ReactiveUIBindingExtensions.Bind(
                 _view,
                 _viewModel,
-                x => x.Caption,
-                x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
                 static value => value + ReverseValue,
                 static value => value + BoundValue),
             "BindUnsafe");
@@ -653,7 +653,7 @@ public class BindingDispatchStubTests
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task BindToWithConversionHint_WithNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefusedNaming(
-            () => ReactiveUIBindingExtensions.BindTo(_source, _view, x => x.Caption, conversionHint: BoundValue),
+            () => ReactiveUIBindingExtensions.BindTo(_source, _view, static x => x.Caption, conversionHint: BoundValue),
             BindToTwin);
 
     /// <summary>BindTo with a converter refuses a call no generated dispatch claimed.</summary>
@@ -662,7 +662,7 @@ public class BindingDispatchStubTests
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task BindToWithConverterOverride_WithNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefusedNaming(
-            () => ReactiveUIBindingExtensions.BindTo(_source, _view, x => x.Caption, PassThrough),
+            () => ReactiveUIBindingExtensions.BindTo(_source, _view, static x => x.Caption, PassThrough),
             BindToTwin);
 
     /// <summary>BindTo with a hint and a converter refuses a call no generated dispatch claimed.</summary>
@@ -671,7 +671,7 @@ public class BindingDispatchStubTests
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task BindToWithHintAndConverter_WithNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefusedNaming(
-            () => ReactiveUIBindingExtensions.BindTo(_source, _view, x => x.Caption, BoundValue, PassThrough),
+            () => ReactiveUIBindingExtensions.BindTo(_source, _view, static x => x.Caption, BoundValue, PassThrough),
             BindToTwin);
 
     /// <summary>A command binding taking a parameter stream refuses a call no dispatch claimed.</summary>
@@ -683,8 +683,8 @@ public class BindingDispatchStubTests
             () => ReactiveUIBindingExtensions.BindCommand(
                 _view,
                 _viewModel,
-                x => x.Run,
-                x => x.Control,
+                static x => x.Run,
+                static x => x.Control,
                 _source),
             BindCommandTwin);
 
@@ -697,9 +697,9 @@ public class BindingDispatchStubTests
             () => ReactiveUIBindingExtensions.BindCommand(
                 _view,
                 _viewModel,
-                x => x.Run,
-                x => x.Control,
-                x => x.Parameter),
+                static x => x.Run,
+                static x => x.Control,
+                static x => x.Parameter),
             BindCommandTwin);
 
     /// <summary>An interaction binding handling with a stream refuses a call no dispatch claimed.</summary>
@@ -711,7 +711,7 @@ public class BindingDispatchStubTests
             () => ReactiveUIBindingExtensions.BindInteraction(
                 _view,
                 _viewModel,
-                x => x.Confirm,
+                static x => x.Confirm,
                 context => _source),
             "BindInteractionUnsafe");
 

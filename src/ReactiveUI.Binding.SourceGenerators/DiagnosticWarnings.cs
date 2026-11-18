@@ -217,6 +217,17 @@ internal static class DiagnosticWarnings
         true,
         UnsupportedPathSegmentDescription);
 
+    /// <summary>RXUIBIND022: a selector lambda is not a chain of members read from its own parameter.</summary>
+    internal static readonly DiagnosticDescriptor SelectorNotPropertyPath = new(
+        "RXUIBIND022",
+        "Selector is not a property path",
+        "The selector '{0}' is not a property path: {1}. Generated code reads the members the selector names and never runs it, "
+        + "so the call throws unless it names the Unsafe overload.",
+        UsageCategory,
+        DiagnosticSeverity.Error,
+        true,
+        SelectorNotPropertyPathDescription);
+
     /// <summary>RXUIBIND007: BindCommand control has no bindable event.</summary>
     internal static readonly DiagnosticDescriptor NoBindableEvent = new(
         "RXUIBIND007",
@@ -280,6 +291,14 @@ internal static class DiagnosticWarnings
         "The source generator reads chains of properties and instance fields (e.g., x => x.Foo.Bar, or v => v.NameBox.Text "
         + "through a control named in XAML). A field raises no notification, so it is read once. Indexers, static fields, "
         + "a read-only field at the end of the path, and method calls require runtime expression analysis.";
+
+    /// <summary>The string description of the selector shape error.</summary>
+    private const string SelectorNotPropertyPathDescription =
+        "A selector is a delegate the compiler accepts with any body, but the source generator only reads which members "
+        + "it names, such as x => x.Child.Name. Write one expression that reads properties or instance fields from the "
+        + "lambda's parameter. The null-forgiving and null-conditional operators are read as plain member accesses, so "
+        + "x => x.Child?.Name is the path Child.Name. A null-conditional operator ahead of a value, as in "
+        + "x => x.Child?.Count, makes the result a nullable value that the member does not have, so it is not generated.";
 
     /// <summary>The string description of the no bindable event warning.</summary>
     private const string NoBindableEventDescription =

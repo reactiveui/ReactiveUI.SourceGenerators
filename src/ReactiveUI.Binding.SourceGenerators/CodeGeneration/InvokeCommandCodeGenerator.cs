@@ -201,7 +201,7 @@ internal static class InvokeCommandCodeGenerator
 
         _ = sb.Append("this ").Append(ObservableOf(group.SourceValueTypeFullName)).Line(SourceParameter)
             .Append(CodeGeneratorHelpers.NullableSelectorType(group.TargetTypeFullName, true, supportsNullable)).Line(" target,")
-            .Append(PropertyExpression(group.TargetTypeFullName, commandType)).Line(" commandProperty,");
+            .Append(FuncOf(group.TargetTypeFullName, commandType)).Line(" commandProperty,");
 
         if (dispatchesOnExpressionText || stubHasExpressionParameters)
         {

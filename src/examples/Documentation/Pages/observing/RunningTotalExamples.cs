@@ -34,7 +34,7 @@ public static class RunningTotalExamples
     {
         TodoItem item = new();
 
-        using IDisposable subscription = item.WhenChanged(x => x.Notes)
+        using IDisposable subscription = item.WhenChanged(static x => x.Notes)
             .Skip(1)
             .Scan(0, static (count, _) => count + 1)
             .Subscribe(static count => Console.WriteLine($"Edits: {count}"));
@@ -54,7 +54,7 @@ public static class RunningTotalExamples
     {
         TransferDraft draft = new();
 
-        using IDisposable subscription = draft.WhenChanged(x => x.Amount)
+        using IDisposable subscription = draft.WhenChanged(static x => x.Amount)
             .Scan(0M, Math.Max)
             .Subscribe(static highest => Console.WriteLine($"Highest: {highest}"));
 

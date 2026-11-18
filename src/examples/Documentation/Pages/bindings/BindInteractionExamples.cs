@@ -36,7 +36,7 @@ public static class BindInteractionExamples
     public static async Task FollowTheSelectedIssueBoard()
     {
         IssueBoardView view = new();
-        using IDisposable binding = view.BindInteraction(view.ViewModel, x => x.ConfirmClose, static context =>
+        using IDisposable binding = view.BindInteraction(view.ViewModel, static x => x.ConfirmClose, static context =>
         {
             context.SetOutput(true);
             return Task.CompletedTask;
@@ -74,7 +74,7 @@ public static class BindInteractionExamples
         IssueBoardView view = new() { ViewModel = viewModel };
         TaskCompletionSource<bool> dialog = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
-        using IDisposable binding = view.BindInteraction(viewModel, x => x.ConfirmClose, async context => context.SetOutput(await dialog.Task));
+        using IDisposable binding = view.BindInteraction(viewModel, static x => x.ConfirmClose, async context => context.SetOutput(await dialog.Task));
 
         Issue issue = viewModel.Issues[0];
         viewModel.SelectedIssue = issue;
@@ -106,7 +106,7 @@ public static class BindInteractionExamples
         GradebookView view = new() { ViewModel = viewModel };
         bool teacherConfirms = false;
 
-        using IDisposable binding = view.BindInteraction(viewModel, x => x.ConfirmDrop, context =>
+        using IDisposable binding = view.BindInteraction(viewModel, static x => x.ConfirmDrop, context =>
         {
             context.SetOutput(teacherConfirms);
             return Signal.Return(context.Input.Student.Id);
@@ -134,7 +134,7 @@ public static class BindInteractionExamples
         IssueTriageViewModel viewModel = new(board);
         IssueTriageView view = new() { ViewModel = viewModel };
 
-        using IDisposable binding = view.BindInteraction(viewModel, x => x.ConfirmClose, static context =>
+        using IDisposable binding = view.BindInteraction(viewModel, static x => x.ConfirmClose, static context =>
         {
             context.SetOutput(context.Input.State == IssueState.Open);
             return Task.CompletedTask;
@@ -156,14 +156,14 @@ public static class BindInteractionExamples
     {
         var (viewModel, view) = await OpenTransferScreenAsync();
 
-        using IDisposable confirmation = view.BindInteraction(viewModel, x => x.ConfirmTransfer, static context =>
+        using IDisposable confirmation = view.BindInteraction(viewModel, static x => x.ConfirmTransfer, static context =>
         {
             Console.WriteLine("confirm");
             context.SetOutput(true);
             return Task.CompletedTask;
         });
 
-        using IDisposable approval = view.BindInteraction(viewModel, x => x.ApproveTransfer, static context =>
+        using IDisposable approval = view.BindInteraction(viewModel, static x => x.ApproveTransfer, static context =>
         {
             Console.WriteLine("approve");
             context.SetOutput(InMemoryBankingBackend.ApprovalCode);
@@ -187,13 +187,13 @@ public static class BindInteractionExamples
     {
         var (viewModel, view) = await OpenTransferScreenAsync();
 
-        using IDisposable confirmation = view.BindInteraction(viewModel, x => x.ConfirmTransfer, static context =>
+        using IDisposable confirmation = view.BindInteraction(viewModel, static x => x.ConfirmTransfer, static context =>
         {
             context.SetOutput(true);
             return Task.CompletedTask;
         });
 
-        using IDisposable approval = view.BindInteraction(viewModel, x => x.ApproveTransfer, static context =>
+        using IDisposable approval = view.BindInteraction(viewModel, static x => x.ApproveTransfer, static context =>
         {
             context.SetOutput(string.Empty);
             return Task.CompletedTask;
@@ -376,7 +376,7 @@ public static class BindInteractionExamples
         IssueBoardViewModel viewModel = await OpenWebshopIssuesAsync();
         IssueBoardView view = new() { ViewModel = viewModel };
         Issue issue = viewModel.Issues[0];
-        IDisposable binding = view.BindInteraction(viewModel, x => x.ConfirmClose, static context =>
+        IDisposable binding = view.BindInteraction(viewModel, static x => x.ConfirmClose, static context =>
         {
             context.SetOutput(false);
             return Task.CompletedTask;
@@ -410,7 +410,7 @@ public static class BindInteractionExamples
         IssueBoardViewModel? viewModel = null;
         int handlerRuns = 0;
 
-        IDisposable binding = view.BindInteraction(viewModel, x => x.ConfirmClose, context =>
+        IDisposable binding = view.BindInteraction(viewModel, static x => x.ConfirmClose, context =>
         {
             handlerRuns++;
             context.SetOutput(true);

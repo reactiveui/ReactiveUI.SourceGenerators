@@ -36,7 +36,7 @@ public static class BindingSchedulersExamples
 
         try
         {
-            using (item.BindOneWay(titleLabel, x => x.Title, x => x.Text))
+            using (item.BindOneWay(titleLabel, static x => x.Title, static x => x.Text))
             {
                 Thread worker = new Thread(() => item.Title = SyncedTitle);
                 worker.Start();
@@ -70,7 +70,7 @@ public static class BindingSchedulersExamples
 
         try
         {
-            using (item.BindOneWay(titleLabel, x => x.Title, x => x.Text))
+            using (item.BindOneWay(titleLabel, static x => x.Title, static x => x.Text))
             {
                 item.Title = RenamedTitle;
 
@@ -95,7 +95,7 @@ public static class BindingSchedulersExamples
 
         try
         {
-            using (item.BindOneWay(titleLabel, x => x.Title, x => x.Text))
+            using (item.BindOneWay(titleLabel, static x => x.Title, static x => x.Text))
             {
                 Thread worker = new Thread(() => item.Title = SyncedTitle);
                 worker.Start();
@@ -124,7 +124,7 @@ public static class BindingSchedulersExamples
         {
             Console.WriteLine(BindingSchedulers.MainThread is SynchronizationContextSequencer);
 
-            using (item.BindOneWay(titleLabel, x => x.Title, x => x.Text))
+            using (item.BindOneWay(titleLabel, static x => x.Title, static x => x.Text))
             {
                 Thread worker = new Thread(() => item.Title = SyncedTitle);
                 worker.Start();
@@ -158,7 +158,7 @@ public static class BindingSchedulersExamples
         TodoItem item = new() { Title = OriginalTitle };
         List<string> delivered = [];
 
-        IObservable<string> routed = BindingSchedulers.ObserveOnViewThread(item.WhenChanged(x => x.Title), titleLabel);
+        IObservable<string> routed = BindingSchedulers.ObserveOnViewThread(item.WhenChanged(static x => x.Title), titleLabel);
 
         using (routed.Subscribe(delivered.Add))
         {
@@ -186,7 +186,7 @@ public static class BindingSchedulersExamples
         AvaloniaViewThreadInvoker fallback = new();
         List<string> delivered = [];
 
-        IObservable<string> routed = BindingSchedulers.ObserveOnViewThread(item.WhenChanged(x => x.Title), titleLabel, fallback);
+        IObservable<string> routed = BindingSchedulers.ObserveOnViewThread(item.WhenChanged(static x => x.Title), titleLabel, fallback);
 
         using (routed.Subscribe(delivered.Add))
         {
@@ -213,7 +213,7 @@ public static class BindingSchedulersExamples
         AvaloniaScheduler sequencer = AvaloniaScheduler.Instance;
         List<string> delivered = [];
 
-        IObservable<string> routed = BindingSchedulers.ObserveOnSequencer(item.WhenChanged(x => x.Title), sequencer);
+        IObservable<string> routed = BindingSchedulers.ObserveOnSequencer(item.WhenChanged(static x => x.Title), sequencer);
 
         using (routed.Subscribe(delivered.Add))
         {

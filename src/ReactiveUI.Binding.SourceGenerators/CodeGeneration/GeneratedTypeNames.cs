@@ -31,7 +31,7 @@ internal static class GeneratedTypeNames
     /// <summary><c>System.Func</c> (open generic; use <see cref="FuncOf"/>).</summary>
     internal const string Func = "global::System.Func";
 
-    /// <summary><c>System.Linq.Expressions.Expression</c> (open generic; use <see cref="PropertyExpression"/>).</summary>
+    /// <summary><c>System.Linq.Expressions.Expression</c> (open generic), which generated code only names to hand a path to a registered provider.</summary>
     internal const string Expression = "global::System.Linq.Expressions.Expression";
 
     /// <summary>The fully qualified name of <c>System.IDisposable</c>.</summary>
@@ -258,13 +258,6 @@ internal static class GeneratedTypeNames
     /// <param name="to">The fully-qualified result type.</param>
     /// <returns>The closed generic delegate type name.</returns>
     internal static string FuncOf(string from, string to) => $"{Func}<{from}, {to}>";
-
-    /// <summary>Builds <c>Expression&lt;Func&lt;TDeclaring, TProperty&gt;&gt;</c> for a property selector.</summary>
-    /// <param name="declaringType">The fully-qualified declaring type.</param>
-    /// <param name="propertyType">The fully-qualified property type.</param>
-    /// <returns>The property-selector expression type name.</returns>
-    internal static string PropertyExpression(string declaringType, string propertyType) =>
-        $"{Expression}<{FuncOf(declaringType, propertyType)}>";
 
     /// <summary>Renders the read of a segment's property from an object that has to be cast to reach it.</summary>
     /// <param name="segment">The property being read.</param>

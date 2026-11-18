@@ -116,7 +116,7 @@ internal static class WhenAnyObservableExtractor
                 continue;
             }
 
-            if (parameter.Type is not INamedTypeSymbol { Name: "Expression" })
+            if (!ExtractorValidation.IsPropertySelector(parameter))
             {
                 continue;
             }

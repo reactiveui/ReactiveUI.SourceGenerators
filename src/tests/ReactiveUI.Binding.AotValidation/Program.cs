@@ -78,7 +78,7 @@ internal static class Program
     {
         var vm = new AotViewModel { Name = InitialName };
         string? last = null;
-        using var sub = vm.WhenChanged(x => x.Name).Subscribe(v => last = v);
+        using var sub = vm.WhenChanged(static x => x.Name).Subscribe(v => last = v);
         AssertEqual("WhenChanged initial", InitialName, last);
         vm.Name = "Bob";
         AssertEqual("WhenChanged after set", "Bob", last);
@@ -90,7 +90,7 @@ internal static class Program
         var vm = new AotViewModel();
         vm.Child.Value = "Deep";
         string? last = null;
-        using var sub = vm.WhenChanged(x => x.Child.Value).Subscribe(v => last = v);
+        using var sub = vm.WhenChanged(static x => x.Child.Value).Subscribe(v => last = v);
         AssertEqual("WhenChanged deep initial", "Deep", last);
         vm.Child.Value = "Deeper";
         AssertEqual("WhenChanged deep after set", "Deeper", last);
@@ -101,7 +101,7 @@ internal static class Program
     {
         var vm = new AotViewModel { Name = InitialName, Age = InitialAge };
         PropertyValues<string, int> last = default;
-        using var sub = vm.WhenChanged(x => x.Name, x => x.Age).Subscribe(v => last = v);
+        using var sub = vm.WhenChanged(static x => x.Name, static x => x.Age).Subscribe(v => last = v);
         AssertEqual("WhenChanged two-prop name", InitialName, last.Property1);
         AssertEqual("WhenChanged two-prop age", InitialAge, last.Property2);
         vm.Age = ReplacementAge;
@@ -113,7 +113,7 @@ internal static class Program
     {
         var view = new AotView { DisplayName = "ViewVal" };
         string? last = null;
-        using var sub = view.WhenChanged(x => x.DisplayName).Subscribe(v => last = v);
+        using var sub = view.WhenChanged(static x => x.DisplayName).Subscribe(v => last = v);
         AssertEqual("WhenChanged on view initial", "ViewVal", last);
         view.DisplayName = ReplacementName;
         AssertEqual("WhenChanged on view after set", ReplacementName, last);
@@ -124,7 +124,7 @@ internal static class Program
     {
         var source = new AotViewModel { Name = SourceName };
         var target = new AotView();
-        using var binding = source.BindOneWay(target, x => x.Name, x => x.DisplayName);
+        using var binding = source.BindOneWay(target, static x => x.Name, static x => x.DisplayName);
         AssertEqual("BindOneWay initial", SourceName, target.DisplayName);
         source.Name = ReplacementName;
         AssertEqual("BindOneWay after set", ReplacementName, target.DisplayName);
@@ -135,7 +135,7 @@ internal static class Program
     {
         var source = new AotViewModel { Name = SourceName };
         var target = new AotView();
-        using var binding = source.BindTwoWay(target, x => x.Name, x => x.DisplayName);
+        using var binding = source.BindTwoWay(target, static x => x.Name, static x => x.DisplayName);
         AssertEqual("BindTwoWay initial", SourceName, target.DisplayName);
         source.Name = "FromSource";
         AssertEqual("BindTwoWay source→target", "FromSource", target.DisplayName);
@@ -148,7 +148,7 @@ internal static class Program
     {
         var source = new AotViewModel { Name = BeforeDisposal };
         var target = new AotView();
-        var binding = source.BindOneWay(target, x => x.Name, x => x.DisplayName);
+        var binding = source.BindOneWay(target, static x => x.Name, static x => x.DisplayName);
         AssertEqual("BindOneWay pre-dispose", BeforeDisposal, target.DisplayName);
         binding.Dispose();
         source.Name = "After";
@@ -160,7 +160,7 @@ internal static class Program
     {
         var viewModel = new AotViewModel { Name = SourceName };
         var view = new AotView { ViewModel = viewModel };
-        using var binding = view.OneWayBind(viewModel, x => x.Name, x => x.DisplayName);
+        using var binding = view.OneWayBind(viewModel, static x => x.Name, static x => x.DisplayName);
         AssertEqual("OneWayBind initial", SourceName, view.DisplayName);
         viewModel.Name = ReplacementName;
         AssertEqual("OneWayBind after set", ReplacementName, view.DisplayName);
@@ -171,7 +171,7 @@ internal static class Program
     {
         var viewModel = new AotViewModel { Name = SourceName };
         var view = new AotView { ViewModel = viewModel };
-        using var binding = view.Bind(viewModel, x => x.Name, x => x.DisplayName);
+        using var binding = view.Bind(viewModel, static x => x.Name, static x => x.DisplayName);
         AssertEqual("Bind initial", SourceName, view.DisplayName);
         viewModel.Name = "FromViewModel";
         AssertEqual("Bind view model to view", "FromViewModel", view.DisplayName);
@@ -186,7 +186,7 @@ internal static class Program
         var command = new AotCommand();
         viewModel.Save = command;
 
-        using var invocation = viewModel.WhenChanged(x => x.Name).InvokeCommand(viewModel, x => x.Save);
+        using var invocation = viewModel.WhenChanged(static x => x.Name).InvokeCommand(viewModel, static x => x.Save);
         AssertEqual("InvokeCommand initial", 1, command.ExecuteCount);
         AssertEqual("InvokeCommand initial parameter", InitialName, command.LastParameter as string);
 
@@ -202,7 +202,7 @@ internal static class Program
         var viewModel = new AotViewModel { Save = command };
         var view = new AotView { ViewModel = viewModel };
 
-        using var binding = view.BindCommand(viewModel, x => x.Save, v => v.SaveButton);
+        using var binding = view.BindCommand(viewModel, static x => x.Save, static v => v.SaveButton);
         view.SaveButton.PerformClick();
         AssertEqual("BindCommand click", 1, command.ExecuteCount);
     }
@@ -214,7 +214,7 @@ internal static class Program
         var viewModel = new AotViewModel { Save = command };
         var view = new AotView { ViewModel = viewModel, DisplayName = InitialName };
 
-        using var binding = view.BindCommand(viewModel, x => x.Save, v => v.SaveButton, view.WhenChanged(v => v.DisplayName));
+        using var binding = view.BindCommand(viewModel, static x => x.Save, static v => v.SaveButton, view.WhenChanged(static v => v.DisplayName));
         view.SaveButton.PerformClick();
         AssertEqual("BindCommand parameter", InitialName, command.LastParameter as string);
     }
@@ -226,7 +226,7 @@ internal static class Program
         var viewModel = new AotViewModel { Save = command };
         var view = new AotView { ViewModel = viewModel };
 
-        using var binding = view.BindCommand(viewModel, x => x.Save, v => v.SaveButton, nameof(AotButton.Pressed));
+        using var binding = view.BindCommand(viewModel, static x => x.Save, static v => v.SaveButton, nameof(AotButton.Pressed));
         view.SaveButton.PerformClick();
         view.SaveButton.PerformPress();
         AssertEqual("BindCommand named event", 1, command.ExecuteCount);
@@ -237,7 +237,7 @@ internal static class Program
     {
         var vm = new AotViewModel { Name = InitialName };
         string? last = null;
-        using var sub = vm.WhenAny(x => x.Name, static c => c.Value).Subscribe(v => last = v);
+        using var sub = vm.WhenAny(static x => x.Name, static c => c.Value).Subscribe(v => last = v);
         AssertEqual("WhenAny initial", InitialName, last);
         vm.Name = ReplacementName;
         AssertEqual("WhenAny after set", ReplacementName, last);
@@ -249,7 +249,7 @@ internal static class Program
         var stream = new System.Reactive.Subjects.Subject<string>();
         var vm = new AotViewModel { Signal = stream };
         string? last = null;
-        using var sub = vm.WhenAnyObservable(x => x.Signal!).Subscribe(v => last = v);
+        using var sub = vm.WhenAnyObservable(static x => x.Signal!).Subscribe(v => last = v);
         stream.OnNext(InitialName);
         AssertEqual("WhenAnyObservable first value", InitialName, last);
         stream.OnNext(ReplacementName);

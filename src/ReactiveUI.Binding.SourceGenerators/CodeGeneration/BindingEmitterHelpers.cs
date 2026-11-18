@@ -695,9 +695,9 @@ internal static class BindingEmitterHelpers
                 : group.TargetTypeFullName)
             .Append(' ').Append(api.OtherParameterName).Line(",")
             .Append(GeneratedSyntax.SelectorTypeOpen).Append(group.SourceTypeFullName).Append(", ").Append(sourceLeaf)
-            .Append(">> ").Append(api.SourceSelectorName).Line(",")
+            .Append("> ").Append(api.SourceSelectorName).Line(",")
             .Append(GeneratedSyntax.SelectorTypeOpen).Append(group.TargetTypeFullName).Append(", ").Append(targetLeaf)
-            .Append(">> ").Append(api.TargetSelectorName).Line(",");
+            .Append("> ").Append(api.TargetSelectorName).Line(",");
 
         if (group.HasConverterOverride)
         {

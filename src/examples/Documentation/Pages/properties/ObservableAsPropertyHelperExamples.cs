@@ -24,7 +24,7 @@ public static class ObservableAsPropertyHelperExamples
     public static void ConstructAHelperWithChangeCallbacks()
     {
         TodoItem item = new TodoItem { Title = "Renew car registration" };
-        IObservable<string> titles = item.WhenChanged(x => x.Title);
+        IObservable<string> titles = item.WhenChanged(static x => x.Title);
 
         using ObservableAsPropertyHelper<string> helper = new ObservableAsPropertyHelper<string>(
             titles,
@@ -42,7 +42,7 @@ public static class ObservableAsPropertyHelperExamples
     public static void ReadThrownExceptions()
     {
         TodoItem item = new TodoItem { Title = "Renew car registration" };
-        IObservable<string> titles = item.WhenChanged(x => x.Title);
+        IObservable<string> titles = item.WhenChanged(static x => x.Title);
         InvalidOperationException failure = new InvalidOperationException("The title source failed.");
         IObservable<string> withFailure = Signal.Concat(titles, Signal.Fail<string>(failure));
 

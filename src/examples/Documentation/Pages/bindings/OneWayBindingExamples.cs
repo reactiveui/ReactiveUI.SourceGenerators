@@ -72,7 +72,7 @@ public static class OneWayBindingExamples
         IssueBoardViewModel board = await OpenIssueBoardAsync();
         IssueBoardView view = new();
 
-        using (board.BindOneWay(view, x => x.SelectedIssue!.Title, v => v.IssueTitleLabel.Text))
+        using (board.BindOneWay(view, static x => x.SelectedIssue!.Title, static v => v.IssueTitleLabel.Text))
         {
             // The path passes through SelectedIssue, which is null until the user picks an issue.
             Console.WriteLine(view.IssueTitleLabel.Text ?? NothingSelectedText);
@@ -97,7 +97,7 @@ public static class OneWayBindingExamples
         IssueBoardViewModel board = await OpenIssueBoardAsync();
         IssueBoardView view = new();
 
-        using (board.BindOneWay(view, x => x.SelectedIssue!.Assignee!.Login, v => v.AssigneeLabel.Text))
+        using (board.BindOneWay(view, static x => x.SelectedIssue!.Assignee!.Login, static v => v.AssigneeLabel.Text))
         {
             board.SelectedIssue = board.Issues[CheckoutIssueIndex];
             Console.WriteLine(view.AssigneeLabel.Text);
@@ -122,7 +122,7 @@ public static class OneWayBindingExamples
         IssueBoardViewModel board = await OpenIssueBoardAsync();
         IssueBoardView view = new();
 
-        using (board.BindOneWay(view, x => x.SelectedIssue!.State, v => v.StateLabel.Text, static state => state == IssueState.Open ? OpenText : ClosedText))
+        using (board.BindOneWay(view, static x => x.SelectedIssue!.State, static v => v.StateLabel.Text, static state => state == IssueState.Open ? OpenText : ClosedText))
         {
             board.SelectedIssue = board.Issues[CheckoutIssueIndex];
             Console.WriteLine(view.StateLabel.Text);
@@ -143,7 +143,7 @@ public static class OneWayBindingExamples
         TodoListViewModel list = await OpenTodoListAsync();
         TodoView view = new();
 
-        using (list.BindOneWay(view, x => x.RemainingCount, v => v.RemainingLabel.Text, static count => count.ToString(CultureInfo.InvariantCulture)))
+        using (list.BindOneWay(view, static x => x.RemainingCount, static v => v.RemainingLabel.Text, static count => count.ToString(CultureInfo.InvariantCulture)))
         {
             Console.WriteLine(view.RemainingLabel.Text);
 
@@ -170,7 +170,7 @@ public static class OneWayBindingExamples
         AccountsViewModel accounts = await OpenAccountsAsync();
         AccountsView view = new();
 
-        using (accounts.BindOneWay(view, x => x.SelectedAccount!.Balance, v => v.BalanceLabel.Text, FormatBalance))
+        using (accounts.BindOneWay(view, static x => x.SelectedAccount!.Balance, static v => v.BalanceLabel.Text, FormatBalance))
         {
             accounts.SelectedAccount = accounts.Accounts[0];
             Console.WriteLine(view.BalanceLabel.Text);
@@ -195,7 +195,7 @@ public static class OneWayBindingExamples
         TodoListViewModel list = await OpenTodoListAsync();
         TodoView view = new() { ViewModel = list };
 
-        using (view.OneWayBind(list, x => x.FilterText, v => v.FilterTextBox.Text))
+        using (view.OneWayBind(list, static x => x.FilterText, static v => v.FilterTextBox.Text))
         {
             list.FilterText = CarFilter;
             Console.WriteLine(view.FilterTextBox.Text);
@@ -213,7 +213,7 @@ public static class OneWayBindingExamples
         TodoHeadingView view = new() { ViewModel = list };
 
         // TitleLabel is a field, like every x:Name control; the path runs through it.
-        using (view.OneWayBind(list, x => x.SelectedItem!.Title, v => v.TitleLabel.Text))
+        using (view.OneWayBind(list, static x => x.SelectedItem!.Title, static v => v.TitleLabel.Text))
         {
             list.SelectedItem = list.Items[0];
             Console.WriteLine(view.TitleLabel.Text);
@@ -234,7 +234,7 @@ public static class OneWayBindingExamples
         TodoListViewModel list = await OpenTodoListAsync();
         TodoHeadingView view = new() { ViewModel = list };
 
-        using (view.OneWayBind(list, x => x.SelectedItem!.Title, v => v.TitleLabel.Text))
+        using (view.OneWayBind(list, static x => x.SelectedItem!.Title, static v => v.TitleLabel.Text))
         {
             // Nothing is selected yet, so there is no title to write and the label is left alone.
             Console.WriteLine(view.TitleLabel.Text ?? NothingSelectedText);
@@ -261,7 +261,7 @@ public static class OneWayBindingExamples
         StorageBrowserView view = new() { ViewModel = browser };
 
         // A view-first binding reads its view model from the view's ViewModel property.
-        using (view.OneWayBind(browser, x => x.UploadPercent, v => v.UploadProgressBar.Progress, static percent => percent / PercentPerBar))
+        using (view.OneWayBind(browser, static x => x.UploadPercent, static v => v.UploadProgressBar.Progress, static percent => percent / PercentPerBar))
         {
             Console.WriteLine(view.UploadProgressBar.Progress);
 
@@ -282,7 +282,7 @@ public static class OneWayBindingExamples
         AccountsViewModel accounts = await OpenAccountsAsync();
         AccountsView view = new() { ViewModel = accounts };
 
-        using (view.OneWayBind(accounts, x => x.SelectedAccount!.AvailableBalance, v => v.AvailableBalanceLabel.Text, FormatBalance))
+        using (view.OneWayBind(accounts, static x => x.SelectedAccount!.AvailableBalance, static v => v.AvailableBalanceLabel.Text, FormatBalance))
         {
             accounts.SelectedAccount = accounts.Accounts[0];
 
@@ -302,7 +302,7 @@ public static class OneWayBindingExamples
         IssueBoardView view = new();
         VirtualClock uiThread = new();
 
-        using (board.BindOneWay(view, x => x.SelectedIssue!.Title, v => v.IssueTitleLabel.Text, uiThread))
+        using (board.BindOneWay(view, static x => x.SelectedIssue!.Title, static v => v.IssueTitleLabel.Text, uiThread))
         {
             board.SelectedIssue = board.Issues[CheckoutIssueIndex];
 
@@ -326,7 +326,7 @@ public static class OneWayBindingExamples
         TodoView view = new();
         VirtualClock uiThread = new();
 
-        using (list.BindOneWay(view, x => x.RemainingCount, v => v.RemainingLabel.Text, static count => count.ToString(CultureInfo.InvariantCulture), uiThread))
+        using (list.BindOneWay(view, static x => x.RemainingCount, static v => v.RemainingLabel.Text, static count => count.ToString(CultureInfo.InvariantCulture), uiThread))
         {
             Console.WriteLine($"Waiting: '{view.RemainingLabel.Text}'");
 
@@ -347,7 +347,7 @@ public static class OneWayBindingExamples
         AccountsViewModel accounts = await OpenAccountsAsync();
         AccountsView view = new();
 
-        using (accounts.BindOneWay(view, x => x.TotalBalance, v => v.TotalBalanceLabel.Text, new CurrencyTextConverter()))
+        using (accounts.BindOneWay(view, static x => x.TotalBalance, static v => v.TotalBalanceLabel.Text, new CurrencyTextConverter()))
         {
             Console.WriteLine(view.TotalBalanceLabel.Text);
         }
@@ -363,7 +363,7 @@ public static class OneWayBindingExamples
         AccountsViewModel accounts = await OpenAccountsAsync();
         AccountsView view = new();
 
-        using (accounts.BindOneWay(view, x => x.TotalBalance, v => v.TotalBalanceLabel.Text, new CurrencyTextConverter(), GroupedFormat))
+        using (accounts.BindOneWay(view, static x => x.TotalBalance, static v => v.TotalBalanceLabel.Text, new CurrencyTextConverter(), GroupedFormat))
         {
             Console.WriteLine(view.TotalBalanceLabel.Text);
         }
@@ -380,7 +380,7 @@ public static class OneWayBindingExamples
         AccountsView view = new();
         VirtualClock uiThread = new();
 
-        using (accounts.BindOneWay(view, x => x.TotalBalance, v => v.TotalBalanceLabel.Text, new CurrencyTextConverter(), GroupedFormat, uiThread))
+        using (accounts.BindOneWay(view, static x => x.TotalBalance, static v => v.TotalBalanceLabel.Text, new CurrencyTextConverter(), GroupedFormat, uiThread))
         {
             Console.WriteLine($"Waiting: '{view.TotalBalanceLabel.Text}'");
 
@@ -400,7 +400,7 @@ public static class OneWayBindingExamples
         TodoItem item = new() { Title = ItemTitle, Priority = TodoPriority.High };
         TodoItemBadgeView view = new() { ViewModel = item };
 
-        using (view.OneWayBind(item, x => x.Priority, v => v.PriorityBadge.Color, new PriorityColourConverter()))
+        using (view.OneWayBind(item, static x => x.Priority, static v => v.PriorityBadge.Color, new PriorityColourConverter()))
         {
             Console.WriteLine(view.PriorityBadge.Color.ToArgbHex());
 
@@ -419,7 +419,7 @@ public static class OneWayBindingExamples
         TodoItem item = new() { Title = ItemTitle, Priority = TodoPriority.High };
         TodoItemBadgeView view = new() { ViewModel = item };
 
-        using (view.OneWayBind(item, x => x.Priority, v => v.PriorityBadge.Color, new PriorityColourConverter(), DarkThemeHint))
+        using (view.OneWayBind(item, static x => x.Priority, static v => v.PriorityBadge.Color, new PriorityColourConverter(), DarkThemeHint))
         {
             Console.WriteLine(view.PriorityBadge.Color.ToArgbHex());
 
@@ -439,7 +439,7 @@ public static class OneWayBindingExamples
         TodoItemBadgeView view = new() { ViewModel = item };
         VirtualClock uiThread = new();
 
-        using (view.OneWayBind(item, x => x.Priority, v => v.PriorityBadge.Color, new PriorityColourConverter(), DarkThemeHint, uiThread))
+        using (view.OneWayBind(item, static x => x.Priority, static v => v.PriorityBadge.Color, new PriorityColourConverter(), DarkThemeHint, uiThread))
         {
             Console.WriteLine($"Waiting: '{view.PriorityBadge.Color?.ToArgbHex()}'");
 
@@ -461,7 +461,7 @@ public static class OneWayBindingExamples
         AccountsView view = new() { ViewModel = accounts };
         VirtualClock uiThread = new();
 
-        using (view.OneWayBind(accounts, x => x.TotalBalance, v => v.TotalBalanceLabel.Text, FormatBalance, uiThread))
+        using (view.OneWayBind(accounts, static x => x.TotalBalance, static v => v.TotalBalanceLabel.Text, FormatBalance, uiThread))
         {
             Console.WriteLine($"Waiting: '{view.TotalBalanceLabel.Text}'");
 
@@ -533,7 +533,7 @@ public static class OneWayBindingExamples
         IssueBoardViewModel board = await OpenIssueBoardAsync();
         IssueBoardView view = new();
 
-        using (board.BindOneWay(view, x => x.SelectedIssue!.Title, v => v.IssueTitleLabel.Text, scheduler: null))
+        using (board.BindOneWay(view, static x => x.SelectedIssue!.Title, static v => v.IssueTitleLabel.Text, scheduler: null))
         {
             board.SelectedIssue = board.Issues[CheckoutIssueIndex];
             Console.WriteLine(view.IssueTitleLabel.Text);
@@ -554,7 +554,7 @@ public static class OneWayBindingExamples
         TodoListViewModel list = await OpenTodoListAsync();
         TodoView view = new();
 
-        using (list.BindOneWay(view, x => x.RemainingCount, v => v.RemainingLabel.Text, static count => count.ToString(CultureInfo.InvariantCulture), scheduler: null))
+        using (list.BindOneWay(view, static x => x.RemainingCount, static v => v.RemainingLabel.Text, static count => count.ToString(CultureInfo.InvariantCulture), scheduler: null))
         {
             Console.WriteLine(view.RemainingLabel.Text);
 
@@ -575,7 +575,7 @@ public static class OneWayBindingExamples
         AccountsViewModel accounts = await OpenAccountsAsync();
         AccountsView view = new() { ViewModel = accounts };
 
-        using (view.OneWayBind(accounts, x => x.SelectedAccount!.Balance, v => v.BalanceLabel.Text, FormatBalance, scheduler: null))
+        using (view.OneWayBind(accounts, static x => x.SelectedAccount!.Balance, static v => v.BalanceLabel.Text, FormatBalance, scheduler: null))
         {
             accounts.SelectedAccount = accounts.Accounts[0];
             Console.WriteLine(view.BalanceLabel.Text);

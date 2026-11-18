@@ -16,8 +16,8 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         public static global::System.IDisposable BindCommand(
             this global::SharedScenarios.BindCommand.CommandProperty.MyView view,
             global::SharedScenarios.BindCommand.CommandProperty.MyViewModel? viewModel,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.BindCommand.CommandProperty.MyViewModel, global::System.Windows.Input.ICommand?>> propertyName,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.BindCommand.CommandProperty.MyView, global::SharedScenarios.BindCommand.CommandProperty.WpfLikeButton>> controlName,
+            global::System.Func<global::SharedScenarios.BindCommand.CommandProperty.MyViewModel, global::System.Windows.Input.ICommand?> propertyName,
+            global::System.Func<global::SharedScenarios.BindCommand.CommandProperty.MyView, global::SharedScenarios.BindCommand.CommandProperty.WpfLikeButton> controlName,
             string? toEvent = null,
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("propertyName")] string propertyNameExpression = "",
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("controlName")] string controlNameExpression = "",

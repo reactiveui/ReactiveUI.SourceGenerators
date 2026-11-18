@@ -19,12 +19,12 @@ public static class WhenAnyObservableScenarios
     /// <returns>An observable that switches to the latest MyCommand observable.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IObservable<string> SingleObservable_Switch(ObservablePropertyViewModel vm) =>
-        vm.WhenAnyObservable(x => x.MyCommand);
+        vm.WhenAnyObservable(static x => x.MyCommand);
 
     /// <summary>Two observable properties of the same type using Merge pattern.</summary>
     /// <param name="vm">The view model to observe.</param>
     /// <returns>An observable that merges both command observables.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IObservable<string> TwoObservables_Merge(ObservablePropertyViewModel vm) =>
-        vm.WhenAnyObservable(x => x.MyCommand, x => x.OtherCommand);
+        vm.WhenAnyObservable(static x => x.MyCommand, static x => x.OtherCommand);
 }

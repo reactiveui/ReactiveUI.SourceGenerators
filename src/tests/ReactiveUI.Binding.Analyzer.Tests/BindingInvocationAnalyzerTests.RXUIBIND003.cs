@@ -58,8 +58,8 @@ public partial class BindingInvocationAnalyzerTests
                                   {
                                       public static IObservable<TRet> WhenAnyValue<TSender, T1, T2, TRet>(
                                           this TSender sender,
-                                          Expression<Func<TSender, T1>> property1,
-                                          Expression<Func<TSender, T2>> property2,
+                                          Func<TSender, T1> property1,
+                                          Func<TSender, T2> property2,
                                           Func<T1, T2, TRet> selector)
                                           => throw new NotImplementedException();
                                   }

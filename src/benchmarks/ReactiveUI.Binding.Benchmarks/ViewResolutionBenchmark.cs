@@ -70,7 +70,7 @@ public class ViewResolutionBenchmark
     public string GeneratedBindingCall()
     {
         var result = string.Empty;
-        using var sub = _mapped.WhenChanged(x => x.Name)
+        using var sub = _mapped.WhenChanged(static x => x.Name)
             .Subscribe(v => result = v);
         return result;
     }

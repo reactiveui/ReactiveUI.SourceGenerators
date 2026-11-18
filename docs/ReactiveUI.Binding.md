@@ -302,6 +302,24 @@ Two build properties change this.
 Some call sites cannot be read when you build. Examples are a lambda stored in a variable, an expression built
 at run time, and a call on a generic type parameter `T`. None of them name a path the generator can see.
 
+The plain methods take each property path as a delegate, `Func<TSource, TValue>`. The generator reads the members
+the lambda names and writes code that observes them. The lambda itself is never run, and the compiler builds no
+expression tree for it, so a call costs no reflection and no allocation for its selectors. Mark the lambda `static`
+to make sure it captures nothing.
+
+A path is one expression that reads properties or instance fields from the lambda's parameter:
+
+```csharp
+vm.WhenChanged(static x => x.Name);
+vm.WhenChanged(static x => x.Address!.City);   // ! and parentheses name the same members
+vm.WhenChanged(static x => x.Address?.City);   // so does ?. ahead of a reference or a nullable value
+```
+
+A delegate accepts more than a path, so the analyzer reports what the generator cannot read. RXUIBIND022 reports a
+statement body, a computed value such as `x => x.First + x.Last`, a member of anything but the parameter, and `?.`
+ahead of a plain value such as `x => x.Address?.Floor`. That last form makes the result `int?`, which the member
+is not; end the path at a reference or a nullable member, or write `!.`.
+
 For those call sites, call the `Unsafe` overload. It uses reflection. Reflection looks up each property by name
 while the app runs. A trimmer cannot see those lookups, so an `Unsafe` overload may break after trimming or
 ahead-of-time publishing. The other overloads keep working.
@@ -310,9 +328,10 @@ When nothing was generated for a call site, the plain method throws. The error m
 overload to use:
 
 ```csharp
+Func<MyViewModel, string> stored = x => x.Name;
 Expression<Func<MyViewModel, string>> selector = x => x.Name;
 
-vm.WhenChanged(selector);        // throws, and names WhenChangedUnsafe
+vm.WhenChanged(stored);          // RXUIBIND001: throws, and names WhenChangedUnsafe
 vm.WhenChangedUnsafe(selector);  // walks the path by reflection
 ```
 
@@ -337,8 +356,12 @@ Fourteen methods have an `Unsafe` twin.
 
 Every `Unsafe` overload carries `[RequiresUnreferencedCode]`. The plain overloads carry none. So a
 `PublishTrimmed` or `PublishAot` build warns about each call that uses reflection, and about nothing else.
-RXUIBIND021 reports every plain call that nothing was generated for, whatever the reason. RXUIBIND001, RXUIBIND006
-and RXUIBIND009 name some of the reasons.
+RXUIBIND021 reports every plain call that nothing was generated for, whatever the reason. RXUIBIND001, RXUIBIND006,
+RXUIBIND009 and RXUIBIND022 name some of the reasons.
+
+The `Unsafe` overloads take the path as an expression tree, `Expression<Func<TSource, TValue>>`, because reflection
+needs the tree to find the members. An expression tree does not convert to a delegate, so a stored expression only
+compiles against an `Unsafe` overload.
 
 The scheduler overloads split the same way. Both kinds live on `ReactiveSchedulerExtensions`.
 
@@ -949,6 +972,7 @@ The analyzer ships inside the runtime packages. It reports these diagnostics.
 | RXUIBIND019 | Warning | A method marked `[ObservableAsProperty]` takes parameters, so it cannot supply a property's values. |
 | RXUIBIND020 | Info | A view is registered as `IViewFor<T>` in the service locator, and this project has no generated view and no `Map` for `T`. `ResolveView` with a view model held as an `object` does not find it. Add it with `Map`, or call `ResolveViewUnsafe`. |
 | RXUIBIND021 | Warning | Nothing was generated for the call, so it throws when it runs. A lambda the generator cannot read, or a member another source generator adds, are common causes. Name each member directly, declare a generated member as a partial property, or call the `Unsafe` overload. |
+| RXUIBIND022 | Error | The selector is not a property path: it has a statement body, computes a value, reads something other than its own parameter, or puts `?.` ahead of a plain value. Write one expression that reads properties from the parameter. |
 
 The package's build targets report one error of their own.
 

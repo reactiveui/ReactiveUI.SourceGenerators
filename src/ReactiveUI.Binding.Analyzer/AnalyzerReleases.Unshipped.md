@@ -23,3 +23,4 @@
  RXUIBIND019 | Usage    | Warning  | ObservableAsProperty method takes parameters
  RXUIBIND020 | Usage    | Info     | View is registered only in the service locator
  RXUIBIND021 | Usage    | Error    | Binding call has no generated binding
+ RXUIBIND022 | Usage    | Error    | Selector is not a property path

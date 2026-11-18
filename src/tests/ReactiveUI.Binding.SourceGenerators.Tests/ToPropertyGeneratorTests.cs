@@ -150,7 +150,7 @@ public class ToPropertyGeneratorTests
                                       public static object ToProperty<TObj, TRet>(
                                           this IObservable<TRet> target,
                                           TObj source,
-                                          System.Linq.Expressions.Expression<Func<TObj, TRet>> property) => null;
+                                          System.Func<TObj, TRet> property) => null;
                                   }
 
                                   public static class Scenario

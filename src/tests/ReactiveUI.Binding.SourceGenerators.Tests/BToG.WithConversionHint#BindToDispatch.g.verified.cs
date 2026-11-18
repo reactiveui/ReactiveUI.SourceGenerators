@@ -16,7 +16,7 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         public static global::System.IDisposable BindTo(
             this global::System.IObservable<int> source,
             global::SharedScenarios.BindTo.WithConversionHint.MyView? target,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.BindTo.WithConversionHint.MyView, string?>> property,
+            global::System.Func<global::SharedScenarios.BindTo.WithConversionHint.MyView, string?> property,
             object conversionHint,
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("property")] string propertyExpression = "",
             [global::System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "",

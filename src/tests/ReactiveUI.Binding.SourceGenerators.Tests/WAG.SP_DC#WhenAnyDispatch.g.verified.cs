@@ -14,7 +14,7 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         /// </summary>
         public static global::System.IObservable<string> WhenAny(
             this global::SharedScenarios.WhenAny.DeepPropertyChain.ParentViewModel objectToMonitor,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.WhenAny.DeepPropertyChain.ParentViewModel, string?>> property1,
+            global::System.Func<global::SharedScenarios.WhenAny.DeepPropertyChain.ParentViewModel, string?> property1,
             global::System.Func<global::ReactiveUI.Binding.IObservedChange<global::SharedScenarios.WhenAny.DeepPropertyChain.ParentViewModel, string>, string> selector,
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("property1")] string property1Expression = "",
             [global::System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "",

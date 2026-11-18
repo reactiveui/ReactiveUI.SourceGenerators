@@ -55,8 +55,8 @@ public class UnanalyzableInvocationTests
                                       public static void BindOneWay<TSender, TTarget, TProp>(
                                           this TTarget view,
                                           TSender source,
-                                          System.Linq.Expressions.Expression<Func<TSender, TProp>> sourceProp,
-                                          System.Linq.Expressions.Expression<Func<TTarget, TProp>> targetProp) { }
+                                          System.Func<TSender, TProp> sourceProp,
+                                          System.Func<TTarget, TProp> targetProp) { }
                                   }
 
                                   public static class Scenario
@@ -105,8 +105,8 @@ public class UnanalyzableInvocationTests
                                       public static void BindCommand<TView, TViewModel, TControl>(
                                           this TView view,
                                           TViewModel viewModel,
-                                          System.Linq.Expressions.Expression<Func<TViewModel, ICommand?>> commandProp,
-                                          System.Linq.Expressions.Expression<Func<TView, TControl>> controlProp) { }
+                                          System.Func<TViewModel, ICommand?> commandProp,
+                                          System.Func<TView, TControl> controlProp) { }
                                   }
 
                                   public static class Scenario
@@ -148,7 +148,7 @@ public class UnanalyzableInvocationTests
                                   {
                                       public static IObservable<T> WhenAnyObservable<TSender, T>(
                                           this TSender sender,
-                                          System.Linq.Expressions.Expression<Func<TSender, IObservable<T>?>> obs) => throw new NotImplementedException();
+                                          System.Func<TSender, IObservable<T>?> obs) => throw new NotImplementedException();
                                   }
 
                                   public static class Scenario
@@ -196,7 +196,7 @@ public class UnanalyzableInvocationTests
                                       public static IDisposable BindInteraction<TView, TViewModel, T>(
                                           this TView view,
                                           TViewModel viewModel,
-                                          System.Linq.Expressions.Expression<Func<TViewModel, T>> interaction,
+                                          System.Func<TViewModel, T> interaction,
                                           Func<T, IObservable<object>> handler) => throw new NotImplementedException();
                                   }
 
@@ -472,7 +472,7 @@ public class UnanalyzableInvocationTests
 
                                   public static class Scenario
                                   {
-                                      private static System.Linq.Expressions.Expression<Func<MyViewModel, string>> GetExpression()
+                                      private static System.Func<MyViewModel, string> GetExpression()
                                           => x => x.Name;
 
                                       public static void Execute(MyViewModel vm, MyView view)
@@ -520,7 +520,7 @@ public class UnanalyzableInvocationTests
 
                                   public static class Scenario
                                   {
-                                      private static System.Linq.Expressions.Expression<Func<MyViewModel, ICommand?>> GetCommand()
+                                      private static System.Func<MyViewModel, ICommand?> GetCommand()
                                           => x => x.Save;
 
                                       public static void Execute(MyViewModel vm, MyView view)
@@ -567,7 +567,7 @@ public class UnanalyzableInvocationTests
 
                                   public static class Scenario
                                   {
-                                      private static System.Linq.Expressions.Expression<Func<MyView, object>> GetControl()
+                                      private static System.Func<MyView, object> GetControl()
                                           => x => x.SaveButton;
 
                                       public static void Execute(MyViewModel vm, MyView view)
@@ -614,7 +614,7 @@ public class UnanalyzableInvocationTests
 
                                   public static class Scenario
                                   {
-                                      private static System.Linq.Expressions.Expression<Func<MyViewModel, IInteraction<string, bool>?>> GetExpr()
+                                      private static System.Func<MyViewModel, IInteraction<string, bool>?> GetExpr()
                                           => x => x.Confirm;
 
                                       public static void Execute(MyViewModel vm, MyView view)
@@ -657,7 +657,7 @@ public class UnanalyzableInvocationTests
 
                                   public static class Scenario
                                   {
-                                      private static System.Linq.Expressions.Expression<Func<MyViewModel, IObservable<string>?>> GetExpr()
+                                      private static System.Func<MyViewModel, IObservable<string>?> GetExpr()
                                           => x => x.Items;
 
                                       public static void Execute(MyViewModel vm)
@@ -1008,8 +1008,8 @@ public class UnanalyzableInvocationTests
                                       public static IDisposable BindOneWay<TSource, TTarget, TProperty>(
                                           this TSource source,
                                           TTarget target,
-                                          Expression<Func<TSource, TProperty>> sourceProperty,
-                                          Expression<Func<TTarget, TProperty>> targetProperty,
+                                          Func<TSource, TProperty> sourceProperty,
+                                          Func<TTarget, TProperty> targetProperty,
                                           IBindingTypeConverter converter)
                                           where TSource : class
                                           where TTarget : class
@@ -1071,8 +1071,8 @@ public class UnanalyzableInvocationTests
                                       public static IDisposable BindOneWay<TSource, TTarget, TProperty>(
                                           this TSource source,
                                           TTarget target,
-                                          Expression<Func<TSource, TProperty>> sourceProperty,
-                                          Expression<Func<TTarget, TProperty>> targetProperty,
+                                          Func<TSource, TProperty> sourceProperty,
+                                          Func<TTarget, TProperty> targetProperty,
                                           IBindingTypeConverter converter,
                                           System.Reactive.Concurrency.IScheduler scheduler)
                                           where TSource : class

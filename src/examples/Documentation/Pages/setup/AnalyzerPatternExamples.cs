@@ -30,7 +30,7 @@ public static class AnalyzerPatternExamples
     {
         TodoItem item = new TodoItem { Title = "Renew car registration" };
 
-        using (item.WhenChanged(x => x.Title).Subscribe(Console.WriteLine))
+        using (item.WhenChanged(static x => x.Title).Subscribe(Console.WriteLine))
         {
             item.Title = RenamedTitle;
         }
@@ -47,7 +47,7 @@ public static class AnalyzerPatternExamples
 
         viewModel.NewTitle = DentistTitle;
 
-        using (viewModel.WhenChanged(x => x.NewTitle).Subscribe(Console.WriteLine))
+        using (viewModel.WhenChanged(static x => x.NewTitle).Subscribe(Console.WriteLine))
         {
             viewModel.NewTitle = "Buy birthday present for Sam";
         }
@@ -65,7 +65,7 @@ public static class AnalyzerPatternExamples
         await viewModel.LoadAsync();
         viewModel.SelectedItem = viewModel.Items[0];
 
-        using (viewModel.WhenChanged(x => x.SelectedItem!.Title).Subscribe(Console.WriteLine))
+        using (viewModel.WhenChanged(static x => x.SelectedItem!.Title).Subscribe(Console.WriteLine))
         {
             viewModel.SelectedItem = viewModel.Items[1];
         }
@@ -80,7 +80,7 @@ public static class AnalyzerPatternExamples
     {
         TodoItem item = new TodoItem { Title = "File quarterly tax return" };
 
-        using (item.WhenChanged(x => x.IsDone).Subscribe(Console.WriteLine))
+        using (item.WhenChanged(static x => x.IsDone).Subscribe(Console.WriteLine))
         {
             item.IsDone = true;
         }
@@ -97,7 +97,7 @@ public static class AnalyzerPatternExamples
         InMemoryObjectStorage storage = InMemoryObjectStorage.CreateSeeded();
         StorageBrowserViewModel browser = new StorageBrowserViewModel(storage);
 
-        using (browser.WhenChanged(x => x.ConnectionStatus).Subscribe(static state => Console.WriteLine(state)))
+        using (browser.WhenChanged(static x => x.ConnectionStatus).Subscribe(static state => Console.WriteLine(state)))
         {
             storage.Disconnect();
             await browser.ConnectAsync();
@@ -115,7 +115,7 @@ public static class AnalyzerPatternExamples
     {
         EditableTodo todo = new EditableTodo { Title = DentistTitle };
 
-        using (todo.WhenChanging(x => x.Title).Subscribe(Console.WriteLine))
+        using (todo.WhenChanging(static x => x.Title).Subscribe(Console.WriteLine))
         {
             todo.Title = "Book dentist appointment for Friday";
         }
@@ -131,7 +131,7 @@ public static class AnalyzerPatternExamples
         TodoListViewModel viewModel = new TodoListViewModel(InMemoryTodoStore.CreateSeeded());
         TodoView view = new TodoView { ViewModel = viewModel };
 
-        using (view.BindCommand(viewModel, x => x.AddCommand, v => v.AddButton))
+        using (view.BindCommand(viewModel, static x => x.AddCommand, static v => v.AddButton))
         {
             Console.WriteLine(view.AddButton.Command!.CanExecute(null));
 
@@ -151,7 +151,7 @@ public static class AnalyzerPatternExamples
         TransferViewModel viewModel = new TransferViewModel(new InMemoryBankingBackend());
         TransferView view = new TransferView { ViewModel = viewModel };
 
-        using (viewModel.BindOneWay(view, x => x.ValidationSummary, v => v.ValidationLabel.Text))
+        using (viewModel.BindOneWay(view, static x => x.ValidationSummary, static v => v.ValidationLabel.Text))
         {
             viewModel.Draft.Amount = SmallAmount;
 
@@ -169,7 +169,7 @@ public static class AnalyzerPatternExamples
         IssueBoardViewModel viewModel = new IssueBoardViewModel(InMemoryGitHubServer.CreateSeeded());
         IssueBoardView view = new IssueBoardView { ViewModel = viewModel };
 
-        using (view.BindInteraction(viewModel, x => x.ConfirmClose, static context =>
+        using (view.BindInteraction(viewModel, static x => x.ConfirmClose, static context =>
         {
             context.SetOutput(true);
             return Task.CompletedTask;
@@ -191,7 +191,7 @@ public static class AnalyzerPatternExamples
         TodoListViewModel viewModel = new TodoListViewModel(InMemoryTodoStore.CreateSeeded());
         await viewModel.LoadAsync();
 
-        using (viewModel.WhenAnyValue(x => x.RemainingCount).Subscribe(Console.WriteLine))
+        using (viewModel.WhenAnyValue(static x => x.RemainingCount).Subscribe(Console.WriteLine))
         {
             viewModel.SelectedItem = viewModel.Items[0];
             await viewModel.CompleteAsync();
@@ -209,7 +209,7 @@ public static class AnalyzerPatternExamples
         TodoListViewModel viewModel = new TodoListViewModel(InMemoryTodoStore.CreateSeeded());
         await viewModel.LoadAsync();
 
-        using (viewModel.WhenChanged(x => x.RemainingCount).Subscribe(Console.WriteLine))
+        using (viewModel.WhenChanged(static x => x.RemainingCount).Subscribe(Console.WriteLine))
         {
             viewModel.SelectedItem = viewModel.Items[0];
             await viewModel.CompleteAsync();

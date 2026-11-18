@@ -48,7 +48,7 @@ public class LanguageFeatureDetectionTests
             {
                 public static IObservable<TValue> WhenAnyValue<TSender, TValue>(
                     this TSender sender,
-                    Expression<Func<TSender, TValue>> property1,
+                    Func<TSender, TValue> property1,
                     [CallerArgumentExpression("property1")] string property1Expression = "",
                     [CallerFilePath] string callerFilePath = "",
                     [CallerLineNumber] int callerLineNumber = 0)
@@ -240,7 +240,7 @@ public class LanguageFeatureDetectionTests
                 {
                     public static IObservable<TValue> WhenAnyValue<TSender, TValue>(
                         this TSender sender,
-                        Expression<Func<TSender, TValue>> property1,
+                        Func<TSender, TValue> property1,
                         [CallerFilePath] string callerFilePath = "",
                         [CallerLineNumber] int callerLineNumber = 0)
                         where TSender : class => throw new NotImplementedException();

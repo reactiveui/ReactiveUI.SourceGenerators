@@ -43,7 +43,7 @@ public static class BufferExamples
     {
         TransferDraft draft = new();
 
-        using IDisposable subscription = draft.WhenChanged(x => x.Reference)
+        using IDisposable subscription = draft.WhenChanged(static x => x.Reference)
             .Skip(1)
             .Buffer(EditsPerList)
             .Subscribe(static edits => Console.WriteLine(string.Join(Separator, edits)));
@@ -62,7 +62,7 @@ public static class BufferExamples
     {
         TransferDraft draft = new();
 
-        using IDisposable subscription = draft.WhenChanged(x => x.Reference)
+        using IDisposable subscription = draft.WhenChanged(static x => x.Reference)
             .Skip(1)
             .Buffer(EditsPerList, EditsBetweenLists)
             .Subscribe(static edits => Console.WriteLine(string.Join(Separator, edits)));
@@ -83,7 +83,7 @@ public static class BufferExamples
         VirtualClock clock = new();
         TransferDraft draft = new();
 
-        using IDisposable subscription = draft.WhenChanged(x => x.Reference)
+        using IDisposable subscription = draft.WhenChanged(static x => x.Reference)
             .Skip(1)
             .Buffer(_bufferLength, clock)
             .Subscribe(static edits => Console.WriteLine($"Batch of {edits.Count}: {string.Join(Separator, edits)}"));

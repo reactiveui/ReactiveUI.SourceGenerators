@@ -27,21 +27,21 @@ public partial class TypeAnalyzerTests
                 public static IDisposable BindTo<TValue, TTarget, TTargetValue>(
                     this IObservable<TValue> source,
                     TTarget target,
-                    Expression<Func<TTarget, TTargetValue>> property)
+                    Func<TTarget, TTargetValue> property)
                     where TTarget : class
                     => throw new NotImplementedException();
 
                 public static IDisposable BindToUnsafe<TValue, TTarget, TTargetValue>(
                     this IObservable<TValue> source,
                     TTarget target,
-                    Expression<Func<TTarget, TTargetValue>> property)
+                    Func<TTarget, TTargetValue> property)
                     where TTarget : class
                     => throw new NotImplementedException();
 
                 public static IDisposable BindToUnsafe<TValue, TTarget, TTargetValue>(
                     this IObservable<TValue> source,
                     TTarget target,
-                    Expression<Func<TTarget, TTargetValue>> property,
+                    Func<TTarget, TTargetValue> property,
                     object conversionHint)
                     where TTarget : class
                     => throw new NotImplementedException();
@@ -49,22 +49,22 @@ public partial class TypeAnalyzerTests
                 public static IDisposable InvokeCommand<T, TTarget>(
                     this IObservable<T> source,
                     TTarget target,
-                    Expression<Func<TTarget, ICommand>> commandProperty)
+                    Func<TTarget, ICommand> commandProperty)
                     where TTarget : class
                     => throw new NotImplementedException();
 
                 public static IDisposable InvokeCommandUnsafe<T, TTarget>(
                     this IObservable<T> source,
                     TTarget target,
-                    Expression<Func<TTarget, ICommand>> commandProperty)
+                    Func<TTarget, ICommand> commandProperty)
                     where TTarget : class
                     => throw new NotImplementedException();
 
                 public static IDisposable OneWayBind<TViewModel, TView, TVMProp, TVProp>(
                     this TView view,
                     TViewModel viewModel,
-                    Expression<Func<TViewModel, TVMProp>> viewModelProperty,
-                    Expression<Func<TView, TVProp>> viewProperty)
+                    Func<TViewModel, TVMProp> viewModelProperty,
+                    Func<TView, TVProp> viewProperty)
                     where TViewModel : class
                     where TView : class
                     => throw new NotImplementedException();
@@ -72,8 +72,8 @@ public partial class TypeAnalyzerTests
                 public static IDisposable OneWayBindUnsafe<TView, TViewModel, TVMProp, TVProp>(
                     this TView view,
                     TViewModel viewModel,
-                    Expression<Func<TViewModel, TVMProp>> viewModelProperty,
-                    Expression<Func<TView, TVProp>> viewProperty,
+                    Func<TViewModel, TVMProp> viewModelProperty,
+                    Func<TView, TVProp> viewProperty,
                     object scheduler)
                     where TView : class
                     where TViewModel : class
@@ -82,8 +82,8 @@ public partial class TypeAnalyzerTests
                 public static IDisposable OneWayBindUnsafe<TViewModel, TView, TVMProp, TVProp>(
                     this TView view,
                     TViewModel viewModel,
-                    Expression<Func<TViewModel, TVMProp>> viewModelProperty,
-                    Expression<Func<TView, TVProp>> viewProperty)
+                    Func<TViewModel, TVMProp> viewModelProperty,
+                    Func<TView, TVProp> viewProperty)
                     where TViewModel : class
                     where TView : class
                     => throw new NotImplementedException();
@@ -91,14 +91,14 @@ public partial class TypeAnalyzerTests
                 public static IDisposable Bind<TSource, TOther>(
                     this TSource source,
                     TOther other,
-                    Expression<Func<TSource, string>> property)
+                    Func<TSource, string> property)
                     where TSource : class
                     where TOther : class
                     => throw new NotImplementedException();
 
                 public static object WhenChangedUnsafe<TObj, TReturn>(
                     this TObj obj,
-                    Expression<Func<TObj, TReturn>> property)
+                    Func<TObj, TReturn> property)
                     where TObj : class
                     => throw new NotImplementedException();
             }

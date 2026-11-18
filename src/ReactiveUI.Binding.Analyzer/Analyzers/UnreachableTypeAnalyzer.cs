@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using ReactiveUI.Binding.Helpers;
 using ReactiveUI.Binding.SourceGenerators;
+using ReactiveUI.Binding.SourceGenerators.Helpers;
 
 namespace ReactiveUI.Binding.Analyzer.Analyzers;
 
@@ -110,16 +111,16 @@ public class UnreachableTypeAnalyzer : DiagnosticAnalyzer
                 continue;
             }
 
-            var current = AnalyzerHelpers.SkipNullForgivingAndParentheses(body);
-            while (current is MemberAccessExpressionSyntax memberAccess)
+            var current = PathSyntax.Link(body);
+            while (PathSyntax.IsMember(current))
             {
-                var owner = semanticModel.GetTypeInfo(memberAccess.Expression, context.CancellationToken).Type;
+                var owner = semanticModel.GetTypeInfo(PathSyntax.Receiver(current), context.CancellationToken).Type;
                 if (owner is not null && !IsReachable(owner, context.Compilation))
                 {
                     return owner;
                 }
 
-                current = AnalyzerHelpers.SkipNullForgivingAndParentheses(memberAccess.Expression);
+                current = PathSyntax.Link(PathSyntax.Receiver(current));
             }
         }
 

@@ -28,7 +28,7 @@ public static class AotExamples
     {
         TodoItem item = new TodoItem { Title = "Renew car registration" };
 
-        using (item.WhenChanged(x => x.Title).Subscribe(Console.WriteLine))
+        using (item.WhenChanged(static x => x.Title).Subscribe(Console.WriteLine))
         {
             item.Title = RenamedTitle;
         }
@@ -44,7 +44,7 @@ public static class AotExamples
         TodoItem item = new TodoItem { Title = "File quarterly tax return" };
         TodoRowView row = new TodoRowView();
 
-        using (item.BindOneWay(row, x => x.IsDone, v => v.StatusText, static done => done ? DoneText : OpenText))
+        using (item.BindOneWay(row, static x => x.IsDone, static v => v.StatusText, static done => done ? DoneText : OpenText))
         {
             Console.WriteLine(row.StatusText);
 
@@ -64,7 +64,7 @@ public static class AotExamples
         TodoItem item = new TodoItem { Title = "Book dentist appointment" };
         TodoRowView row = new TodoRowView();
 
-        using (item.BindTwoWay(row, x => x.Title, v => v.TitleText))
+        using (item.BindTwoWay(row, static x => x.Title, static v => v.TitleText))
         {
             Console.WriteLine(row.TitleText);
 

@@ -16,8 +16,8 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         public static global::System.IDisposable BindTwoWay(
             this global::SharedScenarios.BindTwoWay.SinglePropertyWithConvertersAndScheduler.MyViewModel source,
             global::SharedScenarios.BindTwoWay.SinglePropertyWithConvertersAndScheduler.MyView target,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.BindTwoWay.SinglePropertyWithConvertersAndScheduler.MyViewModel, int>> sourceProperty,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.BindTwoWay.SinglePropertyWithConvertersAndScheduler.MyView, string?>> targetProperty,
+            global::System.Func<global::SharedScenarios.BindTwoWay.SinglePropertyWithConvertersAndScheduler.MyViewModel, int> sourceProperty,
+            global::System.Func<global::SharedScenarios.BindTwoWay.SinglePropertyWithConvertersAndScheduler.MyView, string?> targetProperty,
             global::System.Func<int, string> sourceToTargetConv,
             global::System.Func<string, int> targetToSourceConv,
             global::ReactiveUI.Primitives.Concurrency.ISequencer? scheduler,

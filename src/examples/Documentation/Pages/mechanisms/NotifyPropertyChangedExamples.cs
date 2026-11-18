@@ -57,7 +57,7 @@ public static class NotifyPropertyChangedExamples
     /// <param name="item">The item to observe.</param>
     public static void ObserveNotifyingClassThroughWhenChanged(TodoItem item)
     {
-        using (item.WhenChanged(x => x.Title).Subscribe(Console.WriteLine))
+        using (item.WhenChanged(static x => x.Title).Subscribe(Console.WriteLine))
         {
             item.Title = RenamedTitle;
         }
@@ -174,7 +174,7 @@ public static class NotifyPropertyChangedExamples
     {
         browser.SelectedObject = first;
 
-        using (browser.WhenChanged(x => x.SelectedObject!).Subscribe(static selected => Console.WriteLine(selected.Size)))
+        using (browser.WhenChanged(static x => x.SelectedObject!).Subscribe(static selected => Console.WriteLine(selected.Size)))
         {
             first.Size = ResizedBytes;
             browser.SelectedObject = second;

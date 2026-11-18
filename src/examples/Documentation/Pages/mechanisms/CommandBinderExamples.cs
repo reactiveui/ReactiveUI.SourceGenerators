@@ -47,7 +47,7 @@ public static class CommandBinderExamples
     /// <param name="view">The view that owns the add button.</param>
     public static void BindButtonWithoutRegisteredBinder(TodoListViewModel viewModel, TodoView view)
     {
-        using (view.BindCommand(viewModel, x => x.AddCommand, v => v.AddButton))
+        using (view.BindCommand(viewModel, static x => x.AddCommand, static v => v.AddButton))
         {
             Console.WriteLine($"The button has no command: {view.AddButton.Command is null}");
             Console.WriteLine($"The button holds the view model's command: {ReferenceEquals(viewModel.AddCommand, view.AddButton.Command)}");
@@ -120,9 +120,9 @@ public static class CommandBinderExamples
     /// <returns>A task that completes when the added item is stored.</returns>
     public static async Task BindButtonWithRegisteredBinder(TodoListViewModel viewModel, TodoView view)
     {
-        IAwaitSignal<TodoItem> added = viewModel.WhenChanged(x => x.SelectedItem).Where(static item => item is not null).Take(1).GetAwaiter();
+        IAwaitSignal<TodoItem> added = viewModel.WhenChanged(static x => x.SelectedItem).Where(static item => item is not null).Take(1).GetAwaiter();
 
-        using (view.BindCommand(viewModel, x => x.AddCommand, v => v.AddButton))
+        using (view.BindCommand(viewModel, static x => x.AddCommand, static v => v.AddButton))
         {
             Console.WriteLine($"The button has no command: {view.AddButton.Command is null}");
             Console.WriteLine($"Enabled with no title: {view.AddButton.IsEnabled}");
@@ -160,9 +160,10 @@ public static class CommandBinderExamples
     /// <returns>A task that completes when the file is stored.</returns>
     public static async Task BindButtonWithParameterStream(StorageBrowserViewModel browser, StorageBrowserView view, Signal<UploadRequest> uploads)
     {
-        IAwaitSignal<IReadOnlyList<StorageObject>> stored = browser.WhenChanged(x => x.Objects).Where(static objects => objects.Any(static item => item.Key == ScreenshotName)).Take(1).GetAwaiter();
+        IAwaitSignal<IReadOnlyList<StorageObject>> stored = browser.WhenChanged(static x => x.Objects)
+            .Where(static objects => objects.Any(static item => item.Key == ScreenshotName)).Take(1).GetAwaiter();
 
-        using (view.BindCommand(browser, x => x.UploadCommand, v => v.UploadButton, uploads))
+        using (view.BindCommand(browser, static x => x.UploadCommand, static v => v.UploadButton, uploads))
         {
             Console.WriteLine($"Enabled with no file: {view.UploadButton.IsEnabled}");
 
@@ -193,9 +194,9 @@ public static class CommandBinderExamples
     {
         browser.CurrentPrefix = PhotoFolder;
 
-        IAwaitSignal<IReadOnlyList<StorageObject>> listed = browser.WhenChanged(x => x.Objects).Skip(1).Take(1).GetAwaiter();
+        IAwaitSignal<IReadOnlyList<StorageObject>> listed = browser.WhenChanged(static x => x.Objects).Skip(1).Take(1).GetAwaiter();
 
-        using (view.BindCommand(browser, x => x.RefreshCommand, v => v.RefreshButton, nameof(Button.Clicked)))
+        using (view.BindCommand(browser, static x => x.RefreshCommand, static v => v.RefreshButton, nameof(Button.Clicked)))
         {
             ((IButtonController)view.RefreshButton).SendClicked();
             await listed;
@@ -218,7 +219,7 @@ public static class CommandBinderExamples
     {
         browser.CurrentPrefix = string.Empty;
 
-        IAwaitSignal<IReadOnlyList<StorageObject>> listed = browser.WhenChanged(x => x.Objects).Skip(1).Take(1).GetAwaiter();
+        IAwaitSignal<IReadOnlyList<StorageObject>> listed = browser.WhenChanged(static x => x.Objects).Skip(1).Take(1).GetAwaiter();
 
         using (binder.BindCommandToObject(browser.RefreshCommand, view.RefreshButton, ImmutableEmptySignal<object>.Instance))
         {
@@ -248,7 +249,7 @@ public static class CommandBinderExamples
         Button button = view.ConnectButton;
         storage.Disconnect();
 
-        IAwaitSignal<ConnectionState> connected = browser.WhenChanged(x => x.ConnectionStatus).Where(static state => state == ConnectionState.Connected).Take(1).GetAwaiter();
+        IAwaitSignal<ConnectionState> connected = browser.WhenChanged(static x => x.ConnectionStatus).Where(static state => state == ConnectionState.Connected).Take(1).GetAwaiter();
 
         using (binder.BindCommandToObject<Button, EventArgs>(
             browser.ConnectCommand,
@@ -278,15 +279,15 @@ public static class CommandBinderExamples
     {
         browser.CurrentPrefix = string.Empty;
 
-        IAwaitSignal<IReadOnlyList<StorageObject>>? listed = browser.WhenChanged(x => x.Objects).Skip(1).Take(1).GetAwaiter();
+        IAwaitSignal<IReadOnlyList<StorageObject>>? listed = browser.WhenChanged(static x => x.Objects).Skip(1).Take(1).GetAwaiter();
 
-        using (CommandInvoker.Invoke(browser.WhenChanged(x => x.CurrentPrefix), browser.RefreshCommand))
+        using (CommandInvoker.Invoke(browser.WhenChanged(static x => x.CurrentPrefix), browser.RefreshCommand))
         {
             await listed;
 
             Console.WriteLine($"Objects in the whole bucket: {browser.Objects.Count}");
 
-            listed = browser.WhenChanged(x => x.Objects).Skip(1).Take(1).GetAwaiter();
+            listed = browser.WhenChanged(static x => x.Objects).Skip(1).Take(1).GetAwaiter();
             browser.CurrentPrefix = PhotoFolder;
             await listed;
 
@@ -314,7 +315,7 @@ public static class CommandBinderExamples
         await browser.LoadObjectsAsync().ConfigureAwait(false);
 
         int objectCount = browser.Objects.Count;
-        IAwaitSignal<IReadOnlyList<StorageObject>> stored = browser.WhenChanged(x => x.Objects)
+        IAwaitSignal<IReadOnlyList<StorageObject>> stored = browser.WhenChanged(static x => x.Objects)
             .Where(static objects => objects.Any(static item => item.Key == ThirdScreenshotName))
             .Take(1)
             .GetAwaiter();

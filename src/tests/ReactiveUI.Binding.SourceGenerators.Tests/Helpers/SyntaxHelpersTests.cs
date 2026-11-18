@@ -33,7 +33,7 @@ public class SyntaxHelpersTests
                                   {
                                       public void Test()
                                       {
-                                          Expression<Func<MyViewModel, string>> expr = x => x.Name;
+                                          Func<MyViewModel, string> expr = x => x.Name;
                                       }
                                   }
                               }
@@ -80,7 +80,7 @@ public class SyntaxHelpersTests
                                   {
                                       public void Test()
                                       {
-                                          Expression<Func<MyViewModel, string>> expr = x => x.Address.City;
+                                          Func<MyViewModel, string> expr = x => x.Address.City;
                                       }
                                   }
                               }
@@ -240,7 +240,7 @@ public class SyntaxHelpersTests
                                   {
                                       public void Test()
                                       {
-                                          Expression<Func<MyViewModel, string>> expr = (x) => x.Name;
+                                          Func<MyViewModel, string> expr = (x) => x.Name;
                                       }
                                   }
                               }
@@ -281,7 +281,7 @@ public class SyntaxHelpersTests
                                   {
                                       public void Test()
                                       {
-                                          Expression<Func<MyViewModel, MyViewModel, string>> expr = (x, y) => x.Name;
+                                          Func<MyViewModel, MyViewModel, string> expr = (x, y) => x.Name;
                                       }
                                   }
                               }
@@ -389,11 +389,11 @@ public class SyntaxHelpersTests
 
                   public static class Usage
                   {
-                      public static void Take(Expression<Func<MyViewModel, object?>> selector)
+                      public static void Take(Func<MyViewModel, object?> selector)
                       {
                       }
 
-                      public static void TakeFrom<T>(Expression<Func<T, object?>> selector)
+                      public static void TakeFrom<T>(Func<T, object?> selector)
                       {
                       }
 

@@ -27,7 +27,7 @@ public partial class TypeAnalyzerTests
                                                          public static IDisposable InvokeCommand<T, TTarget>(
                                                              this IObservable<T> source,
                                                              TTarget target,
-                                                             Expression<Func<TTarget, ICommand>> commandProperty)
+                                                             Func<TTarget, ICommand> commandProperty)
                                                              where TTarget : class
                                                              => throw new NotImplementedException();
                                                      }

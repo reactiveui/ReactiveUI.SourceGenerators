@@ -384,7 +384,7 @@ internal static class WhenAnyObservableCodeGenerator
         {
             _ = sb.Append(GeneratedSyntax.SelectorTypeOpen).Append(first.SourceTypeFullName).Append($", {IObservable}<")
                 .Append(first.InnerObservableTypeFullNames[i]).Append(supportsNullable ? ">?" : ">")
-                .Append(">> ").Append(SelectorParameterPrefix).Append(i + 1).Line(",");
+                .Append("> ").Append(SelectorParameterPrefix).Append(i + 1).Line(",");
         }
 
         if (first.HasSelector)

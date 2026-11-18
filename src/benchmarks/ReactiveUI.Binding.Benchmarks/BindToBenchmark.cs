@@ -31,7 +31,7 @@ public class BindToBenchmark
     [Benchmark(Description = "BindTo")]
     public void Standard()
     {
-        using var binding = _source.BindTo(_view, v => v.DisplayName);
+        using var binding = _source.BindTo(_view, static v => v.DisplayName);
 
         for (var i = 0; i < ValueCount; i++)
         {
@@ -43,6 +43,6 @@ public class BindToBenchmark
     [Benchmark(Description = "First Binding")]
     public void FirstBinding()
     {
-        using var binding = _source.BindTo(_view, v => v.DisplayName);
+        using var binding = _source.BindTo(_view, static v => v.DisplayName);
     }
 }

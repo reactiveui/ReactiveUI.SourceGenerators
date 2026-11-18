@@ -525,7 +525,7 @@ public class BindCommandCodeGeneratorHelperTests
         BindCommandCodeGenerator.GenerateCallerArgExprOverload(sb, group, false);
 
         var result = sb.ToString();
-        await Assert.That(result).Contains("Expression<global::System.Func<");
+        await Assert.That(result).Contains("global::System.Func<global::TestApp.MyViewModel, ");
         await Assert.That(result).Contains("withParameterExpression");
     }
 
@@ -576,7 +576,7 @@ public class BindCommandCodeGeneratorHelperTests
         BindCommandCodeGenerator.GenerateCallerFilePathOverload(sb, group, false, false);
 
         var result = sb.ToString();
-        await Assert.That(result).Contains("Expression<global::System.Func<");
+        await Assert.That(result).Contains("global::System.Func<global::TestApp.MyViewModel, ");
     }
 
     /// <summary>Verifies GenerateBindCommandMethod with CommandProperty plugin path.</summary>

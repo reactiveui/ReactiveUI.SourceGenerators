@@ -73,7 +73,7 @@ public static class TwoWayBindingExamples
         TodoListViewModel list = await OpenTodoListAsync();
         TodoView view = new();
 
-        using (list.BindTwoWay(view, x => x.FilterText, v => v.FilterTextBox.Text))
+        using (list.BindTwoWay(view, static x => x.FilterText, static v => v.FilterTextBox.Text))
         {
             list.FilterText = CarFilter;
             Console.WriteLine(view.FilterTextBox.Text);
@@ -104,7 +104,7 @@ public static class TwoWayBindingExamples
         TransferDraft draft = new() { Amount = RentAmount };
         TransferView view = new();
 
-        using (draft.BindTwoWay(view, x => x.Amount, v => v.AmountTextBox.Text, FormatAmount, ParseAmount))
+        using (draft.BindTwoWay(view, static x => x.Amount, static v => v.AmountTextBox.Text, FormatAmount, ParseAmount))
         {
             Console.WriteLine(view.AmountTextBox.Text);
 
@@ -129,7 +129,7 @@ public static class TwoWayBindingExamples
         IssueBoardView view = new();
         VirtualClock uiThread = new();
 
-        using (board.BindTwoWay(view, x => x.Token, v => v.TokenTextBox.Text, uiThread))
+        using (board.BindTwoWay(view, static x => x.Token, static v => v.TokenTextBox.Text, uiThread))
         {
             Console.WriteLine($"Waiting: '{view.TokenTextBox.Text}'");
 
@@ -164,7 +164,7 @@ public static class TwoWayBindingExamples
         TransferView view = new();
         VirtualClock uiThread = new();
 
-        using (draft.BindTwoWay(view, x => x.Reference, v => v.ReferenceTextBox.Text, uiThread))
+        using (draft.BindTwoWay(view, static x => x.Reference, static v => v.ReferenceTextBox.Text, uiThread))
         {
             // The view is empty and the view model holds "Rent March": the view shows the view model once the sequencer runs.
             Console.WriteLine($"Waiting: '{view.ReferenceTextBox.Text}'");
@@ -194,7 +194,7 @@ public static class TwoWayBindingExamples
         TransferView view = new();
         VirtualClock uiThread = new();
 
-        using (draft.BindTwoWay(view, x => x.Amount, v => v.AmountTextBox.Text, FormatAmount, ParseAmount, uiThread))
+        using (draft.BindTwoWay(view, static x => x.Amount, static v => v.AmountTextBox.Text, FormatAmount, ParseAmount, uiThread))
         {
             uiThread.AdvanceBy(NextTurn);
             Console.WriteLine(view.AmountTextBox.Text);
@@ -217,7 +217,7 @@ public static class TwoWayBindingExamples
         DecimalToStringTypeConverter toText = new();
         StringToDecimalTypeConverter toAmount = new();
 
-        using (draft.BindTwoWay(view, x => x.Amount, v => v.AmountTextBox.Text, toText, toAmount))
+        using (draft.BindTwoWay(view, static x => x.Amount, static v => v.AmountTextBox.Text, toText, toAmount))
         {
             Console.WriteLine(view.AmountTextBox.Text);
 
@@ -238,7 +238,7 @@ public static class TwoWayBindingExamples
         DecimalToStringTypeConverter toText = new();
         StringToDecimalTypeConverter toAmount = new();
 
-        using (draft.BindTwoWay(view, x => x.Amount, v => v.AmountTextBox.Text, toText, toAmount, TwoDecimalPlaces))
+        using (draft.BindTwoWay(view, static x => x.Amount, static v => v.AmountTextBox.Text, toText, toAmount, TwoDecimalPlaces))
         {
             Console.WriteLine(view.AmountTextBox.Text);
 
@@ -260,7 +260,7 @@ public static class TwoWayBindingExamples
         DecimalToStringTypeConverter toText = new();
         StringToDecimalTypeConverter toAmount = new();
 
-        using (draft.BindTwoWay(view, x => x.Amount, v => v.AmountTextBox.Text, toText, toAmount, TwoDecimalPlaces, uiThread))
+        using (draft.BindTwoWay(view, static x => x.Amount, static v => v.AmountTextBox.Text, toText, toAmount, TwoDecimalPlaces, uiThread))
         {
             Console.WriteLine($"Waiting: '{view.AmountTextBox.Text}'");
 
@@ -313,7 +313,7 @@ public static class TwoWayBindingExamples
         TodoTagFilterView view = new() { ViewModel = list };
 
         // No converter is registered from object to string; a string in SelectedItem passes through as it is.
-        using (view.Bind(list, x => x.FilterText, v => v.TagPicker.SelectedItem))
+        using (view.Bind(list, static x => x.FilterText, static v => v.TagPicker.SelectedItem))
         {
             view.TagPicker.SelectedItem = HealthTag;
             Console.WriteLine(list.FilterText);
@@ -335,7 +335,7 @@ public static class TwoWayBindingExamples
         TodoView view = new() { ViewModel = list };
         List<BindingChange> changes = [];
 
-        using (var binding = view.Bind(list, x => x.FilterText, v => v.FilterTextBox.Text))
+        using (var binding = view.Bind(list, static x => x.FilterText, static v => v.FilterTextBox.Text))
         using (binding.Changed.Subscribe(changes.Add))
         {
             Console.WriteLine(binding.Direction);
@@ -368,7 +368,7 @@ public static class TwoWayBindingExamples
         TransferView view = new() { ViewModel = viewModel };
         viewModel.Draft.Amount = RentAmount;
 
-        using (view.Bind(viewModel, x => x.Draft.Amount, v => v.AmountTextBox.Text, FormatAmount, ParseAmount))
+        using (view.Bind(viewModel, static x => x.Draft.Amount, static v => v.AmountTextBox.Text, FormatAmount, ParseAmount))
         {
             Console.WriteLine(view.AmountTextBox.Text);
 
@@ -388,7 +388,7 @@ public static class TwoWayBindingExamples
         GradebookView view = new() { ViewModel = viewModel };
         VirtualClock uiThread = new();
 
-        using (view.Bind(viewModel, x => x.ScoreToRecord, v => v.ScoreEntry.Text, FormatScore, ParseScore, uiThread))
+        using (view.Bind(viewModel, static x => x.ScoreToRecord, static v => v.ScoreEntry.Text, FormatScore, ParseScore, uiThread))
         {
             Console.WriteLine($"Waiting: '{view.ScoreEntry.Text}'");
 
@@ -419,7 +419,7 @@ public static class TwoWayBindingExamples
         DecimalToStringTypeConverter toText = new();
         StringToDecimalTypeConverter toScore = new();
 
-        using (view.Bind(viewModel, x => x.ScoreToRecord, v => v.ScoreEntry.Text, toText, toScore))
+        using (view.Bind(viewModel, static x => x.ScoreToRecord, static v => v.ScoreEntry.Text, toText, toScore))
         {
             Console.WriteLine(view.ScoreEntry.Text);
 
@@ -440,7 +440,7 @@ public static class TwoWayBindingExamples
         DecimalToStringTypeConverter toText = new();
         StringToDecimalTypeConverter toScore = new();
 
-        using (view.Bind(viewModel, x => x.ScoreToRecord, v => v.ScoreEntry.Text, toText, toScore, OneDecimalPlace))
+        using (view.Bind(viewModel, static x => x.ScoreToRecord, static v => v.ScoreEntry.Text, toText, toScore, OneDecimalPlace))
         {
             Console.WriteLine(view.ScoreEntry.Text);
 
@@ -462,7 +462,7 @@ public static class TwoWayBindingExamples
         DecimalToStringTypeConverter toText = new();
         StringToDecimalTypeConverter toScore = new();
 
-        using (view.Bind(viewModel, x => x.ScoreToRecord, v => v.ScoreEntry.Text, toText, toScore, OneDecimalPlace, uiThread))
+        using (view.Bind(viewModel, static x => x.ScoreToRecord, static v => v.ScoreEntry.Text, toText, toScore, OneDecimalPlace, uiThread))
         {
             Console.WriteLine($"Waiting: '{view.ScoreEntry.Text}'");
 
@@ -518,7 +518,7 @@ public static class TwoWayBindingExamples
         TodoListViewModel list = await OpenTodoListAsync();
         TodoView view = new();
 
-        using (list.BindTwoWay(view, x => x.FilterText, v => v.FilterTextBox.Text, scheduler: null))
+        using (list.BindTwoWay(view, static x => x.FilterText, static v => v.FilterTextBox.Text, scheduler: null))
         {
             list.FilterText = CarFilter;
             Console.WriteLine(view.FilterTextBox.Text);
@@ -538,7 +538,7 @@ public static class TwoWayBindingExamples
         TransferDraft draft = new() { Amount = RentAmount };
         TransferView view = new();
 
-        using (draft.BindTwoWay(view, x => x.Amount, v => v.AmountTextBox.Text, FormatAmount, ParseAmount, scheduler: null))
+        using (draft.BindTwoWay(view, static x => x.Amount, static v => v.AmountTextBox.Text, FormatAmount, ParseAmount, scheduler: null))
         {
             Console.WriteLine(view.AmountTextBox.Text);
 
@@ -561,7 +561,7 @@ public static class TwoWayBindingExamples
         GradebookViewModel viewModel = new(InMemoryStudentRecords.CreateSeeded()) { ScoreToRecord = FirstScore };
         GradebookView view = new() { ViewModel = viewModel };
 
-        using (view.Bind(viewModel, x => x.ScoreToRecord, v => v.ScoreEntry.Text, FormatScore, ParseScore, scheduler: null))
+        using (view.Bind(viewModel, static x => x.ScoreToRecord, static v => v.ScoreEntry.Text, FormatScore, ParseScore, scheduler: null))
         {
             Console.WriteLine(view.ScoreEntry.Text);
 

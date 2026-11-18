@@ -18,7 +18,7 @@ public static class BindCompatScenarios
     public static IReactiveBinding<TestView, BindingChange> StringProperty(
         TestView view,
         TestViewModel vm) =>
-        view.Bind(vm, x => x.Name, x => x.DisplayName);
+        view.Bind(vm, static x => x.Name, static x => x.DisplayName);
 
     /// <summary>View-first two-way binding through a nullable child using the Bind compat alias.</summary>
     /// <param name="view">The target view.</param>
@@ -28,5 +28,5 @@ public static class BindCompatScenarios
     public static IReactiveBinding<TestView, BindingChange> ChildName(
         TestView view,
         TestViewModel vm) =>
-        view.Bind(vm, x => x.Child!.Name, x => x.DisplayName);
+        view.Bind(vm, static x => x.Child!.Name, static x => x.DisplayName);
 }

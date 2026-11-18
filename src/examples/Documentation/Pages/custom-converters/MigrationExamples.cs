@@ -77,7 +77,7 @@ public static class MigrationExamples
         TodoItem item = new() { Title = "Renew passport", Priority = TodoPriority.High };
         Label priorityBadge = new();
 
-        using (item.WhenChanged(x => x.Priority).BindTo(priorityBadge, x => x.Text, migrated!))
+        using (item.WhenChanged(static x => x.Priority).BindTo(priorityBadge, static x => x.Text, migrated!))
         {
             Console.WriteLine(priorityBadge.Text);
 
@@ -101,7 +101,7 @@ public static class MigrationExamples
         TodoItem item = new() { Title = "Book dentist", Priority = TodoPriority.Normal };
         Label priorityBadge = new();
 
-        using (item.WhenChanged(x => x.Priority).BindTo(priorityBadge, x => x.Text))
+        using (item.WhenChanged(static x => x.Priority).BindTo(priorityBadge, static x => x.Text))
         {
             Console.WriteLine(priorityBadge.Text);
 

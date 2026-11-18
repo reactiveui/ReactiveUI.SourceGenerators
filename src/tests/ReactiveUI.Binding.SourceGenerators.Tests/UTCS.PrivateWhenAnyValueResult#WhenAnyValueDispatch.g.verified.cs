@@ -12,7 +12,7 @@ namespace ReactiveUI.Binding.Generated.Interceptors.TestAssembly
         [global::System.Runtime.CompilerServices.InterceptsLocation(1, "8gzjAnTPpeioOddJ2diTiksMAAA=")]
         internal static global::System.IObservable<__TResult> __Intercept_WhenAnyValue_7FFFCC68B95E80F9<__T0, __T1, __TResult>(
             this global::TestApp.Vm objectToMonitor,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::TestApp.Vm, int>> property1,
+            global::System.Func<global::TestApp.Vm, int> property1,
             global::System.Func<int, __TResult> selector,
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("property1")] string property1Expression = "",
             [global::System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "",

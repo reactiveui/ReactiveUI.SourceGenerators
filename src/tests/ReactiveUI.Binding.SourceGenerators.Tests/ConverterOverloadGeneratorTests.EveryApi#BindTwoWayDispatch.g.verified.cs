@@ -16,8 +16,8 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         public static global::System.IDisposable BindTwoWay(
             this global::TestApp.Person source,
             global::TestApp.PersonView target,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::TestApp.Person, int>> sourceProperty,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::TestApp.PersonView, string?>> targetProperty,
+            global::System.Func<global::TestApp.Person, int> sourceProperty,
+            global::System.Func<global::TestApp.PersonView, string?> targetProperty,
             global::ReactiveUI.Binding.IBindingTypeConverter sourceToTargetConverter,
             global::ReactiveUI.Binding.IBindingTypeConverter targetToSourceConverter,
             object? conversionHint = null,

@@ -35,7 +35,7 @@ public class InvokeCommandBenchmark
     [Benchmark(Description = "InvokeCommand")]
     public void Standard()
     {
-        using var invocation = _source.InvokeCommand(_vm, x => x.Run);
+        using var invocation = _source.InvokeCommand(_vm, static x => x.Run);
 
         for (var i = 0; i < ValueCount; i++)
         {
@@ -47,6 +47,6 @@ public class InvokeCommandBenchmark
     [Benchmark(Description = "First Invocation")]
     public void FirstInvocation()
     {
-        using var invocation = _source.InvokeCommand(_vm, x => x.Run);
+        using var invocation = _source.InvokeCommand(_vm, static x => x.Run);
     }
 }

@@ -16,7 +16,7 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         public static global::System.IDisposable BindTo(
             this global::System.IObservable<string> source,
             global::SharedScenarios.BindTo.SameTypeString.MyView? target,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.BindTo.SameTypeString.MyView, string?>> property,
+            global::System.Func<global::SharedScenarios.BindTo.SameTypeString.MyView, string?> property,
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("property")] string propertyExpression = "",
             [global::System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "",
             [global::System.Runtime.CompilerServices.CallerLineNumber] int callerLineNumber = 0)

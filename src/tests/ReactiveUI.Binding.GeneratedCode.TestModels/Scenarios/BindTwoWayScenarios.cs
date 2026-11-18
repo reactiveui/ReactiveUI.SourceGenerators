@@ -20,7 +20,7 @@ public static class BindTwoWayScenarios
     /// <returns>A disposable that, when disposed, disconnects the binding.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IDisposable StringProperty(BigViewModel source, BigView target) =>
-        source.BindTwoWay(target, x => x.Prop1, x => x.ViewProp1);
+        source.BindTwoWay(target, static x => x.Prop1, static x => x.ViewProp1);
 
     /// <summary>Two-way binding for an int property.</summary>
     /// <param name="source">The source view model.</param>
@@ -28,7 +28,7 @@ public static class BindTwoWayScenarios
     /// <returns>A disposable that, when disposed, disconnects the binding.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IDisposable IntProperty(BigViewModel source, BigView target) =>
-        source.BindTwoWay(target, x => x.Prop2, x => x.ViewProp2);
+        source.BindTwoWay(target, static x => x.Prop2, static x => x.ViewProp2);
 
     /// <summary>Two-way binding for a double property.</summary>
     /// <param name="source">The source view model.</param>
@@ -36,7 +36,7 @@ public static class BindTwoWayScenarios
     /// <returns>A disposable that, when disposed, disconnects the binding.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IDisposable DoubleProperty(BigViewModel source, BigView target) =>
-        source.BindTwoWay(target, x => x.Prop3, x => x.ViewProp3);
+        source.BindTwoWay(target, static x => x.Prop3, static x => x.ViewProp3);
 
     /// <summary>Two-way binding for a bool property.</summary>
     /// <param name="source">The source view model.</param>
@@ -44,5 +44,5 @@ public static class BindTwoWayScenarios
     /// <returns>A disposable that, when disposed, disconnects the binding.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IDisposable BoolProperty(BigViewModel source, BigView target) =>
-        source.BindTwoWay(target, x => x.Prop4, x => x.ViewProp4);
+        source.BindTwoWay(target, static x => x.Prop4, static x => x.ViewProp4);
 }

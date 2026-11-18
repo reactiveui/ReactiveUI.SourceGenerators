@@ -39,8 +39,8 @@ public static class ListSelectionBindingExamples
         StorageBrowserViewModel browser = await OpenBucketAsync();
         StorageBrowserView view = new();
 
-        using (browser.BindOneWay(view, x => x.IsUploading, v => v.UploadProgressBar.IsVisible))
-        using (browser.BindOneWay(view, x => x.IsUploading, v => v.UploadButton.IsEnabled, static uploading => !uploading))
+        using (browser.BindOneWay(view, static x => x.IsUploading, static v => v.UploadProgressBar.IsVisible))
+        using (browser.BindOneWay(view, static x => x.IsUploading, static v => v.UploadButton.IsEnabled, static uploading => !uploading))
         {
             Console.WriteLine(view.UploadProgressBar.IsVisible);
             Console.WriteLine(view.UploadButton.IsEnabled);
@@ -74,8 +74,8 @@ public static class ListSelectionBindingExamples
         viewModel.FilterText = BookFilter;
         TodoView view = new() { ViewModel = viewModel };
 
-        using (view.Bind(viewModel, x => x.FilterText, v => v.FilterTextBox.Text))
-        using (view.Bind(viewModel, x => x.NewTitle, v => v.NewTitleTextBox.Text))
+        using (view.Bind(viewModel, static x => x.FilterText, static v => v.FilterTextBox.Text))
+        using (view.Bind(viewModel, static x => x.NewTitle, static v => v.NewTitleTextBox.Text))
         {
             // The view model's starting filter reaches the box.
             Console.WriteLine(view.FilterTextBox.Text);
@@ -104,7 +104,7 @@ public static class ListSelectionBindingExamples
         TodoListViewModel viewModel = await OpenTodoListAsync();
         TodoView view = new() { ViewModel = viewModel };
 
-        using (view.OneWayBind(viewModel, x => x.Items, v => v.ItemsList.ItemsSource))
+        using (view.OneWayBind(viewModel, static x => x.Items, static v => v.ItemsList.ItemsSource))
         {
             Console.WriteLine(string.Join(", ", TitlesOf(view)));
 
@@ -132,8 +132,8 @@ public static class ListSelectionBindingExamples
         view.ItemsList.ItemsSource = viewModel.Items;
 
         // The list holds its selection as an object, so each direction converts.
-        using (viewModel.BindTwoWay(view, x => x.SelectedItem, v => v.ItemsList.SelectedItem, static item => item, static selected => (selected as TodoItem)!))
-        using (viewModel.BindOneWay(view, x => x.SelectedItem!.Title, v => v.SelectedTitleTextBox.Text))
+        using (viewModel.BindTwoWay(view, static x => x.SelectedItem, static v => v.ItemsList.SelectedItem, static item => item, static selected => (selected as TodoItem)!))
+        using (viewModel.BindOneWay(view, static x => x.SelectedItem!.Title, static v => v.SelectedTitleTextBox.Text))
         {
             Console.WriteLine(view.SelectedTitleTextBox.Text ?? NothingSelectedText);
 
@@ -179,7 +179,7 @@ public static class ListSelectionBindingExamples
         TodoListViewModel viewModel = await OpenTodoListAsync();
         TodoView view = new() { ViewModel = viewModel };
 
-        using (view.BindCommand(viewModel, x => x.CompleteCommand, v => v.CompleteButton))
+        using (view.BindCommand(viewModel, static x => x.CompleteCommand, static v => v.CompleteButton))
         {
             Console.WriteLine(view.CompleteButton.IsEnabled);
 
@@ -189,7 +189,7 @@ public static class ListSelectionBindingExamples
             Console.WriteLine(view.CompleteButton.IsEnabled);
 
             // Pressing the button runs the command, which finishes the item and disables the button again.
-            Task<bool> completed = renew.WhenChanged(x => x.IsDone).Where(static done => done).FirstAsync();
+            Task<bool> completed = renew.WhenChanged(static x => x.IsDone).Where(static done => done).FirstAsync();
             ((IButtonController)view.CompleteButton).SendClicked();
             await completed;
 

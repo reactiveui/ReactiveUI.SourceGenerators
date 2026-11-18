@@ -45,8 +45,8 @@ public static partial class ReactiveUIBindingExtensions
     public static IDisposable BindOneWay<TSource, TTarget, TProperty>(
         this TSource source,
         TTarget target,
-        Expression<Func<TSource, TProperty>> sourceProperty,
-        Expression<Func<TTarget, TProperty>> targetProperty,
+        Func<TSource, TProperty> sourceProperty,
+        Func<TTarget, TProperty> targetProperty,
         [CallerArgumentExpression("sourceProperty")]
         string sourcePropertyExpression = "",
         [CallerArgumentExpression("targetProperty")]
@@ -79,8 +79,8 @@ public static partial class ReactiveUIBindingExtensions
     public static IDisposable BindOneWay<TSource, TSourceProp, TTarget, TTargetProp>(
         this TSource source,
         TTarget target,
-        Expression<Func<TSource, TSourceProp>> sourceProperty,
-        Expression<Func<TTarget, TTargetProp>> targetProperty,
+        Func<TSource, TSourceProp> sourceProperty,
+        Func<TTarget, TTargetProp> targetProperty,
         Func<TSourceProp, TTargetProp> conversionFunc,
         [CallerArgumentExpression("sourceProperty")]
         string sourcePropertyExpression = "",
@@ -112,8 +112,8 @@ public static partial class ReactiveUIBindingExtensions
     public static IDisposable BindTwoWay<TSource, TTarget, TProperty>(
         this TSource source,
         TTarget target,
-        Expression<Func<TSource, TProperty>> sourceProperty,
-        Expression<Func<TTarget, TProperty>> targetProperty,
+        Func<TSource, TProperty> sourceProperty,
+        Func<TTarget, TProperty> targetProperty,
         [CallerArgumentExpression("sourceProperty")]
         string sourcePropertyExpression = "",
         [CallerArgumentExpression("targetProperty")]
@@ -147,8 +147,8 @@ public static partial class ReactiveUIBindingExtensions
     public static IDisposable BindTwoWay<TSource, TSourceProp, TTarget, TTargetProp>(
         this TSource source,
         TTarget target,
-        Expression<Func<TSource, TSourceProp>> sourceProperty,
-        Expression<Func<TTarget, TTargetProp>> targetProperty,
+        Func<TSource, TSourceProp> sourceProperty,
+        Func<TTarget, TTargetProp> targetProperty,
         Func<TSourceProp, TTargetProp> sourceToTargetConv,
         Func<TTargetProp, TSourceProp> targetToSourceConv,
         [CallerArgumentExpression("sourceProperty")]
@@ -182,8 +182,8 @@ public static partial class ReactiveUIBindingExtensions
     public static IReactiveBinding<TView, TVProp> OneWayBind<TViewModel, TView, TVMProp, TVProp>(
         this TView view,
         TViewModel? viewModel,
-        Expression<Func<TViewModel, TVMProp>> viewModelProperty,
-        Expression<Func<TView, TVProp>> viewProperty,
+        Func<TViewModel, TVMProp> viewModelProperty,
+        Func<TView, TVProp> viewProperty,
         [CallerArgumentExpression("viewModelProperty")]
         string viewModelPropertyExpression = "",
         [CallerArgumentExpression("viewProperty")]
@@ -216,8 +216,8 @@ public static partial class ReactiveUIBindingExtensions
     public static IReactiveBinding<TView, TOut> OneWayBind<TViewModel, TView, TProp, TOut>(
         this TView view,
         TViewModel? viewModel,
-        Expression<Func<TViewModel, TProp>> viewModelProperty,
-        Expression<Func<TView, TOut>> viewProperty,
+        Func<TViewModel, TProp> viewModelProperty,
+        Func<TView, TOut> viewProperty,
         Func<TProp, TOut> selector,
         [CallerArgumentExpression("viewModelProperty")]
         string viewModelPropertyExpression = "",
@@ -250,8 +250,8 @@ public static partial class ReactiveUIBindingExtensions
     public static IReactiveBinding<TView, BindingChange> Bind<TViewModel, TView, TVMProp, TVProp>(
         this TView view,
         TViewModel? viewModel,
-        Expression<Func<TViewModel, TVMProp>> viewModelProperty,
-        Expression<Func<TView, TVProp>> viewProperty,
+        Func<TViewModel, TVMProp> viewModelProperty,
+        Func<TView, TVProp> viewProperty,
         [CallerArgumentExpression("viewModelProperty")]
         string viewModelPropertyExpression = "",
         [CallerArgumentExpression("viewProperty")]
@@ -285,8 +285,8 @@ public static partial class ReactiveUIBindingExtensions
     public static IReactiveBinding<TView, BindingChange> Bind<TViewModel, TView, TVMProp, TVProp>(
         this TView view,
         TViewModel? viewModel,
-        Expression<Func<TViewModel, TVMProp>> viewModelProperty,
-        Expression<Func<TView, TVProp>> viewProperty,
+        Func<TViewModel, TVMProp> viewModelProperty,
+        Func<TView, TVProp> viewProperty,
         Func<TVMProp, TVProp> viewModelToViewConverter,
         Func<TVProp, TVMProp> viewToViewModelConverter,
         [CallerArgumentExpression("viewModelProperty")]

@@ -18,10 +18,10 @@ public class WhenAnyObservableCodeGeneratorHelperTests
     private const string ViewModelTypeName = "global::TestApp.MyViewModel";
 
     /// <summary>The observable parameter as it reads on a consumer that has nullable reference types.</summary>
-    private const string NullableObservableParameter = "global::System.IObservable<global::System.String>?>> obs1,";
+    private const string NullableObservableParameter = "global::System.IObservable<global::System.String>?> obs1,";
 
     /// <summary>The observable parameter as it reads on a consumer that predates nullable reference types.</summary>
-    private const string PlainObservableParameter = "global::System.IObservable<global::System.String>>> obs1,";
+    private const string PlainObservableParameter = "global::System.IObservable<global::System.String>> obs1,";
 
     /// <summary>The observable property the generated overload takes.</summary>
     /// <returns>A task representing the asynchronous test operation.</returns>

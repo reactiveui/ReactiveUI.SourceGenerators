@@ -122,7 +122,7 @@ public static class ViewThreadInvokerExamples
         TextBlock titleLabel = new();
         TodoItem item = new() { Title = OriginalTitle };
 
-        using (item.BindOneWay(titleLabel, x => x.Title, x => x.Text))
+        using (item.BindOneWay(titleLabel, static x => x.Title, static x => x.Text))
         {
             Console.WriteLine(titleLabel.Text);
 
@@ -142,7 +142,7 @@ public static class ViewThreadInvokerExamples
         TextBlock titleLabel = new();
         TodoItem item = new() { Title = OriginalTitle };
 
-        using (item.BindOneWay(titleLabel, x => x.Title, x => x.Text))
+        using (item.BindOneWay(titleLabel, static x => x.Title, static x => x.Text))
         {
             Thread worker = new Thread(() => item.Title = FirstSyncedTitle);
             worker.Start();
@@ -167,8 +167,8 @@ public static class ViewThreadInvokerExamples
         TodoItem item = new() { Title = OriginalTitle };
         List<string?> writes = [];
 
-        using (titleLabel.WhenChanged(x => x.Text).Subscribe(writes.Add))
-        using (item.BindOneWay(titleLabel, x => x.Title, x => x.Text))
+        using (titleLabel.WhenChanged(static x => x.Text).Subscribe(writes.Add))
+        using (item.BindOneWay(titleLabel, static x => x.Title, static x => x.Text))
         {
             Thread worker = new Thread(() =>
             {

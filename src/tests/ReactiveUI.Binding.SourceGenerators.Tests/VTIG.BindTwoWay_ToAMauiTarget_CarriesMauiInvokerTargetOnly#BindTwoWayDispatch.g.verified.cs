@@ -16,8 +16,8 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         public static global::System.IDisposable BindTwoWay(
             this global::TestApp.MyViewModel source,
             global::TestApp.MyEntry target,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::TestApp.MyViewModel, string?>> sourceProperty,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::TestApp.MyEntry, string?>> targetProperty,
+            global::System.Func<global::TestApp.MyViewModel, string?> sourceProperty,
+            global::System.Func<global::TestApp.MyEntry, string?> targetProperty,
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("sourceProperty")] string sourcePropertyExpression = "",
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("targetProperty")] string targetPropertyExpression = "",
             [global::System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "",

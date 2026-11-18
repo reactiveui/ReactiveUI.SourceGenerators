@@ -10,18 +10,18 @@ namespace ReactiveUI.Binding.Generated.Interceptors.TestAssembly
     internal static partial class __ReactiveUIGeneratedBindings
     {
         [global::System.Runtime.CompilerServices.InterceptsLocation(1, "s7sD/tQJ3xEt3L7BnYDcIwIQAAA=")]
-        internal static global::ReactiveUI.Binding.IReactiveBinding<__S1, __S3> __InterceptHosted_7FFFC6E18C012F99<__S0, __S1, __S2, __S3>(
+        internal static global::ReactiveUI.Binding.IReactiveBinding<__S1, __S3> __InterceptHosted_7FFFC6E14AFEC467<__S0, __S1, __S2, __S3>(
             this __S1 view,
             __S0? viewModel,
-            global::System.Linq.Expressions.Expression<global::System.Func<__S0, __S2>> viewModelProperty,
-            global::System.Linq.Expressions.Expression<global::System.Func<__S1, __S3>> viewProperty,
+            global::System.Func<__S0, __S2> viewModelProperty,
+            global::System.Func<__S1, __S3> viewProperty,
             string viewModelPropertyExpression,
             string viewPropertyExpression,
             string callerFilePath,
             int callerLineNumber)
             where __S0 : class, global::TestApp.IHasA
             where __S1 : class, global::ReactiveUI.Binding.IViewFor
-            => global::ReactiveUI.Binding.Generated.Interceptors.TestAssembly.__ReactiveUIGeneratedBindings.__ReactiveUIHostedEntries_00003708F4D34315<__S0>.__Entry_7FFFC6E18C012F99<__S0, __S1, __S2, __S3>(view, viewModel, viewModelProperty, viewProperty, viewModelPropertyExpression, viewPropertyExpression, callerFilePath, callerLineNumber);
+            => global::ReactiveUI.Binding.Generated.Interceptors.TestAssembly.__ReactiveUIGeneratedBindings.__ReactiveUIHostedEntries_00003708F4D34315<__S0>.__Entry_7FFFC6E14AFEC467<__S0, __S1, __S2, __S3>(view, viewModel, viewModelProperty, viewProperty, viewModelPropertyExpression, viewPropertyExpression, callerFilePath, callerLineNumber);
 
     }
 }
@@ -33,26 +33,26 @@ namespace ReactiveUI.Binding.Generated.Interceptors.TestAssembly
         internal static partial class __ReactiveUIHostedEntries_00003708F4D34315<TViewModel>
             where TViewModel : class, global::TestApp.IHasA
         {
-            internal static global::ReactiveUI.Binding.IReactiveBinding<__S1, __S3> __Entry_7FFFC6E18C012F99<__S0, __S1, __S2, __S3>(
+            internal static global::ReactiveUI.Binding.IReactiveBinding<__S1, __S3> __Entry_7FFFC6E14AFEC467<__S0, __S1, __S2, __S3>(
                 __S1 view,
                 __S0? viewModel,
-                global::System.Linq.Expressions.Expression<global::System.Func<__S0, __S2>> viewModelProperty,
-                global::System.Linq.Expressions.Expression<global::System.Func<__S1, __S3>> viewProperty,
+                global::System.Func<__S0, __S2> viewModelProperty,
+                global::System.Func<__S1, __S3> viewProperty,
                 string viewModelPropertyExpression,
                 string viewPropertyExpression,
                 string callerFilePath,
                 int callerLineNumber)
                 where __S0 : class, global::TestApp.IHasA
                 where __S1 : class, global::ReactiveUI.Binding.IViewFor
-                => (global::ReactiveUI.Binding.IReactiveBinding<__S1, __S3>)(object)__ReactiveUIHostedBindings.__Intercept_OneWayBind_00001DF1662723E5((global::TestApp.ViewBase<TViewModel>)(object)view, (TViewModel?)(object)viewModel, (global::System.Linq.Expressions.Expression<global::System.Func<TViewModel, int>>)(object)viewModelProperty, (global::System.Linq.Expressions.Expression<global::System.Func<global::TestApp.ViewBase<TViewModel>, int>>)(object)viewProperty, viewModelPropertyExpression, viewPropertyExpression, callerFilePath, callerLineNumber);
+                => (global::ReactiveUI.Binding.IReactiveBinding<__S1, __S3>)(object)__ReactiveUIHostedBindings.__Intercept_OneWayBind_00001DF1662723E5((global::TestApp.ViewBase<TViewModel>)(object)view, (TViewModel?)(object)viewModel, (global::System.Func<TViewModel, int>)(object)viewModelProperty, (global::System.Func<global::TestApp.ViewBase<TViewModel>, int>)(object)viewProperty, viewModelPropertyExpression, viewPropertyExpression, callerFilePath, callerLineNumber);
 
             private static partial class __ReactiveUIHostedBindings
             {
                 internal static global::ReactiveUI.Binding.IReactiveBinding<global::TestApp.ViewBase<TViewModel>, int> __Intercept_OneWayBind_00001DF1662723E5(
                     global::TestApp.ViewBase<TViewModel> view,
                     TViewModel? viewModel,
-                    global::System.Linq.Expressions.Expression<global::System.Func<TViewModel, int>> viewModelProperty,
-                    global::System.Linq.Expressions.Expression<global::System.Func<global::TestApp.ViewBase<TViewModel>, int>> viewProperty,
+                    global::System.Func<TViewModel, int> viewModelProperty,
+                    global::System.Func<global::TestApp.ViewBase<TViewModel>, int> viewProperty,
                     [global::System.Runtime.CompilerServices.CallerArgumentExpression("viewModelProperty")] string viewModelPropertyExpression = "",
                     [global::System.Runtime.CompilerServices.CallerArgumentExpression("viewProperty")] string viewPropertyExpression = "",
                     [global::System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "",

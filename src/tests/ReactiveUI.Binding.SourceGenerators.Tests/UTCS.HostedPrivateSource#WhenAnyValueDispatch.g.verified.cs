@@ -10,14 +10,14 @@ namespace ReactiveUI.Binding.Generated.Interceptors.TestAssembly
     internal static partial class __ReactiveUIGeneratedBindings
     {
         [global::System.Runtime.CompilerServices.InterceptsLocation(1, "OVSZ7WYLkbF8UkNM4NGmr1YMAAA=")]
-        internal static global::System.IObservable<__S1> __InterceptHosted_7FFFDDFF1C7056F3<__S0, __S1>(
+        internal static global::System.IObservable<__S1> __InterceptHosted_7FFFDDFE37262750<__S0, __S1>(
             this __S0 sender,
-            global::System.Linq.Expressions.Expression<global::System.Func<__S0, __S1>> property1,
+            global::System.Func<__S0, __S1> property1,
             string property1Expression,
             string callerFilePath,
             int callerLineNumber)
             where __S0 : class
-            => global::TestApp.Scenario.__ReactiveUIHostedEntries.__Entry_7FFFDDFF1C7056F3<__S0, __S1>(sender, property1, property1Expression, callerFilePath, callerLineNumber);
+            => global::TestApp.Scenario.__ReactiveUIHostedEntries.__Entry_7FFFDDFE37262750<__S0, __S1>(sender, property1, property1Expression, callerFilePath, callerLineNumber);
 
     }
 }
@@ -28,20 +28,20 @@ namespace TestApp
     {
         internal static partial class __ReactiveUIHostedEntries
         {
-            internal static global::System.IObservable<__S1> __Entry_7FFFDDFF1C7056F3<__S0, __S1>(
+            internal static global::System.IObservable<__S1> __Entry_7FFFDDFE37262750<__S0, __S1>(
                 __S0 sender,
-                global::System.Linq.Expressions.Expression<global::System.Func<__S0, __S1>> property1,
+                global::System.Func<__S0, __S1> property1,
                 string property1Expression,
                 string callerFilePath,
                 int callerLineNumber)
                 where __S0 : class
-                => (global::System.IObservable<__S1>)(object)__ReactiveUIHostedBindings.__Intercept_WhenAnyValue_000001A72913D988((global::TestApp.Scenario.Inner)(object)sender, (global::System.Linq.Expressions.Expression<global::System.Func<global::TestApp.Scenario.Inner, int>>)(object)property1, property1Expression, callerFilePath, callerLineNumber);
+                => (global::System.IObservable<__S1>)(object)__ReactiveUIHostedBindings.__Intercept_WhenAnyValue_000001A72913D988((global::TestApp.Scenario.Inner)(object)sender, (global::System.Func<global::TestApp.Scenario.Inner, int>)(object)property1, property1Expression, callerFilePath, callerLineNumber);
 
             private static partial class __ReactiveUIHostedBindings
             {
                 internal static global::System.IObservable<int> __Intercept_WhenAnyValue_000001A72913D988(
                     global::TestApp.Scenario.Inner objectToMonitor,
-                    global::System.Linq.Expressions.Expression<global::System.Func<global::TestApp.Scenario.Inner, int>> property1,
+                    global::System.Func<global::TestApp.Scenario.Inner, int> property1,
                     [global::System.Runtime.CompilerServices.CallerArgumentExpression("property1")] string property1Expression = "",
                     [global::System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "",
                     [global::System.Runtime.CompilerServices.CallerLineNumber] int callerLineNumber = 0)

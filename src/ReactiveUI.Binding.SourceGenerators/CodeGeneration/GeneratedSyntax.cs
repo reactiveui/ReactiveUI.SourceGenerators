@@ -16,7 +16,7 @@ internal static class GeneratedSyntax
     internal const string FuncTypeOpen = $"{GeneratedTypeNames.Func}<";
 
     /// <summary>Opens a property-selector type, ready for its source and produced types.</summary>
-    internal const string SelectorTypeOpen = $"{GeneratedTypeNames.Expression}<{GeneratedTypeNames.Func}<";
+    internal const string SelectorTypeOpen = $"{GeneratedTypeNames.Func}<";
 
     /// <summary>Closes the cast of an observation callback's argument, ready for the property name.</summary>
     internal const string ObserverCastClose = ")__o).";

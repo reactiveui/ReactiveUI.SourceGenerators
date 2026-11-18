@@ -25,7 +25,7 @@ public class WhenAnyRefusalTests
     public Task WhenAny_Arity1WithSelector_NamesTheUnsafeTwin() =>
         RefusalAssertions.AssertRefused(
             static () => new DispatchStubViewModel().WhenAny(
-                x => x.Caption,
+                static x => x.Caption,
                 static (v1) => v1.Value),
             Twin);
 
@@ -36,8 +36,8 @@ public class WhenAnyRefusalTests
     public Task WhenAny_Arity2WithSelector_NamesTheUnsafeTwin() =>
         RefusalAssertions.AssertRefused(
             static () => new DispatchStubViewModel().WhenAny(
-                x => x.Caption,
-                x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
                 static (v1, v2) => v1.Value),
             Twin);
 
@@ -48,9 +48,9 @@ public class WhenAnyRefusalTests
     public Task WhenAny_Arity3WithSelector_NamesTheUnsafeTwin() =>
         RefusalAssertions.AssertRefused(
             static () => new DispatchStubViewModel().WhenAny(
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
                 static (v1, v2, v3) => v1.Value),
             Twin);
 
@@ -61,10 +61,10 @@ public class WhenAnyRefusalTests
     public Task WhenAny_Arity4WithSelector_NamesTheUnsafeTwin() =>
         RefusalAssertions.AssertRefused(
             static () => new DispatchStubViewModel().WhenAny(
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
                 static (v1, v2, v3, v4) => v1.Value),
             Twin);
 
@@ -75,11 +75,11 @@ public class WhenAnyRefusalTests
     public Task WhenAny_Arity5WithSelector_NamesTheUnsafeTwin() =>
         RefusalAssertions.AssertRefused(
             static () => new DispatchStubViewModel().WhenAny(
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
                 static (v1, v2, v3, v4, v5) => v1.Value),
             Twin);
 
@@ -90,12 +90,12 @@ public class WhenAnyRefusalTests
     public Task WhenAny_Arity6WithSelector_NamesTheUnsafeTwin() =>
         RefusalAssertions.AssertRefused(
             static () => new DispatchStubViewModel().WhenAny(
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
                 static (v1, v2, v3, v4, v5, v6) => v1.Value),
             Twin);
 
@@ -106,13 +106,13 @@ public class WhenAnyRefusalTests
     public Task WhenAny_Arity7WithSelector_NamesTheUnsafeTwin() =>
         RefusalAssertions.AssertRefused(
             static () => new DispatchStubViewModel().WhenAny(
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
                 static (v1, v2, v3, v4, v5, v6, v7) => v1.Value),
             Twin);
 
@@ -123,14 +123,14 @@ public class WhenAnyRefusalTests
     public Task WhenAny_Arity8WithSelector_NamesTheUnsafeTwin() =>
         RefusalAssertions.AssertRefused(
             static () => new DispatchStubViewModel().WhenAny(
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
                 static (v1, v2, v3, v4, v5, v6, v7, v8) => v1.Value),
             Twin);
 
@@ -141,15 +141,15 @@ public class WhenAnyRefusalTests
     public Task WhenAny_Arity9WithSelector_NamesTheUnsafeTwin() =>
         RefusalAssertions.AssertRefused(
             static () => new DispatchStubViewModel().WhenAny(
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
                 static (v1, v2, v3, v4, v5, v6, v7, v8, v9) => v1.Value),
             Twin);
 
@@ -160,16 +160,16 @@ public class WhenAnyRefusalTests
     public Task WhenAny_Arity10WithSelector_NamesTheUnsafeTwin() =>
         RefusalAssertions.AssertRefused(
             static () => new DispatchStubViewModel().WhenAny(
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
                 static (v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) => v1.Value),
             Twin);
 
@@ -180,17 +180,17 @@ public class WhenAnyRefusalTests
     public Task WhenAny_Arity11WithSelector_NamesTheUnsafeTwin() =>
         RefusalAssertions.AssertRefused(
             static () => new DispatchStubViewModel().WhenAny(
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
                 static (v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) => v1.Value),
             Twin);
 
@@ -201,18 +201,18 @@ public class WhenAnyRefusalTests
     public Task WhenAny_Arity12WithSelector_NamesTheUnsafeTwin() =>
         RefusalAssertions.AssertRefused(
             static () => new DispatchStubViewModel().WhenAny(
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
-                x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
+                static x => x.Caption,
                 static (v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12) => v1.Value),
             Twin);
 }

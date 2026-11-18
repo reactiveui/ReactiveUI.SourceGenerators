@@ -258,8 +258,8 @@ public class SchedulerUnsafeBindingTests
     public Task BindOneWay_WithNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefused(static () => new DispatchStubViewModel().BindOneWay(
             new DispatchStubView(),
-            s => s.Caption,
-            t => t.Caption,
+            static s => s.Caption,
+            static t => t.Caption,
             ImmediateSequencer.Instance));
 
     /// <summary>BindOneWay with a conversion refuses a scheduled call no generated dispatch claimed.</summary>
@@ -269,8 +269,8 @@ public class SchedulerUnsafeBindingTests
     public Task BindOneWay_ConvertingWithNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefused(static () => new DispatchStubViewModel().BindOneWay(
             new DispatchStubView(),
-            s => s.Caption,
-            t => t.Caption,
+            static s => s.Caption,
+            static t => t.Caption,
             static value => value,
             ImmediateSequencer.Instance));
 
@@ -281,8 +281,8 @@ public class SchedulerUnsafeBindingTests
     public Task BindOneWay_WithAConverterAndNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefused(static () => new DispatchStubViewModel().BindOneWay(
             new DispatchStubView(),
-            s => s.Caption,
-            t => t.Caption,
+            static s => s.Caption,
+            static t => t.Caption,
             new SuffixConverter(),
             ImmediateSequencer.Instance));
 
@@ -293,8 +293,8 @@ public class SchedulerUnsafeBindingTests
     public Task BindTwoWay_WithNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefused(static () => new DispatchStubViewModel().BindTwoWay(
             new DispatchStubView(),
-            s => s.Caption,
-            t => t.Caption,
+            static s => s.Caption,
+            static t => t.Caption,
             ImmediateSequencer.Instance));
 
     /// <summary>BindTwoWay with conversions refuses a scheduled call no generated dispatch claimed.</summary>
@@ -304,8 +304,8 @@ public class SchedulerUnsafeBindingTests
     public Task BindTwoWay_ConvertingWithNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefused(static () => new DispatchStubViewModel().BindTwoWay(
             new DispatchStubView(),
-            s => s.Caption,
-            t => t.Caption,
+            static s => s.Caption,
+            static t => t.Caption,
             static value => value,
             static value => value,
             ImmediateSequencer.Instance));
@@ -317,8 +317,8 @@ public class SchedulerUnsafeBindingTests
     public Task BindTwoWay_WithConvertersAndNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefused(static () => new DispatchStubViewModel().BindTwoWay(
             new DispatchStubView(),
-            s => s.Caption,
-            t => t.Caption,
+            static s => s.Caption,
+            static t => t.Caption,
             new SuffixConverter(),
             new SuffixConverter(),
             ImmediateSequencer.Instance));
@@ -330,8 +330,8 @@ public class SchedulerUnsafeBindingTests
     public Task OneWayBind_WithASelectorAndNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefused(static () => new DispatchStubView().OneWayBind(
             new DispatchStubViewModel(),
-            vm => vm.Caption,
-            v => v.Caption,
+            static vm => vm.Caption,
+            static v => v.Caption,
             static value => value,
             ImmediateSequencer.Instance));
 
@@ -342,8 +342,8 @@ public class SchedulerUnsafeBindingTests
     public Task OneWayBind_WithAConverterAndNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefused(static () => new DispatchStubView().OneWayBind(
             new DispatchStubViewModel(),
-            vm => vm.Caption,
-            v => v.Caption,
+            static vm => vm.Caption,
+            static v => v.Caption,
             new SuffixConverter(),
             ImmediateSequencer.Instance));
 
@@ -354,8 +354,8 @@ public class SchedulerUnsafeBindingTests
     public Task Bind_WithConversionsAndNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefused(static () => new DispatchStubView().Bind(
             new DispatchStubViewModel(),
-            vm => vm.Caption,
-            v => v.Caption,
+            static vm => vm.Caption,
+            static v => v.Caption,
             static value => value,
             static value => value,
             ImmediateSequencer.Instance));
@@ -367,8 +367,8 @@ public class SchedulerUnsafeBindingTests
     public Task Bind_WithConvertersAndNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefused(static () => new DispatchStubView().Bind(
             new DispatchStubViewModel(),
-            vm => vm.Caption,
-            v => v.Caption,
+            static vm => vm.Caption,
+            static v => v.Caption,
             new SuffixConverter(),
             new SuffixConverter(),
             ImmediateSequencer.Instance));

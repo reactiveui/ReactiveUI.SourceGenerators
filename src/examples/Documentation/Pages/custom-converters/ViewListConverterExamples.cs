@@ -20,7 +20,7 @@ public static class ViewListConverterExamples
         view.ViewModel = viewModel;
 
         using IReactiveBinding<AccountsView, System.Collections.IEnumerable> binding =
-            view.OneWayBind(viewModel, x => x.Accounts, v => v.AccountList.ItemsSource, new AccountsToViewsConverter(locator));
+            view.OneWayBind(viewModel, static x => x.Accounts, static v => v.AccountList.ItemsSource, new AccountsToViewsConverter(locator));
         await viewModel.LoadAccountsAsync();
 
         foreach (AccountSummaryView row in view.AccountList.ItemsSource.OfType<AccountSummaryView>())

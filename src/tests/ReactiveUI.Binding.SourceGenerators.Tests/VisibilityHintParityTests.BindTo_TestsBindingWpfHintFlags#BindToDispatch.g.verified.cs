@@ -16,7 +16,7 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         public static global::System.IDisposable BindTo(
             this global::System.IObservable<bool> source,
             global::TestApp.PanelView? target,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::TestApp.PanelView, global::System.Windows.Visibility>> property,
+            global::System.Func<global::TestApp.PanelView, global::System.Windows.Visibility> property,
             object conversionHint,
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("property")] string propertyExpression = "",
             [global::System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "",

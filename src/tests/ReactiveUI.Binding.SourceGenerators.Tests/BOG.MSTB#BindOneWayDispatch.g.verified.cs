@@ -16,8 +16,8 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         public static global::System.IDisposable BindOneWay(
             this global::SharedScenarios.BindOneWay.MultipleSameTypeBindings.MyViewModel source,
             global::SharedScenarios.BindOneWay.MultipleSameTypeBindings.MyView target,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.BindOneWay.MultipleSameTypeBindings.MyViewModel, string?>> sourceProperty,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.BindOneWay.MultipleSameTypeBindings.MyView, string?>> targetProperty,
+            global::System.Func<global::SharedScenarios.BindOneWay.MultipleSameTypeBindings.MyViewModel, string?> sourceProperty,
+            global::System.Func<global::SharedScenarios.BindOneWay.MultipleSameTypeBindings.MyView, string?> targetProperty,
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("sourceProperty")] string sourcePropertyExpression = "",
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("targetProperty")] string targetPropertyExpression = "",
             [global::System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "",

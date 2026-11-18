@@ -83,7 +83,7 @@ public static class WhenAnyObservableExamples
         RepositoryFeedViewModel feed = new();
         feed.Follow(webshop);
 
-        using IDisposable subscription = feed.WhenAnyObservable(x => x.IssueOpened).Subscribe(Console.WriteLine);
+        using IDisposable subscription = feed.WhenAnyObservable(static x => x.IssueOpened).Subscribe(Console.WriteLine);
 
         webshop.IssueOpened.OnNext(IssueOpenedEvent);
 
@@ -99,7 +99,7 @@ public static class WhenAnyObservableExamples
         RepositoryFeedViewModel feed = new();
         feed.Follow(webshop);
 
-        using IDisposable subscription = feed.WhenAnyObservable(x => x.IssueOpened).Subscribe(Console.WriteLine);
+        using IDisposable subscription = feed.WhenAnyObservable(static x => x.IssueOpened).Subscribe(Console.WriteLine);
 
         Console.WriteLine(webshop.IssueOpened.HasObservers);
 
@@ -125,7 +125,7 @@ public static class WhenAnyObservableExamples
         RepositoryFeedViewModel feed = new();
         feed.Follow(webshop);
 
-        using IDisposable subscription = feed.WhenAnyObservable(x => x.IssueOpened).Subscribe(Console.WriteLine);
+        using IDisposable subscription = feed.WhenAnyObservable(static x => x.IssueOpened).Subscribe(Console.WriteLine);
 
         feed.Unfollow();
 
@@ -148,7 +148,7 @@ public static class WhenAnyObservableExamples
         RepositoryFeedViewModel feed = new();
         feed.Follow(webshop);
 
-        using IDisposable subscription = feed.WhenAnyObservable(x => x.IssueOpened, x => x.ReleasePublished).Subscribe(Console.WriteLine);
+        using IDisposable subscription = feed.WhenAnyObservable(static x => x.IssueOpened, static x => x.ReleasePublished).Subscribe(Console.WriteLine);
 
         Console.WriteLine(webshop.SubscribedStreamCount);
 
@@ -164,7 +164,7 @@ public static class WhenAnyObservableExamples
         feed.Follow(webshop);
 
         using IDisposable subscription = feed
-            .WhenAnyObservable(x => x.IssueOpened, x => x.IssueClosed)
+            .WhenAnyObservable(static x => x.IssueOpened, static x => x.IssueClosed)
             .Subscribe(Console.WriteLine);
 
         webshop.IssueClosed.OnNext(IssueClosedEvent);
@@ -183,7 +183,7 @@ public static class WhenAnyObservableExamples
         feed.Follow(webshop);
 
         using IDisposable subscription = feed
-            .WhenAnyObservable(x => x.IssueOpened, x => x.IssueClosed, x => x.IssueReopened)
+            .WhenAnyObservable(static x => x.IssueOpened, static x => x.IssueClosed, static x => x.IssueReopened)
             .Subscribe(Console.WriteLine);
 
         webshop.IssueReopened.OnNext(IssueReopenedEvent);
@@ -203,10 +203,10 @@ public static class WhenAnyObservableExamples
 
         using IDisposable subscription = feed
             .WhenAnyObservable(
-                x => x.IssueOpened,
-                x => x.IssueClosed,
-                x => x.IssueReopened,
-                x => x.IssueAssigned)
+                static x => x.IssueOpened,
+                static x => x.IssueClosed,
+                static x => x.IssueReopened,
+                static x => x.IssueAssigned)
             .Subscribe(Console.WriteLine);
 
         webshop.IssueAssigned.OnNext(IssueAssignedEvent);
@@ -226,11 +226,11 @@ public static class WhenAnyObservableExamples
 
         using IDisposable subscription = feed
             .WhenAnyObservable(
-                x => x.IssueOpened,
-                x => x.IssueClosed,
-                x => x.IssueReopened,
-                x => x.IssueAssigned,
-                x => x.IssueLabelled)
+                static x => x.IssueOpened,
+                static x => x.IssueClosed,
+                static x => x.IssueReopened,
+                static x => x.IssueAssigned,
+                static x => x.IssueLabelled)
             .Subscribe(Console.WriteLine);
 
         webshop.IssueLabelled.OnNext(IssueLabelledEvent);
@@ -250,12 +250,12 @@ public static class WhenAnyObservableExamples
 
         using IDisposable subscription = feed
             .WhenAnyObservable(
-                x => x.IssueOpened,
-                x => x.IssueClosed,
-                x => x.IssueReopened,
-                x => x.IssueAssigned,
-                x => x.IssueLabelled,
-                x => x.CommentAdded)
+                static x => x.IssueOpened,
+                static x => x.IssueClosed,
+                static x => x.IssueReopened,
+                static x => x.IssueAssigned,
+                static x => x.IssueLabelled,
+                static x => x.CommentAdded)
             .Subscribe(Console.WriteLine);
 
         webshop.CommentAdded.OnNext(CommentAddedEvent);
@@ -275,13 +275,13 @@ public static class WhenAnyObservableExamples
 
         using IDisposable subscription = feed
             .WhenAnyObservable(
-                x => x.IssueOpened,
-                x => x.IssueClosed,
-                x => x.IssueReopened,
-                x => x.IssueAssigned,
-                x => x.IssueLabelled,
-                x => x.CommentAdded,
-                x => x.CommentEdited)
+                static x => x.IssueOpened,
+                static x => x.IssueClosed,
+                static x => x.IssueReopened,
+                static x => x.IssueAssigned,
+                static x => x.IssueLabelled,
+                static x => x.CommentAdded,
+                static x => x.CommentEdited)
             .Subscribe(Console.WriteLine);
 
         webshop.CommentEdited.OnNext(CommentEditedEvent);
@@ -301,14 +301,14 @@ public static class WhenAnyObservableExamples
 
         using IDisposable subscription = feed
             .WhenAnyObservable(
-                x => x.IssueOpened,
-                x => x.IssueClosed,
-                x => x.IssueReopened,
-                x => x.IssueAssigned,
-                x => x.IssueLabelled,
-                x => x.CommentAdded,
-                x => x.CommentEdited,
-                x => x.MilestoneChanged)
+                static x => x.IssueOpened,
+                static x => x.IssueClosed,
+                static x => x.IssueReopened,
+                static x => x.IssueAssigned,
+                static x => x.IssueLabelled,
+                static x => x.CommentAdded,
+                static x => x.CommentEdited,
+                static x => x.MilestoneChanged)
             .Subscribe(Console.WriteLine);
 
         webshop.MilestoneChanged.OnNext(MilestoneChangedEvent);
@@ -328,15 +328,15 @@ public static class WhenAnyObservableExamples
 
         using IDisposable subscription = feed
             .WhenAnyObservable(
-                x => x.IssueOpened,
-                x => x.IssueClosed,
-                x => x.IssueReopened,
-                x => x.IssueAssigned,
-                x => x.IssueLabelled,
-                x => x.CommentAdded,
-                x => x.CommentEdited,
-                x => x.MilestoneChanged,
-                x => x.PullRequestOpened)
+                static x => x.IssueOpened,
+                static x => x.IssueClosed,
+                static x => x.IssueReopened,
+                static x => x.IssueAssigned,
+                static x => x.IssueLabelled,
+                static x => x.CommentAdded,
+                static x => x.CommentEdited,
+                static x => x.MilestoneChanged,
+                static x => x.PullRequestOpened)
             .Subscribe(Console.WriteLine);
 
         webshop.PullRequestOpened.OnNext(PullRequestOpenedEvent);
@@ -356,16 +356,16 @@ public static class WhenAnyObservableExamples
 
         using IDisposable subscription = feed
             .WhenAnyObservable(
-                x => x.IssueOpened,
-                x => x.IssueClosed,
-                x => x.IssueReopened,
-                x => x.IssueAssigned,
-                x => x.IssueLabelled,
-                x => x.CommentAdded,
-                x => x.CommentEdited,
-                x => x.MilestoneChanged,
-                x => x.PullRequestOpened,
-                x => x.PullRequestMerged)
+                static x => x.IssueOpened,
+                static x => x.IssueClosed,
+                static x => x.IssueReopened,
+                static x => x.IssueAssigned,
+                static x => x.IssueLabelled,
+                static x => x.CommentAdded,
+                static x => x.CommentEdited,
+                static x => x.MilestoneChanged,
+                static x => x.PullRequestOpened,
+                static x => x.PullRequestMerged)
             .Subscribe(Console.WriteLine);
 
         webshop.PullRequestMerged.OnNext(PullRequestMergedEvent);
@@ -385,17 +385,17 @@ public static class WhenAnyObservableExamples
 
         using IDisposable subscription = feed
             .WhenAnyObservable(
-                x => x.IssueOpened,
-                x => x.IssueClosed,
-                x => x.IssueReopened,
-                x => x.IssueAssigned,
-                x => x.IssueLabelled,
-                x => x.CommentAdded,
-                x => x.CommentEdited,
-                x => x.MilestoneChanged,
-                x => x.PullRequestOpened,
-                x => x.PullRequestMerged,
-                x => x.ReviewRequested)
+                static x => x.IssueOpened,
+                static x => x.IssueClosed,
+                static x => x.IssueReopened,
+                static x => x.IssueAssigned,
+                static x => x.IssueLabelled,
+                static x => x.CommentAdded,
+                static x => x.CommentEdited,
+                static x => x.MilestoneChanged,
+                static x => x.PullRequestOpened,
+                static x => x.PullRequestMerged,
+                static x => x.ReviewRequested)
             .Subscribe(Console.WriteLine);
 
         webshop.ReviewRequested.OnNext(ReviewRequestedEvent);
@@ -415,18 +415,18 @@ public static class WhenAnyObservableExamples
 
         using IDisposable subscription = feed
             .WhenAnyObservable(
-                x => x.IssueOpened,
-                x => x.IssueClosed,
-                x => x.IssueReopened,
-                x => x.IssueAssigned,
-                x => x.IssueLabelled,
-                x => x.CommentAdded,
-                x => x.CommentEdited,
-                x => x.MilestoneChanged,
-                x => x.PullRequestOpened,
-                x => x.PullRequestMerged,
-                x => x.ReviewRequested,
-                x => x.ReleasePublished)
+                static x => x.IssueOpened,
+                static x => x.IssueClosed,
+                static x => x.IssueReopened,
+                static x => x.IssueAssigned,
+                static x => x.IssueLabelled,
+                static x => x.CommentAdded,
+                static x => x.CommentEdited,
+                static x => x.MilestoneChanged,
+                static x => x.PullRequestOpened,
+                static x => x.PullRequestMerged,
+                static x => x.ReviewRequested,
+                static x => x.ReleasePublished)
             .Subscribe(Console.WriteLine);
 
         webshop.ReleasePublished.OnNext(ReleasePublishedEvent);
@@ -445,7 +445,7 @@ public static class WhenAnyObservableExamples
         feed.Follow(webshop);
 
         using IDisposable subscription = feed
-            .WhenAnyObservable(x => x.IssueOpened, x => x.IssueClosed, static (first, last) => $"{first} / {last}")
+            .WhenAnyObservable(static x => x.IssueOpened, static x => x.IssueClosed, static (first, last) => $"{first} / {last}")
             .Subscribe(Console.WriteLine);
 
         webshop.PublishNotice(MaintenanceNotice);
@@ -464,7 +464,7 @@ public static class WhenAnyObservableExamples
         feed.Follow(webshop);
 
         using IDisposable subscription = feed
-            .WhenAnyObservable(x => x.IssueOpened, x => x.IssueClosed, x => x.IssueReopened, static (first, _, last) => $"{first} / {last}")
+            .WhenAnyObservable(static x => x.IssueOpened, static x => x.IssueClosed, static x => x.IssueReopened, static (first, _, last) => $"{first} / {last}")
             .Subscribe(Console.WriteLine);
 
         webshop.PublishNotice(MaintenanceNotice);
@@ -484,10 +484,10 @@ public static class WhenAnyObservableExamples
 
         using IDisposable subscription = feed
             .WhenAnyObservable(
-                x => x.IssueOpened,
-                x => x.IssueClosed,
-                x => x.IssueReopened,
-                x => x.IssueAssigned,
+                static x => x.IssueOpened,
+                static x => x.IssueClosed,
+                static x => x.IssueReopened,
+                static x => x.IssueAssigned,
                 static (first, _, _, last) => $"{first} / {last}")
             .Subscribe(Console.WriteLine);
 
@@ -508,11 +508,11 @@ public static class WhenAnyObservableExamples
 
         using IDisposable subscription = feed
             .WhenAnyObservable(
-                x => x.IssueOpened,
-                x => x.IssueClosed,
-                x => x.IssueReopened,
-                x => x.IssueAssigned,
-                x => x.IssueLabelled,
+                static x => x.IssueOpened,
+                static x => x.IssueClosed,
+                static x => x.IssueReopened,
+                static x => x.IssueAssigned,
+                static x => x.IssueLabelled,
                 static (first, _, _, _, last) => $"{first} / {last}")
             .Subscribe(Console.WriteLine);
 
@@ -533,12 +533,12 @@ public static class WhenAnyObservableExamples
 
         using IDisposable subscription = feed
             .WhenAnyObservable(
-                x => x.IssueOpened,
-                x => x.IssueClosed,
-                x => x.IssueReopened,
-                x => x.IssueAssigned,
-                x => x.IssueLabelled,
-                x => x.CommentAdded,
+                static x => x.IssueOpened,
+                static x => x.IssueClosed,
+                static x => x.IssueReopened,
+                static x => x.IssueAssigned,
+                static x => x.IssueLabelled,
+                static x => x.CommentAdded,
                 static (first, _, _, _, _, last) => $"{first} / {last}")
             .Subscribe(Console.WriteLine);
 
@@ -559,13 +559,13 @@ public static class WhenAnyObservableExamples
 
         using IDisposable subscription = feed
             .WhenAnyObservable(
-                x => x.IssueOpened,
-                x => x.IssueClosed,
-                x => x.IssueReopened,
-                x => x.IssueAssigned,
-                x => x.IssueLabelled,
-                x => x.CommentAdded,
-                x => x.CommentEdited,
+                static x => x.IssueOpened,
+                static x => x.IssueClosed,
+                static x => x.IssueReopened,
+                static x => x.IssueAssigned,
+                static x => x.IssueLabelled,
+                static x => x.CommentAdded,
+                static x => x.CommentEdited,
                 static (first, _, _, _, _, _, last) => $"{first} / {last}")
             .Subscribe(Console.WriteLine);
 
@@ -586,14 +586,14 @@ public static class WhenAnyObservableExamples
 
         using IDisposable subscription = feed
             .WhenAnyObservable(
-                x => x.IssueOpened,
-                x => x.IssueClosed,
-                x => x.IssueReopened,
-                x => x.IssueAssigned,
-                x => x.IssueLabelled,
-                x => x.CommentAdded,
-                x => x.CommentEdited,
-                x => x.MilestoneChanged,
+                static x => x.IssueOpened,
+                static x => x.IssueClosed,
+                static x => x.IssueReopened,
+                static x => x.IssueAssigned,
+                static x => x.IssueLabelled,
+                static x => x.CommentAdded,
+                static x => x.CommentEdited,
+                static x => x.MilestoneChanged,
                 static (first, _, _, _, _, _, _, last) => $"{first} / {last}")
             .Subscribe(Console.WriteLine);
 
@@ -614,15 +614,15 @@ public static class WhenAnyObservableExamples
 
         using IDisposable subscription = feed
             .WhenAnyObservable(
-                x => x.IssueOpened,
-                x => x.IssueClosed,
-                x => x.IssueReopened,
-                x => x.IssueAssigned,
-                x => x.IssueLabelled,
-                x => x.CommentAdded,
-                x => x.CommentEdited,
-                x => x.MilestoneChanged,
-                x => x.PullRequestOpened,
+                static x => x.IssueOpened,
+                static x => x.IssueClosed,
+                static x => x.IssueReopened,
+                static x => x.IssueAssigned,
+                static x => x.IssueLabelled,
+                static x => x.CommentAdded,
+                static x => x.CommentEdited,
+                static x => x.MilestoneChanged,
+                static x => x.PullRequestOpened,
                 static (first, _, _, _, _, _, _, _, last) => $"{first} / {last}")
             .Subscribe(Console.WriteLine);
 
@@ -643,16 +643,16 @@ public static class WhenAnyObservableExamples
 
         using IDisposable subscription = feed
             .WhenAnyObservable(
-                x => x.IssueOpened,
-                x => x.IssueClosed,
-                x => x.IssueReopened,
-                x => x.IssueAssigned,
-                x => x.IssueLabelled,
-                x => x.CommentAdded,
-                x => x.CommentEdited,
-                x => x.MilestoneChanged,
-                x => x.PullRequestOpened,
-                x => x.PullRequestMerged,
+                static x => x.IssueOpened,
+                static x => x.IssueClosed,
+                static x => x.IssueReopened,
+                static x => x.IssueAssigned,
+                static x => x.IssueLabelled,
+                static x => x.CommentAdded,
+                static x => x.CommentEdited,
+                static x => x.MilestoneChanged,
+                static x => x.PullRequestOpened,
+                static x => x.PullRequestMerged,
                 static (first, _, _, _, _, _, _, _, _, last) => $"{first} / {last}")
             .Subscribe(Console.WriteLine);
 
@@ -673,17 +673,17 @@ public static class WhenAnyObservableExamples
 
         using IDisposable subscription = feed
             .WhenAnyObservable(
-                x => x.IssueOpened,
-                x => x.IssueClosed,
-                x => x.IssueReopened,
-                x => x.IssueAssigned,
-                x => x.IssueLabelled,
-                x => x.CommentAdded,
-                x => x.CommentEdited,
-                x => x.MilestoneChanged,
-                x => x.PullRequestOpened,
-                x => x.PullRequestMerged,
-                x => x.ReviewRequested,
+                static x => x.IssueOpened,
+                static x => x.IssueClosed,
+                static x => x.IssueReopened,
+                static x => x.IssueAssigned,
+                static x => x.IssueLabelled,
+                static x => x.CommentAdded,
+                static x => x.CommentEdited,
+                static x => x.MilestoneChanged,
+                static x => x.PullRequestOpened,
+                static x => x.PullRequestMerged,
+                static x => x.ReviewRequested,
                 static (first, _, _, _, _, _, _, _, _, _, last) => $"{first} / {last}")
             .Subscribe(Console.WriteLine);
 
@@ -704,18 +704,18 @@ public static class WhenAnyObservableExamples
 
         using IDisposable subscription = feed
             .WhenAnyObservable(
-                x => x.IssueOpened,
-                x => x.IssueClosed,
-                x => x.IssueReopened,
-                x => x.IssueAssigned,
-                x => x.IssueLabelled,
-                x => x.CommentAdded,
-                x => x.CommentEdited,
-                x => x.MilestoneChanged,
-                x => x.PullRequestOpened,
-                x => x.PullRequestMerged,
-                x => x.ReviewRequested,
-                x => x.ReleasePublished,
+                static x => x.IssueOpened,
+                static x => x.IssueClosed,
+                static x => x.IssueReopened,
+                static x => x.IssueAssigned,
+                static x => x.IssueLabelled,
+                static x => x.CommentAdded,
+                static x => x.CommentEdited,
+                static x => x.MilestoneChanged,
+                static x => x.PullRequestOpened,
+                static x => x.PullRequestMerged,
+                static x => x.ReviewRequested,
+                static x => x.ReleasePublished,
                 static (first, _, _, _, _, _, _, _, _, _, _, last) => $"{first} / {last}")
             .Subscribe(Console.WriteLine);
 

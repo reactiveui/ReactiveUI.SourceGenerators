@@ -58,7 +58,7 @@ public static class ServiceRegistrationExamples
     /// <param name="provider">The provider registered by <see cref="BuilderExamples.BuildTodoApplication"/>.</param>
     public static void ObserveThroughRegisteredProvider(TodoItem item, TodoItemObservableForProperty provider)
     {
-        using (item.WhenChanged(x => x.Title).Subscribe(Console.WriteLine))
+        using (item.WhenChanged(static x => x.Title).Subscribe(Console.WriteLine))
         {
             item.Title = RenamedTitle;
         }
@@ -78,7 +78,7 @@ public static class ServiceRegistrationExamples
     {
         viewModel.SelectedItem = viewModel.Items[0];
 
-        using IReactiveBinding<TodoView, string> binding = view.OneWayBind(viewModel, x => x.SelectedItem!.Tags, v => v.TagsLabel.Text);
+        using IReactiveBinding<TodoView, string> binding = view.OneWayBind(viewModel, static x => x.SelectedItem!.Tags, static v => v.TagsLabel.Text);
 
         Console.WriteLine(view.TagsLabel.Text);
 
@@ -125,7 +125,7 @@ public static class ServiceRegistrationExamples
     /// <param name="binder">The binder registered by <see cref="BuilderExamples.BuildTodoApplication"/>.</param>
     public static void AttachCommandWithRegisteredBinder(TodoListViewModel viewModel, TodoView view, ButtonCommandBinder binder)
     {
-        using IDisposable binding = view.BindCommand(viewModel, x => x.AddCommand, v => v.AddButton);
+        using IDisposable binding = view.BindCommand(viewModel, static x => x.AddCommand, static v => v.AddButton);
 
         Console.WriteLine(binder.BindCount);
         Console.WriteLine(ReferenceEquals(viewModel.AddCommand, view.AddButton.Command));

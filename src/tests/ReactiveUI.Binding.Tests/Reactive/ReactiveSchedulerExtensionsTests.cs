@@ -25,8 +25,8 @@ public class ReactiveSchedulerExtensionsTests
     public Task BindOneWay_WithNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefused(static () => new TestModel().BindOneWay(
             new TestModel(),
-            s => s.Name,
-            t => t.Name,
+            static s => s.Name,
+            static t => t.Name,
             ImmediateScheduler.Instance));
 
     /// <summary>BindOneWay with a conversion refuses a call no generated dispatch claimed.</summary>
@@ -36,8 +36,8 @@ public class ReactiveSchedulerExtensionsTests
     public Task BindOneWay_ConvertingWithNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefused(static () => new TestModel().BindOneWay(
             new TestModel(),
-            s => s.Name,
-            t => t.Name,
+            static s => s.Name,
+            static t => t.Name,
             static v => v,
             ImmediateScheduler.Instance));
 
@@ -48,8 +48,8 @@ public class ReactiveSchedulerExtensionsTests
     public Task BindTwoWay_WithNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefused(static () => new TestModel().BindTwoWay(
             new TestModel(),
-            s => s.Name,
-            t => t.Name,
+            static s => s.Name,
+            static t => t.Name,
             ImmediateScheduler.Instance));
 
     /// <summary>BindTwoWay with conversions refuses a call no generated dispatch claimed.</summary>
@@ -59,8 +59,8 @@ public class ReactiveSchedulerExtensionsTests
     public Task BindTwoWay_ConvertingWithNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefused(static () => new TestModel().BindTwoWay(
             new TestModel(),
-            s => s.Name,
-            t => t.Name,
+            static s => s.Name,
+            static t => t.Name,
             static v => v,
             static v => v,
             ImmediateScheduler.Instance));
@@ -72,8 +72,8 @@ public class ReactiveSchedulerExtensionsTests
     public Task BindOneWay_WithAConverterAndNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefused(static () => new TestModel().BindOneWay(
             new TestModel(),
-            s => s.Name,
-            t => t.Name,
+            static s => s.Name,
+            static t => t.Name,
             new PassThroughConverter(),
             ImmediateScheduler.Instance));
 
@@ -84,8 +84,8 @@ public class ReactiveSchedulerExtensionsTests
     public Task BindTwoWay_WithConvertersAndNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefused(static () => new TestModel().BindTwoWay(
             new TestModel(),
-            s => s.Name,
-            t => t.Name,
+            static s => s.Name,
+            static t => t.Name,
             new PassThroughConverter(),
             new PassThroughConverter(),
             ImmediateScheduler.Instance));
@@ -97,8 +97,8 @@ public class ReactiveSchedulerExtensionsTests
     public Task OneWayBind_WithASelectorAndNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefused(static () => new TestView().OneWayBind(
             new TestModel(),
-            vm => vm.Name,
-            v => v.Caption,
+            static vm => vm.Name,
+            static v => v.Caption,
             static value => value,
             ImmediateScheduler.Instance));
 
@@ -109,8 +109,8 @@ public class ReactiveSchedulerExtensionsTests
     public Task OneWayBind_WithAConverterAndNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefused(static () => new TestView().OneWayBind(
             new TestModel(),
-            vm => vm.Name,
-            v => v.Caption,
+            static vm => vm.Name,
+            static v => v.Caption,
             new PassThroughConverter(),
             ImmediateScheduler.Instance));
 
@@ -121,8 +121,8 @@ public class ReactiveSchedulerExtensionsTests
     public Task Bind_WithConversionsAndNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefused(static () => new TestView().Bind(
             new TestModel(),
-            vm => vm.Name,
-            v => v.Caption,
+            static vm => vm.Name,
+            static v => v.Caption,
             static value => value,
             static value => value,
             ImmediateScheduler.Instance));
@@ -134,8 +134,8 @@ public class ReactiveSchedulerExtensionsTests
     public Task Bind_WithConvertersAndNoGeneratedOverload_NamesTheUnsafeTwin() =>
         AssertRefused(static () => new TestView().Bind(
             new TestModel(),
-            vm => vm.Name,
-            v => v.Caption,
+            static vm => vm.Name,
+            static v => v.Caption,
             new PassThroughConverter(),
             new PassThroughConverter(),
             ImmediateScheduler.Instance));

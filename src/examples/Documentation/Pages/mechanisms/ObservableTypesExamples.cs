@@ -175,7 +175,7 @@ public static class ObservableTypesExamples
         TodoListViewModel viewModel = new(InMemoryTodoStore.CreateSeeded());
         TodoView view = new() { ViewModel = viewModel };
 
-        using IReactiveBinding<TodoView, BindingChange> binding = view.Bind(viewModel, x => x.NewTitle, v => v.NewTitleTextBox.Text);
+        using IReactiveBinding<TodoView, BindingChange> binding = view.Bind(viewModel, static x => x.NewTitle, static v => v.NewTitleTextBox.Text);
         using IDisposable subscription = binding.Changed.Subscribe(static change => Console.WriteLine($"{change.Value}, from the view model: {change.FromViewModel}"));
 
         view.NewTitleTextBox.Text = RenamedTitle;

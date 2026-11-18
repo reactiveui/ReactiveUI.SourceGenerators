@@ -16,8 +16,8 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         public static global::System.IDisposable BindOneWay(
             this global::SharedScenarios.BindOneWay.SinglePropertyWithConverter.MyViewModel source,
             global::SharedScenarios.BindOneWay.SinglePropertyWithConverter.MyView target,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.BindOneWay.SinglePropertyWithConverter.MyViewModel, int>> sourceProperty,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.BindOneWay.SinglePropertyWithConverter.MyView, string?>> targetProperty,
+            global::System.Func<global::SharedScenarios.BindOneWay.SinglePropertyWithConverter.MyViewModel, int> sourceProperty,
+            global::System.Func<global::SharedScenarios.BindOneWay.SinglePropertyWithConverter.MyView, string?> targetProperty,
             global::System.Func<int, string> conversionFunc,
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("sourceProperty")] string sourcePropertyExpression = "",
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("targetProperty")] string targetPropertyExpression = "",

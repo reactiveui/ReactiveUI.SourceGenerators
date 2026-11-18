@@ -188,7 +188,7 @@ public static class WinFormsExamples
         using WinFormsTodoForm view = new();
         List<string> texts = [];
 
-        using (view.FilterTextBox.WhenChanged(x => x.Text).Subscribe(texts.Add))
+        using (view.FilterTextBox.WhenChanged(static x => x.Text).Subscribe(texts.Add))
         {
             view.FilterTextBox.Text = CarFilter;
         }
@@ -213,8 +213,8 @@ public static class WinFormsExamples
         view.PriorityBox.ValueMember = "Value";
         viewModel.SelectedItem = viewModel.Items[1];
 
-        using (viewModel.BindOneWay(view, x => x.Items, v => v.ItemsList.DataSource, static items => (object)items.ToList()))
-        using (viewModel.BindTwoWay(view, x => x.SelectedItem!.Priority, v => v.PriorityBox.SelectedValue, static priority => priority, ToPriority))
+        using (viewModel.BindOneWay(view, static x => x.Items, static v => v.ItemsList.DataSource, static items => (object)items.ToList()))
+        using (viewModel.BindTwoWay(view, static x => x.SelectedItem!.Priority, static v => v.PriorityBox.SelectedValue, static priority => priority, ToPriority))
         {
             Console.WriteLine(view.ItemsList.Items.Count);
             Console.WriteLine(view.PriorityBox.SelectedValue);
@@ -246,7 +246,7 @@ public static class WinFormsExamples
         view.PriorityBox.DataSource = Enum.GetValues<TodoPriority>();
         viewModel.SelectedItem = viewModel.Items[0];
 
-        using (viewModel.BindTwoWay(view, x => x.SelectedItem!.Priority, v => v.PriorityBox.SelectedIndex, static priority => (int)priority, static index => (TodoPriority)index))
+        using (viewModel.BindTwoWay(view, static x => x.SelectedItem!.Priority, static v => v.PriorityBox.SelectedIndex, static priority => (int)priority, static index => (TodoPriority)index))
         {
             Console.WriteLine(view.PriorityBox.SelectedIndex);
 
@@ -271,11 +271,11 @@ public static class WinFormsExamples
         viewModel.Draft.Source = viewModel.Accounts[0];
         viewModel.Draft.Payee = viewModel.Payees[0];
 
-        using (viewModel.Draft.BindTwoWay(view, x => x.Amount, v => v.AmountTextBox.Text, new DecimalToStringTypeConverter(), new StringToDecimalTypeConverter()))
-        using (viewModel.BindOneWay(view, x => x.IsValid, v => v.ValidationLabel.Visible, static isValid => !isValid))
-        using (viewModel.BindOneWay(view, x => x.ValidationSummary, v => v.ValidationLabel.Text))
+        using (viewModel.Draft.BindTwoWay(view, static x => x.Amount, static v => v.AmountTextBox.Text, new DecimalToStringTypeConverter(), new StringToDecimalTypeConverter()))
+        using (viewModel.BindOneWay(view, static x => x.IsValid, static v => v.ValidationLabel.Visible, static isValid => !isValid))
+        using (viewModel.BindOneWay(view, static x => x.ValidationSummary, static v => v.ValidationLabel.Text))
         {
-            using (view.BindCommand(viewModel, x => x.TransferCommand, v => v.TransferButton))
+            using (view.BindCommand(viewModel, static x => x.TransferCommand, static v => v.TransferButton))
             {
                 Console.WriteLine(view.AmountTextBox.Text);
                 Console.WriteLine(view.ValidationLabel.Visible);
@@ -319,9 +319,9 @@ public static class WinFormsExamples
         int allItems = viewModel.Items.Count;
         viewModel.SelectedItem = viewModel.Items[0];
 
-        using (viewModel.BindTwoWay(view, x => x.FilterText, v => v.FilterTextBox.Text))
-        using (viewModel.BindTwoWay(view, x => x.SelectedItem!.IsDone, v => v.DoneCheckBox.Checked))
-        using (viewModel.BindOneWay(view, x => x.RemainingCount, v => v.RemainingLabel.Text, static count => count.ToString(CultureInfo.InvariantCulture)))
+        using (viewModel.BindTwoWay(view, static x => x.FilterText, static v => v.FilterTextBox.Text))
+        using (viewModel.BindTwoWay(view, static x => x.SelectedItem!.IsDone, static v => v.DoneCheckBox.Checked))
+        using (viewModel.BindOneWay(view, static x => x.RemainingCount, static v => v.RemainingLabel.Text, static count => count.ToString(CultureInfo.InvariantCulture)))
         {
             Console.WriteLine(view.RemainingLabel.Text);
             Console.WriteLine(view.DoneCheckBox.Checked);
@@ -498,7 +498,7 @@ public static class WinFormsExamples
         UploadRequest photo = new(OffsitePhotoName, OffsitePhotoSize, JpegType);
         _ = view.UploadProgressBar.Handle;
 
-        using (viewModel.BindOneWay(view, x => x.UploadPercent, v => v.UploadProgressBar.Value, static percent => (int)percent))
+        using (viewModel.BindOneWay(view, static x => x.UploadPercent, static v => v.UploadProgressBar.Value, static percent => (int)percent))
         {
             await viewModel.UploadAsync(photo);
 

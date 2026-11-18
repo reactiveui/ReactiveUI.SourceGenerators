@@ -50,7 +50,7 @@ public static class SequencerExamples
         TodoItem item = new() { Title = OriginalTitle };
         VirtualClock sequencer = new();
 
-        using (item.BindOneWay(titleLabel, x => x.Title, x => x.Text, sequencer))
+        using (item.BindOneWay(titleLabel, static x => x.Title, static x => x.Text, sequencer))
         {
             Console.WriteLine(titleLabel.Text ?? NoText);
 
@@ -82,7 +82,7 @@ public static class SequencerExamples
         TodoListViewModel viewModel = new(InMemoryTodoStore.CreateSeeded());
         VirtualClock sequencer = new();
 
-        using (viewModel.BindOneWay(remainingLabel, x => x.RemainingCount, x => x.Text, static count => count.ToString(CultureInfo.InvariantCulture), sequencer))
+        using (viewModel.BindOneWay(remainingLabel, static x => x.RemainingCount, static x => x.Text, static count => count.ToString(CultureInfo.InvariantCulture), sequencer))
         {
             await viewModel.LoadAsync();
             sequencer.Start();
@@ -101,7 +101,7 @@ public static class SequencerExamples
         TransferDraft draft = new() { Reference = RentReference };
         VirtualClock sequencer = new();
 
-        using (draft.BindTwoWay(referenceBox, x => x.Reference, x => x.Text, sequencer))
+        using (draft.BindTwoWay(referenceBox, static x => x.Reference, static x => x.Text, sequencer))
         {
             Console.WriteLine(referenceBox.Text ?? NoText);
 
@@ -130,7 +130,7 @@ public static class SequencerExamples
         TransferDraft draft = new() { Reference = RentReference };
         VirtualClock sequencer = new();
 
-        using (draft.BindTwoWay(referenceBox, x => x.Reference, x => x.Text, sequencer))
+        using (draft.BindTwoWay(referenceBox, static x => x.Reference, static x => x.Text, sequencer))
         {
             sequencer.Start();
 
@@ -156,8 +156,8 @@ public static class SequencerExamples
 
         using (draft.BindTwoWay(
             amountBox,
-            x => x.Amount,
-            x => x.Text,
+            static x => x.Amount,
+            static x => x.Text,
             static amount => amount.ToString(TwoDecimalPlaces, CultureInfo.InvariantCulture),
             ParseAmount,
             sequencer))
@@ -187,8 +187,8 @@ public static class SequencerExamples
 
         using (view.Bind(
             viewModel,
-            x => x.Draft.Amount,
-            v => v.AmountTextBox.Text,
+            static x => x.Draft.Amount,
+            static v => v.AmountTextBox.Text,
             static amount => amount.ToString(TwoDecimalPlaces, CultureInfo.InvariantCulture),
             ParseAmount,
             sequencer))
@@ -216,7 +216,7 @@ public static class SequencerExamples
         TodoView view = new() { ViewModel = viewModel };
         VirtualClock sequencer = new();
 
-        using (view.OneWayBind(viewModel, x => x.RemainingCount, v => v.RemainingLabel.Text, static count => count.ToString(CultureInfo.InvariantCulture), sequencer))
+        using (view.OneWayBind(viewModel, static x => x.RemainingCount, static v => v.RemainingLabel.Text, static count => count.ToString(CultureInfo.InvariantCulture), sequencer))
         {
             await viewModel.LoadAsync();
             sequencer.Start();
@@ -235,7 +235,7 @@ public static class SequencerExamples
         TransferDraft draft = new() { Amount = RentAmount };
         VirtualClock sequencer = new();
 
-        using (draft.BindOneWay(amountBox, x => x.Amount, x => x.Text, new DecimalToStringTypeConverter(), TwoDecimalPlaces, sequencer))
+        using (draft.BindOneWay(amountBox, static x => x.Amount, static x => x.Text, new DecimalToStringTypeConverter(), TwoDecimalPlaces, sequencer))
         {
             sequencer.Start();
 
@@ -253,7 +253,7 @@ public static class SequencerExamples
         TransferDraft draft = new() { Amount = RentAmount };
         VirtualClock sequencer = new();
 
-        using (draft.BindTwoWay(amountBox, x => x.Amount, x => x.Text, new DecimalToStringTypeConverter(), new StringToDecimalTypeConverter(), TwoDecimalPlaces, sequencer))
+        using (draft.BindTwoWay(amountBox, static x => x.Amount, static x => x.Text, new DecimalToStringTypeConverter(), new StringToDecimalTypeConverter(), TwoDecimalPlaces, sequencer))
         {
             sequencer.Start();
 
@@ -278,7 +278,7 @@ public static class SequencerExamples
         VirtualClock sequencer = new();
         viewModel.Draft.Amount = RentAmount;
 
-        using (view.Bind(viewModel, x => x.Draft.Amount, v => v.AmountTextBox.Text, new DecimalToStringTypeConverter(), new StringToDecimalTypeConverter(), TwoDecimalPlaces, sequencer))
+        using (view.Bind(viewModel, static x => x.Draft.Amount, static v => v.AmountTextBox.Text, new DecimalToStringTypeConverter(), new StringToDecimalTypeConverter(), TwoDecimalPlaces, sequencer))
         {
             sequencer.Start();
 
@@ -303,7 +303,7 @@ public static class SequencerExamples
         VirtualClock sequencer = new();
         viewModel.Draft.Amount = RentAmount;
 
-        using (view.OneWayBind(viewModel, x => x.Draft.Amount, v => v.AmountTextBox.Text, new DecimalToStringTypeConverter(), TwoDecimalPlaces, sequencer))
+        using (view.OneWayBind(viewModel, static x => x.Draft.Amount, static v => v.AmountTextBox.Text, new DecimalToStringTypeConverter(), TwoDecimalPlaces, sequencer))
         {
             sequencer.Start();
 

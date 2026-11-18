@@ -14,7 +14,7 @@ namespace ReactiveUI.Binding
         /// </summary>
         public static global::System.IObservable<string> WhenChanging(
             this global::SharedScenarios.WhenChanging.DeepPropertyChain.ParentViewModel objectToMonitor,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.WhenChanging.DeepPropertyChain.ParentViewModel, string?>> property1,
+            global::System.Func<global::SharedScenarios.WhenChanging.DeepPropertyChain.ParentViewModel, string?> property1,
             string property1Expression = "",
             [global::System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "",
             [global::System.Runtime.CompilerServices.CallerLineNumber] int callerLineNumber = 0)

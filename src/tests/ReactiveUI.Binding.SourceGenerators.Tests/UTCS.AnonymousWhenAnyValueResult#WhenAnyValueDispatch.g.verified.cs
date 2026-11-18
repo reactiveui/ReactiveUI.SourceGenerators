@@ -12,8 +12,8 @@ namespace ReactiveUI.Binding.Generated.Interceptors.TestAssembly
         [global::System.Runtime.CompilerServices.InterceptsLocation(1, "PiAfxLWrmwHb3FAJNhOn7FIMAAA=")]
         internal static global::System.IObservable<__TResult> __Intercept_WhenAnyValue_7FFFCC69326A0F00<__T0, __T1, __T2, __TResult>(
             this global::TestApp.Vm objectToMonitor,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::TestApp.Vm, int>> property1,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::TestApp.Vm, int>> property2,
+            global::System.Func<global::TestApp.Vm, int> property1,
+            global::System.Func<global::TestApp.Vm, int> property2,
             global::System.Func<int, int, __TResult> selector,
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("property1")] string property1Expression = "",
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("property2")] string property2Expression = "",

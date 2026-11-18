@@ -14,8 +14,8 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         /// </summary>
         public static global::System.IObservable<string> WhenAnyValue(
             this global::SharedScenarios.WhenAnyValue.MultiPropertyWithSelector.MyViewModel objectToMonitor,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.WhenAnyValue.MultiPropertyWithSelector.MyViewModel, string?>> property1,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.WhenAnyValue.MultiPropertyWithSelector.MyViewModel, string?>> property2,
+            global::System.Func<global::SharedScenarios.WhenAnyValue.MultiPropertyWithSelector.MyViewModel, string?> property1,
+            global::System.Func<global::SharedScenarios.WhenAnyValue.MultiPropertyWithSelector.MyViewModel, string?> property2,
             global::System.Func<string, string, string> selector,
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("property1")] string property1Expression = "",
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("property2")] string property2Expression = "",

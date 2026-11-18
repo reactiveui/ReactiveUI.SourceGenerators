@@ -26,7 +26,7 @@ public static class BindableObjectExamples
     {
         TodoView view = new();
 
-        using (view.NewTitleTextBox.WhenChanged(x => x.Text).Subscribe(static text => Console.WriteLine(text ?? "(none)")))
+        using (view.NewTitleTextBox.WhenChanged(static x => x.Text).Subscribe(static text => Console.WriteLine(text ?? "(none)")))
         {
             view.NewTitleTextBox.Text = TypedTitle;
         }

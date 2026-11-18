@@ -74,7 +74,7 @@ public static class GroupedChangesExamples
     {
         TodoItem item = new();
 
-        using IDisposable subscription = item.WhenChanged(x => x.Tags)
+        using IDisposable subscription = item.WhenChanged(static x => x.Tags)
             .Skip(1)
             .SelectMany(static tags => tags)
             .GroupBy(static tag => tag, ExpectedTagCount, StringComparer.OrdinalIgnoreCase)
@@ -122,8 +122,8 @@ public static class GroupedChangesExamples
     /// <returns>A stream with the field name and the new text of each edit.</returns>
     private static IObservable<(string Field, string Value)> ObserveEdits(TodoItem item)
     {
-        IObservable<(string Field, string Value)> titles = item.WhenChanged(x => x.Title).Skip(1).Select(static title => (Field: TitleField, Value: title));
-        IObservable<(string Field, string Value)> notes = item.WhenChanged(x => x.Notes).Skip(1).Select(static note => (Field: NotesField, Value: note));
+        IObservable<(string Field, string Value)> titles = item.WhenChanged(static x => x.Title).Skip(1).Select(static title => (Field: TitleField, Value: title));
+        IObservable<(string Field, string Value)> notes = item.WhenChanged(static x => x.Notes).Skip(1).Select(static note => (Field: NotesField, Value: note));
 
         return titles.Merge(notes);
     }

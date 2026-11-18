@@ -26,7 +26,7 @@ public class WhenChangedContentionBenchmark
     public void TwoWriters()
     {
         var last = string.Empty;
-        using var sub = _vm.WhenChanged(x => x.Name)
+        using var sub = _vm.WhenChanged(static x => x.Name)
             .Subscribe(v => last = v);
 
         Parallel.Invoke(

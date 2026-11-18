@@ -40,8 +40,8 @@ public static partial class ReactiveSchedulerExtensions
             Justification = "Part of the CallerInfo dispatch contract; the generated overload reads the receiver and this stub only throws.")]
         public IDisposable BindOneWay<TTarget, TProperty>(
             TTarget target,
-            Expression<Func<TSource, TProperty>> sourceProperty,
-            Expression<Func<TTarget, TProperty>> targetProperty,
+            Func<TSource, TProperty> sourceProperty,
+            Func<TTarget, TProperty> targetProperty,
             ISequencer? scheduler,
             [CallerArgumentExpression("sourceProperty")]
             string sourcePropertyExpression = "",
@@ -75,8 +75,8 @@ public static partial class ReactiveSchedulerExtensions
             Justification = "Part of the CallerInfo dispatch contract; the generated overload reads the receiver and this stub only throws.")]
         public IDisposable BindOneWay<TSourceProp, TTarget, TTargetProp>(
             TTarget target,
-            Expression<Func<TSource, TSourceProp>> sourceProperty,
-            Expression<Func<TTarget, TTargetProp>> targetProperty,
+            Func<TSource, TSourceProp> sourceProperty,
+            Func<TTarget, TTargetProp> targetProperty,
             Func<TSourceProp, TTargetProp> conversionFunc,
             ISequencer? scheduler,
             [CallerArgumentExpression("sourceProperty")]
@@ -114,8 +114,8 @@ public static partial class ReactiveSchedulerExtensions
             Justification = "Part of the CallerInfo dispatch contract; the generated overload reads the receiver and this stub only throws.")]
         public IDisposable BindOneWay<TSourceProp, TTarget, TTargetProp>(
             TTarget target,
-            Expression<Func<TSource, TSourceProp>> sourceProperty,
-            Expression<Func<TTarget, TTargetProp>> targetProperty,
+            Func<TSource, TSourceProp> sourceProperty,
+            Func<TTarget, TTargetProp> targetProperty,
             IBindingTypeConverter converter,
             object? conversionHint = null,
             ISequencer? scheduler = null,
@@ -145,8 +145,8 @@ public static partial class ReactiveSchedulerExtensions
             Justification = "Part of the CallerInfo dispatch contract; the generated overload reads the receiver and this stub only throws.")]
         public IDisposable BindTwoWay<TTarget, TProperty>(
             TTarget target,
-            Expression<Func<TSource, TProperty>> sourceProperty,
-            Expression<Func<TTarget, TProperty>> targetProperty,
+            Func<TSource, TProperty> sourceProperty,
+            Func<TTarget, TProperty> targetProperty,
             ISequencer? scheduler,
             [CallerArgumentExpression("sourceProperty")]
             string sourcePropertyExpression = "",
@@ -181,8 +181,8 @@ public static partial class ReactiveSchedulerExtensions
             Justification = "Part of the CallerInfo dispatch contract; the generated overload reads the receiver and this stub only throws.")]
         public IDisposable BindTwoWay<TSourceProp, TTarget, TTargetProp>(
             TTarget target,
-            Expression<Func<TSource, TSourceProp>> sourceProperty,
-            Expression<Func<TTarget, TTargetProp>> targetProperty,
+            Func<TSource, TSourceProp> sourceProperty,
+            Func<TTarget, TTargetProp> targetProperty,
             Func<TSourceProp, TTargetProp> sourceToTargetConv,
             Func<TTargetProp, TSourceProp> targetToSourceConv,
             ISequencer? scheduler,
@@ -222,8 +222,8 @@ public static partial class ReactiveSchedulerExtensions
             Justification = "Part of the CallerInfo dispatch contract; the generated overload reads the receiver and this stub only throws.")]
         public IDisposable BindTwoWay<TSourceProp, TTarget, TTargetProp>(
             TTarget target,
-            Expression<Func<TSource, TSourceProp>> sourceProperty,
-            Expression<Func<TTarget, TTargetProp>> targetProperty,
+            Func<TSource, TSourceProp> sourceProperty,
+            Func<TTarget, TTargetProp> targetProperty,
             IBindingTypeConverter sourceToTargetConverter,
             IBindingTypeConverter targetToSourceConverter,
             object? conversionHint = null,
@@ -264,8 +264,8 @@ public static partial class ReactiveSchedulerExtensions
             Justification = "Part of the CallerInfo dispatch contract; the generated overload reads the receiver and this stub only throws.")]
         public IReactiveBinding<TView, TOut> OneWayBind<TViewModel, TProp, TOut>(
             TViewModel? viewModel,
-            Expression<Func<TViewModel, TProp>> viewModelProperty,
-            Expression<Func<TView, TOut>> viewProperty,
+            Func<TViewModel, TProp> viewModelProperty,
+            Func<TView, TOut> viewProperty,
             Func<TProp, TOut> selector,
             ISequencer? scheduler,
             [CallerArgumentExpression("viewModelProperty")]
@@ -303,8 +303,8 @@ public static partial class ReactiveSchedulerExtensions
             Justification = "Part of the CallerInfo dispatch contract; the generated overload reads the receiver and this stub only throws.")]
         public IReactiveBinding<TView, TVProp> OneWayBind<TViewModel, TVMProp, TVProp>(
             TViewModel? viewModel,
-            Expression<Func<TViewModel, TVMProp>> viewModelProperty,
-            Expression<Func<TView, TVProp>> viewProperty,
+            Func<TViewModel, TVMProp> viewModelProperty,
+            Func<TView, TVProp> viewProperty,
             IBindingTypeConverter converter,
             object? conversionHint = null,
             ISequencer? scheduler = null,
@@ -337,8 +337,8 @@ public static partial class ReactiveSchedulerExtensions
             Justification = "Part of the CallerInfo dispatch contract; the generated overload reads the receiver and this stub only throws.")]
         public IReactiveBinding<TView, BindingChange> Bind<TViewModel, TVMProp, TVProp>(
             TViewModel? viewModel,
-            Expression<Func<TViewModel, TVMProp>> viewModelProperty,
-            Expression<Func<TView, TVProp>> viewProperty,
+            Func<TViewModel, TVMProp> viewModelProperty,
+            Func<TView, TVProp> viewProperty,
             Func<TVMProp, TVProp> viewModelToViewConverter,
             Func<TVProp, TVMProp> viewToViewModelConverter,
             ISequencer? scheduler,
@@ -378,8 +378,8 @@ public static partial class ReactiveSchedulerExtensions
             Justification = "Part of the CallerInfo dispatch contract; the generated overload reads the receiver and this stub only throws.")]
         public IReactiveBinding<TView, BindingChange> Bind<TViewModel, TVMProp, TVProp>(
             TViewModel? viewModel,
-            Expression<Func<TViewModel, TVMProp>> viewModelProperty,
-            Expression<Func<TView, TVProp>> viewProperty,
+            Func<TViewModel, TVMProp> viewModelProperty,
+            Func<TView, TVProp> viewProperty,
             IBindingTypeConverter viewModelToViewConverter,
             IBindingTypeConverter viewToViewModelConverter,
             object? conversionHint = null,

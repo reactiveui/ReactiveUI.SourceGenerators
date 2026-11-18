@@ -38,7 +38,7 @@ public class ToPropertyAnalyzerTests
                                             public static ObservableAsPropertyHelper<TRet> ToProperty<TObj, TRet>(
                                                 this IObservable<TRet> target,
                                                 TObj source,
-                                                Expression<Func<TObj, TRet>> property)
+                                                Func<TObj, TRet> property)
                                                 where TObj : class
                                                 => throw new InvalidOperationException();
 

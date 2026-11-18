@@ -16,8 +16,8 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         public static global::System.IDisposable BindTwoWay(
             this global::SharedScenarios.BindTwoWay.SinglePropertyWithConverters.MyViewModel source,
             global::SharedScenarios.BindTwoWay.SinglePropertyWithConverters.MyView target,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.BindTwoWay.SinglePropertyWithConverters.MyViewModel, int>> sourceProperty,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.BindTwoWay.SinglePropertyWithConverters.MyView, string?>> targetProperty,
+            global::System.Func<global::SharedScenarios.BindTwoWay.SinglePropertyWithConverters.MyViewModel, int> sourceProperty,
+            global::System.Func<global::SharedScenarios.BindTwoWay.SinglePropertyWithConverters.MyView, string?> targetProperty,
             global::System.Func<int, string> sourceToTargetConv,
             global::System.Func<string, int> targetToSourceConv,
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("sourceProperty")] string sourcePropertyExpression = "",

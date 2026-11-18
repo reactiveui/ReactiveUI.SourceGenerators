@@ -1121,7 +1121,7 @@ internal static class ObservationCodeGenerator
         {
             var type = CodeGeneratorHelpers.NullableSelectorLeafType(first.PropertyPaths[i], supportsNullable);
             _ = sb.Append(GeneratedSyntax.SelectorTypeOpen).Append(first.SourceTypeFullName).Append(", ")
-                .Append(type).Append(">> property").Append(i + 1).Line(",");
+                .Append(type).Append("> property").Append(i + 1).Line(",");
         }
 
         if (hasSelector)

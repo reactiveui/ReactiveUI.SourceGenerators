@@ -36,7 +36,7 @@ public class BindTwoWayBenchmark
     [Benchmark(Description = "BindTwoWay")]
     public void Standard()
     {
-        using var binding = _source.BindTwoWay(_target, x => x.Name, x => x.DisplayName);
+        using var binding = _source.BindTwoWay(_target, static x => x.Name, static x => x.DisplayName);
 
         for (var i = 0; i < PropertyChangeCount; i++)
         {
@@ -48,7 +48,7 @@ public class BindTwoWayBenchmark
     [Benchmark(Description = "BindTwoWay + Scheduler")]
     public void WithScheduler()
     {
-        using var binding = _source.BindTwoWay(_target, x => x.Name, x => x.DisplayName, ImmediateSequencer.Instance);
+        using var binding = _source.BindTwoWay(_target, static x => x.Name, static x => x.DisplayName, ImmediateSequencer.Instance);
 
         for (var i = 0; i < PropertyChangeCount; i++)
         {
@@ -60,7 +60,7 @@ public class BindTwoWayBenchmark
     [Benchmark(Description = "Bidirectional")]
     public void Bidirectional()
     {
-        using var binding = _source.BindTwoWay(_target, x => x.Name, x => x.DisplayName);
+        using var binding = _source.BindTwoWay(_target, static x => x.Name, static x => x.DisplayName);
 
         for (var i = 0; i < PropertyChangeCount; i++)
         {
@@ -84,5 +84,5 @@ public class BindTwoWayBenchmark
     /// <returns>An observable sequence of <see cref="string"/> values that represent the changes to the <see cref="BenchmarkView.DisplayName"/> property.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static IObservable<string> TriggerViewGeneration(BenchmarkView view) =>
-        view.WhenChanged(x => x.DisplayName);
+        view.WhenChanged(static x => x.DisplayName);
 }

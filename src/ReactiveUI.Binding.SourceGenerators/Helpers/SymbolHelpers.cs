@@ -78,8 +78,8 @@ internal static class SymbolHelpers
             var body = SyntaxHelpers.GetLambdaBody(lambda);
             if (body is not null)
             {
-                body = SyntaxHelpers.UnwrapNullForgiving(body);
-                if (body is Microsoft.CodeAnalysis.CSharp.Syntax.MemberAccessExpressionSyntax memberAccess)
+                var memberAccess = PathSyntax.Link(body);
+                if (PathSyntax.IsMember(memberAccess))
                 {
                     var memberSymbol = semanticModel.GetSymbolInfo(memberAccess, ct).Symbol;
                     if (((memberSymbol as IPropertySymbol)?.Type ?? (memberSymbol as IFieldSymbol)?.Type) is INamedTypeSymbol namedType)
@@ -189,8 +189,8 @@ internal static class SymbolHelpers
             return null;
         }
 
-        body = SyntaxHelpers.UnwrapNullForgiving(body);
-        if (body is not Microsoft.CodeAnalysis.CSharp.Syntax.MemberAccessExpressionSyntax memberAccess)
+        var memberAccess = PathSyntax.Link(body);
+        if (!PathSyntax.IsMember(memberAccess))
         {
             return null;
         }

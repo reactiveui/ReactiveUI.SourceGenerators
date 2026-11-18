@@ -46,7 +46,7 @@ public class DispatchReachAnalyzerTests
                                                      {
                                                          public static IObservable<TReturn> WhenChanged<TObj, TReturn>(
                                                              this TObj objectToMonitor,
-                                                             Expression<Func<TObj, TReturn>> property1)
+                                                             Func<TObj, TReturn> property1)
                                                              where TObj : class
                                                              => throw new NotImplementedException();
                                                      }
@@ -272,7 +272,7 @@ public class DispatchReachAnalyzerTests
               {
                   public static IObservable<TReturn> WhenChanged<TObj, TReturn>(
                       this TObj objectToMonitor,
-                      Expression<Func<TObj, TReturn>> property1)
+                      Func<TObj, TReturn> property1)
                       where TObj : class
                       => throw new NotImplementedException();
               }

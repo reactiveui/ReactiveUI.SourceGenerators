@@ -16,8 +16,8 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         public static global::System.IDisposable BindOneWay(
             this global::SharedScenarios.BindOneWay.SinglePropertyWithConverterAndScheduler.MyViewModel source,
             global::SharedScenarios.BindOneWay.SinglePropertyWithConverterAndScheduler.MyView target,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.BindOneWay.SinglePropertyWithConverterAndScheduler.MyViewModel, int>> sourceProperty,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.BindOneWay.SinglePropertyWithConverterAndScheduler.MyView, string?>> targetProperty,
+            global::System.Func<global::SharedScenarios.BindOneWay.SinglePropertyWithConverterAndScheduler.MyViewModel, int> sourceProperty,
+            global::System.Func<global::SharedScenarios.BindOneWay.SinglePropertyWithConverterAndScheduler.MyView, string?> targetProperty,
             global::System.Func<int, string> conversionFunc,
             global::ReactiveUI.Primitives.Concurrency.ISequencer? scheduler,
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("sourceProperty")] string sourcePropertyExpression = "",

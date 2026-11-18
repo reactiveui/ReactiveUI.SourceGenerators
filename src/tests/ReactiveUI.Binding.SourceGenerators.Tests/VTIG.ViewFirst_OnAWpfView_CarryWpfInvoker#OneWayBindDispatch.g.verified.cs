@@ -16,8 +16,8 @@ namespace ReactiveUI.Binding.Generated.TestAssembly
         public static global::ReactiveUI.Binding.IReactiveBinding<global::TestApp.MyView, string> OneWayBind(
             this global::TestApp.MyView view,
             global::TestApp.MyViewModel? viewModel,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::TestApp.MyViewModel, string?>> viewModelProperty,
-            global::System.Linq.Expressions.Expression<global::System.Func<global::TestApp.MyView, string?>> viewProperty,
+            global::System.Func<global::TestApp.MyViewModel, string?> viewModelProperty,
+            global::System.Func<global::TestApp.MyView, string?> viewProperty,
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("viewModelProperty")] string viewModelPropertyExpression = "",
             [global::System.Runtime.CompilerServices.CallerArgumentExpression("viewProperty")] string viewPropertyExpression = "",
             [global::System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "",

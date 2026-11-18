@@ -108,7 +108,7 @@ public static class PropertyValuesExamples
         List<string> lines = [];
 
         using (item
-            .WhenChanged(x => x.Title, x => x.IsDone, x => x.Priority)
+            .WhenChanged(static x => x.Title, static x => x.IsDone, static x => x.Priority)
             .Subscribe(values => lines.Add($"{values.Property1} ({values.Property3}, done: {values.Property2})")))
         {
             item.Priority = TodoPriority.High;
@@ -127,8 +127,8 @@ public static class PropertyValuesExamples
         TodoItem first = CreateRegistrationTask();
         TodoItem second = CreateRegistrationTask();
 
-        PropertyValues<string, bool> left = await first.WhenChanged(x => x.Title, x => x.IsDone).FirstAsync();
-        PropertyValues<string, bool> right = await second.WhenChanged(x => x.Title, x => x.IsDone).FirstAsync();
+        PropertyValues<string, bool> left = await first.WhenChanged(static x => x.Title, static x => x.IsDone).FirstAsync();
+        PropertyValues<string, bool> right = await second.WhenChanged(static x => x.Title, static x => x.IsDone).FirstAsync();
         object boxed = (object)right;
 
         Console.WriteLine(left == right);
@@ -138,7 +138,7 @@ public static class PropertyValuesExamples
         Console.WriteLine(left.GetHashCode() == right.GetHashCode());
 
         second.IsDone = true;
-        PropertyValues<string, bool> finished = await second.WhenChanged(x => x.Title, x => x.IsDone).FirstAsync();
+        PropertyValues<string, bool> finished = await second.WhenChanged(static x => x.Title, static x => x.IsDone).FirstAsync();
 
         Console.WriteLine(left == finished);
 
@@ -157,7 +157,7 @@ public static class PropertyValuesExamples
     {
         TodoItem item = CreateRegistrationTask();
 
-        PropertyValues<string, bool> original = await item.WhenChanged(x => x.Title, x => x.IsDone).FirstAsync();
+        PropertyValues<string, bool> original = await item.WhenChanged(static x => x.Title, static x => x.IsDone).FirstAsync();
         PropertyValues<string, bool> finished = original with { Property2 = true };
 
         Console.WriteLine(original.Property2);
@@ -174,7 +174,7 @@ public static class PropertyValuesExamples
     {
         TodoItem item = CreateRegistrationTask();
 
-        PropertyValues<string, bool> values = await item.WhenChanged(x => x.Title, x => x.IsDone).FirstAsync();
+        PropertyValues<string, bool> values = await item.WhenChanged(static x => x.Title, static x => x.IsDone).FirstAsync();
 
         Console.WriteLine($"Emission: {values}.");
 
@@ -188,7 +188,7 @@ public static class PropertyValuesExamples
     {
         TodoItem item = CreateRegistrationTask();
 
-        PropertyValues<string, bool> values = await item.WhenChanged(x => x.Title, x => x.IsDone).FirstAsync();
+        PropertyValues<string, bool> values = await item.WhenChanged(static x => x.Title, static x => x.IsDone).FirstAsync();
 
         Console.WriteLine(values.Property1);
         Console.WriteLine(values.Property2);
@@ -209,7 +209,7 @@ public static class PropertyValuesExamples
     {
         TodoItem item = CreateRegistrationTask();
 
-        PropertyValues<string, bool, TodoPriority> values = await item.WhenChanged(x => x.Title, x => x.IsDone, x => x.Priority).FirstAsync();
+        PropertyValues<string, bool, TodoPriority> values = await item.WhenChanged(static x => x.Title, static x => x.IsDone, static x => x.Priority).FirstAsync();
 
         Console.WriteLine(values.Property1);
         Console.WriteLine(values.Property2);
@@ -234,10 +234,10 @@ public static class PropertyValuesExamples
 
         PropertyValues<string, string, bool, DateOnly?> values = await item
             .WhenChanged(
-                x => x.Title,
-                x => x.Notes,
-                x => x.IsDone,
-                x => x.DueDate)
+                static x => x.Title,
+                static x => x.Notes,
+                static x => x.IsDone,
+                static x => x.DueDate)
             .FirstAsync();
 
         Console.WriteLine(values.Property1);
@@ -265,11 +265,11 @@ public static class PropertyValuesExamples
 
         PropertyValues<string, string, bool, DateOnly?, TodoPriority> values = await item
             .WhenChanged(
-                x => x.Title,
-                x => x.Notes,
-                x => x.IsDone,
-                x => x.DueDate,
-                x => x.Priority)
+                static x => x.Title,
+                static x => x.Notes,
+                static x => x.IsDone,
+                static x => x.DueDate,
+                static x => x.Priority)
             .FirstAsync();
 
         Console.WriteLine(values.Property1);
@@ -299,12 +299,12 @@ public static class PropertyValuesExamples
 
         PropertyValues<string, string, bool, DateOnly?, TodoPriority, IReadOnlyList<string>> values = await item
             .WhenChanged(
-                x => x.Title,
-                x => x.Notes,
-                x => x.IsDone,
-                x => x.DueDate,
-                x => x.Priority,
-                x => x.Tags)
+                static x => x.Title,
+                static x => x.Notes,
+                static x => x.IsDone,
+                static x => x.DueDate,
+                static x => x.Priority,
+                static x => x.Tags)
             .FirstAsync();
 
         Console.WriteLine(values.Property1);
@@ -336,13 +336,13 @@ public static class PropertyValuesExamples
 
         PropertyValues<int, string, IssueState, User, User, IReadOnlyList<string>, DateTimeOffset> values = await issue
             .WhenChanged(
-                x => x.Number,
-                x => x.Title,
-                x => x.State,
-                x => x.Author,
-                x => x.Assignee!,
-                x => x.Labels,
-                x => x.UpdatedAt)
+                static x => x.Number,
+                static x => x.Title,
+                static x => x.State,
+                static x => x.Author,
+                static x => x.Assignee!,
+                static x => x.Labels,
+                static x => x.UpdatedAt)
             .FirstAsync();
 
         Console.WriteLine(values.Property1);
@@ -376,14 +376,14 @@ public static class PropertyValuesExamples
 
         PropertyValues<int, string, IssueState, User, User, IReadOnlyList<string>, DateTimeOffset, IReadOnlyList<IssueComment>> values = await issue
             .WhenChanged(
-                x => x.Number,
-                x => x.Title,
-                x => x.State,
-                x => x.Author,
-                x => x.Assignee!,
-                x => x.Labels,
-                x => x.UpdatedAt,
-                x => x.Comments)
+                static x => x.Number,
+                static x => x.Title,
+                static x => x.State,
+                static x => x.Author,
+                static x => x.Assignee!,
+                static x => x.Labels,
+                static x => x.UpdatedAt,
+                static x => x.Comments)
             .FirstAsync();
 
         Console.WriteLine(values.Property1);
@@ -419,15 +419,15 @@ public static class PropertyValuesExamples
 
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal?, decimal> values = await draft
             .WhenChanged(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.Source!.Id,
-                x => x.Source!.Name,
-                x => x.Source!.Kind,
-                x => x.Source!.Currency,
-                x => x.Source!.Balance,
-                x => x.Source!.OverdraftLimit,
-                x => x.Source!.AvailableBalance)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.Source!.Id,
+                static x => x.Source!.Name,
+                static x => x.Source!.Kind,
+                static x => x.Source!.Currency,
+                static x => x.Source!.Balance,
+                static x => x.Source!.OverdraftLimit,
+                static x => x.Source!.AvailableBalance)
             .FirstAsync();
 
         Console.WriteLine(values.Property1);
@@ -465,16 +465,16 @@ public static class PropertyValuesExamples
 
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal?, decimal, Payee> values = await draft
             .WhenChanged(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.Source!.Id,
-                x => x.Source!.Name,
-                x => x.Source!.Kind,
-                x => x.Source!.Currency,
-                x => x.Source!.Balance,
-                x => x.Source!.OverdraftLimit,
-                x => x.Source!.AvailableBalance,
-                x => x.Payee!)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.Source!.Id,
+                static x => x.Source!.Name,
+                static x => x.Source!.Kind,
+                static x => x.Source!.Currency,
+                static x => x.Source!.Balance,
+                static x => x.Source!.OverdraftLimit,
+                static x => x.Source!.AvailableBalance,
+                static x => x.Payee!)
             .FirstAsync();
 
         Console.WriteLine(values.Property1);
@@ -514,17 +514,17 @@ public static class PropertyValuesExamples
 
         PropertyValues<decimal, string, string, string, AccountKind, string, decimal, decimal?, decimal, Payee, Account> values = await draft
             .WhenChanged(
-                x => x.Amount,
-                x => x.Reference,
-                x => x.Source!.Id,
-                x => x.Source!.Name,
-                x => x.Source!.Kind,
-                x => x.Source!.Currency,
-                x => x.Source!.Balance,
-                x => x.Source!.OverdraftLimit,
-                x => x.Source!.AvailableBalance,
-                x => x.Payee!,
-                x => x.Source!)
+                static x => x.Amount,
+                static x => x.Reference,
+                static x => x.Source!.Id,
+                static x => x.Source!.Name,
+                static x => x.Source!.Kind,
+                static x => x.Source!.Currency,
+                static x => x.Source!.Balance,
+                static x => x.Source!.OverdraftLimit,
+                static x => x.Source!.AvailableBalance,
+                static x => x.Payee!,
+                static x => x.Source!)
             .FirstAsync();
 
         Console.WriteLine(values.Property1);
@@ -566,18 +566,18 @@ public static class PropertyValuesExamples
 
         PropertyValues<bool, string, string, int, string, IssueState, string, string, IReadOnlyList<string>, DateTimeOffset, string, int> values = await board
             .WhenChanged(
-                x => x.IsSignedIn,
-                x => x.CurrentUser!.Login,
-                x => x.CurrentUser!.DisplayName,
-                x => x.SelectedIssue!.Number,
-                x => x.SelectedIssue!.Title,
-                x => x.SelectedIssue!.State,
-                x => x.SelectedIssue!.Assignee!.Login,
-                x => x.SelectedIssue!.Assignee!.DisplayName,
-                x => x.SelectedIssue!.Labels,
-                x => x.SelectedIssue!.UpdatedAt,
-                x => x.NewCommentText,
-                x => x.RateLimitRemaining)
+                static x => x.IsSignedIn,
+                static x => x.CurrentUser!.Login,
+                static x => x.CurrentUser!.DisplayName,
+                static x => x.SelectedIssue!.Number,
+                static x => x.SelectedIssue!.Title,
+                static x => x.SelectedIssue!.State,
+                static x => x.SelectedIssue!.Assignee!.Login,
+                static x => x.SelectedIssue!.Assignee!.DisplayName,
+                static x => x.SelectedIssue!.Labels,
+                static x => x.SelectedIssue!.UpdatedAt,
+                static x => x.NewCommentText,
+                static x => x.RateLimitRemaining)
             .FirstAsync();
 
         Console.WriteLine(values.Property1);
@@ -621,19 +621,19 @@ public static class PropertyValuesExamples
 
         PropertyValues<bool, string, string, int, string, IssueState, string, string, IReadOnlyList<string>, DateTimeOffset, string, int, string> values = await board
             .WhenChanged(
-                x => x.IsSignedIn,
-                x => x.CurrentUser!.Login,
-                x => x.CurrentUser!.DisplayName,
-                x => x.SelectedIssue!.Number,
-                x => x.SelectedIssue!.Title,
-                x => x.SelectedIssue!.State,
-                x => x.SelectedIssue!.Assignee!.Login,
-                x => x.SelectedIssue!.Assignee!.DisplayName,
-                x => x.SelectedIssue!.Labels,
-                x => x.SelectedIssue!.UpdatedAt,
-                x => x.NewCommentText,
-                x => x.RateLimitRemaining,
-                x => x.ErrorMessage)
+                static x => x.IsSignedIn,
+                static x => x.CurrentUser!.Login,
+                static x => x.CurrentUser!.DisplayName,
+                static x => x.SelectedIssue!.Number,
+                static x => x.SelectedIssue!.Title,
+                static x => x.SelectedIssue!.State,
+                static x => x.SelectedIssue!.Assignee!.Login,
+                static x => x.SelectedIssue!.Assignee!.DisplayName,
+                static x => x.SelectedIssue!.Labels,
+                static x => x.SelectedIssue!.UpdatedAt,
+                static x => x.NewCommentText,
+                static x => x.RateLimitRemaining,
+                static x => x.ErrorMessage)
             .FirstAsync();
 
         Console.WriteLine(values.Property1);
@@ -679,20 +679,20 @@ public static class PropertyValuesExamples
 
         PropertyValues<bool, string, string, int, string, IssueState, string, string, IReadOnlyList<string>, DateTimeOffset, string, int, string, string> values = await board
             .WhenChanged(
-                x => x.IsSignedIn,
-                x => x.CurrentUser!.Login,
-                x => x.CurrentUser!.DisplayName,
-                x => x.SelectedIssue!.Number,
-                x => x.SelectedIssue!.Title,
-                x => x.SelectedIssue!.State,
-                x => x.SelectedIssue!.Assignee!.Login,
-                x => x.SelectedIssue!.Assignee!.DisplayName,
-                x => x.SelectedIssue!.Labels,
-                x => x.SelectedIssue!.UpdatedAt,
-                x => x.NewCommentText,
-                x => x.RateLimitRemaining,
-                x => x.ErrorMessage,
-                x => x.Token)
+                static x => x.IsSignedIn,
+                static x => x.CurrentUser!.Login,
+                static x => x.CurrentUser!.DisplayName,
+                static x => x.SelectedIssue!.Number,
+                static x => x.SelectedIssue!.Title,
+                static x => x.SelectedIssue!.State,
+                static x => x.SelectedIssue!.Assignee!.Login,
+                static x => x.SelectedIssue!.Assignee!.DisplayName,
+                static x => x.SelectedIssue!.Labels,
+                static x => x.SelectedIssue!.UpdatedAt,
+                static x => x.NewCommentText,
+                static x => x.RateLimitRemaining,
+                static x => x.ErrorMessage,
+                static x => x.Token)
             .FirstAsync();
 
         Console.WriteLine(values.Property1);
@@ -740,21 +740,21 @@ public static class PropertyValuesExamples
 
         PropertyValues<bool, string, string, int, string, IssueState, string, string, IReadOnlyList<string>, DateTimeOffset, string, int, string, string, IReadOnlyList<Issue>> values = await board
             .WhenChanged(
-                x => x.IsSignedIn,
-                x => x.CurrentUser!.Login,
-                x => x.CurrentUser!.DisplayName,
-                x => x.SelectedIssue!.Number,
-                x => x.SelectedIssue!.Title,
-                x => x.SelectedIssue!.State,
-                x => x.SelectedIssue!.Assignee!.Login,
-                x => x.SelectedIssue!.Assignee!.DisplayName,
-                x => x.SelectedIssue!.Labels,
-                x => x.SelectedIssue!.UpdatedAt,
-                x => x.NewCommentText,
-                x => x.RateLimitRemaining,
-                x => x.ErrorMessage,
-                x => x.Token,
-                x => x.Issues)
+                static x => x.IsSignedIn,
+                static x => x.CurrentUser!.Login,
+                static x => x.CurrentUser!.DisplayName,
+                static x => x.SelectedIssue!.Number,
+                static x => x.SelectedIssue!.Title,
+                static x => x.SelectedIssue!.State,
+                static x => x.SelectedIssue!.Assignee!.Login,
+                static x => x.SelectedIssue!.Assignee!.DisplayName,
+                static x => x.SelectedIssue!.Labels,
+                static x => x.SelectedIssue!.UpdatedAt,
+                static x => x.NewCommentText,
+                static x => x.RateLimitRemaining,
+                static x => x.ErrorMessage,
+                static x => x.Token,
+                static x => x.Issues)
             .FirstAsync();
 
         Console.WriteLine(values.Property1);
@@ -820,22 +820,22 @@ public static class PropertyValuesExamples
             IReadOnlyList<Issue>,
             IReadOnlyList<Repository>> values = await board
             .WhenChanged(
-                x => x.IsSignedIn,
-                x => x.CurrentUser!.Login,
-                x => x.CurrentUser!.DisplayName,
-                x => x.SelectedIssue!.Number,
-                x => x.SelectedIssue!.Title,
-                x => x.SelectedIssue!.State,
-                x => x.SelectedIssue!.Assignee!.Login,
-                x => x.SelectedIssue!.Assignee!.DisplayName,
-                x => x.SelectedIssue!.Labels,
-                x => x.SelectedIssue!.UpdatedAt,
-                x => x.NewCommentText,
-                x => x.RateLimitRemaining,
-                x => x.ErrorMessage,
-                x => x.Token,
-                x => x.Issues,
-                x => x.Repositories)
+                static x => x.IsSignedIn,
+                static x => x.CurrentUser!.Login,
+                static x => x.CurrentUser!.DisplayName,
+                static x => x.SelectedIssue!.Number,
+                static x => x.SelectedIssue!.Title,
+                static x => x.SelectedIssue!.State,
+                static x => x.SelectedIssue!.Assignee!.Login,
+                static x => x.SelectedIssue!.Assignee!.DisplayName,
+                static x => x.SelectedIssue!.Labels,
+                static x => x.SelectedIssue!.UpdatedAt,
+                static x => x.NewCommentText,
+                static x => x.RateLimitRemaining,
+                static x => x.ErrorMessage,
+                static x => x.Token,
+                static x => x.Issues,
+                static x => x.Repositories)
             .FirstAsync();
 
         Console.WriteLine(values.Property1);

@@ -32,7 +32,7 @@ public static class WindowExamples
         VirtualClock clock = new();
         TodoItem item = new();
 
-        using IDisposable subscription = item.WhenChanged(x => x.Notes)
+        using IDisposable subscription = item.WhenChanged(static x => x.Notes)
             .Skip(1)
             .Window(_windowLength, clock)
             .SelectMany(static window => window.Count())
@@ -57,9 +57,9 @@ public static class WindowExamples
     {
         TodoItem item = new();
 
-        using IDisposable subscription = item.WhenChanged(x => x.Notes)
+        using IDisposable subscription = item.WhenChanged(static x => x.Notes)
             .Skip(1)
-            .Window(() => item.WhenChanged(x => x.IsDone).Skip(1))
+            .Window(() => item.WhenChanged(static x => x.IsDone).Skip(1))
             .SelectMany(static window => window.Count())
             .Subscribe(static count => Console.WriteLine($"Edits before the checkbox changed: {count}"));
 

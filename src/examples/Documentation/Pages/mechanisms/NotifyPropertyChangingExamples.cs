@@ -28,7 +28,7 @@ public static class NotifyPropertyChangingExamples
     {
         DraftTodo draft = new() { Title = RegistrationTitle };
 
-        using (draft.WhenChanging(x => x.Title).Subscribe(Console.WriteLine))
+        using (draft.WhenChanging(static x => x.Title).Subscribe(Console.WriteLine))
         {
             draft.Title = RenamedTitle;
             draft.Notes = RegistrationNotes;
