@@ -93,8 +93,8 @@
     <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.15" Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net11.0'))"/>
 
     <!-- Test App Dependencies-->
-    <PackageVersion Include="ReactiveUI" Version="26.0.1"/>
-    <PackageVersion Include="ReactiveUI.Reactive" Version="26.0.1"/>
-    <PackageVersion Include="ReactiveUI.Maui" Version="26.0.1"/>
+    <PackageVersion Include="ReactiveUI" Version="27.0.1"/>
+    <PackageVersion Include="ReactiveUI.Reactive" Version="27.0.1"/>
+    <PackageVersion Include="ReactiveUI.Maui" Version="27.0.1"/>
   </ItemGroup>
 </Project>
