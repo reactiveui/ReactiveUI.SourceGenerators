@@ -152,6 +152,31 @@ public class CommandBinderServiceTests
         await Assert.That(binder.Released).IsEqualTo(1);
     }
 
+    /// <summary>A typed binder is handed the parameter in its own type, for both forms, and an empty one when there is none.</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task BindCustom_WithATypedBinder_PassesTheParameterUnboxed()
+    {
+        var binder = new TypedRecordingBinder();
+        RegisterBinder(binder);
+        var commands = new TestModels.ManualObservable<ICommand?>();
+        var namedCommands = new TestModels.ManualObservable<ICommand?>();
+        var parameters = new TestModels.ManualObservable<int>();
+
+        using var byDefaultEvent = CommandBinderService.BindCustom(new ClickableButton(), commands, parameters, LowerAffinity);
+        using var byNamedEvent = CommandBinderService.BindCustom<ClickableButton, int, EventArgs>(new(), namedCommands, null, LowerAffinity, EventName);
+        commands.Observer!.OnNext(new TestModels.RecordingStubCommand());
+        namedCommands.Observer!.OnNext(new TestModels.RecordingStubCommand());
+        parameters.Observer!.OnNext(ParameterValue);
+
+        var bareCommands = new TestModels.ManualObservable<ICommand?>();
+        using var withoutParameter = CommandBinderService.BindCustom<ClickableButton, int>(new(), bareCommands, null, LowerAffinity);
+        bareCommands.Observer!.OnNext(new TestModels.RecordingStubCommand());
+
+        await Assert.That(binder.TypedBindings).IsEquivalentTo((string[])["Int32:", "Int32:Click", "Int32:"]);
+        await Assert.That(binder.TypedParameters).IsEquivalentTo((int[])[ParameterValue]);
+    }
+
     /// <summary>Both forms require the commands.</summary>
     /// <returns>A task representing the asynchronous test operation.</returns>
     [Test]
@@ -226,6 +251,69 @@ public class CommandBinderServiceTests
             Action<EventHandler<TEventArgs>> removeHandler)
             where T : class
             where TEventArgs : EventArgs => null;
+    }
+
+    /// <summary>A command binder that takes the parameter typed and records what it was handed.</summary>
+    private sealed class TypedRecordingBinder : ICreatesTypedCommandBinding
+    {
+        /// <summary>Gets each typed binding made, as the parameter type and the event named.</summary>
+        public List<string> TypedBindings { get; } = [];
+
+        /// <summary>Gets the parameter values received, unboxed.</summary>
+        public List<int> TypedParameters { get; } = [];
+
+        /// <inheritdoc/>
+        [SuppressMessage("Design", "SST1452:Unused type parameter", Justification = "Dictated by the interface this test stub implements.")]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int GetAffinityForObject<T>(bool hasEventTarget) => RecordingBinder.Affinity;
+
+        /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IDisposable? BindCommandToObject<T>(ICommand? command, T? target, IObservable<object?> commandParameter)
+            where T : class => null;
+
+        /// <inheritdoc/>
+        [SuppressMessage("Design", "SST1452:Unused type parameter", Justification = "Dictated by the interface this test stub implements.")]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IDisposable? BindCommandToObject<T, TEventArgs>(ICommand? command, T? target, IObservable<object?> commandParameter, string eventName)
+            where T : class => null;
+
+        /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IDisposable? BindCommandToObject<T, TEventArgs>(
+            ICommand? command,
+            T? target,
+            IObservable<object?> commandParameter,
+            Action<EventHandler<TEventArgs>> addHandler,
+            Action<EventHandler<TEventArgs>> removeHandler)
+            where T : class
+            where TEventArgs : EventArgs => null;
+
+        /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IDisposable? BindTypedCommandToObject<T, TParameter>(ICommand? command, T? target, IObservable<TParameter> commandParameter)
+            where T : class => Record(commandParameter, string.Empty);
+
+        /// <inheritdoc/>
+        [SuppressMessage("Design", "SST1452:Unused type parameter", Justification = "Dictated by the interface this test stub implements.")]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IDisposable? BindTypedCommandToObject<T, TParameter, TEventArgs>(
+            ICommand? command,
+            T? target,
+            IObservable<TParameter> commandParameter,
+            string eventName)
+            where T : class => Record(commandParameter, eventName);
+
+        /// <summary>Records one typed binding and follows its parameter values.</summary>
+        /// <typeparam name="TParameter">The type of the command parameter.</typeparam>
+        /// <param name="commandParameter">The typed parameter values.</param>
+        /// <param name="eventName">The named event, or empty for the default event.</param>
+        /// <returns>The subscription to the parameter values.</returns>
+        private IDisposable Record<TParameter>(IObservable<TParameter> commandParameter, string eventName)
+        {
+            TypedBindings.Add($"{typeof(TParameter).Name}:{eventName}");
+            return ((IObservable<int>)commandParameter).Subscribe(new TestModels.RecordingObserver<int>(TypedParameters.Add));
+        }
     }
 
     /// <summary>A command binder that records what it was asked to bind and what it released.</summary>

@@ -62,6 +62,12 @@ namespace ReactiveUI.Binding
         public void Register(ReactiveUI.Binding.IBindingFallbackConverter converter) { }
         public ReactiveUI.Binding.IBindingFallbackConverter? TryGetConverter(System.Type fromType, System.Type toType) { }
     }
+    [System.Diagnostics.DebuggerDisplay("BindingHookPath: {Count} properties")]
+    public sealed class BindingHookPath
+    {
+        public int Count { get; }
+        public void Accept(ReactiveUI.Binding.IBindingHookPropertyVisitor visitor) { }
+    }
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.DebuggerDisplay("BindingHookProperty")]
     public abstract class BindingHookProperty
@@ -298,6 +304,10 @@ namespace ReactiveUI.Binding
         int GetAffinityForObjects(System.Type fromType, System.Type toType) { }
         bool TryConvert(System.Type fromType, object from, System.Type toType, object? conversionHint, out object? result) { }
     }
+    public interface IBindingHookPropertyVisitor
+    {
+        void Visit<TOwner, TValue>(TOwner owner, System.Linq.Expressions.Expression<System.Func<TOwner, TValue>> property, TValue value) { }
+    }
     public interface IBindingTypeConverter : Splat.IEnableLogger
     {
         System.Type FromType { get; }
@@ -320,6 +330,11 @@ namespace ReactiveUI.Binding
     {
         int GetAffinityForObject(System.Type type, string propertyName, bool beforeChanged) { }
         System.IObservable<ReactiveUI.Binding.IObservedChange<object, object?>> GetNotificationForProperty(object sender, System.Linq.Expressions.Expression expression, string propertyName, bool beforeChanged, bool suppressWarnings) { }
+    }
+    public interface ICreatesTypedCommandBinding : ReactiveUI.Binding.ICreatesCommandBinding
+    {
+        System.IDisposable? BindTypedCommandToObject<T, TParameter>(System.Windows.Input.ICommand? command, T? target, System.IObservable<TParameter> commandParameter) where T : class { }
+        System.IDisposable? BindTypedCommandToObject<T, TParameter, TEventArgs>(System.Windows.Input.ICommand? command, T? target, System.IObservable<TParameter> commandParameter, string eventName) where T : class { }
     }
     public interface IInteraction<TInput, TOutput>
     {
@@ -360,6 +375,10 @@ namespace ReactiveUI.Binding
     {
         int GetAffinityForObjects(System.Type? fromType, System.Type? toType) { }
         object? PerformSet(object? toTarget, object? newValue, object?[]? arguments) { }
+    }
+    public interface ITypedPropertyBindingHook : ReactiveUI.Binding.IPropertyBindingHook
+    {
+        bool ExecuteHook(object? source, object target, ReactiveUI.Binding.BindingHookPath sourcePath, ReactiveUI.Binding.BindingHookPath targetPath, ReactiveUI.Binding.BindingDirection direction) { }
     }
     public interface IViewFor : ReactiveUI.Binding.IActivatableView
     {

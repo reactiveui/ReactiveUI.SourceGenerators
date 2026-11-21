@@ -91,7 +91,10 @@ public static class BindingHooks
     /// <param name="direction">Which way the binding runs.</param>
     /// <returns><see langword="true"/> when the binding may proceed; <see langword="false"/> when a hook refused it.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="target"/>, <paramref name="sourcePath"/> or <paramref name="targetPath"/> is null.</exception>
-    /// <remarks>A hook that reads a path gets the changes reached before a null owner.</remarks>
+    /// <remarks>
+    /// A hook that reads a path gets the changes reached before a null owner. A hook that implements
+    /// <see cref="ITypedPropertyBindingHook"/> is handed the paths themselves, and reads them without boxing.
+    /// </remarks>
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static bool ShouldBind(
         object? source,
@@ -100,10 +103,23 @@ public static class BindingHooks
         BindingHookProperty[] targetPath,
         BindingDirection direction)
     {
+        ArgumentExceptionHelper.ThrowIfNull(target);
         ArgumentExceptionHelper.ThrowIfNull(sourcePath);
         ArgumentExceptionHelper.ThrowIfNull(targetPath);
 
-        return ShouldBind(source, target, () => ReadPath(source, sourcePath), () => ReadPath(target, targetPath), direction);
+        var hooks = Resolve();
+        for (var i = 0; i < hooks.Length; i++)
+        {
+            var allowed = hooks[i] is ITypedPropertyBindingHook typed
+                ? typed.ExecuteHook(source, target, new(source, sourcePath), new(target, targetPath), direction)
+                : hooks[i].ExecuteHook(source, target, () => ReadPath(source, sourcePath), () => ReadPath(target, targetPath), direction);
+            if (!allowed)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /// <summary>Reads each property of a path, describing every one reached as a change.</summary>

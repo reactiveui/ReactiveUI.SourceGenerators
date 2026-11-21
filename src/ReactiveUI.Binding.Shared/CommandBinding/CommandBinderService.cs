@@ -69,6 +69,13 @@ public static class CommandBinderService
             return null;
         }
 
+        // A binder that takes the parameter in its own type is handed it as it is, so no value is boxed.
+        if (binder is ICreatesTypedCommandBinding typed)
+        {
+            var typedValues = parameter ?? ImmutableEmptySignal<TParameter>.Instance;
+            return Rebind(commands, command => typed.BindTypedCommandToObject(command, control, typedValues));
+        }
+
         var values = ParameterValues(parameter);
         return Rebind(commands, command => binder.BindCommandToObject(command, control, values));
     }
@@ -98,6 +105,12 @@ public static class CommandBinderService
         if (FindCustomBinder<TControl>(generatedAffinity, true) is not { } binder)
         {
             return null;
+        }
+
+        if (binder is ICreatesTypedCommandBinding typed)
+        {
+            var typedValues = parameter ?? ImmutableEmptySignal<TParameter>.Instance;
+            return Rebind(commands, command => typed.BindTypedCommandToObject<TControl, TParameter, TEventArgs>(command, control, typedValues, eventName));
         }
 
         var values = ParameterValues(parameter);

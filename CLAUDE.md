@@ -1283,6 +1283,10 @@ the consumer compile time for nothing.
   it as one static delegate.
 - An expression tree is passed as a factory (`Func<Expression>`). The runtime calls it only when a hook reads the
   path or a registered provider wins the link.
+- A registered `IPropertyBindingHook` or `ICreatesCommandBinding` receives values as `object`, which boxes value
+  types. A hook that implements `ITypedPropertyBindingHook` is handed a `BindingHookPath` and visits each property in
+  its own types. A binder that implements `ICreatesTypedCommandBinding` is handed the parameter stream typed. The
+  helpers call the typed member when the registration has one.
 - A new fixed block belongs in a runtime helper, not in an emitter. Measure the lines a snapshot gains before you
   add one to an emitter.
 - Line count is not the whole cost. In a csc profile of generated bindings, binding invocations took about half

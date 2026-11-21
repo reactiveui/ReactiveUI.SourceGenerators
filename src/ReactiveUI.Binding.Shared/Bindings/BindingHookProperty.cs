@@ -44,6 +44,13 @@ public abstract class BindingHookProperty
     /// <returns>The owner, the expression naming the property and the value read.</returns>
     internal abstract IObservedChange<object, object> Read(object owner, out object? value);
 
+    /// <summary>Reads the property from its owner and hands it to a visitor in its own types.</summary>
+    /// <param name="owner">The object that owns the property.</param>
+    /// <param name="visitor">The visitor that receives the property.</param>
+    /// <param name="ownsNext">Whether the value read owns the next property of the path.</param>
+    /// <returns>The value read when it owns the next property; otherwise <see langword="null"/>.</returns>
+    internal abstract object? Visit(object owner, IBindingHookPropertyVisitor visitor, bool ownsNext);
+
     /// <summary>A property read through accessors typed as its owner and its value.</summary>
     /// <typeparam name="TOwner">The type that declares the property.</typeparam>
     /// <typeparam name="TValue">The property's type.</typeparam>
@@ -57,6 +64,15 @@ public abstract class BindingHookProperty
             // A hook is handed every value as an object, so this is the one place a value type is boxed.
             value = read((TOwner)owner);
             return new ObservedChange<object, object>(owner, expression().Body, value!);
+        }
+
+        /// <inheritdoc/>
+        internal override object? Visit(object owner, IBindingHookPropertyVisitor visitor, bool ownsNext)
+        {
+            var typedOwner = (TOwner)owner;
+            var value = read(typedOwner);
+            visitor.Visit(typedOwner, expression(), value);
+            return ownsNext ? value : null;
         }
     }
 }

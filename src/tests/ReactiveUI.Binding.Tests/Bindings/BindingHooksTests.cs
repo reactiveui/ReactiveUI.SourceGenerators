@@ -222,6 +222,78 @@ public class BindingHooksTests
             .Throws<ArgumentNullException>();
     }
 
+    /// <summary>A typed hook is handed the paths, and visits each property with its owner and value in their own types.</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task ShouldBind_WithATypedHook_VisitsEachPropertyUnboxed()
+    {
+        ResetHooks();
+        try
+        {
+            var hook = new TypedHook(true);
+            AppLocator.Register<IPropertyBindingHook>(() => hook);
+            BindingHooks.Refresh();
+            var leaf = new PathNode("leaf", null);
+            var root = new PathNode("root", leaf);
+
+            var allowed = BindingHooks.ShouldBind(root, leaf, ChildNamePath(), NamePath(), BindingDirection.TwoWay);
+
+            await Assert.That(allowed).IsTrue();
+            await Assert.That(hook.SourceCount).IsEqualTo(ChildNamePath().Length);
+            await Assert.That(hook.Visited).IsEquivalentTo((string[])["PathNode.Child:PathNode", "PathNode.Name:String=leaf", "PathNode.Name:String=leaf"]);
+            await Assert.That(hook.UntypedCalls).IsEqualTo(0);
+        }
+        finally
+        {
+            ResetHooks();
+        }
+    }
+
+    /// <summary>A typed hook's walk stops at a null owner, and its refusal cancels the binding.</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task ShouldBind_WithATypedHook_StopsAtANullOwnerAndCanRefuse()
+    {
+        ResetHooks();
+        try
+        {
+            var hook = new TypedHook(false);
+            AppLocator.Register<IPropertyBindingHook>(() => hook);
+            BindingHooks.Refresh();
+            var root = new PathNode("root", null);
+
+            var allowed = BindingHooks.ShouldBind(null, root, NamePath(), ChildNamePath(), BindingDirection.OneWay);
+
+            await Assert.That(allowed).IsFalse();
+            await Assert.That(hook.Visited).IsEquivalentTo((string[])["PathNode.Child:PathNode"]);
+        }
+        finally
+        {
+            ResetHooks();
+        }
+    }
+
+    /// <summary>A path needs a visitor to walk it.</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task BindingHookPath_NullVisitor_Throws()
+    {
+        ResetHooks();
+        try
+        {
+            var hook = new TypedHook(true) { VisitWithNull = true };
+            AppLocator.Register<IPropertyBindingHook>(() => hook);
+            BindingHooks.Refresh();
+
+            await Assert.That(static () => BindingHooks.ShouldBind(new PathNode("root", null), new(), NamePath(), NamePath(), BindingDirection.OneWay))
+                .Throws<ArgumentNullException>();
+        }
+        finally
+        {
+            ResetHooks();
+        }
+    }
+
     /// <summary>Describes the path <c>Name</c>, the way generated code does.</summary>
     /// <returns>The path.</returns>
     private static BindingHookProperty[] NamePath() =>
@@ -265,6 +337,51 @@ public class BindingHooksTests
             Target = getCurrentViewProperties();
             return true;
         }
+    }
+
+    /// <summary>A typed hook that records each property it is shown.</summary>
+    /// <param name="allow">What the hook answers.</param>
+    private sealed class TypedHook(bool allow) : ITypedPropertyBindingHook, IBindingHookPropertyVisitor
+    {
+        /// <summary>Gets each property visited, as owner type, property, value type and leaf value.</summary>
+        public List<string> Visited { get; } = [];
+
+        /// <summary>Gets the number of properties the source path declared.</summary>
+        public int SourceCount { get; private set; }
+
+        /// <summary>Gets how many times the untyped member was called.</summary>
+        public int UntypedCalls { get; private set; }
+
+        /// <summary>Gets a value indicating whether the hook walks the path with no visitor.</summary>
+        public bool VisitWithNull { get; init; }
+
+        /// <inheritdoc/>
+        public bool ExecuteHook(
+            object? source,
+            object target,
+            Func<IObservedChange<object, object>[]> getCurrentViewModelProperties,
+            Func<IObservedChange<object, object>[]> getCurrentViewProperties,
+            BindingDirection direction)
+        {
+            UntypedCalls++;
+            return allow;
+        }
+
+        /// <inheritdoc/>
+        public bool ExecuteHook(object? source, object target, BindingHookPath sourcePath, BindingHookPath targetPath, BindingDirection direction)
+        {
+            SourceCount = sourcePath.Count;
+            sourcePath.Accept(VisitWithNull ? null! : this);
+            targetPath.Accept(this);
+            return allow;
+        }
+
+        /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Visit<TOwner, TValue>(TOwner owner, Expression<Func<TOwner, TValue>> property, TValue value) =>
+            Visited.Add(value is string text
+                ? $"{typeof(TOwner).Name}.{((MemberExpression)property.Body).Member.Name}:{typeof(TValue).Name}={text}"
+                : $"{typeof(TOwner).Name}.{((MemberExpression)property.Body).Member.Name}:{typeof(TValue).Name}");
     }
 
     /// <summary>A hook that answers the same way every time.</summary>
