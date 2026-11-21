@@ -5,10 +5,9 @@
     <IsAotCompatible>false</IsAotCompatible>
   </PropertyGroup>
 
-  <!-- The baselines measure ReactiveUI's own ToProperty. ReactiveUI 25 replaced it with this library, so the
-       benchmarks stay on the last release that has it. -->
+  <!-- The baselines call ReactiveUI's own ToProperty. -->
   <ItemGroup>
-    <PackageReference Include="ReactiveUI" VersionOverride="26.0.1"/>
+    <PackageReference Include="ReactiveUI"/>
     <PackageReference Include="System.Reactive"/>
   </ItemGroup>
 

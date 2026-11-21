@@ -5,11 +5,9 @@
     <IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net7.0'))">true</IsAotCompatible>
   </PropertyGroup>
 
-  <!-- The baselines measure ReactiveUI's own reflection engine. ReactiveUI 25 replaced it with this library, so the
-       benchmarks stay on the last release that has it. -->
+  <!-- The baselines call ReactiveUI's own binding surface. -->
   <ItemGroup>
-    <PackageReference Include="ReactiveUI" VersionOverride="26.0.1"/>
-    <PackageReference Include="System.Reactive"/>
+    <PackageReference Include="ReactiveUI"/>
   </ItemGroup>
 
   <ItemGroup>

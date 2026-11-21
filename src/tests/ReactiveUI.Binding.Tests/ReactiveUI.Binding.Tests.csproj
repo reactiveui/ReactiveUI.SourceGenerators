@@ -19,8 +19,6 @@
 
   <ItemGroup>
     <PackageReference Include="TUnit"/>
-    <PackageReference Include="Splat"/>
-    <PackageReference Include="System.Reactive"/>
   </ItemGroup>
 
   <ItemGroup>

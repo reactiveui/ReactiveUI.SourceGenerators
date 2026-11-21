@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <PackageReference Include="TUnit"/>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp"/>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces"/>
     <PackageReference Include="Basic.Reference.Assemblies.Net100"/>
     <PackageReference Include="Basic.Reference.Assemblies.Net90"/>
