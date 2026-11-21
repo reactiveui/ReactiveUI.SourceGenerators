@@ -61,6 +61,10 @@ For .NET Framework 4.8 and older, add [Polyfill](https://github.com/SimonCropp/P
 | `[BindableDerivedList]` | A derived list for a `ReadOnlyObservableCollection<T>` field |
 | `[ReactiveCollection]` | Change notifications for an `ObservableCollection<T>` field |
 | `[RoutedControlHost]`, `[ViewModelControlHost]` | WinForms hosts that show the view for a view model |
+| `[RegisterView]`, `[RegisterView<T>]` | A `GeneratedViewRegistrations.RegisterGeneratedViews(IReactiveUIBuilder)` extension method for reflection-free view registration |
+| `[AutoPersist]` | A static `AutoPersistMetadata` property capturing `[DataContract]` / `[DataMember]` metadata at compile time |
+| `[ReactiveValidation]` | A `ConfigureValidation()` method wiring DataAnnotations attributes onto `ReactiveProperty<T>` properties without reflection |
+| `[WireUpControls]`, `[WireUpResource]`, `[IgnoreResource]` | A compile-time `WireUpControls()` / `WireUpControls(View)` method for Android using `FindViewById<T>(Resource.Id.*)` |
 
 ## Roslyn and Visual Studio support
 

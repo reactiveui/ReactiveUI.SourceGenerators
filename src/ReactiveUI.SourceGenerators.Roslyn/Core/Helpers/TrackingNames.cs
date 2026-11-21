@@ -48,4 +48,16 @@ internal static class TrackingNames
 
     /// <summary>The <c>[ViewModelControlHost]</c> models.</summary>
     internal const string ViewModelControlHosts = nameof(ViewModelControlHosts);
+
+    /// <summary>The <c>[RegisterView]</c> models.</summary>
+    internal const string RegisteredViews = nameof(RegisteredViews);
+
+    /// <summary>The <c>[AutoPersist]</c> models.</summary>
+    internal const string AutoPersistTypes = nameof(AutoPersistTypes);
+
+    /// <summary>The <c>[ReactiveValidation]</c> models.</summary>
+    internal const string ReactiveValidationTypes = nameof(ReactiveValidationTypes);
+
+    /// <summary>The <c>[WireUpControls]</c> models.</summary>
+    internal const string WireUpControlsTypes = nameof(WireUpControlsTypes);
 }

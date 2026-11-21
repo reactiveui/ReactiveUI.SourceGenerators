@@ -10,6 +10,13 @@ namespace ReactiveUI.SourceGenerators
         PrivateProtected = 5,
         Init = 6,
     }
+    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
+    [System.Diagnostics.Conditional("REACTIVEUI_SOURCEGENERATORS_KEEP_ATTRIBUTES")]
+    [System.Diagnostics.DebuggerDisplay("AutoPersistAttribute")]
+    public sealed class AutoPersistAttribute : System.Attribute
+    {
+        public AutoPersistAttribute() { }
+    }
     [System.AttributeUsage(System.AttributeTargets.Field, AllowMultiple=false, Inherited=false)]
     [System.Diagnostics.Conditional("REACTIVEUI_SOURCEGENERATORS_KEEP_ATTRIBUTES")]
     [System.Diagnostics.DebuggerDisplay("BindableDerivedListAttribute: AccessModifier = {AccessModifier}")]
@@ -84,6 +91,58 @@ namespace ReactiveUI.SourceGenerators
         public string? CanExecute { get; set; }
         public string? OutputScheduler { get; set; }
         public bool RunInBackground { get; set; }
+    }
+    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
+    [System.Diagnostics.Conditional("REACTIVEUI_SOURCEGENERATORS_KEEP_ATTRIBUTES")]
+    [System.Diagnostics.DebuggerDisplay("ReactiveValidationAttribute")]
+    public sealed class ReactiveValidationAttribute : System.Attribute
+    {
+        public ReactiveValidationAttribute() { }
+    }
+    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=true, Inherited=false)]
+    [System.Diagnostics.Conditional("REACTIVEUI_SOURCEGENERATORS_KEEP_ATTRIBUTES")]
+    [System.Diagnostics.DebuggerDisplay("RegisterViewAttribute: Contract = {Contract}, IsSingleton = {IsSingleton}")]
+    public sealed class RegisterViewAttribute : System.Attribute
+    {
+        public RegisterViewAttribute() { }
+        public string? Contract { get; set; }
+        public bool IsSingleton { get; set; }
+    }
+    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=true, Inherited=false)]
+    [System.Diagnostics.Conditional("REACTIVEUI_SOURCEGENERATORS_KEEP_ATTRIBUTES")]
+    [System.Diagnostics.DebuggerDisplay("RegisterViewAttribute<{ViewModelType.Name}>: Contract = {Contract}, IsSingleton = {IsSingleton}")]
+    public sealed class RegisterViewAttribute<TViewModel> : System.Attribute where TViewModel : class
+    {
+        public RegisterViewAttribute() { }
+        public string? Contract { get; set; }
+        public bool IsSingleton { get; set; }
+        public System.Type ViewModelType { get; }
+    }
+}
+namespace ReactiveUI.SourceGenerators.Android
+{
+    [System.AttributeUsage(System.AttributeTargets.Property, AllowMultiple=false, Inherited=false)]
+    [System.Diagnostics.Conditional("REACTIVEUI_SOURCEGENERATORS_KEEP_ATTRIBUTES")]
+    [System.Diagnostics.DebuggerDisplay("IgnoreResourceAttribute")]
+    public sealed class IgnoreResourceAttribute : System.Attribute
+    {
+        public IgnoreResourceAttribute() { }
+    }
+    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
+    [System.Diagnostics.Conditional("REACTIVEUI_SOURCEGENERATORS_KEEP_ATTRIBUTES")]
+    [System.Diagnostics.DebuggerDisplay("WireUpControlsAttribute: ExplicitOptIn = {ExplicitOptIn}")]
+    public sealed class WireUpControlsAttribute : System.Attribute
+    {
+        public WireUpControlsAttribute() { }
+        public bool ExplicitOptIn { get; set; }
+    }
+    [System.AttributeUsage(System.AttributeTargets.Property, AllowMultiple=false, Inherited=false)]
+    [System.Diagnostics.Conditional("REACTIVEUI_SOURCEGENERATORS_KEEP_ATTRIBUTES")]
+    [System.Diagnostics.DebuggerDisplay("WireUpResourceAttribute: ResourceNameOverride = {ResourceNameOverride}")]
+    public sealed class WireUpResourceAttribute : System.Attribute
+    {
+        public WireUpResourceAttribute(string? resourceNameOverride = null) { }
+        public string? ResourceNameOverride { get; }
     }
 }
 namespace ReactiveUI.SourceGenerators.WinForms
