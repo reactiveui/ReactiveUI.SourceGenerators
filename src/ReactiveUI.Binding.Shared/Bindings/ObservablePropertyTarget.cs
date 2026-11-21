@@ -15,7 +15,7 @@ namespace ReactiveUI.Binding;
 /// <param name="propertyName">The property's name.</param>
 /// <remarks>Generated <c>ToProperty</c> code builds this to create a helper.</remarks>
 [EditorBrowsable(EditorBrowsableState.Never)]
-[DebuggerDisplay("{Owner}.{PropertyName}")]
+[DebuggerDisplay("ObservablePropertyTarget: {Owner}.{PropertyName}")]
 public readonly struct ObservablePropertyTarget(object owner, string propertyName) : IEquatable<ObservablePropertyTarget>
 {
     /// <summary>Gets the object that owns the property.</summary>

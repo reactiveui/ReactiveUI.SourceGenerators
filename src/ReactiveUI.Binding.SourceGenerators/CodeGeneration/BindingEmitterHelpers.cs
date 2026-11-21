@@ -40,18 +40,6 @@ internal static class BindingEmitterHelpers
     /// <summary>What a converter overload calls the hint it hands its converters.</summary>
     private const string ConversionHintName = "conversionHint";
 
-    /// <summary>The list a hook reader collects the changes along its path into.</summary>
-    private const string HookChangesName = "__hookChanges";
-
-    /// <summary>What a hook reader returns: the changes it reached.</summary>
-    private const string HookChangesResult = "__hookChanges.ToArray()";
-
-    /// <summary>Names the local holding the owner a hook reader reads one segment from, before its index.</summary>
-    private const string HookOwnerPrefix = "__hookOwner";
-
-    /// <summary>Names the local holding the value a hook reader read for one segment, before its index.</summary>
-    private const string HookValuePrefix = "__hookValue";
-
     /// <summary>Emits a whole binding dispatch file, claiming its call sites through one API's dispatch.</summary>
     /// <param name="invocations">The detected call sites for this API.</param>
     /// <param name="allClasses">All detected class binding info.</param>
@@ -153,11 +141,9 @@ internal static class BindingEmitterHelpers
     /// <param name="direction">The binding direction reported to the hook.</param>
     /// <param name="earlyReturn">What the generated method returns when a hook refuses.</param>
     /// <remarks>
-    /// The <c>Any</c> test comes first so the closures are only built once a hook is registered. Each reader
-    /// walks its path when requested, returning the changes reached before a null intermediate. The readers
-    /// capture copies declared inside the guard's block rather than the method's parameters: a captured parameter
-    /// shares its closure with every other lambda in the method, so the binding's subscription would keep the
-    /// source object alive for as long as the target lives.
+    /// The <c>Any</c> test comes first, so the paths are only built once a hook is registered. The runtime walks
+    /// each path when a hook asks for it. The lambdas a path holds take the owner as an argument and capture
+    /// nothing, so they do not keep the bound objects alive.
     /// </remarks>
     internal static void EmitBindingHookGuard(
         SourceWriter sb,
@@ -168,82 +154,46 @@ internal static class BindingEmitterHelpers
         string direction,
         string earlyReturn)
     {
-        const string HookSource = "__hookSource";
-        const string HookTarget = "__hookTarget";
+        _ = sb.BeginIf().Append(GeneratedTypeNames.BindingHooks).Append(".Any").OpenContinuation()
+            .Append("&& !").Append(GeneratedTypeNames.BindingHooks).Append(".ShouldBind(").OpenContinuation()
+            .Append(sourceVar).Line(",")
+            .Append(targetVar).Line(",");
 
-        _ = sb.BeginIf().Append(GeneratedTypeNames.BindingHooks).Append(".Any").CloseCondition()
-            .Var(HookSource, sourceVar)
-            .Var(HookTarget, targetVar)
-            .BeginIf().Append('!').Append(GeneratedTypeNames.BindingHooks).Append(".ShouldBind(").OpenContinuation()
-            .Append(HookSource).Line(",")
-            .Append(HookTarget).Line(",");
+        AppendHookPath(sb, sourcePath);
+        AppendHookPath(sb, targetPath);
 
-        AppendHookPropertyReader(sb, HookSource, sourcePath);
-        _ = sb.Line(",");
-        AppendHookPropertyReader(sb, HookTarget, targetPath);
-
-        _ = sb.Line(",")
-            .Append(GeneratedTypeNames.BindingDirection).Append('.').Append(direction).Append(')')
-            .Outdent().CloseCondition()
+        _ = sb.Append(GeneratedTypeNames.BindingDirection).Append('.').Append(direction).Append(')')
+            .Outdent().Outdent().CloseCondition()
             .BeginReturn().Append(earlyReturn).EndStatement()
-            .CloseBlock()
             .CloseBlock();
     }
 
-    /// <summary>Emits a lazy reader whose changes retain each segment's owner, expression and value.</summary>
-    /// <param name="sb">The writer, at the level of the argument the reader is passed as.</param>
-    /// <param name="root">The object at the start of the path.</param>
-    /// <param name="path">The property path, empty when the source is already an observable.</param>
-    /// <remarks>Leaves the line open after the reader, for the caller to separate or close the argument list.</remarks>
-    internal static void AppendHookPropertyReader(SourceWriter sb, string root, EquatableArray<PropertyPathSegment> path)
+    /// <summary>Emits one side's property path as the argument a hook reads it from.</summary>
+    /// <param name="sb">The writer, at the level of the argument the path is passed as.</param>
+    /// <param name="path">The property path, empty when the side is already an observable.</param>
+    /// <remarks>Ends the argument with its separator.</remarks>
+    internal static void AppendHookPath(SourceWriter sb, EquatableArray<PropertyPathSegment> path)
     {
         if (path.IsEmpty)
         {
-            _ = sb.Append("() => global::System.Array.Empty<")
-                .Append(GeneratedTypeNames.IObservedChange).Append("<object, object>>()");
+            _ = sb.Append("global::System.Array.Empty<").Append(GeneratedTypeNames.BindingHookProperty).Line(">(),");
             return;
         }
 
-        _ = sb.Line("() =>")
-            .OpenBlock()
-            .BeginVar(HookChangesName).Append("new global::System.Collections.Generic.List<")
-            .Append(GeneratedTypeNames.IObservedChange).Append("<object, object>>(").Append(path.Length).Line(");");
+        _ = sb.Append("new ").Append(GeneratedTypeNames.BindingHookProperty).Line("[]")
+            .OpenBlock();
 
         for (var i = 0; i < path.Length; i++)
         {
-            AppendHookPropertySegment(sb, root, path, i);
+            var segment = path[i];
+
+            _ = sb.Append(GeneratedTypeNames.BindingHookProperty).Append(".Create<")
+                .Append(segment.DeclaringTypeFullName).Append(", ").Append(segment.PropertyTypeFullName)
+                .Append(">(__o => __o.").Append(segment.PropertyName)
+                .Append(", () => __p => __p.").Append(segment.PropertyName).Line("),");
         }
 
-        _ = sb.Return(HookChangesResult)
-            .CloseBlockInline();
-    }
-
-    /// <summary>Emits one guarded property read and the change describing it.</summary>
-    /// <param name="sb">The writer, inside the reader's body.</param>
-    /// <param name="root">The first owner in the path.</param>
-    /// <param name="path">The property path being read.</param>
-    /// <param name="index">The segment to emit.</param>
-    internal static void AppendHookPropertySegment(
-        SourceWriter sb,
-        string root,
-        EquatableArray<PropertyPathSegment> path,
-        int index)
-    {
-        var segment = path[index];
-
-        _ = sb.Append("var ").Append(HookOwnerPrefix).Append(index).Append(" = ");
-        _ = index == 0 ? sb.Append(root) : sb.Append(HookValuePrefix).Append(index - 1);
-        _ = sb.EndStatement()
-            .BeginIf().Append(HookOwnerPrefix).Append(index).Append(" is null").CloseCondition()
-            .Return(HookChangesResult)
-            .CloseBlock()
-            .Append("var ").Append(HookValuePrefix).Append(index).Append(" = ")
-            .Append(HookOwnerPrefix).Append(index).Append('.').Append(segment.PropertyName).EndStatement()
-            .Append(HookChangesName).Append(".Add(new ").Append(GeneratedTypeNames.ObservedChange).Append("<object, object>(")
-            .Append(HookOwnerPrefix).Append(index).Append($", (({GeneratedTypeNames.Expression}<{GeneratedTypeNames.Func}<")
-            .Append(segment.DeclaringTypeFullName).Append(", ").Append(segment.PropertyTypeFullName)
-            .Append(">>)(__property => __property.").Append(segment.PropertyName).Append(")).Body, ")
-            .Append(HookValuePrefix).Append(index).Line("));");
+        _ = sb.CloseBlock(",");
     }
 
     /// <summary>Groups call sites that can share one generated overload.</summary>

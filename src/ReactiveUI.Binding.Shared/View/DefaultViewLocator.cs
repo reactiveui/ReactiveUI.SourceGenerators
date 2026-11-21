@@ -79,6 +79,21 @@ public sealed class DefaultViewLocator : IViewLocator
         }
     }
 
+    /// <summary>Gets the view the service locator holds for a view model type, for a generated view dispatch.</summary>
+    /// <typeparam name="TViewModel">The view model type.</typeparam>
+    /// <param name="contract">The contract the view was registered under; an empty string for none.</param>
+    /// <returns>The registered view, or <see langword="null"/> when the service locator has none.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="contract"/> is <see langword="null"/>.</exception>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [SuppressMessage("Design", "SST2307:Type parameters should be inferable", Justification = "Specified explicitly by the caller; it identifies the view model.")]
+    public static IViewFor? GetRegisteredView<TViewModel>(string contract)
+        where TViewModel : class
+    {
+        ArgumentExceptionHelper.ThrowIfNull(contract);
+
+        return AppLocator.Current.GetService<IViewFor<TViewModel>>(contract.Length == 0 ? null : contract);
+    }
+
     /// <summary>Registers an explicit view mapping for a view model type.</summary>
     /// <typeparam name="TViewModel">The view model type.</typeparam>
     /// <typeparam name="TView">The view type. Must implement <see cref="IViewFor"/>.</typeparam>

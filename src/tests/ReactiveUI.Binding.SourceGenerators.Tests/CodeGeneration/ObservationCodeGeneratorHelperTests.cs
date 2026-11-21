@@ -36,7 +36,7 @@ public partial class ObservationCodeGeneratorHelperTests
     private const string INotifyPropertyChangingName = "INotifyPropertyChanging";
 
     /// <summary>The <c>ObservationAffinityChecker</c> name these tests generate against.</summary>
-    private const string ObservationAffinityCheckerName = "ObservationAffinityChecker";
+    private const string ObservationAffinityCheckerName = "PluginObservationSource";
 
     /// <summary>The <c>PropertyObservable</c> name these tests generate against.</summary>
     private const string PropertyObservableName = "PropertyObservable";

@@ -57,7 +57,7 @@ public static partial class ObservableAsPropertyAttributeExamples
     }
 
     /// <summary>Replaces its property's source when a new connection starts.</summary>
-    [System.Diagnostics.DebuggerDisplay("Status = {Status}")]
+    [System.Diagnostics.DebuggerDisplay("ReplaceableStatus: Status = {Status}")]
     public sealed partial class ReplaceableStatus : INotifyPropertyChanged, IDisposable
     {
         /// <inheritdoc/>

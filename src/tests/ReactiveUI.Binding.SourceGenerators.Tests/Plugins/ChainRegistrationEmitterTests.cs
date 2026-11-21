@@ -30,36 +30,38 @@ public class ChainRegistrationEmitterTests
     }
 
     /// <summary>
-    /// The arguments hand the registration everything it needs fixed at compile time, in the order the observable's
-    /// constructor takes them, and end on the timing so each caller can finish the call its own way.
+    /// The arguments open the runtime's choice with everything it needs fixed at compile time, and stop before the
+    /// generated observation so each caller can write its own.
     /// </summary>
     /// <param name="isBeforeChange">Whether the registration observes before-change notifications.</param>
+    /// <param name="distinctUntilChanged">Whether a winning registration filters consecutive equal values.</param>
     /// <returns>A task representing the asynchronous test.</returns>
     [Test]
-    [Arguments(false)]
-    [Arguments(true)]
-    public async Task AppendPluginObservableArguments_WritesTheLinkInConstructorOrder(bool isBeforeChange)
+    [Arguments(false, false)]
+    [Arguments(true, false)]
+    [Arguments(false, true)]
+    public async Task AppendChoiceArguments_OpensTheRuntimeChoice(bool isBeforeChange, bool distinctUntilChanged)
     {
         const string indent = "    ";
+        const string source = "global::ReactiveUI.Binding.Observables.PluginObservationSource";
+        const int generatedAffinity = 5;
         var segment = ModelFactory.CreatePropertyPathSegment();
-        var sb = new SourceWriter().Indent();
+        var sb = new SourceWriter();
 
-        var returned = ChainRegistrationEmitter.AppendPluginObservableArguments(
+        var returned = ChainRegistrationEmitter.AppendChoiceArguments(
             sb,
-            "__registration",
             "__source",
             segment,
             "global::System.Int32",
-            isBeforeChange);
+            new(generatedAffinity, isBeforeChange, distinctUntilChanged));
 
         string[] expected =
         [
-            $"{indent}__registration,",
-            $"{indent}__source,",
-            $"{indent}((global::System.Linq.Expressions.Expression<global::System.Func<{segment.DeclaringTypeFullName}, global::System.Int32>>)(__e => __e.{segment.PropertyName})).Body,",
-            $"{indent}\"{segment.PropertyName}\",",
-            $"{indent}(object __o) => (({segment.DeclaringTypeFullName})__o).{segment.PropertyName},",
-            $"{indent}{(isBeforeChange ? "true" : "false")}",
+            $"{source}.{(distinctUntilChanged ? "ChooseDistinct" : "Choose")}<{segment.DeclaringTypeFullName}, global::System.Int32>(",
+            $"{indent}({segment.DeclaringTypeFullName})__source, \"{segment.PropertyName}\", 5, {(isBeforeChange ? "true" : "false")},",
+            $"{indent}__o => __o.{segment.PropertyName},",
+            $"{indent}() => __e => __e.{segment.PropertyName},",
+            string.Empty,
         ];
 
         await Assert.That(returned).IsSameReferenceAs(sb);

@@ -36,9 +36,6 @@ internal static class ObservationCodeGenerator
     /// <summary>Names the local holding the observation the generator's own mechanism builds.</summary>
     private const string MechanismVariableSuffix = "Mechanism";
 
-    /// <summary>Names the local holding the registration that outranked that mechanism.</summary>
-    private const string RegistrationVariableSuffix = "Registration";
-
     /// <summary>Opens a fully qualified default equality comparer.</summary>
     private const string EqualityComparerOpen = $"{EqualityComparer}<";
 
@@ -691,21 +688,14 @@ internal static class ObservationCodeGenerator
         string? valueTypeOverride = null)
     {
         var valueType = valueTypeOverride ?? segment.PropertyTypeFullName;
-        var pluginVariable = locals.VariableName + RegistrationVariableSuffix;
 
-        _ = sb.BeginVar(pluginVariable).Append(ObservationAffinityChecker)
-            .Append(".FindHigherAffinityPlugin(").Append(rootVar).Append(".GetType(), ").AppendQuoted(segment.PropertyName)
-            .Append(", ").Append(generatedAffinity).Append(", ").AppendLiteral(isBeforeChange).Line(");")
-            .BeginVar(locals.VariableName).Append(pluginVariable).Append(" == null")
-            .OpenContinuation()
-            .Append("? ").Append(ObservableCastOpen).Append(valueType).Append(">)").Line(locals.MechanismVariable)
-            .Append(": ").Append(ObservableCastOpen).Append(valueType).Append(">)new ")
-            .Append(PluginPropertyObservable).Append('<').Append(valueType).Append(">(")
-            .OpenContinuation();
-        _ = ChainRegistrationEmitter.AppendPluginObservableArguments(sb, pluginVariable, rootVar, segment, valueType, isBeforeChange)
-            .Line(",")
-            .Line("true);")
-            .Outdent()
+        _ = ChainRegistrationEmitter.AppendChoiceArguments(
+                sb.BeginVar(locals.VariableName),
+                rootVar,
+                segment,
+                valueType,
+                new(generatedAffinity, isBeforeChange, true))
+            .Append(locals.MechanismVariable).Line(");")
             .Outdent();
     }
 

@@ -40,17 +40,11 @@ namespace ReactiveUI.Binding
             }
 
             var commandObsMechanism = new global::ReactiveUI.Binding.Observables.PropertyObservable<global::System.Windows.Input.ICommand>(target, "Save", (global::System.ComponentModel.INotifyPropertyChanged __o) => ((global::SharedScenarios.InvokeCommand.CommandProperty.MyViewModel)__o).Save, true);
-            var commandObsRegistration = global::ReactiveUI.Binding.Fallback.ObservationAffinityChecker.FindHigherAffinityPlugin(target.GetType(), "Save", 5, false);
-            var commandObs = commandObsRegistration == null
-                ? (global::System.IObservable<global::System.Windows.Input.ICommand>)commandObsMechanism
-                : (global::System.IObservable<global::System.Windows.Input.ICommand>)new global::ReactiveUI.Binding.Observables.PluginPropertyObservable<global::System.Windows.Input.ICommand>(
-                    commandObsRegistration,
-                    target,
-                    ((global::System.Linq.Expressions.Expression<global::System.Func<global::SharedScenarios.InvokeCommand.CommandProperty.MyViewModel, global::System.Windows.Input.ICommand>>)(__e => __e.Save)).Body,
-                    "Save",
-                    (object __o) => ((global::SharedScenarios.InvokeCommand.CommandProperty.MyViewModel)__o).Save,
-                    false,
-                    true);
+            var commandObs = global::ReactiveUI.Binding.Observables.PluginObservationSource.ChooseDistinct<global::SharedScenarios.InvokeCommand.CommandProperty.MyViewModel, global::System.Windows.Input.ICommand>(
+                (global::SharedScenarios.InvokeCommand.CommandProperty.MyViewModel)target, "Save", 5, false,
+                __o => __o.Save,
+                () => __e => __e.Save,
+                commandObsMechanism);
             return global::ReactiveUI.Binding.CommandBinding.CommandInvoker.Invoke(source, commandObs);
         }
 

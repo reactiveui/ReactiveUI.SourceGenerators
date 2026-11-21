@@ -45,52 +45,16 @@ namespace ReactiveUI.Binding
             return null;
         }
 
-        /// <summary>
-        /// Resolves a view for <see cref="global::TestApp.ThemeViewModel"/>.
-        /// Tries the service locator first, then falls back to direct construction.
-        /// </summary>
-        /// <param name="contract">The contract string (empty string for default).</param>
-        /// <returns>The resolved view, or <see langword="null"/> if resolution fails.</returns>
+        // global::TestApp.ThemeViewModel -> global::TestApp.LightThemeView
         private static global::ReactiveUI.Binding.IViewFor __ResolveView_0(string contract)
         {
-            // Normalize contract: empty string means no contract (null for Splat lookup).
-            string svcContract = contract.Length == 0 ? null : contract;
-
-            // Prefer service-locator-registered view (supports DI-configured instances).
-            var view = global::Splat.AppLocator.Current
-                .GetService<global::ReactiveUI.Binding.IViewFor<global::TestApp.ThemeViewModel>>(
-                    svcContract);
-            if (view != null)
-            {
-                return view;
-            }
-
-            // Fallback: direct construction (global::TestApp.LightThemeView has a parameterless constructor).
-            return new global::TestApp.LightThemeView();
+            return global::ReactiveUI.Binding.DefaultViewLocator.GetRegisteredView<global::TestApp.ThemeViewModel>(contract) ?? new global::TestApp.LightThemeView();
         }
 
-        /// <summary>
-        /// Resolves a view for <see cref="global::TestApp.ThemeViewModel"/>.
-        /// Tries the service locator first, then falls back to direct construction.
-        /// </summary>
-        /// <param name="contract">The contract string (empty string for default).</param>
-        /// <returns>The resolved view, or <see langword="null"/> if resolution fails.</returns>
+        // global::TestApp.ThemeViewModel -> global::TestApp.DarkThemeView
         private static global::ReactiveUI.Binding.IViewFor __ResolveView_1(string contract)
         {
-            // Normalize contract: empty string means no contract (null for Splat lookup).
-            string svcContract = contract.Length == 0 ? null : contract;
-
-            // Prefer service-locator-registered view (supports DI-configured instances).
-            var view = global::Splat.AppLocator.Current
-                .GetService<global::ReactiveUI.Binding.IViewFor<global::TestApp.ThemeViewModel>>(
-                    svcContract);
-            if (view != null)
-            {
-                return view;
-            }
-
-            // Fallback: direct construction (global::TestApp.DarkThemeView has a parameterless constructor).
-            return new global::TestApp.DarkThemeView();
+            return global::ReactiveUI.Binding.DefaultViewLocator.GetRegisteredView<global::TestApp.ThemeViewModel>(contract) ?? new global::TestApp.DarkThemeView();
         }
     }
 }

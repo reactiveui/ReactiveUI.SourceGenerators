@@ -65,10 +65,18 @@ namespace ReactiveUI.Binding.Reactive
         public void Register(ReactiveUI.Binding.Reactive.IBindingFallbackConverter converter) { }
         public ReactiveUI.Binding.Reactive.IBindingFallbackConverter? TryGetConverter(System.Type fromType, System.Type toType) { }
     }
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    [System.Diagnostics.DebuggerDisplay("BindingHookProperty")]
+    public abstract class BindingHookProperty
+    {
+        public static ReactiveUI.Binding.Reactive.BindingHookProperty Create<TOwner, TValue>(System.Func<TOwner, TValue> read, System.Func<System.Linq.Expressions.Expression<System.Func<TOwner, TValue>>> expression) { }
+    }
     public static class BindingHooks
     {
         public static bool Any { get; }
         public static void Refresh() { }
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public static bool ShouldBind(object? source, object target, ReactiveUI.Binding.Reactive.BindingHookProperty[] sourcePath, ReactiveUI.Binding.Reactive.BindingHookProperty[] targetPath, ReactiveUI.Binding.Reactive.BindingDirection direction) { }
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         public static bool ShouldBind(object? source, object target, System.Func<ReactiveUI.Binding.Reactive.IObservedChange<object, object>[]> getSourceProperties, System.Func<ReactiveUI.Binding.Reactive.IObservedChange<object, object>[]> getTargetProperties, ReactiveUI.Binding.Reactive.BindingDirection direction) { }
     }
@@ -221,6 +229,8 @@ namespace ReactiveUI.Binding.Reactive
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public bool Unmap<TViewModel>() where TViewModel : class { }
         public bool Unmap<TViewModel>(string? contract) where TViewModel : class { }
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public static ReactiveUI.Binding.Reactive.IViewFor? GetRegisteredView<TViewModel>(string contract) where TViewModel : class { }
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         public static void SetGeneratedViewDispatch(System.Func<object, string, ReactiveUI.Binding.Reactive.IViewFor?> dispatch) { }
     }
@@ -650,7 +660,7 @@ namespace ReactiveUI.Binding.Reactive
         New = 3,
     }
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    [System.Diagnostics.DebuggerDisplay("{Owner}.{PropertyName}")]
+    [System.Diagnostics.DebuggerDisplay("ObservablePropertyTarget: {Owner}.{PropertyName}")]
     public readonly struct ObservablePropertyTarget : System.IEquatable<ReactiveUI.Binding.Reactive.ObservablePropertyTarget>
     {
         public ObservablePropertyTarget(object owner, string propertyName) { }
@@ -2081,6 +2091,8 @@ namespace ReactiveUI.Binding.Reactive.CommandBinding
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public static class CommandBinderService
     {
+        public static System.IDisposable? BindCustom<TControl, TParameter>(TControl control, System.IObservable<System.Windows.Input.ICommand?> commands, System.IObservable<TParameter>? parameter, int generatedAffinity) where TControl : class { }
+        public static System.IDisposable? BindCustom<TControl, TParameter, TEventArgs>(TControl control, System.IObservable<System.Windows.Input.ICommand?> commands, System.IObservable<TParameter>? parameter, int generatedAffinity, string eventName) where TControl : class { }
         public static ReactiveUI.Binding.Reactive.ICreatesCommandBinding? GetBinder<T>(bool hasEventTarget) { }
     }
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
@@ -2129,6 +2141,11 @@ namespace ReactiveUI.Binding.Reactive.Fallback
     public static class CommandBindingAffinityChecker
     {
         public static bool HasHigherAffinityPlugin<T>(int generatedAffinity, bool hasEventTarget) { }
+    }
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    public static class GeneratedConversion
+    {
+        public static System.IObservable<TTo> Convert<TFrom, TTo>(System.IObservable<TFrom> source, ReactiveUI.Binding.Reactive.IBindingTypeConverter? converterOverride, object? conversionHint, int generatedAffinity, bool isIdentity, System.Func<TFrom, object?, (bool Success, TTo Value)> convert, System.Func<TFrom, TTo>? assignmentFallback) { }
     }
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public static class ObservationAffinityChecker
@@ -2400,6 +2417,8 @@ namespace ReactiveUI.Binding.Reactive.Observables
     public static class PluginObservationSource
     {
         public static System.IObservable<T> Choose<T>(object source, System.Linq.Expressions.Expression expression, string propertyName, bool beforeChange, int generatedAffinity, System.Func<object, T?> getter, System.IObservable<T> generated) { }
+        public static System.IObservable<T> Choose<TOwner, T>(TOwner source, string propertyName, int generatedAffinity, bool beforeChange, System.Func<TOwner, T?> getter, System.Func<System.Linq.Expressions.Expression<System.Func<TOwner, T>>> expression, System.IObservable<T> generated) where TOwner : notnull { }
+        public static System.IObservable<T> ChooseDistinct<TOwner, T>(TOwner source, string propertyName, int generatedAffinity, bool beforeChange, System.Func<TOwner, T?> getter, System.Func<System.Linq.Expressions.Expression<System.Func<TOwner, T>>> expression, System.IObservable<T> generated) where TOwner : notnull { }
     }
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.DebuggerDisplay("PluginPropertyObservable: Property = {_propertyName}, Source = {_source}, BeforeChange = {_beforeChange}")]

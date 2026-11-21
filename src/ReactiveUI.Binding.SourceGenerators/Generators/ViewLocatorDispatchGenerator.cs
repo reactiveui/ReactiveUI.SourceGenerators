@@ -432,70 +432,46 @@ internal static class ViewLocatorDispatchGenerator
     {
         var nullable = supportsNullable ? "?" : string.Empty;
 
-        var strategyDoc = (reg.IsSingleInstance, reg.HasParameterlessConstructor) switch
-        {
-            (true, true) => "Returns a cached singleton instance (marked with [SingleInstanceView]).",
-            (true, false) => "Service locator only — [SingleInstanceView] without parameterless constructor.",
-            (false, true) => "Tries the service locator first, then falls back to direct construction.",
-            (false, false) => "Service locator only — no direct construction available."
-        };
-
+        // The service locator is asked first, through the runtime, because that lookup is the same for every
+        // view. What follows it is the one thing that differs: construct the view, cache one, or give up.
         _ = sb.BlankLine()
-            .OpenSummary()
-            .BeginDocLine().Append("Resolves a view for <see cref=\"").Append(reg.ViewModelFullyQualifiedName).Line("\"/>.")
-            .DocLine(strategyDoc)
-            .CloseSummary()
-            .DocLine("<param name=\"contract\">The contract string (empty string for default).</param>")
-            .DocLine("<returns>The resolved view, or <see langword=\"null\"/> if resolution fails.</returns>")
+            .BeginComment().Append(reg.ViewModelFullyQualifiedName).Append(" -> ").Line(reg.ViewFullyQualifiedName)
             .Append($"private static {GeneratedTypeNames.IViewFor}").Append(nullable).Append(' ').Append(ResolverMethodNamePrefix).Append(index)
             .Line("(string contract)")
-            .OpenBlock()
-            .Comment("Normalize contract: empty string means no contract (null for Splat lookup).")
-            .Append("string").Append(nullable).Line(" svcContract = contract.Length == 0 ? null : contract;")
-            .BlankLine()
-            .Comment("Prefer service-locator-registered view (supports DI-configured instances).")
-            .Line("var view = global::Splat.AppLocator.Current")
-            .Indent()
-            .Append($".GetService<{GeneratedTypeNames.IViewFor}<").Append(reg.ViewModelFullyQualifiedName).Line(">>(")
-            .Indent()
-            .Line("svcContract);")
-            .Outdent()
-            .Outdent()
-            .If("view != null")
-            .Return("view")
-            .CloseBlock();
+            .OpenBlock();
 
-        EmitResolverFallback(sb, reg, index);
+        if (reg is { HasParameterlessConstructor: true, IsSingleInstance: true })
+        {
+            EmitSingletonResolver(sb, reg, index);
+        }
+        else
+        {
+            _ = sb.BeginReturn().Append(GeneratedTypeNames.DefaultViewLocator).Append(".GetRegisteredView<")
+                .Append(reg.ViewModelFullyQualifiedName).Append(">(contract)");
+            if (reg.HasParameterlessConstructor)
+            {
+                _ = AppendViewResult(sb.Append(" ?? "), reg, $"new {reg.ViewFullyQualifiedName}()");
+            }
+
+            _ = sb.EndStatement();
+        }
 
         _ = sb.CloseBlock();
     }
 
-    /// <summary>
-    /// Emits what the resolver does when the service locator has nothing registered: construct the
-    /// view directly, cache a singleton, or give up.
-    /// </summary>
+    /// <summary>Emits the resolver of a view that is constructed once and then reused.</summary>
     /// <param name="sb">The writer, inside the resolver's body.</param>
     /// <param name="reg">The view registration being emitted.</param>
     /// <param name="index">The registration's index, used to name the singleton field.</param>
-    private static void EmitResolverFallback(SourceWriter sb, ViewRegistrationInfo reg, int index)
+    private static void EmitSingletonResolver(SourceWriter sb, ViewRegistrationInfo reg, int index)
     {
-        _ = sb.BlankLine();
-        if (!reg.HasParameterlessConstructor)
-        {
-            _ = sb.Return("null");
-            return;
-        }
-
-        if (!reg.IsSingleInstance)
-        {
-            _ = sb.BeginComment().Append("Fallback: direct construction (").Append(reg.ViewFullyQualifiedName).Line(" has a parameterless constructor).")
-                .BeginReturn();
-            _ = AppendViewResult(sb, reg, $"new {reg.ViewFullyQualifiedName}()").EndStatement();
-            return;
-        }
-
         var fieldName = $"__singletonView_{index}";
-        _ = sb.BeginComment().Append("Fallback: singleton construction (").Append(reg.ViewFullyQualifiedName).Line(" has [SingleInstanceView]).")
+        _ = sb.BeginVar("view").Append(GeneratedTypeNames.DefaultViewLocator).Append(".GetRegisteredView<")
+            .Append(reg.ViewModelFullyQualifiedName).Line(">(contract);")
+            .If("view != null")
+            .Return("view")
+            .CloseBlock()
+            .BlankLine()
             .BeginIf().Append(fieldName).Append(" == null").CloseCondition()
             .Line("System.Threading.Interlocked.CompareExchange(")
             .Indent()

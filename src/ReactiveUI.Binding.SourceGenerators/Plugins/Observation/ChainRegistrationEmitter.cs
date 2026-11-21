@@ -45,20 +45,9 @@ internal static class ChainRegistrationEmitter
         string opening = TernaryOpening)
     {
         var valueType = segment.PropertyTypeFullName;
-        var registration = $"__registration_{sourceExpression}";
 
-        _ = sb.Append(opening).Append($"({GeneratedTypeNames.ObservationAffinityChecker}.FindHigherAffinityPlugin(")
-            .Append(sourceExpression).Append(".GetType(), \"").Append(segment.PropertyName).Append("\", ")
-            .Append(generatedAffinity).Append(", ").AppendLiteral(isBeforeChange)
-            .Append(") is global::ReactiveUI.Binding.ICreatesObservableForProperty ").Append(registration)
-            .OpenContinuation()
-            .Append($"? ({GeneratedTypeNames.IObservable}<").Append(valueType)
-            .Append($">)new {GeneratedTypeNames.PluginPropertyObservable}<").Append(valueType).Append(">(")
-            .OpenContinuation();
-        _ = AppendPluginObservableArguments(sb, registration, sourceExpression, segment, valueType, isBeforeChange)
-            .Line(", false)")
-            .Outdent()
-            .Append($": ({GeneratedTypeNames.IObservable}<").Append(valueType).Line(">)");
+        _ = AppendChoiceArguments(sb.Append(opening), sourceExpression, segment, valueType, new(generatedAffinity, isBeforeChange, false))
+            .Append($"({GeneratedTypeNames.IObservable}<").Append(valueType).Line(">)");
     }
 
     /// <summary>Closes the choice <see cref="AppendChoiceOpen"/> opened, once the mechanism's observation is written.</summary>
@@ -105,31 +94,43 @@ internal static class ChainRegistrationEmitter
     }
 
     /// <summary>
-    /// Writes the arguments that hand one link to a registration: the registration, the source, the member, its
-    /// name, its accessor and the notification timing, one per line. The caller writes what follows the timing.
+    /// Opens the runtime call that picks between a registration and the generated observation of one link. Writes
+    /// every argument but the generated observation, which the caller writes last before closing the call.
     /// </summary>
-    /// <param name="sb">The writer, at the level the arguments are written at.</param>
-    /// <param name="registration">The expression naming the registration that won the link.</param>
+    /// <param name="sb">The writer, part way through the line the call starts on.</param>
     /// <param name="sourceExpression">The expression naming the object the property is read from.</param>
     /// <param name="segment">The property path segment being observed.</param>
     /// <param name="valueType">The type the link's values are observed as.</param>
-    /// <param name="isBeforeChange">Whether before-change notifications are being observed.</param>
-    /// <returns>The same writer, for chaining.</returns>
-    internal static SourceWriter AppendPluginObservableArguments(
+    /// <param name="options">The generated mechanism's affinity, and how a winning registration is observed.</param>
+    /// <returns>The same writer, one level deeper on a fresh line.</returns>
+    /// <remarks>
+    /// The property is named as a literal and read through an accessor typed as its declaring type, so no value
+    /// is boxed. The expression a registration needs is a lambda the runtime calls only when a registration
+    /// wins, so a binding no registration takes builds no expression tree. The source is cast to the declaring
+    /// type, because the variable holding it can be typed as a type derived from it.
+    /// </remarks>
+    internal static SourceWriter AppendChoiceArguments(
         SourceWriter sb,
-        string registration,
         string sourceExpression,
         PropertyPathSegment segment,
         string valueType,
-        bool isBeforeChange)
+        in ChoiceOptions options)
     {
         var declaringType = segment.DeclaringTypeFullName;
-        return sb.Append(registration).Line(",")
-            .Append(sourceExpression).Line(",")
-            .Append($"(({GeneratedTypeNames.Expression}<{GeneratedTypeNames.Func}<").Append(declaringType).Append(", ")
-            .Append(valueType).Append(">>)(__e => __e.").Append(segment.PropertyName).Line(")).Body,")
-            .AppendQuoted(segment.PropertyName).Line(",")
-            .Append("(object __o) => ((").Append(declaringType).Append(")__o).").Append(segment.PropertyName).Line(",")
-            .AppendLiteral(isBeforeChange);
+        return sb.Append(GeneratedTypeNames.PluginObservationSource)
+            .Append(options.DistinctUntilChanged ? ".ChooseDistinct<" : ".Choose<")
+            .Append(declaringType).Append(", ").Append(valueType).Append(">(")
+            .OpenContinuation()
+            .Append('(').Append(declaringType).Append(')').Append(sourceExpression).Append(", ")
+            .AppendQuoted(segment.PropertyName).Append(", ")
+            .Append(options.GeneratedAffinity).Append(", ").AppendLiteral(options.IsBeforeChange).Line(",")
+            .Append("__o => __o.").Append(segment.PropertyName).Line(",")
+            .Append("() => __e => __e.").Append(segment.PropertyName).Line(",");
     }
+
+    /// <summary>What a choice tells the runtime about the generated observation it may replace.</summary>
+    /// <param name="GeneratedAffinity">The affinity of the mechanism the generated observation was built from.</param>
+    /// <param name="IsBeforeChange">Whether before-change notifications are being observed.</param>
+    /// <param name="DistinctUntilChanged">Whether a winning registration's observation filters consecutive equal values.</param>
+    internal readonly record struct ChoiceOptions(int GeneratedAffinity, bool IsBeforeChange, bool DistinctUntilChanged);
 }

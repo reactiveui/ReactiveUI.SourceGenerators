@@ -19,8 +19,8 @@ namespace ReactiveUI.Binding;
 /// </para>
 /// <para>
 /// The locator is read on first use and the hooks are cached until <see cref="Refresh"/> is called.
-/// <see cref="Any"/> is the guard a caller tests first, so a binding builds the property-chain closures
-/// <see cref="ShouldBind"/> needs only when a hook exists.
+/// <see cref="Any"/> is the guard a caller tests first, so a binding builds the property paths
+/// <c>ShouldBind</c> needs only when a hook exists.
 /// </para>
 /// </remarks>
 public static class BindingHooks
@@ -37,7 +37,7 @@ public static class BindingHooks
 
     /// <summary>Gets a value indicating whether any hook was registered when the hooks were last read.</summary>
     /// <remarks>
-    /// Test this before building the arguments to <see cref="ShouldBind"/>: the closures they need cost more
+    /// Test this before building the arguments to <c>ShouldBind</c>: the closures they need cost more
     /// than the check, and are wasted whenever the answer is false.
     /// </remarks>
     public static bool Any => Resolve().Length > 0;
@@ -81,6 +81,46 @@ public static class BindingHooks
         }
 
         return true;
+    }
+
+    /// <summary>Asks the registered hooks whether a binding between two property paths may be created.</summary>
+    /// <param name="source">The source object, typically the view model; may be null.</param>
+    /// <param name="target">The target object, typically the view.</param>
+    /// <param name="sourcePath">The properties walked from the source, in order.</param>
+    /// <param name="targetPath">The properties walked from the target, in order.</param>
+    /// <param name="direction">Which way the binding runs.</param>
+    /// <returns><see langword="true"/> when the binding may proceed; <see langword="false"/> when a hook refused it.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="target"/>, <paramref name="sourcePath"/> or <paramref name="targetPath"/> is null.</exception>
+    /// <remarks>A hook that reads a path gets the changes reached before a null owner.</remarks>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static bool ShouldBind(
+        object? source,
+        object target,
+        BindingHookProperty[] sourcePath,
+        BindingHookProperty[] targetPath,
+        BindingDirection direction)
+    {
+        ArgumentExceptionHelper.ThrowIfNull(sourcePath);
+        ArgumentExceptionHelper.ThrowIfNull(targetPath);
+
+        return ShouldBind(source, target, () => ReadPath(source, sourcePath), () => ReadPath(target, targetPath), direction);
+    }
+
+    /// <summary>Reads each property of a path, describing every one reached as a change.</summary>
+    /// <param name="root">The object the path starts at.</param>
+    /// <param name="path">The properties to walk, in order.</param>
+    /// <returns>One change per property read, stopping before a property whose owner is null.</returns>
+    private static IObservedChange<object, object>[] ReadPath(object? root, BindingHookProperty[] path)
+    {
+        var changes = new List<IObservedChange<object, object>>(path.Length);
+        var owner = root;
+        for (var i = 0; i < path.Length && owner is not null; i++)
+        {
+            changes.Add(path[i].Read(owner, out var value));
+            owner = value;
+        }
+
+        return [.. changes];
     }
 
     /// <summary>Resolves the registered hooks once and keeps them.</summary>

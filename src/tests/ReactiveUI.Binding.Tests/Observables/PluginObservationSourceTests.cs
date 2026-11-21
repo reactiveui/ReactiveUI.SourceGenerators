@@ -89,6 +89,162 @@ public class PluginObservationSourceTests
         }
     }
 
+    /// <summary>
+    /// With nothing registered above the generated mechanism, the deferred forms keep the generated observation
+    /// and never build the expression.
+    /// </summary>
+    /// <param name="distinct">Whether the form that filters equal values is called.</param>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    [Arguments(false)]
+    [Arguments(true)]
+    public async Task ChooseDeferred_WithNoRegistrationAboveTheGeneratedAffinity_BuildsNoExpression(bool distinct)
+    {
+        var fixture = new ObservedFixture { Name = InitialName };
+        var generated = new UnchangingPropertyObservable<string>(InitialName);
+        var built = 0;
+
+        var chosen = ChooseDeferred(distinct, fixture, UnbeatableAffinity, () => CountedNameLambda(ref built), generated);
+
+        await Assert.That(chosen).IsSameReferenceAs(generated);
+        await Assert.That(built).IsEqualTo(0);
+    }
+
+    /// <summary>A registration that outranks the generated affinity drives the link, and the expression is built once.</summary>
+    /// <param name="distinct">Whether the form that filters equal values is called.</param>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    [Arguments(false)]
+    [Arguments(true)]
+    public async Task ChooseDeferred_WithARegistrationAboveTheGeneratedAffinity_ObservesThroughTheRegistration(bool distinct)
+    {
+        AppLocator.UnregisterAll<ICreatesObservableForProperty>();
+
+        try
+        {
+            AppLocator.Register<ICreatesObservableForProperty>(static () => new WinningPlugin());
+            ObservationAffinityChecker.Refresh();
+
+            var fixture = new ObservedFixture { Name = InitialName };
+            var built = 0;
+
+            var chosen = ChooseDeferred(
+                distinct,
+                fixture,
+                BeatableAffinity,
+                () => CountedNameLambda(ref built),
+                new UnchangingPropertyObservable<string>(InitialName));
+
+            await Assert.That(chosen).IsTypeOf<PluginPropertyObservable<string>>();
+            await Assert.That(built).IsEqualTo(1);
+        }
+        finally
+        {
+            RuntimeObservationFallbackTests.EnsureInitialized();
+            ObservationAffinityChecker.Refresh();
+        }
+    }
+
+    /// <summary>The deferred forms require the source, the expression and the generated observation.</summary>
+    /// <param name="distinct">Whether the form that filters equal values is called.</param>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    [Arguments(false)]
+    [Arguments(true)]
+    public async Task ChooseDeferred_NullArgument_Throws(bool distinct)
+    {
+        var fixture = new ObservedFixture();
+        var generated = new UnchangingPropertyObservable<string>(InitialName);
+
+        await Assert.That(() => ChooseDeferred(distinct, null!, BeatableAffinity, NameLambda, generated)).Throws<ArgumentNullException>();
+        await Assert.That(() => ChooseDeferred(distinct, fixture, BeatableAffinity, null!, generated)).Throws<ArgumentNullException>();
+        await Assert.That(() => ChooseDeferred(distinct, fixture, BeatableAffinity, NameLambda, null!)).Throws<ArgumentNullException>();
+        await Assert.That(() => ChooseDeferred(distinct, fixture, BeatableAffinity, NameLambda, generated, null!)).Throws<ArgumentNullException>();
+    }
+
+    /// <summary>A winning registration reads the property through the typed accessor the generated code passed.</summary>
+    /// <param name="distinct">Whether the form that filters equal values is called.</param>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    [Arguments(false)]
+    [Arguments(true)]
+    public async Task ChooseDeferred_WithAWinningRegistration_ReadsThroughTheTypedAccessor(bool distinct)
+    {
+        AppLocator.UnregisterAll<ICreatesObservableForProperty>();
+
+        try
+        {
+            AppLocator.Register<ICreatesObservableForProperty>(static () => new WinningPlugin());
+            ObservationAffinityChecker.Refresh();
+
+            var fixture = new ObservedFixture { Name = InitialName };
+            var observer = new TestModels.RecordingObserver<string>();
+
+            using var subscription = ChooseDeferred(
+                distinct,
+                fixture,
+                BeatableAffinity,
+                NameLambda,
+                new UnchangingPropertyObservable<string>("generated")).Subscribe(observer);
+
+            await Assert.That(observer.Values).Contains(InitialName);
+        }
+        finally
+        {
+            RuntimeObservationFallbackTests.EnsureInitialized();
+            ObservationAffinityChecker.Refresh();
+        }
+    }
+
+    /// <summary>Calls one of the two forms that build the expression only when a registration wins.</summary>
+    /// <param name="distinct">Whether to call the form that filters equal values.</param>
+    /// <param name="fixture">The observed object.</param>
+    /// <param name="generatedAffinity">The affinity the generated observation carries.</param>
+    /// <param name="expression">Builds the lambda naming the property.</param>
+    /// <param name="generated">The generated observation.</param>
+    /// <param name="getter">Reads the property, or the default typed accessor when omitted.</param>
+    /// <returns>The chosen observation.</returns>
+    private static IObservable<string> ChooseDeferred(
+        bool distinct,
+        ObservedFixture fixture,
+        int generatedAffinity,
+        Func<Expression<Func<ObservedFixture, string>>> expression,
+        IObservable<string> generated,
+        Func<ObservedFixture, string?> getter) =>
+        distinct
+            ? PluginObservationSource.ChooseDistinct(fixture, ObservedPropertyName, generatedAffinity, false, getter, expression, generated)
+            : PluginObservationSource.Choose(fixture, ObservedPropertyName, generatedAffinity, false, getter, expression, generated);
+
+    /// <summary>Calls one of the two deferred forms with the fixture's own typed accessor.</summary>
+    /// <param name="distinct">Whether to call the form that filters equal values.</param>
+    /// <param name="fixture">The observed object.</param>
+    /// <param name="generatedAffinity">The affinity the generated observation carries.</param>
+    /// <param name="expression">Builds the lambda naming the property.</param>
+    /// <param name="generated">The generated observation.</param>
+    /// <returns>The chosen observation.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static IObservable<string> ChooseDeferred(
+        bool distinct,
+        ObservedFixture fixture,
+        int generatedAffinity,
+        Func<Expression<Func<ObservedFixture, string>>> expression,
+        IObservable<string> generated) =>
+        ChooseDeferred(distinct, fixture, generatedAffinity, expression, generated, static observed => observed.Name);
+
+    /// <summary>Names the observed property the way generated code does, as a lambda the compiler turns into a tree.</summary>
+    /// <returns>The lambda naming the property.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static Expression<Func<ObservedFixture, string>> NameLambda() => static fixture => fixture.Name;
+
+    /// <summary>Builds the property's lambda, counting the call.</summary>
+    /// <param name="built">How many times the lambda has been built.</param>
+    /// <returns>The lambda naming the property.</returns>
+    private static Expression<Func<ObservedFixture, string>> CountedNameLambda(ref int built)
+    {
+        built++;
+        return NameLambda();
+    }
+
     /// <summary>Names the observed property the way generated code does, as a compiler-built expression.</summary>
     /// <returns>The body of a lambda naming the property.</returns>
     private static System.Linq.Expressions.Expression NameExpression()

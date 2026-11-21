@@ -15,7 +15,7 @@ namespace ReactiveUI.Binding.SourceGenerators.Tests;
 public class MismatchedPropertyTypeBindingTests
 {
     /// <summary>The registry checked before using a generated conversion.</summary>
-    private const string ConverterName = "BindingConverters.Current.TypedConverters.TryGetConverter";
+    private const string ConverterName = "GeneratedConversion.Convert";
 
     /// <summary>A view model exposing a number bound to a view exposing text, with no converter supplied.</summary>
     private const string NumberToTextSource = """
@@ -106,7 +106,7 @@ public class MismatchedPropertyTypeBindingTests
     {
         var result = TestHelper.RunGenerator(TwoWayNumberToTextSource, LanguageVersion.CSharp10);
 
-        await result.GeneratedSourceContains("BindDispatch.g.cs", $"{ConverterName}(typeof(int), typeof(string))");
-        await result.GeneratedSourceContains("BindDispatch.g.cs", $"{ConverterName}(typeof(string), typeof(int))");
+        await result.GeneratedSourceContains("BindDispatch.g.cs", $"{ConverterName}<int, string>(");
+        await result.GeneratedSourceContains("BindDispatch.g.cs", $"{ConverterName}<string, int>(");
     }
 }

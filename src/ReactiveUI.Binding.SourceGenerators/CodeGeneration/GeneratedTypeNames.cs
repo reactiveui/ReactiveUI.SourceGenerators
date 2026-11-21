@@ -139,6 +139,15 @@ internal static class GeneratedTypeNames
     /// <summary>The fully qualified name of <c>ReactiveUI.Binding.BindingErrors</c>, which every binding write subscribes through.</summary>
     internal const string BindingErrors = "global::ReactiveUI.Binding.BindingErrors";
 
+    /// <summary>The fully qualified name of <c>ReactiveUI.Binding.BindingHookProperty</c>.</summary>
+    internal const string BindingHookProperty = "global::ReactiveUI.Binding.BindingHookProperty";
+
+    /// <summary>The fully qualified name of <c>ReactiveUI.Binding.Observables.PluginObservationSource</c>.</summary>
+    internal const string PluginObservationSource = "global::ReactiveUI.Binding.Observables.PluginObservationSource";
+
+    /// <summary>The fully qualified name of <c>ReactiveUI.Binding.Fallback.GeneratedConversion</c>.</summary>
+    internal const string GeneratedConversion = "global::ReactiveUI.Binding.Fallback.GeneratedConversion";
+
     /// <summary>The fully qualified name of <c>ReactiveUI.Binding.Fallback.RuntimeBindingConverter</c>.</summary>
     internal const string RuntimeBindingConverter = "global::ReactiveUI.Binding.Fallback.RuntimeBindingConverter";
 
@@ -153,6 +162,9 @@ internal static class GeneratedTypeNames
 
     /// <summary>The fully qualified name of <c>ReactiveUI.Binding.IViewThreadInvoker</c>.</summary>
     internal const string IViewThreadInvoker = "global::ReactiveUI.Binding.IViewThreadInvoker";
+
+    /// <summary>The fully qualified name of <c>ReactiveUI.Binding.CommandBinding.CommandBinderService</c>.</summary>
+    internal const string CommandBinderService = "global::ReactiveUI.Binding.CommandBinding.CommandBinderService";
 
     /// <summary>The fully qualified name of <c>ReactiveUI.Primitives.Disposables.MultipleDisposable</c>.</summary>
     internal const string MultipleDisposable = "global::ReactiveUI.Primitives.Disposables.MultipleDisposable";
