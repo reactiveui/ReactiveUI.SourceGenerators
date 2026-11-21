@@ -156,6 +156,10 @@ internal static class TestCompilationReferences
             typeof(Enumerable).Assembly, // System.Linq
             typeof(System.ComponentModel.INotifyPropertyChanged).Assembly, // System.ObjectModel
             typeof(ReactiveObject).Assembly, // ReactiveUI
+
+            // ReactiveUI asks for a ReactiveUI.Binding version by number, and loading by that number fails when
+            // this repository builds a lower one. Naming the assembly takes the one the test project references.
+            typeof(ReactiveUI.Binding.IViewLocator).Assembly,
             typeof(System.Reactive.Unit).Assembly, // System.Reactive test inputs
             typeof(DynamicData.SourceList<>).Assembly, // Bindable derived list test inputs
             typeof(ReactiveGenerator).Assembly, // ReactiveUI.SourceGenerators.Roslyn
