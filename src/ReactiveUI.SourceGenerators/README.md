@@ -11,7 +11,7 @@ The two packages work together and share their infrastructure.
 - **Minimum requirements**
   - C# 12.0
   - Visual Studio 17.8 (Roslyn 4.8) or the .NET 8 SDK; partial properties need Visual Studio 17.14 or later
-  - ReactiveUI 23.2.28 or later
+  - ReactiveUI 26 or later
 
 ## Table of contents
 
@@ -44,8 +44,8 @@ The attributes (`[Reactive]`, `[ReactiveCommand]` and the rest) are public types
 internals through `InternalsVisibleTo` never see two copies. Your project compiles against that assembly but keeps no
 reference to it. If an older install added an `<IncludeAssets>` line without `compile`, remove it.
 
-ReactiveUI 24 consumers can reference either `ReactiveUI`, for the API without System.Reactive, or `ReactiveUI.Reactive`,
-for the System.Reactive API. The generators detect the API you reference.
+You can reference either `ReactiveUI`, for the API without System.Reactive, or `ReactiveUI.Reactive`, for the
+System.Reactive API. The generators detect the API you reference.
 
 For .NET Framework 4.8 and older, add [Polyfill](https://github.com/SimonCropp/Polyfill) or
 [PolySharp](https://github.com/Sergio0694/PolySharp) and set `LangVersion` to 12.0 or later.
@@ -285,14 +285,6 @@ public partial class MyReactiveClass : ReactiveObject
     [ObservableAsProperty]
     public partial string MyProperty { get; }
 }
-```
-
-ReactiveUI.Binding needs a ReactiveUI release built on it. On ReactiveUI 24.3 and earlier, write the helper by hand:
-
-```csharp
-private readonly ObservableAsPropertyHelper<string> _myPropertyHelper;
-
-public string MyProperty => _myPropertyHelper.Value;
 ```
 
 ### Generated code and intercepted calls

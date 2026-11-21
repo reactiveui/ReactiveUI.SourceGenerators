@@ -25,7 +25,7 @@ public sealed class ReactiveUiIntegrationTests
     private const string ReactiveUiNamespace = "ReactiveUI";
 
     /// <summary>The minimum real ReactiveUI package major version covered by this project.</summary>
-    private const int MinimumCurrentReactiveUiMajorVersion = 24;
+    private const int MinimumCurrentReactiveUiMajorVersion = 26;
 
     /// <summary>Consumer source covering background command factory selection.</summary>
     private const string RunInBackgroundCommandSource = """
@@ -291,11 +291,11 @@ public sealed class ReactiveUiIntegrationTests
         }
         """;
 
-    /// <summary>Verifies this test project is executing against a real ReactiveUI 24-or-newer package.</summary>
+    /// <summary>Verifies this test project is executing against a real, supported ReactiveUI package.</summary>
     /// <returns>A task representing the asynchronous assertion work.</returns>
     /// <exception cref="InvalidOperationException">Thrown when <c>typeof(ReactiveObject).Assembly.GetName().Version</c> is <see langword="null"/>.</exception>
     [Test]
-    public async Task CurrentTestsUseRealReactiveUiV24OrNewerPackage()
+    public async Task CurrentTestsUseASupportedReactiveUiPackage()
     {
         var version = typeof(ReactiveObject).Assembly.GetName().Version
             ?? throw new InvalidOperationException("ReactiveUI did not expose an assembly version.");
@@ -304,12 +304,12 @@ public sealed class ReactiveUiIntegrationTests
     }
 
     /// <summary>
-    /// Verifies that ReactiveUI 24 base output uses Primitives even when System.Reactive is
+    /// Verifies that output for the <c>ReactiveUI</c> package uses Primitives even when System.Reactive is
     /// independently available to the consuming compilation.
     /// </summary>
     /// <returns>A task representing the asynchronous assertion work.</returns>
     [Test]
-    public async Task V24BaseUsesPrimitivesWithoutGeneratedSystemReactiveReferences()
+    public async Task BasePackageUsesPrimitivesWithoutGeneratedSystemReactiveReferences()
     {
         var references = TestCompilationReferences.CreateDefault();
         var (compilation, generatedSource) = RunCommandGenerator(
@@ -481,10 +481,10 @@ public sealed class ReactiveUiIntegrationTests
         await Assert.That(GetDiagnosticIds(csharp13Diagnostics)).IsEquivalentTo(previewIds);
     }
 
-    /// <summary>Verifies that the ReactiveUI 24 System.Reactive variant selects its moved namespace.</summary>
+    /// <summary>Verifies that the <c>ReactiveUI.Reactive</c> package selects its own namespace.</summary>
     /// <returns>A task representing the asynchronous assertion work.</returns>
     [Test]
-    public async Task V24ReactiveUsesReactiveNamespaceAndSystemReactiveUnit()
+    public async Task ReactivePackageUsesReactiveNamespaceAndSystemReactiveUnit()
     {
         var references = TestCompilationReferences.CreateForAssemblies(
             typeof(object).Assembly,
@@ -529,46 +529,6 @@ public sealed class ReactiveUiIntegrationTests
         await Assert.That(integration.UsingDirectives).IsEqualTo("using ReactiveUI;\nusing ReactiveUI.Reactive;");
         await Assert.That(generatedSource.Contains("global::ReactiveUI.Reactive.ReactiveCommand", StringComparison.Ordinal)).IsTrue();
         await Assert.That(generatedSource.Contains(backgroundFactory, StringComparison.Ordinal)).IsTrue();
-        await Assert.That(generatedSource.Contains(SystemReactiveUnitTypeName, StringComparison.Ordinal)).IsTrue();
-        await Assert.That(GetErrors(compilation)).IsEmpty();
-    }
-
-    /// <summary>Verifies that the pre-v24 API remains on the original namespace and Unit type.</summary>
-    /// <returns>A task representing the asynchronous assertion work.</returns>
-    [Test]
-    public async Task V23UsesLegacyNamespaceAndSystemReactiveUnit()
-    {
-        var legacyReference = CreateLegacyReactiveUiReference();
-        var references = TestCompilationReferences.CreateForAssemblies(
-                typeof(object).Assembly,
-                typeof(Enumerable).Assembly,
-                typeof(System.ComponentModel.INotifyPropertyChanged).Assembly,
-                typeof(System.Reactive.Unit).Assembly,
-                typeof(ReactiveCommandGenerator).Assembly,
-                typeof(ReactiveCommandAttribute).Assembly)
-            .Add(legacyReference);
-        var (compilation, generatedSource) = RunCommandGenerator(
-            """
-            using ReactiveUI;
-            using ReactiveUI.SourceGenerators;
-
-            namespace Compatibility;
-
-            public partial class ViewModel : ReactiveObject
-            {
-                [ReactiveCommand]
-                private void Save()
-                {
-                }
-            }
-            """,
-            references);
-
-        var integration = compilation.GetReactiveUiIntegration();
-
-        await Assert.That(integration.Api).IsEqualTo(ReactiveUiApi.Legacy);
-        await Assert.That(integration.IsNewerThan22).IsTrue();
-        await Assert.That(generatedSource.Contains("global::ReactiveUI.ReactiveCommand", StringComparison.Ordinal)).IsTrue();
         await Assert.That(generatedSource.Contains(SystemReactiveUnitTypeName, StringComparison.Ordinal)).IsTrue();
         await Assert.That(GetErrors(compilation)).IsEmpty();
     }
@@ -621,60 +581,83 @@ public sealed class ReactiveUiIntegrationTests
         await Assert.That(GetErrors(outputCompilation)).IsEmpty();
     }
 
-    /// <summary>Exercises package detection when the command API is absent, referenced, or exposes primitive void.</summary>
+    /// <summary>
+    /// Verifies that a command is generated when its attribute names no can-execute member and no scheduler, that a
+    /// documentation comment of several lines is copied line by line, and that a method outside a class, and an
+    /// attribute that is not on a method, generate nothing.
+    /// </summary>
     /// <returns>A task representing the asynchronous assertion work.</returns>
     [Test]
-    public async Task IntegrationDetectionCoversReferencedAndCommandMemberShapes()
+    public async Task CommandGeneratorHandlesNullArgumentsAndMisplacedAttributes()
+    {
+        var (_, generatedSource) = RunCommandGenerator(
+            """
+            using ReactiveUI;
+            using ReactiveUI.SourceGenerators;
+
+            namespace Compatibility;
+
+            public partial class ViewModel : ReactiveObject
+            {
+                /// <summary>Saves the document.</summary>
+                /// <remarks>Runs on the caller's thread.</remarks>
+                [ReactiveCommand(CanExecute = null, OutputScheduler = null)]
+                private void Save()
+                {
+                }
+
+                [ReactiveCommand]
+                private int _misplaced;
+            }
+
+            public partial struct NotAClass
+            {
+                [ReactiveCommand]
+                private void Run()
+                {
+                }
+            }
+            """,
+            TestCompilationReferences.CreateDefault());
+
+        await Assert.That(generatedSource).Contains("SaveCommand");
+        await Assert.That(generatedSource).Contains("/// <summary>Saves the document.</summary>\n");
+        await Assert.That(generatedSource).Contains("/// <remarks>Runs on the caller's thread.</remarks>");
+        await Assert.That(generatedSource).DoesNotContain("RunCommand");
+        await Assert.That(generatedSource).DoesNotContain("misplaced");
+    }
+
+    /// <summary>Exercises package detection when ReactiveUI is absent and when each package's command type is declared.</summary>
+    /// <returns>A task representing the asynchronous assertion work.</returns>
+    [Test]
+    public async Task IntegrationDetectionFollowsTheDeclaredCommandType()
     {
         var baseReferences = TestCompilationReferences.CreateForAssemblies(typeof(object).Assembly);
         var absent = CreateIntegrationCompilation(string.Empty, baseReferences).GetReactiveUiIntegration();
-        var referencedV22 = CreateIntegrationCompilation(
-            string.Empty,
-            baseReferences.Add(CreateReactiveUiMarkerReference("22.0.0.0"))).GetReactiveUiIntegration();
-        var referencedV23 = CreateIntegrationCompilation(
-            string.Empty,
-            baseReferences.Add(CreateReactiveUiMarkerReference("23.0.0.0"))).GetReactiveUiIntegration();
-        var nonMethodCreate = CreateIntegrationCompilation(
-            """
-            namespace ReactiveUI;
-            public static class ReactiveCommand
-            {
-                public static int Create;
-            }
-            """,
-            baseReferences).GetReactiveUiIntegration();
         var primitive = CreateIntegrationCompilation(
             """
-            namespace ReactiveUI.Primitives
+            namespace ReactiveUI
             {
-                public readonly struct RxVoid
+                public static class ReactiveCommand
                 {
                 }
             }
-
-            namespace ReactiveUI
+            """,
+            baseReferences).GetReactiveUiIntegration();
+        var systemReactive = CreateIntegrationCompilation(
+            """
+            namespace ReactiveUI.Reactive
             {
-                public sealed class ReactiveCommand<T>
-                {
-                }
-
                 public static class ReactiveCommand
                 {
-                    public static ReactiveCommand<Primitives.RxVoid> Create() => new();
                 }
             }
             """,
             baseReferences).GetReactiveUiIntegration();
 
-        await Assert.That(absent.IsNewerThan22).IsFalse();
-        await Assert.That(referencedV22.Api).IsEqualTo(ReactiveUiApi.Legacy);
-        await Assert.That(referencedV22.IsNewerThan22).IsFalse();
-        await Assert.That(referencedV23.Api).IsEqualTo(ReactiveUiApi.Legacy);
-        await Assert.That(referencedV23.IsNewerThan22).IsTrue();
-        await Assert.That(nonMethodCreate.Api).IsEqualTo(ReactiveUiApi.Legacy);
-        await Assert.That(nonMethodCreate.IsNewerThan22).IsFalse();
+        await Assert.That(absent.Api).IsEqualTo(ReactiveUiApi.Primitives);
         await Assert.That(primitive.Api).IsEqualTo(ReactiveUiApi.Primitives);
-        await Assert.That(primitive.IsNewerThan22).IsTrue();
+        await Assert.That(systemReactive.Api).IsEqualTo(ReactiveUiApi.SystemReactive);
     }
 
     /// <summary>Verifies automatic forwarding for every supported validation and serialization family.</summary>
@@ -1057,91 +1040,6 @@ public sealed class ReactiveUiIntegrationTests
             [CSharpSyntaxTree.ParseText(source)],
             references,
             new(OutputKind.DynamicallyLinkedLibrary));
-
-    /// <summary>Creates a ReactiveUI-named reference with no command type and a specified assembly version.</summary>
-    /// <param name="version">The assembly version to emit.</param>
-    /// <returns>The portable executable metadata reference.</returns>
-    /// <exception cref="InvalidOperationException">Thrown when <c>!result.Success</c>.</exception>
-    private static PortableExecutableReference CreateReactiveUiMarkerReference(string version)
-    {
-        var source = $$"""
-            using System.Reflection;
-            [assembly: AssemblyVersion("{{version}}")]
-            namespace ReactiveUI;
-            public sealed class PackageMarker
-            {
-            }
-            """;
-        var compilation = CSharpCompilation.Create(
-            ReactiveUiNamespace,
-            [CSharpSyntaxTree.ParseText(source)],
-            TestCompilationReferences.CreateForAssemblies(typeof(object).Assembly),
-            new(OutputKind.DynamicallyLinkedLibrary));
-        using var stream = new MemoryStream();
-        var result = compilation.Emit(stream);
-        if (!result.Success)
-        {
-            throw new InvalidOperationException(string.Join(Environment.NewLine, result.Diagnostics));
-        }
-
-        return MetadataReference.CreateFromImage(stream.ToArray());
-    }
-
-    /// <summary>Creates an in-memory metadata reference implementing the pre-v24 ReactiveUI API.</summary>
-    /// <returns>The portable executable metadata reference.</returns>
-    /// <exception cref="InvalidOperationException">Thrown when <c>!result.Success</c>.</exception>
-    private static PortableExecutableReference CreateLegacyReactiveUiReference()
-    {
-        const string source = """
-            using System;
-            using System.ComponentModel;
-            using System.Reactive;
-            using System.Reflection;
-
-            [assembly: AssemblyVersion("23.2.28.0")]
-
-            namespace ReactiveUI;
-
-            public interface IReactiveObject : INotifyPropertyChanged, INotifyPropertyChanging
-            {
-                void RaisePropertyChanged(PropertyChangedEventArgs args);
-                void RaisePropertyChanging(PropertyChangingEventArgs args);
-            }
-
-            public class ReactiveObject : IReactiveObject
-            {
-                public event PropertyChangedEventHandler? PropertyChanged;
-                public event PropertyChangingEventHandler? PropertyChanging;
-                public void RaisePropertyChanged(PropertyChangedEventArgs args) => PropertyChanged?.Invoke(this, args);
-                public void RaisePropertyChanging(PropertyChangingEventArgs args) => PropertyChanging?.Invoke(this, args);
-            }
-
-            public sealed class ReactiveCommand<TInput, TOutput>
-            {
-            }
-
-            public static class ReactiveCommand
-            {
-                public static ReactiveCommand<Unit, Unit> Create(Action execute) => new();
-            }
-            """;
-        var compilation = CSharpCompilation.Create(
-            ReactiveUiNamespace,
-            [CSharpSyntaxTree.ParseText(source)],
-            TestCompilationReferences.CreateForAssemblies(
-                typeof(object).Assembly,
-                typeof(System.ComponentModel.INotifyPropertyChanged).Assembly,
-                typeof(System.Reactive.Unit).Assembly),
-            new(OutputKind.DynamicallyLinkedLibrary));
-        using var stream = new MemoryStream();
-        var result = compilation.Emit(stream);
-        if (!result.Success)
-        {
-            throw new InvalidOperationException(string.Join(Environment.NewLine, result.Diagnostics));
-        }
-
-        return MetadataReference.CreateFromImage(stream.ToArray());
-    }
 
     /// <summary>Formats all compilation errors for assertion output.</summary>
     /// <param name="compilation">The compilation to inspect.</param>

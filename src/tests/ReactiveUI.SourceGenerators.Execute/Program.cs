@@ -4,7 +4,6 @@
 
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using ReactiveUI;
 using Splat;
 
 namespace SGReactiveUI.SourceGenerators.Test;

@@ -6,13 +6,11 @@ namespace ReactiveUI.SourceGenerators.Models;
 
 /// <summary>Describes the ReactiveUI API surface referenced by a compilation.</summary>
 /// <param name="Api">The implementation API selected by the compilation.</param>
-/// <param name="IsNewerThan22">Whether the compilation references ReactiveUI 22 or later.</param>
 /// <param name="ViewApi">The assembly declaring the <c>IViewFor</c> interfaces and the view locator.</param>
 /// <param name="HasObservedProperty">Whether the view API's assembly has ReactiveUI.Binding's <c>ObservedProperty</c>.</param>
 internal readonly record struct ReactiveUiIntegration(
     ReactiveUiApi Api,
-    bool IsNewerThan22,
-    ReactiveUiViewApi ViewApi = ReactiveUiViewApi.ReactiveUI,
+    ReactiveUiViewApi ViewApi = ReactiveUiViewApi.Binding,
     bool HasObservedProperty = false)
 {
     /// <summary>Gets ReactiveUI.Binding's <c>ObservedProperty</c> in the view API's flavour.</summary>
@@ -40,18 +38,12 @@ internal readonly record struct ReactiveUiIntegration(
         : "using ReactiveUI;";
 
     /// <summary>Gets the qualified namespace declaring <c>IViewFor</c>, <c>IViewLocator</c> and <c>ViewLocator</c>.</summary>
-    internal string ViewNamespace => ViewApi switch
-    {
-        ReactiveUiViewApi.Binding => "global::ReactiveUI.Binding",
-        ReactiveUiViewApi.BindingReactive => "global::ReactiveUI.Binding.Reactive",
-        _ => "global::ReactiveUI",
-    };
+    internal string ViewNamespace => ViewApi == ReactiveUiViewApi.BindingReactive
+        ? "global::ReactiveUI.Binding.Reactive"
+        : "global::ReactiveUI.Binding";
 
     /// <summary>Gets the expression for the application's current view locator.</summary>
-    internal string CurrentViewLocator => ViewApi switch
-    {
-        ReactiveUiViewApi.Binding => "global::ReactiveUI.Binding.ViewLocator.GetCurrent()",
-        ReactiveUiViewApi.BindingReactive => "global::ReactiveUI.Binding.Reactive.ViewLocator.GetCurrent()",
-        _ => "global::ReactiveUI.ViewLocator.Current",
-    };
+    internal string CurrentViewLocator => ViewApi == ReactiveUiViewApi.BindingReactive
+        ? "global::ReactiveUI.Binding.Reactive.ViewLocator.GetCurrent()"
+        : "global::ReactiveUI.Binding.ViewLocator.GetCurrent()";
 }

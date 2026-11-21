@@ -81,13 +81,14 @@ public sealed class ReactiveCommandGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         // Gather info for all annotated command methods, then group them per type: each type's file is written from
-        // its own group, so an edit to one type's commands leaves every other type's file cached.
+        // its own group, so an edit to one type's commands leaves every other type's file cached. The predicate passes
+        // method declarations only, so the transform's symbol is always a method.
         var types =
             context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 AttributeDefinitions.ReactiveCommandAttributeType,
-                static (node, _) => node is MethodDeclarationSyntax { Parent: ClassDeclarationSyntax or RecordDeclarationSyntax, AttributeLists.Count: > 0 },
-                static (context, token) => GetMethodInfo(context, token))
+                static (node, _) => node is MethodDeclarationSyntax { Parent: ClassDeclarationSyntax or RecordDeclarationSyntax },
+                static (context, token) => CreateCommandInfo(context, (IMethodSymbol)context.TargetSymbol, context.Attributes[0], token))
             .Where(static x => x is not null)
             .Select(static (x, _) => x!)
             .WithTrackingName(TrackingNames.ReactiveCommands)
@@ -97,15 +98,6 @@ public sealed class ReactiveCommandGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(types.Combine(context.ReactiveUiIntegration()), static (context, input) =>
             context.AddSource($"{input.Left[0].TargetInfo.FileHintName}.ReactiveCommands.g.cs", GenerateSource(input.Left, input.Right)));
     }
-
-    /// <summary>Gets the metadata needed to generate a command for an attributed method.</summary>
-    /// <param name="context">The generator attribute context.</param>
-    /// <param name="token">The cancellation token.</param>
-    /// <returns>The command metadata, or <see langword="null"/> when the method is unsupported.</returns>
-    private static CommandInfo? GetMethodInfo(in GeneratorAttributeSyntaxContext context, CancellationToken token) =>
-        context.TargetSymbol is IMethodSymbol methodSymbol
-            ? CreateCommandInfo(context, methodSymbol, context.Attributes[0], token)
-            : default;
 
     /// <summary>Creates the metadata for a supported command method.</summary>
     /// <param name="context">The generator attribute context.</param>
@@ -247,17 +239,9 @@ public sealed class ReactiveCommandGenerator : IIncrementalGenerator
     /// <returns>The formatted documentation, or an empty string.</returns>
     private static string GetXmlDocumentation(IMethodSymbol methodSymbol, CancellationToken token)
     {
-        var xmlDocumentation = methodSymbol.GetDocumentationCommentXml(cancellationToken: token) ?? string.Empty;
-        if (xmlDocumentation.Length == 0)
-        {
-            return string.Empty;
-        }
-
+        // Concat turns a missing comment into an empty one, which has no lines between the envelope to write.
+        var xmlDocumentation = string.Concat(methodSymbol.GetDocumentationCommentXml(cancellationToken: token));
         var lines = xmlDocumentation.Split('\n');
-        if (lines.Length < 3)
-        {
-            return string.Empty;
-        }
 
         // The first and the last two lines are the <member> envelope around the documentation.
         const int XmlMemberEnvelopeLineCount = 2;
@@ -427,8 +411,8 @@ public sealed class ReactiveCommandGenerator : IIncrementalGenerator
     /// <remarks>
     /// <c>CreateRunInBackground</c> takes the background scheduler before the output scheduler, so a synchronous
     /// background command names it, as <see langword="null"/> for ReactiveUI's default, whenever either is set.
-    /// ReactiveUI 24 has no overload taking only the execute delegate and a background scheduler, so that call also
-    /// names a <see langword="null"/> can-execute, which ReactiveUI 23's all-optional overload accepts too.
+    /// ReactiveUI has no overload taking only the execute delegate and a background scheduler, so that call also
+    /// names a <see langword="null"/> can-execute.
     /// </remarks>
     private static void WriteSchedulerArguments(SourceWriter writer, CommandInfo commandInfo)
     {
@@ -497,18 +481,11 @@ public sealed class ReactiveCommandGenerator : IIncrementalGenerator
         out CanExecuteTypeInfo? canExecuteTypeInfo)
     {
         // Get the can execute member, if any
-        if (!attributeData.TryGetNamedArgument(CanExecute, out string? memberName))
+        if (!attributeData.TryGetNamedArgument(CanExecute, out string? memberName) || memberName is null)
         {
             canExecuteMemberName = null;
             canExecuteTypeInfo = null;
 
-            return;
-        }
-
-        if (memberName is null)
-        {
-            canExecuteMemberName = null;
-            canExecuteTypeInfo = null;
             return;
         }
 
@@ -563,7 +540,7 @@ public sealed class ReactiveCommandGenerator : IIncrementalGenerator
         && name is not null
         && ReactiveCommandRules.TryResolveScheduler(
             context.SemanticModel,
-            attributeData.ApplicationSyntaxReference?.Span.Start ?? context.TargetNode.SpanStart,
+            context.TargetNode.SpanStart,
             methodSymbol.ContainingType,
             name,
             out var expression)
@@ -656,7 +633,8 @@ public sealed class ReactiveCommandGenerator : IIncrementalGenerator
     {
         foreach (var attribute in symbol.GetAttributes())
         {
-            if (attribute.AttributeClass?.HasFullyQualifiedMetadataName(AttributeDefinitions.ReactiveAttributeType) == true)
+            // Roslyn gives an attribute it cannot bind an error type, never a null class.
+            if (attribute.AttributeClass!.HasFullyQualifiedMetadataName(AttributeDefinitions.ReactiveAttributeType))
             {
                 return true;
             }

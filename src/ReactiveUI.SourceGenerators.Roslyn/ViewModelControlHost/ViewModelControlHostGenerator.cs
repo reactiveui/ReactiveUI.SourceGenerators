@@ -32,21 +32,17 @@ public sealed class ViewModelControlHostGenerator : IIncrementalGenerator
         in GeneratorAttributeSyntaxContext context,
         CancellationToken token) =>
     {
-        if (!(context.TargetNode is ClassDeclarationSyntax declaredClass && declaredClass.Modifiers.Any(SyntaxKind.PartialKeyword)))
+        // The syntax predicate passes class declarations only, so the node and its symbol are a class.
+        if (!((ClassDeclarationSyntax)context.TargetNode).Modifiers.Any(SyntaxKind.PartialKeyword))
         {
             return default;
         }
 
         token.ThrowIfCancellationRequested();
-        var symbol = context.TargetSymbol;
+        var classSymbol = (INamedTypeSymbol)context.TargetSymbol;
         var attributeData = context.Attributes[0];
 
         token.ThrowIfCancellationRequested();
-        if (symbol is not INamedTypeSymbol classSymbol)
-        {
-            return default;
-        }
-
         var viewModelTypeName = GetFirstConstructorArgument(attributeData);
         if (viewModelTypeName is null)
         {
@@ -85,7 +81,7 @@ public sealed class ViewModelControlHostGenerator : IIncrementalGenerator
             context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 AttributeDefinitions.ViewModelControlHostAttributeType,
-                static (node, _) => node is ClassDeclarationSyntax { AttributeLists.Count: > 0 },
+                static (node, _) => node is ClassDeclarationSyntax,
                 static (context, token) => GetClassInfo(context, token))
             .Where(static x => x is not null)
             .Select(static (x, _) => x!)
@@ -110,9 +106,7 @@ public sealed class ViewModelControlHostGenerator : IIncrementalGenerator
     /// <returns>The file's text.</returns>
     private static string GenerateSource(ViewModelControlHostInfo info, ReactiveUiIntegration integration)
     {
-        var exceptionHandler = integration.IsNewerThan22
-            ? "RxState.DefaultExceptionHandler!.OnNext"
-            : "RxApp.DefaultExceptionHandler!.OnNext";
+        const string exceptionHandler = "RxState.DefaultExceptionHandler!.OnNext";
 
         var writer = SourceWriter.Rent();
         WriteFileHeader(writer, integration);

@@ -18,7 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ReactiveUI.Reactive" VersionOverride="24.3.0" />
+    <PackageReference Include="ReactiveUI.Reactive" />
     <PackageReference Include="Microsoft.Maui.Controls" />
   </ItemGroup>
   

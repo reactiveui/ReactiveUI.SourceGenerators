@@ -12,7 +12,7 @@ namespace TestNs
     /// Partial class for the RecordView which contains ReactiveUI IViewFor initialization.
     /// </summary>
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public partial class RecordView : global::ReactiveUI.IViewFor<global::TestNs.RecordViewModel>
+    public partial class RecordView : global::ReactiveUI.Binding.IViewFor<global::TestNs.RecordViewModel>
     {
         /// <summary>
         /// The view model dependency property.
@@ -28,7 +28,7 @@ namespace TestNs
         public global::TestNs.RecordViewModel ViewModel { get => (global::TestNs.RecordViewModel)GetValue(ViewModelProperty); set => SetValue(ViewModelProperty, value); }
 
         /// <inheritdoc/>
-        object? global::ReactiveUI.IViewFor.ViewModel { get => ViewModel; set => ViewModel = (global::TestNs.RecordViewModel)value; }
+        object? global::ReactiveUI.Binding.IViewFor.ViewModel { get => ViewModel; set => ViewModel = (global::TestNs.RecordViewModel)value; }
     }
 }
 #nullable restore

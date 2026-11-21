@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
 using System.Reactive.Concurrency;
@@ -414,7 +413,7 @@ public partial class TestViewModel : ReactiveObject, IActivatableViewModel, IDis
     private void WriteSampleMessage(string message)
     {
         GC.KeepAlive(this);
-        Trace.WriteLine(message);
+        Log(message);
     }
 
     /// <summary>Test1s this instance.</summary>

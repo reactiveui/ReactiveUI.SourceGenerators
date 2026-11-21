@@ -14,7 +14,7 @@ namespace ReactiveUI.SourceGenerator.Tests;
 
 /// <summary>
 /// Tests that the Windows Forms host generators name <c>IViewFor</c> and the view locator from the assembly the compilation uses:
-/// ReactiveUI itself, ReactiveUI.Binding, or ReactiveUI.Binding.Reactive.
+/// ReactiveUI.Binding or ReactiveUI.Binding.Reactive.
 /// </summary>
 public sealed class ViewApiIntegrationTests
 {
@@ -23,15 +23,6 @@ public sealed class ViewApiIntegrationTests
 
     /// <summary>The System.Reactive-based ReactiveUI.Binding namespace.</summary>
     private const string BindingReactiveNamespace = "ReactiveUI.Binding.Reactive";
-
-    /// <summary>Declares the <c>IViewFor</c> interfaces a ReactiveUI release not built on ReactiveUI.Binding ships.</summary>
-    private const string LegacyViewForSource = """
-        namespace ReactiveUI
-        {
-            public interface IViewFor { object? ViewModel { get; set; } }
-            public interface IViewFor<T> : IViewFor where T : class { new T? ViewModel { get; set; } }
-        }
-        """;
 
     /// <summary>Declares the command type only ReactiveUI.Reactive ships.</summary>
     private const string ReactiveUIReactiveSource = """
@@ -60,8 +51,7 @@ public sealed class ViewApiIntegrationTests
     [Test]
     public async Task ViewApiFollowsTheReferencedAssemblies()
     {
-        await Assert.That(Detect()).IsEqualTo(ReactiveUiViewApi.ReactiveUI);
-        await Assert.That(Detect(LegacyViewForSource, BindingStub(BindingNamespace))).IsEqualTo(ReactiveUiViewApi.ReactiveUI);
+        await Assert.That(Detect()).IsEqualTo(ReactiveUiViewApi.Binding);
         await Assert.That(Detect(BindingStub(BindingNamespace))).IsEqualTo(ReactiveUiViewApi.Binding);
         await Assert.That(Detect(BindingStub(BindingReactiveNamespace))).IsEqualTo(ReactiveUiViewApi.BindingReactive);
         await Assert.That(Detect(BindingStub(BindingNamespace), BindingStub(BindingReactiveNamespace))).IsEqualTo(ReactiveUiViewApi.Binding);
@@ -74,12 +64,9 @@ public sealed class ViewApiIntegrationTests
     [Test]
     public async Task ViewApiNamesTheInterfaceAndLocatorInFull()
     {
-        var legacy = new ReactiveUiIntegration(ReactiveUiApi.Legacy, true);
-        var binding = legacy with { ViewApi = ReactiveUiViewApi.Binding };
-        var bindingReactive = legacy with { ViewApi = ReactiveUiViewApi.BindingReactive };
+        var binding = new ReactiveUiIntegration(ReactiveUiApi.Primitives);
+        var bindingReactive = binding with { ViewApi = ReactiveUiViewApi.BindingReactive };
 
-        await Assert.That(legacy.ViewNamespace).IsEqualTo("global::ReactiveUI");
-        await Assert.That(legacy.CurrentViewLocator).IsEqualTo("global::ReactiveUI.ViewLocator.Current");
         await Assert.That(binding.ViewNamespace).IsEqualTo("global::ReactiveUI.Binding");
         await Assert.That(binding.CurrentViewLocator).IsEqualTo("global::ReactiveUI.Binding.ViewLocator.GetCurrent()");
         await Assert.That(bindingReactive.ViewNamespace).IsEqualTo("global::ReactiveUI.Binding.Reactive");
@@ -106,6 +93,43 @@ public sealed class ViewApiIntegrationTests
 
         await Assert.That(viewModel.Contains($", IReactiveObject, global::{bindingNamespace}.IViewFor", StringComparison.Ordinal)).IsTrue();
         await Assert.That(viewModel.Contains($"_content as global::{bindingNamespace}.IViewFor;", StringComparison.Ordinal)).IsTrue();
+    }
+
+    /// <summary>A host that is not partial, names no base type, or is not a class gets nothing generated.</summary>
+    /// <returns>A task representing the asynchronous assertion work.</returns>
+    [Test]
+    public async Task HostsSkipTargetsTheyCannotExtend()
+    {
+        const string source = """
+            using ReactiveUI.SourceGenerators.WinForms;
+
+            namespace Hosts
+            {
+                [RoutedControlHost("System.Windows.Forms.UserControl")]
+                public class NotPartialRouted { }
+
+                [ViewModelControlHost("System.Windows.Forms.UserControl")]
+                public class NotPartialViewModel { }
+
+                [RoutedControlHost]
+                public partial class NoBaseRouted { }
+
+                [ViewModelControlHost]
+                public partial class NoBaseViewModel { }
+
+                [RoutedControlHost("System.Windows.Forms.UserControl")]
+                public partial struct RoutedStruct { }
+
+                [ViewModelControlHost("System.Windows.Forms.UserControl")]
+                public partial struct ViewModelStruct { }
+            }
+            """;
+
+        var (_, routed) = Run<RoutedControlHostGenerator>(source, ".RoutedControlHost.g.cs", BindingStub(BindingNamespace));
+        var (_, viewModel) = Run<ViewModelControlHostGenerator>(source, ".ViewModelControlHost.g.cs", BindingStub(BindingNamespace));
+
+        await Assert.That(routed).IsEmpty();
+        await Assert.That(viewModel).IsEmpty();
     }
 
     /// <summary>Declares a ReactiveUI.Binding flavour's view interfaces and view locator.</summary>

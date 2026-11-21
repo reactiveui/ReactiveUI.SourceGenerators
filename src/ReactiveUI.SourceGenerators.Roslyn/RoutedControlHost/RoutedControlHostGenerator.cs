@@ -32,27 +32,21 @@ public sealed class RoutedControlHostGenerator : IIncrementalGenerator
         in GeneratorAttributeSyntaxContext context,
         CancellationToken token) =>
     {
-        if (!(context.TargetNode is ClassDeclarationSyntax declaredClass && declaredClass.Modifiers.Any(SyntaxKind.PartialKeyword)))
+        // The syntax predicate passes class declarations only, so the node and its symbol are a class.
+        if (!((ClassDeclarationSyntax)context.TargetNode).Modifiers.Any(SyntaxKind.PartialKeyword))
         {
             return default;
         }
 
         token.ThrowIfCancellationRequested();
 
-        var symbol = context.TargetSymbol;
+        var classSymbol = (INamedTypeSymbol)context.TargetSymbol;
         var attributeData = context.Attributes[0];
 
         token.ThrowIfCancellationRequested();
 
         var baseTypeName = GetFirstConstructorArgument(attributeData);
         if (baseTypeName is null)
-        {
-            return default;
-        }
-
-        token.ThrowIfCancellationRequested();
-
-        if (symbol is not INamedTypeSymbol classSymbol)
         {
             return default;
         }
@@ -91,7 +85,7 @@ public sealed class RoutedControlHostGenerator : IIncrementalGenerator
             context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 AttributeDefinitions.RoutedControlHostAttributeType,
-                static (node, _) => node is ClassDeclarationSyntax { AttributeLists.Count: > 0 },
+                static (node, _) => node is ClassDeclarationSyntax,
                 static (context, token) => GetClassInfo(context, token))
             .Where(static x => x is not null)
             .Select(static (x, _) => x!)
@@ -116,9 +110,7 @@ public sealed class RoutedControlHostGenerator : IIncrementalGenerator
     /// <returns>The file's text.</returns>
     private static string GenerateSource(RoutedControlHostInfo info, ReactiveUiIntegration integration)
     {
-        var exceptionHandler = integration.IsNewerThan22
-            ? "RxState.DefaultExceptionHandler!.OnNext"
-            : "RxApp.DefaultExceptionHandler!.OnNext";
+        const string exceptionHandler = "RxState.DefaultExceptionHandler!.OnNext";
 
         var writer = SourceWriter.Rent();
         WriteFileHeader(writer, integration);

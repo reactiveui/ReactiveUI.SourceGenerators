@@ -109,7 +109,7 @@ internal static class TestCompilationReferences
     /// Returns metadata references for all assemblies required by the in-memory test compilations.
     /// Uses an explicit transitive closure rooted at the assemblies required by the test sources.
     /// It deliberately does not sweep all loaded assemblies, so compatibility tests can model a
-    /// ReactiveUI 24 base application without accidentally importing System.Reactive.
+    /// Primitives-based ReactiveUI application without accidentally importing System.Reactive.
     /// </summary>
     /// <returns>The cached default metadata-reference closure.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
