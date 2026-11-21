@@ -59,7 +59,7 @@ namespace ReactiveUI.Binding
     }
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.DebuggerDisplay("BindingHookProperty")]
-    public abstract class BindingHookProperty
+    public sealed class BindingHookProperty
     {
         public static ReactiveUI.Binding.BindingHookProperty Create<TOwner, TValue>(System.Func<TOwner, TValue> read, System.Func<System.Linq.Expressions.Expression<System.Func<TOwner, TValue>>> expression) { }
     }

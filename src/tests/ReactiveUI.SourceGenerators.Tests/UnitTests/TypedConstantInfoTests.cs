@@ -107,36 +107,35 @@ public sealed class TypedConstantInfoTests
     {
         TypedConstantInfo[] values =
         [
-            new TypedConstantInfo.Primitive.String("text"),
-            new TypedConstantInfo.Primitive.Boolean(true),
-            new TypedConstantInfo.Primitive.Boolean(false),
-            new TypedConstantInfo.Primitive.Of<byte>(1),
-            new TypedConstantInfo.Primitive.Of<char>(CharacterValue),
-            new TypedConstantInfo.Primitive.Of<double>(DoubleValue),
-            new TypedConstantInfo.Primitive.Of<float>(SingleValue),
-            new TypedConstantInfo.Primitive.Of<int>(IntegerValue),
-            new TypedConstantInfo.Primitive.Of<long>(LongValue),
-            new TypedConstantInfo.Primitive.Of<sbyte>(SignedByteValue),
-            new TypedConstantInfo.Primitive.Of<short>(ShortValue),
-            new TypedConstantInfo.Primitive.Of<uint>(UnsignedIntegerValue),
-            new TypedConstantInfo.Primitive.Of<ulong>(UnsignedLongValue),
-            new TypedConstantInfo.Primitive.Of<ushort>(UnsignedShortValue),
-            new TypedConstantInfo.Type("global::System.String"),
-            new TypedConstantInfo.Enum("global::Test.Choice", 1),
-            new TypedConstantInfo.Enum("global::Test.Choice", -1),
-            new TypedConstantInfo.Null(),
-            new TypedConstantInfo.Array(
+            TypedConstantInfo.OfString("text"),
+            TypedConstantInfo.OfBoolean(true),
+            TypedConstantInfo.OfBoolean(false),
+            TypedConstantInfo.OfNumber<byte>(1),
+            TypedConstantInfo.OfNumber(CharacterValue),
+            TypedConstantInfo.OfNumber(DoubleValue),
+            TypedConstantInfo.OfNumber(SingleValue),
+            TypedConstantInfo.OfNumber(IntegerValue),
+            TypedConstantInfo.OfNumber(LongValue),
+            TypedConstantInfo.OfNumber(SignedByteValue),
+            TypedConstantInfo.OfNumber(ShortValue),
+            TypedConstantInfo.OfNumber(UnsignedIntegerValue),
+            TypedConstantInfo.OfNumber(UnsignedLongValue),
+            TypedConstantInfo.OfNumber(UnsignedShortValue),
+            TypedConstantInfo.OfType("global::System.String"),
+            TypedConstantInfo.OfEnum("global::Test.Choice", 1),
+            TypedConstantInfo.OfEnum("global::Test.Choice", -1),
+            TypedConstantInfo.Null(),
+            TypedConstantInfo.OfArray(
                 Int32TypeName,
-                new EquatableArray<TypedConstantInfo>(
                 [
-                    new TypedConstantInfo.Primitive.Of<int>(FirstArrayValue),
-                    new TypedConstantInfo.Primitive.Of<int>(SecondArrayValue),
-                ])),
+                    TypedConstantInfo.OfNumber(FirstArrayValue),
+                    TypedConstantInfo.OfNumber(SecondArrayValue),
+                ]),
         ];
         List<string> expressions = [];
         foreach (var value in values)
         {
-            expressions.Add(value.GetSyntax().ToString());
+            expressions.Add(value.Expression);
         }
 
         var allExpressionsHaveText = true;
@@ -152,7 +151,7 @@ public sealed class TypedConstantInfoTests
         await Assert.That(expressions[14]).IsEqualTo("typeof(global::System.String)");
         await Assert.That(expressions[16].Contains("(-1)", StringComparison.Ordinal)).IsTrue();
         await Assert.That(expressions[17]).IsEqualTo("null");
-        await Assert.That(expressions[18].Contains(Int32TypeName, StringComparison.Ordinal)).IsTrue();
+        await Assert.That(expressions[18]).IsEqualTo("new global::System.Int32[]{10,11}");
         await Assert.That(allExpressionsHaveText).IsTrue();
     }
 
@@ -173,13 +172,13 @@ public sealed class TypedConstantInfoTests
         }
 
         await Assert.That(values.Count).IsEqualTo(attribute.ConstructorArguments.Length);
-        await Assert.That(values[0] is TypedConstantInfo.Null).IsTrue();
-        await Assert.That(values[1] is TypedConstantInfo.Primitive.String).IsTrue();
-        await Assert.That(values[2] is TypedConstantInfo.Primitive.Boolean).IsTrue();
-        await Assert.That(values[10] is TypedConstantInfo.Type).IsTrue();
-        await Assert.That(values[11] is TypedConstantInfo.Enum).IsTrue();
-        await Assert.That(values[12] is TypedConstantInfo.Array).IsTrue();
-        await Assert.That(values[12].GetSyntax().ToString().Contains("10", StringComparison.Ordinal)).IsTrue();
+        await Assert.That(values[0].Kind == TypedConstantInfo.ConstantKind.Null).IsTrue();
+        await Assert.That(values[1].Kind == TypedConstantInfo.ConstantKind.String).IsTrue();
+        await Assert.That(values[2].Kind == TypedConstantInfo.ConstantKind.Boolean).IsTrue();
+        await Assert.That(values[10]?.Kind == TypedConstantInfo.ConstantKind.Type).IsTrue();
+        await Assert.That(values[11].Kind == TypedConstantInfo.ConstantKind.Enum).IsTrue();
+        await Assert.That(values[12]?.Kind == TypedConstantInfo.ConstantKind.Array).IsTrue();
+        await Assert.That(values[12].Expression.Contains("10", StringComparison.Ordinal)).IsTrue();
     }
 
     /// <summary>The operation factory handles constants, types, explicit and implicit arrays, and unsupported values.</summary>
@@ -217,14 +216,14 @@ public sealed class TypedConstantInfoTests
         }
 
         await Assert.That(integer.Success).IsTrue();
-        await Assert.That(integer.Info?.GetSyntax().ToString()).IsEqualTo("42");
+        await Assert.That(integer.Info?.Expression).IsEqualTo("42");
         await Assert.That(type.Success).IsTrue();
-        await Assert.That(type.Info is TypedConstantInfo.Type).IsTrue();
+        await Assert.That(type.Info?.Kind == TypedConstantInfo.ConstantKind.Type).IsTrue();
         await Assert.That(implicitArray.Success).IsTrue();
         await Assert.That(explicitArray.Success).IsTrue();
         await Assert.That(uninitializedArray.Success).IsTrue();
-        await Assert.That(uninitializedArray.Info is TypedConstantInfo.Array).IsTrue();
-        await Assert.That((uninitializedArray.Info?.GetSyntax().ToString() ?? string.Empty).Contains("[]", StringComparison.Ordinal)).IsTrue();
+        await Assert.That(uninitializedArray.Info?.Kind == TypedConstantInfo.ConstantKind.Array).IsTrue();
+        await Assert.That((uninitializedArray.Info?.Expression ?? string.Empty).Contains("[]", StringComparison.Ordinal)).IsTrue();
         await Assert.That(allPrimitiveOperationsSucceeded).IsTrue();
         await Assert.That(invocation.Success).IsFalse();
         await Assert.That(invocation.Info).IsNull();
@@ -232,12 +231,28 @@ public sealed class TypedConstantInfoTests
         await Assert.That(unsupportedArray.Info).IsNull();
     }
 
+    /// <summary>Enum constants and array elements are written as they were typed.</summary>
+    /// <returns>A task to monitor the async.</returns>
+    [Test]
+    public async Task TryCreate_WithEnumAndConvertedArrayElements_WritesTheSourceValues()
+    {
+        var enumValue = TryCreateExpression("System.DayOfWeek.Monday");
+        var explicitArray = TryCreateExpression("new int[] { 3, 4 }");
+        var convertedArray = TryCreateExpression("new long[] { 1, 2 }");
+        var objectArray = TryCreateExpression("new object[] { 1, typeof(string) }");
+
+        await Assert.That(enumValue.Info?.Expression).IsEqualTo("(global::System.DayOfWeek)1");
+        await Assert.That(explicitArray.Info?.Expression).IsEqualTo("new int[]{3,4}");
+        await Assert.That(convertedArray.Info?.Expression).IsEqualTo("new long[]{1,2}");
+        await Assert.That(objectArray.Info?.Expression).IsEqualTo("new object[]{1,typeof(string)}");
+    }
+
     /// <summary>Unsupported primitive values report the intended argument errors.</summary>
     /// <returns>A task to monitor the async.</returns>
     [Test]
     public async Task UnsupportedPrimitiveValues_ThrowArgumentException()
     {
-        await Assert.That(static () => new TypedConstantInfo.Primitive.Of<decimal>(1M).GetSyntax()).Throws<ArgumentException>();
+        await Assert.That(static () => TypedConstantInfo.OfNumber(1M).Expression).Throws<ArgumentException>();
         await Assert.That(static () => TryCreateExpression("1M")).Throws<ArgumentException>();
     }
 
@@ -263,7 +278,7 @@ public sealed class TypedConstantInfoTests
         var expression = GetValueExpression(syntaxTree.GetRoot());
         var operation = semanticModel.GetOperation(expression)
             ?? throw new InvalidOperationException("The test expression operation was not found.");
-        var success = TypedConstantInfo.TryCreate(operation, semanticModel, expression, default, out var info);
+        var success = TypedConstantInfo.TryCreate(operation, out var info);
         return (success, info);
     }
 

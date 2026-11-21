@@ -13,12 +13,28 @@ namespace ReactiveUI.Binding;
 /// <summary>One property of a bound path, as a generated binding describes it to <see cref="BindingHooks"/>.</summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
 [DebuggerDisplay("BindingHookProperty")]
-public abstract class BindingHookProperty
+public sealed class BindingHookProperty
 {
+    /// <summary>Reads the property and describes the read as a change.</summary>
+    private readonly ChangeReader _read;
+
+    /// <summary>Reads the property and hands it to a visitor in its own types.</summary>
+    private readonly Func<object, IBindingHookPropertyVisitor, bool, object?> _visit;
+
     /// <summary>Initializes a new instance of the <see cref="BindingHookProperty"/> class.</summary>
-    private protected BindingHookProperty()
+    /// <param name="read">Reads the property and describes the read as a change.</param>
+    /// <param name="visit">Reads the property and hands it to a visitor in its own types.</param>
+    private BindingHookProperty(ChangeReader read, Func<object, IBindingHookPropertyVisitor, bool, object?> visit)
     {
+        _read = read;
+        _visit = visit;
     }
+
+    /// <summary>Reads a property from its owner, describing the read as a change.</summary>
+    /// <param name="owner">The object that owns the property.</param>
+    /// <param name="value">The value read, which owns the next property of the path.</param>
+    /// <returns>The owner, the expression naming the property and the value read.</returns>
+    private delegate ObservedChange<object, object> ChangeReader(object owner, out object? value);
 
     /// <summary>Describes a property through a typed reader and the expression that names it.</summary>
     /// <typeparam name="TOwner">The type that declares the property.</typeparam>
@@ -35,39 +51,49 @@ public abstract class BindingHookProperty
         ArgumentExceptionHelper.ThrowIfNull(read);
         ArgumentExceptionHelper.ThrowIfNull(expression);
 
-        return new Typed<TOwner, TValue>(read, expression);
+        var accessors = new Accessors<TOwner, TValue>(read, expression);
+        return new(accessors.Read, accessors.Visit);
     }
 
     /// <summary>Reads the property from its owner, describing the read as a change.</summary>
     /// <param name="owner">The object that owns the property.</param>
     /// <param name="value">The value read, which owns the next property of the path.</param>
     /// <returns>The owner, the expression naming the property and the value read.</returns>
-    internal abstract IObservedChange<object, object> Read(object owner, out object? value);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal ObservedChange<object, object> Read(object owner, out object? value) => _read(owner, out value);
 
     /// <summary>Reads the property from its owner and hands it to a visitor in its own types.</summary>
     /// <param name="owner">The object that owns the property.</param>
     /// <param name="visitor">The visitor that receives the property.</param>
     /// <param name="ownsNext">Whether the value read owns the next property of the path.</param>
     /// <returns>The value read when it owns the next property; otherwise <see langword="null"/>.</returns>
-    internal abstract object? Visit(object owner, IBindingHookPropertyVisitor visitor, bool ownsNext);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal object? Visit(object owner, IBindingHookPropertyVisitor visitor, bool ownsNext) => _visit(owner, visitor, ownsNext);
 
-    /// <summary>A property read through accessors typed as its owner and its value.</summary>
+    /// <summary>The typed accessors of one property, which the untyped property calls through delegates.</summary>
     /// <typeparam name="TOwner">The type that declares the property.</typeparam>
     /// <typeparam name="TValue">The property's type.</typeparam>
     /// <param name="read">Reads the property from the object that owns it.</param>
     /// <param name="expression">Builds the lambda that names the property.</param>
-    private sealed class Typed<TOwner, TValue>(Func<TOwner, TValue> read, Func<Expression<Func<TOwner, TValue>>> expression) : BindingHookProperty
+    private sealed class Accessors<TOwner, TValue>(Func<TOwner, TValue> read, Func<Expression<Func<TOwner, TValue>>> expression)
     {
-        /// <inheritdoc/>
-        internal override IObservedChange<object, object> Read(object owner, out object? value)
+        /// <summary>Reads the property, describing the read as a change.</summary>
+        /// <param name="owner">The object that owns the property.</param>
+        /// <param name="value">The value read.</param>
+        /// <returns>The change.</returns>
+        public ObservedChange<object, object> Read(object owner, out object? value)
         {
             // A hook is handed every value as an object, so this is the one place a value type is boxed.
             value = read((TOwner)owner);
-            return new ObservedChange<object, object>(owner, expression().Body, value!);
+            return new(owner, expression().Body, value!);
         }
 
-        /// <inheritdoc/>
-        internal override object? Visit(object owner, IBindingHookPropertyVisitor visitor, bool ownsNext)
+        /// <summary>Reads the property and hands it to a visitor in its own types.</summary>
+        /// <param name="owner">The object that owns the property.</param>
+        /// <param name="visitor">The visitor that receives the property.</param>
+        /// <param name="ownsNext">Whether the value read owns the next property of the path.</param>
+        /// <returns>The value read when it owns the next property; otherwise <see langword="null"/>.</returns>
+        public object? Visit(object owner, IBindingHookPropertyVisitor visitor, bool ownsNext)
         {
             var typedOwner = (TOwner)owner;
             var value = read(typedOwner);
