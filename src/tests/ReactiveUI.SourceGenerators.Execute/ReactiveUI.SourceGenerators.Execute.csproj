@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFrameworks>$(BindingDesktopTargets)</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
@@ -15,8 +15,6 @@
 
   <ItemGroup>
     <PackageReference Include="DynamicData" />
-    <PackageReference Include="ReactiveUI.Reactive" VersionOverride="24.3.0" />
-    <PackageReference Include="Splat" />
   </ItemGroup>
 
   <ItemGroup>

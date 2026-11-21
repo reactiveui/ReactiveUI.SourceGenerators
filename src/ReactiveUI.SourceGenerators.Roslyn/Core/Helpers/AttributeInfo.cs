@@ -7,8 +7,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ReactiveUI.SourceGenerators.CodeGeneration;
 using ReactiveUI.SourceGenerators.Extensions;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace ReactiveUI.SourceGenerators.Helpers;
 
@@ -22,7 +22,7 @@ internal sealed record AttributeInfo(
     EquatableArray<(string Name, TypedConstantInfo Value)> NamedArgumentInfo)
 {
     /// <inheritdoc/>
-    public override string ToString() => $"[{GetSyntax()}]";
+    public override string ToString() => Write(this);
 
     /// <summary>Creates a new <see cref="AttributeInfo"/> instance from a given <see cref="AttributeData"/> value.</summary>
     /// <param name="attributeData">The input <see cref="AttributeData"/> value.</param>
@@ -80,7 +80,7 @@ internal sealed record AttributeInfo(
             }
 
             // Try to get the info for the current argument
-            if (!TypedConstantInfo.TryCreate(operation, semanticModel, argument.Expression, token, out var argumentInfo))
+            if (!TypedConstantInfo.TryCreate(operation, out var argumentInfo))
             {
                 info = null;
 
@@ -89,13 +89,13 @@ internal sealed record AttributeInfo(
 
             // Try to get the identifier name if the current expression is a named argument expression. If it
             // isn't, then the expression is a normal attribute constructor argument, so no extra work is needed.
-            if (argument.NameEquals is { Name.Identifier.ValueText: string argumentName })
+            if (argument.NameEquals is null)
             {
-                namedArguments.Add((argumentName, argumentInfo));
+                constructorArguments.Add(argumentInfo);
             }
             else
             {
-                constructorArguments.Add(argumentInfo);
+                namedArguments.Add((argument.NameEquals.Name.Identifier.ValueText, argumentInfo));
             }
         }
 
@@ -107,24 +107,30 @@ internal sealed record AttributeInfo(
         return true;
     }
 
-    /// <summary>Gets an <see cref="AttributeSyntax"/> instance representing the current value.</summary>
-    /// <returns>The <see cref="ExpressionSyntax"/> instance representing the current value.</returns>
-    internal AttributeSyntax GetSyntax()
+    /// <summary>Writes an attribute as the bracketed C# that applies it.</summary>
+    /// <param name="attribute">The attribute.</param>
+    /// <returns>The attribute list text, with constructor arguments first and named arguments after them.</returns>
+    private static string Write(AttributeInfo attribute)
     {
-        using var arguments = ArrayBuilder<AttributeArgumentSyntax>.Rent();
+        const int ArgumentCapacity = 32;
+        var constructorArguments = attribute.ConstructorArgumentInfo.AsSpan();
+        var namedArguments = attribute.NamedArgumentInfo.AsSpan();
+        var builder = PooledBuilder.Rent(attribute.TypeName.Length + ((constructorArguments.Length + namedArguments.Length) * ArgumentCapacity));
+        _ = builder.Append('[').Append(attribute.TypeName).Append('(');
 
-        foreach (var constructorArgument in ConstructorArgumentInfo.AsSpan())
+        var separator = string.Empty;
+        for (var index = 0; index < constructorArguments.Length; index++)
         {
-            arguments.Add(AttributeArgument(constructorArgument.GetSyntax()));
+            _ = builder.Append(separator).Append(constructorArguments[index].Expression);
+            separator = ",";
         }
 
-        foreach (var namedArgument in NamedArgumentInfo.AsSpan())
+        for (var index = 0; index < namedArguments.Length; index++)
         {
-            arguments.Add(
-                AttributeArgument(namedArgument.Value.GetSyntax())
-                .WithNameEquals(NameEquals(IdentifierName(namedArgument.Name))));
+            _ = builder.Append(separator).Append(namedArguments[index].Name).Append('=').Append(namedArguments[index].Value.Expression);
+            separator = ",";
         }
 
-        return Attribute(IdentifierName(TypeName), AttributeArgumentList(SeparatedList(arguments.ToArray())));
+        return PooledBuilder.ToStringAndReturn(builder.Append(")]"));
     }
 }

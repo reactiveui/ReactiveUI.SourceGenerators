@@ -7,7 +7,7 @@ using Splat;
 namespace ReactiveUI.Binding.Documentation.Converters;
 
 /// <summary>The Splat registrations of an older to-do app, which kept its converters in a dependency resolver.</summary>
-public static class LegacyAppDependencyResolver
+public static class ExistingAppDependencyResolver
 {
     /// <summary>Registers the three converters the older app used and returns the resolver that holds them.</summary>
     /// <returns>A Splat resolver holding a typed, a fallback and a set-method converter.</returns>
@@ -15,9 +15,9 @@ public static class LegacyAppDependencyResolver
     {
         ModernDependencyResolver resolver = new();
 
-        resolver.RegisterConstant<IBindingTypeConverter>(new LegacyPriorityToColorConverter());
-        resolver.RegisterConstant<IBindingFallbackConverter>(new LegacyObjectToStringFallbackConverter());
-        resolver.RegisterConstant<ISetMethodBindingConverter>(new LegacyTagListSetMethodConverter());
+        resolver.RegisterConstant<IBindingTypeConverter>(new ExistingPriorityToColorConverter());
+        resolver.RegisterConstant<IBindingFallbackConverter>(new ExistingObjectToStringFallbackConverter());
+        resolver.RegisterConstant<ISetMethodBindingConverter>(new ExistingTagListSetMethodConverter());
 
         return resolver;
     }

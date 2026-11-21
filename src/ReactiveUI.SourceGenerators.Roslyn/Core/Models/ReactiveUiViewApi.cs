@@ -7,12 +7,9 @@ namespace ReactiveUI.SourceGenerators.Models;
 /// <summary>Identifies which assembly declares the <c>IViewFor</c> interfaces and the view locator a compilation uses.</summary>
 internal enum ReactiveUiViewApi
 {
-    /// <summary>ReactiveUI declares them in <c>ReactiveUI</c>: every release not built on ReactiveUI.Binding.</summary>
-    ReactiveUI = 0,
-
     /// <summary>ReactiveUI.Binding declares them in <c>ReactiveUI.Binding</c>, used by the Primitives-based ReactiveUI.</summary>
-    Binding = 1,
+    Binding = 0,
 
     /// <summary>ReactiveUI.Binding.Reactive declares them in <c>ReactiveUI.Binding.Reactive</c>, used by ReactiveUI.Reactive.</summary>
-    BindingReactive = 2,
+    BindingReactive = 1,
 }

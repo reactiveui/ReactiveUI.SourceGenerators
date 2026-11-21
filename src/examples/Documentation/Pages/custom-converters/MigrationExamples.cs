@@ -12,11 +12,11 @@ namespace ReactiveUI.Binding.Documentation.Converters;
 public static class MigrationExamples
 {
     /// <summary>Reads the converters out of the older app's Splat resolver.</summary>
-    public static void ExtractConvertersFromLegacyResolver()
+    public static void ExtractConvertersFromExistingResolver()
     {
-        using Splat.ModernDependencyResolver legacyResolver = LegacyAppDependencyResolver.Create();
+        using Splat.ModernDependencyResolver existingResolver = ExistingAppDependencyResolver.Create();
 
-        ExtractedConverters extracted = ConverterMigrationHelper.ExtractConverters(legacyResolver);
+        ExtractedConverters extracted = ConverterMigrationHelper.ExtractConverters(existingResolver);
 
         Console.WriteLine(extracted.TypedConverters.Count);
         Console.WriteLine(extracted.FallbackConverters.Count);
@@ -29,18 +29,18 @@ public static class MigrationExamples
         // 1
         // 1
         // 1
-        // LegacyPriorityToColorConverter
-        // LegacyObjectToStringFallbackConverter
-        // LegacyTagListSetMethodConverter
+        // ExistingPriorityToColorConverter
+        // ExistingObjectToStringFallbackConverter
+        // ExistingTagListSetMethodConverter
     }
 
     /// <summary>Copies the older app's converters into a converter service and uses each one.</summary>
-    public static void ImportLegacyConvertersIntoService()
+    public static void ImportExistingConvertersIntoService()
     {
-        using Splat.ModernDependencyResolver legacyResolver = LegacyAppDependencyResolver.Create();
+        using Splat.ModernDependencyResolver existingResolver = ExistingAppDependencyResolver.Create();
         ConverterService service = new();
 
-        service.ImportFrom(legacyResolver);
+        service.ImportFrom(existingResolver);
 
         IBindingTypeConverter? typed = service.TypedConverters.TryGetConverter(typeof(TodoPriority), typeof(string));
         Console.WriteLine(typed!.TryConvertTyped(TodoPriority.High, null, out var highColour));
@@ -69,9 +69,9 @@ public static class MigrationExamples
     /// <summary>Binds a priority badge with the converter the older app registered, passed to the binding as the converter override.</summary>
     public static void BindToWithMigratedConverterOverride()
     {
-        using Splat.ModernDependencyResolver legacyResolver = LegacyAppDependencyResolver.Create();
+        using Splat.ModernDependencyResolver existingResolver = ExistingAppDependencyResolver.Create();
 
-        BindingConverters.Current.ImportFrom(legacyResolver);
+        BindingConverters.Current.ImportFrom(existingResolver);
 
         IBindingTypeConverter? migrated = BindingConverters.Current.TypedConverters.TryGetConverter(typeof(TodoPriority), typeof(string));
         TodoItem item = new() { Title = "Renew passport", Priority = TodoPriority.High };
@@ -94,9 +94,9 @@ public static class MigrationExamples
     /// <summary>Binds a priority badge and lets the binding find the migrated converter in the service.</summary>
     public static void BindToResolvesMigratedConverter()
     {
-        using Splat.ModernDependencyResolver legacyResolver = LegacyAppDependencyResolver.Create();
+        using Splat.ModernDependencyResolver existingResolver = ExistingAppDependencyResolver.Create();
 
-        BindingConverters.Current.ImportFrom(legacyResolver);
+        BindingConverters.Current.ImportFrom(existingResolver);
 
         TodoItem item = new() { Title = "Book dentist", Priority = TodoPriority.Normal };
         Label priorityBadge = new();
@@ -118,9 +118,9 @@ public static class MigrationExamples
     /// <summary>Groups converters into an <c>ExtractedConverters</c> yourself and takes the three groups apart again.</summary>
     public static void GroupConvertersAndDeconstruct()
     {
-        List<IBindingTypeConverter> typed = [new LegacyPriorityToColorConverter()];
-        List<IBindingFallbackConverter> fallback = [new LegacyObjectToStringFallbackConverter()];
-        List<ISetMethodBindingConverter> setMethod = [new LegacyTagListSetMethodConverter()];
+        List<IBindingTypeConverter> typed = [new ExistingPriorityToColorConverter()];
+        List<IBindingFallbackConverter> fallback = [new ExistingObjectToStringFallbackConverter()];
+        List<ISetMethodBindingConverter> setMethod = [new ExistingTagListSetMethodConverter()];
         ExtractedConverters extracted = new(typed, fallback, setMethod);
 
         var (typedConverters, fallbackConverters, setMethodConverters) = extracted;
@@ -130,16 +130,16 @@ public static class MigrationExamples
         Console.WriteLine(setMethodConverters[0].GetType().Name);
 
         // Output:
-        // LegacyPriorityToColorConverter
-        // LegacyObjectToStringFallbackConverter
-        // LegacyTagListSetMethodConverter
+        // ExistingPriorityToColorConverter
+        // ExistingObjectToStringFallbackConverter
+        // ExistingTagListSetMethodConverter
     }
 
     /// <summary>Compares extracted converters; two results are equal when they hold the same three groups.</summary>
     public static void CompareExtractedConverters()
     {
-        using Splat.ModernDependencyResolver legacyResolver = LegacyAppDependencyResolver.Create();
-        ExtractedConverters extracted = ConverterMigrationHelper.ExtractConverters(legacyResolver);
+        using Splat.ModernDependencyResolver existingResolver = ExistingAppDependencyResolver.Create();
+        ExtractedConverters extracted = ConverterMigrationHelper.ExtractConverters(existingResolver);
         ExtractedConverters same = extracted with { };
         ExtractedConverters withoutFallback = extracted with { FallbackConverters = [] };
         object boxedSame = same;

@@ -167,7 +167,7 @@ public class NativeCommandParityTests
     {
         var result = TestHelper.RunGenerator(Scenario(type), LanguageVersion.CSharp10);
         await result.CompilationSucceeds();
-        await result.GeneratedSourceContains("BindCommandDispatch.g.cs", $">({affinity}, false)");
+        await result.GeneratedSourceContains("BindCommandDispatch.g.cs", $", commandObs, null, {affinity});");
         await AssertRuns(result);
     }
 

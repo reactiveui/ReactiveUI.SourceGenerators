@@ -22,6 +22,7 @@ public class ControlHostBehaviourTests
         using System.ComponentModel;
         using System.Windows.Forms;
         using ReactiveUI;
+        using ReactiveUI.Binding;
         using ReactiveUI.SourceGenerators.WinForms;
 
         namespace Hosts
@@ -67,13 +68,13 @@ public class ControlHostBehaviourTests
 
             public sealed class Locator : IViewLocator
             {
-                public IViewFor<TViewModel>? ResolveView<TViewModel>() where TViewModel : class => null;
+                public IViewFor? ResolveView<TViewModel>(TViewModel viewModel, string? contract)
+                    where TViewModel : class => ResolveView((object?)viewModel, contract);
 
-                public IViewFor<TViewModel>? ResolveView<TViewModel>(string? contract) where TViewModel : class => null;
+                public IViewFor? ResolveView(object? viewModel, string? contract) =>
+                    viewModel is PageViewModel ? new PageView() : null;
 
-                public IViewFor? ResolveView(object? viewModel) => viewModel is PageViewModel ? new PageView() : null;
-
-                public IViewFor? ResolveView(object? viewModel, string? contract) => ResolveView(viewModel);
+                public IViewFor? ResolveViewUnsafe(object? viewModel, string? contract) => ResolveView(viewModel, contract);
             }
         }
         """;

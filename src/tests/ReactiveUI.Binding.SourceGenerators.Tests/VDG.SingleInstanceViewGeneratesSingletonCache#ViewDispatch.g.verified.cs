@@ -41,27 +41,15 @@ namespace ReactiveUI.Binding
             return null;
         }
 
-        /// <summary>
-        /// Resolves a view for <see cref="global::TestApp.SingletonViewModel"/>.
-        /// Returns a cached singleton instance (marked with [SingleInstanceView]).
-        /// </summary>
-        /// <param name="contract">The contract string (empty string for default).</param>
-        /// <returns>The resolved view, or <see langword="null"/> if resolution fails.</returns>
+        // global::TestApp.SingletonViewModel -> global::TestApp.SingletonView
         private static global::ReactiveUI.Binding.IViewFor __ResolveView_0(string contract)
         {
-            // Normalize contract: empty string means no contract (null for Splat lookup).
-            string svcContract = contract.Length == 0 ? null : contract;
-
-            // Prefer service-locator-registered view (supports DI-configured instances).
-            var view = global::Splat.AppLocator.Current
-                .GetService<global::ReactiveUI.Binding.IViewFor<global::TestApp.SingletonViewModel>>(
-                    svcContract);
+            var view = global::ReactiveUI.Binding.DefaultViewLocator.GetRegisteredView<global::TestApp.SingletonViewModel>(contract);
             if (view != null)
             {
                 return view;
             }
 
-            // Fallback: singleton construction (global::TestApp.SingletonView has [SingleInstanceView]).
             if (__singletonView_0 == null)
             {
                 System.Threading.Interlocked.CompareExchange(

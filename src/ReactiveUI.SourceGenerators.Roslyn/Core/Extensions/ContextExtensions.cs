@@ -17,24 +17,14 @@ namespace ReactiveUI.SourceGenerators.Extensions;
 /// <summary>Provides extension members used while processing generator contexts.</summary>
 internal static class ContextExtensions
 {
-    /// <summary>The first ReactiveUI version that supports the current generator behavior.</summary>
-    private const int CurrentGeneratorBehaviorMinimumMajorVersion = 23;
-
-    /// <summary>The metadata name of the ReactiveUI primitive void type.</summary>
-    private const string RxVoidMetadataName = "ReactiveUI.Primitives.RxVoid";
-
     /// <summary>Provides extension members for compilations.</summary>
     /// <param name="compilation">The compilation to extend.</param>
     extension(Compilation compilation)
     {
         /// <summary>Gets the ReactiveUI integration supported by this compilation.</summary>
-        /// <returns>The ReactiveUI API, command behavior, view API and property observation supported by this compilation.</returns>
+        /// <returns>The ReactiveUI API, view API and property observation supported by this compilation.</returns>
         internal ReactiveUiIntegration GetReactiveUiIntegration() =>
-            GetApiIntegration(compilation) with
-            {
-                ViewApi = GetViewApi(compilation),
-                HasObservedProperty = ViewApiRules.HasObservedProperty(compilation),
-            };
+            new(GetApi(compilation), GetViewApi(compilation), ViewApiRules.HasObservedProperty(compilation));
     }
 
     /// <summary>Provides extension members for generator attribute syntax contexts.</summary>
@@ -85,8 +75,10 @@ internal static class ContextExtensions
         ArrayBuilder<AttributeInfo> attributes,
         CancellationToken token)
     {
+        // The only property this is called for is a [Reactive] partial property. It already carries its own
+        // attributes, so nothing is forwarded to it automatically.
         var symbolAttributes = symbol.GetAttributes();
-        if (IsReactivePartialProperty(symbol, symbolAttributes) || symbolAttributes.Length <= 1)
+        if (symbol is IPropertySymbol || symbolAttributes.Length <= 1)
         {
             return;
         }
@@ -101,34 +93,13 @@ internal static class ContextExtensions
         }
     }
 
-    /// <summary>Determines whether a symbol is a partial property decorated with <c>ReactiveAttribute</c>.</summary>
-    /// <param name="symbol">The symbol to inspect.</param>
-    /// <param name="attributes">The attributes declared on the symbol.</param>
-    /// <returns>Whether the symbol is a reactive partial property.</returns>
-    private static bool IsReactivePartialProperty(ISymbol symbol, ImmutableArray<AttributeData> attributes)
-    {
-        if (symbol is not IPropertySymbol)
-        {
-            return false;
-        }
-
-        foreach (var attribute in attributes)
-        {
-            if (attribute.AttributeClass?.HasFullyQualifiedMetadataName(AttributeDefinitions.ReactiveAttributeType) == true)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     /// <summary>Determines whether an attribute should be forwarded automatically.</summary>
     /// <param name="attribute">The attribute to inspect.</param>
     /// <returns>Whether the attribute should be forwarded.</returns>
+    /// <remarks>Roslyn gives an attribute it cannot bind an error type, never a null class.</remarks>
     private static bool ShouldForwardAttribute(AttributeData attribute)
     {
-        var attributeClass = attribute.AttributeClass;
+        var attributeClass = attribute.AttributeClass!;
         return IsValidationAttribute(attributeClass)
             || IsJsonAttribute(attributeClass)
             || IsDataAnnotationAttribute(attributeClass)
@@ -138,45 +109,33 @@ internal static class ContextExtensions
     /// <summary>Determines whether a type is a validation attribute.</summary>
     /// <param name="attributeClass">The attribute type to inspect.</param>
     /// <returns>Whether the type is a validation attribute.</returns>
-    private static bool IsValidationAttribute(INamedTypeSymbol? attributeClass) =>
-        attributeClass?.InheritsFromFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.ValidationAttribute") == true;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool IsValidationAttribute(INamedTypeSymbol attributeClass) =>
+        attributeClass.InheritsFromFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.ValidationAttribute");
 
     /// <summary>Determines whether a type is a JSON serialization attribute.</summary>
     /// <param name="attributeClass">The attribute type to inspect.</param>
     /// <returns>Whether the type is a JSON serialization attribute.</returns>
-    private static bool IsJsonAttribute(INamedTypeSymbol? attributeClass) =>
-        attributeClass?.InheritsFromFullyQualifiedMetadataName("System.Text.Json.Serialization.JsonAttribute") == true;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool IsJsonAttribute(INamedTypeSymbol attributeClass) =>
+        attributeClass.InheritsFromFullyQualifiedMetadataName("System.Text.Json.Serialization.JsonAttribute");
 
     /// <summary>Determines whether a type is a supported data annotation attribute.</summary>
     /// <param name="attributeClass">The attribute type to inspect.</param>
     /// <returns>Whether the type is a supported data annotation attribute.</returns>
-    private static bool IsDataAnnotationAttribute(INamedTypeSymbol? attributeClass) =>
-        HasOrInheritsFrom(attributeClass, "System.ComponentModel.DataAnnotations.UIHintAttribute")
-        || HasOrInheritsFrom(attributeClass, "System.ComponentModel.DataAnnotations.ScaffoldColumnAttribute")
-        || HasMetadataName(attributeClass, "System.ComponentModel.DataAnnotations.DisplayAttribute")
-        || HasMetadataName(attributeClass, "System.ComponentModel.DataAnnotations.EditableAttribute")
-        || HasMetadataName(attributeClass, "System.ComponentModel.DataAnnotations.KeyAttribute");
+    private static bool IsDataAnnotationAttribute(INamedTypeSymbol attributeClass) =>
+        attributeClass.HasOrInheritsFromFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.UIHintAttribute")
+        || attributeClass.HasOrInheritsFromFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.ScaffoldColumnAttribute")
+        || attributeClass.HasFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.DisplayAttribute")
+        || attributeClass.HasFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.EditableAttribute")
+        || attributeClass.HasFullyQualifiedMetadataName("System.ComponentModel.DataAnnotations.KeyAttribute");
 
     /// <summary>Determines whether a type is a supported serialization attribute.</summary>
     /// <param name="attributeClass">The attribute type to inspect.</param>
     /// <returns>Whether the type is a supported serialization attribute.</returns>
-    private static bool IsSerializationAttribute(INamedTypeSymbol? attributeClass) =>
-        HasMetadataName(attributeClass, "System.Runtime.Serialization.DataMemberAttribute")
-        || HasMetadataName(attributeClass, "System.Runtime.Serialization.IgnoreDataMemberAttribute");
-
-    /// <summary>Determines whether an attribute type has or inherits from a metadata name.</summary>
-    /// <param name="attributeClass">The attribute type to inspect.</param>
-    /// <param name="metadataName">The metadata name to match.</param>
-    /// <returns>Whether the type has or inherits from the metadata name.</returns>
-    private static bool HasOrInheritsFrom(INamedTypeSymbol? attributeClass, string metadataName) =>
-        attributeClass?.HasOrInheritsFromFullyQualifiedMetadataName(metadataName) == true;
-
-    /// <summary>Determines whether an attribute type has a metadata name.</summary>
-    /// <param name="attributeClass">The attribute type to inspect.</param>
-    /// <param name="metadataName">The metadata name to match.</param>
-    /// <returns>Whether the type has the metadata name.</returns>
-    private static bool HasMetadataName(INamedTypeSymbol? attributeClass, string metadataName) =>
-        attributeClass?.HasFullyQualifiedMetadataName(metadataName) == true;
+    private static bool IsSerializationAttribute(INamedTypeSymbol attributeClass) =>
+        attributeClass.HasFullyQualifiedMetadataName("System.Runtime.Serialization.DataMemberAttribute")
+        || attributeClass.HasFullyQualifiedMetadataName("System.Runtime.Serialization.IgnoreDataMemberAttribute");
 
     /// <summary>Adds attributes explicitly targeted at the generated property or field.</summary>
     /// <param name="context">The generator context.</param>
@@ -264,78 +223,19 @@ internal static class ContextExtensions
         return sourceAttributes.ToEquatableArray();
     }
 
-    /// <summary>Determines whether a ReactiveUI command exposes the primitive void type.</summary>
-    /// <param name="command">The command type to inspect.</param>
-    /// <returns>Whether a create method exposes <c>ReactiveUI.Primitives.RxVoid</c>.</returns>
-    private static bool HasPrimitiveRxVoid(INamedTypeSymbol command)
-    {
-        foreach (var member in command.GetMembers("Create"))
-        {
-            if (member is not IMethodSymbol method || method.ReturnType is not INamedTypeSymbol returnType)
-            {
-                continue;
-            }
-
-            foreach (var typeArgument in returnType.TypeArguments)
-            {
-                if (typeArgument.ToDisplayString() == RxVoidMetadataName)
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /// <summary>Gets the ReactiveUI API and command behavior supported by a compilation.</summary>
+    /// <summary>Gets the ReactiveUI API a compilation uses.</summary>
     /// <param name="compilation">The compilation to inspect.</param>
-    /// <returns>The detected ReactiveUI integration, with the default view API.</returns>
-    private static ReactiveUiIntegration GetApiIntegration(Compilation compilation)
-    {
-        if (compilation.GetTypeByMetadataName("ReactiveUI.Reactive.ReactiveCommand") is not null)
-        {
-            return new(ReactiveUiApi.SystemReactive, true);
-        }
-
-        var legacyCommand = compilation.GetTypeByMetadataName("ReactiveUI.ReactiveCommand");
-        if (legacyCommand is not null)
-        {
-            var majorVersion = legacyCommand.ContainingAssembly.Identity.Version.Major;
-            return HasPrimitiveRxVoid(legacyCommand)
-                ? new(ReactiveUiApi.Primitives, true)
-                : new(ReactiveUiApi.Legacy, majorVersion >= CurrentGeneratorBehaviorMinimumMajorVersion);
-        }
-
-        return GetReferencedReactiveUiIntegration(compilation);
-    }
+    /// <returns>The System.Reactive API when <c>ReactiveUI.Reactive</c> is referenced, otherwise the Primitives API.</returns>
+    private static ReactiveUiApi GetApi(Compilation compilation) =>
+        compilation.GetTypeByMetadataName("ReactiveUI.Reactive.ReactiveCommand") is not null
+            ? ReactiveUiApi.SystemReactive
+            : ReactiveUiApi.Primitives;
 
     /// <summary>Gets which assembly declares the <c>IViewFor</c> interfaces and the view locator a compilation uses.</summary>
     /// <param name="compilation">The compilation to inspect.</param>
     /// <returns>The view API, chosen by <see cref="ViewApiRules.GetViewNamespace"/>.</returns>
     private static ReactiveUiViewApi GetViewApi(Compilation compilation) =>
-        ViewApiRules.GetViewNamespace(compilation) switch
-        {
-            ViewApiRules.BindingNamespace => ReactiveUiViewApi.Binding,
-            ViewApiRules.BindingReactiveNamespace => ReactiveUiViewApi.BindingReactive,
-            _ => ReactiveUiViewApi.ReactiveUI,
-        };
-
-    /// <summary>Gets the integration details from a referenced ReactiveUI assembly.</summary>
-    /// <param name="compilation">The compilation to inspect.</param>
-    /// <returns>The detected ReactiveUI integration.</returns>
-    private static ReactiveUiIntegration GetReferencedReactiveUiIntegration(Compilation compilation)
-    {
-        foreach (var assembly in compilation.ReferencedAssemblyNames)
-        {
-            if (assembly.Name == AttributeDefinitions.ReactiveUI)
-            {
-                return new(
-                    ReactiveUiApi.Legacy,
-                    assembly.Version.Major >= CurrentGeneratorBehaviorMinimumMajorVersion);
-            }
-        }
-
-        return default;
-    }
+        ViewApiRules.GetViewNamespace(compilation) == ViewApiRules.BindingReactiveNamespace
+            ? ReactiveUiViewApi.BindingReactive
+            : ReactiveUiViewApi.Binding;
 }

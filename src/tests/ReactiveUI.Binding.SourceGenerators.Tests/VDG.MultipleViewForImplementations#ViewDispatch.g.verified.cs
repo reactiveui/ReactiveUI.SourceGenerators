@@ -41,52 +41,16 @@ namespace ReactiveUI.Binding
             return null;
         }
 
-        /// <summary>
-        /// Resolves a view for <see cref="global::TestApp.LoginViewModel"/>.
-        /// Tries the service locator first, then falls back to direct construction.
-        /// </summary>
-        /// <param name="contract">The contract string (empty string for default).</param>
-        /// <returns>The resolved view, or <see langword="null"/> if resolution fails.</returns>
+        // global::TestApp.LoginViewModel -> global::TestApp.LoginView
         private static global::ReactiveUI.Binding.IViewFor __ResolveView_0(string contract)
         {
-            // Normalize contract: empty string means no contract (null for Splat lookup).
-            string svcContract = contract.Length == 0 ? null : contract;
-
-            // Prefer service-locator-registered view (supports DI-configured instances).
-            var view = global::Splat.AppLocator.Current
-                .GetService<global::ReactiveUI.Binding.IViewFor<global::TestApp.LoginViewModel>>(
-                    svcContract);
-            if (view != null)
-            {
-                return view;
-            }
-
-            // Fallback: direct construction (global::TestApp.LoginView has a parameterless constructor).
-            return new global::TestApp.LoginView();
+            return global::ReactiveUI.Binding.DefaultViewLocator.GetRegisteredView<global::TestApp.LoginViewModel>(contract) ?? new global::TestApp.LoginView();
         }
 
-        /// <summary>
-        /// Resolves a view for <see cref="global::TestApp.MainViewModel"/>.
-        /// Tries the service locator first, then falls back to direct construction.
-        /// </summary>
-        /// <param name="contract">The contract string (empty string for default).</param>
-        /// <returns>The resolved view, or <see langword="null"/> if resolution fails.</returns>
+        // global::TestApp.MainViewModel -> global::TestApp.MainView
         private static global::ReactiveUI.Binding.IViewFor __ResolveView_1(string contract)
         {
-            // Normalize contract: empty string means no contract (null for Splat lookup).
-            string svcContract = contract.Length == 0 ? null : contract;
-
-            // Prefer service-locator-registered view (supports DI-configured instances).
-            var view = global::Splat.AppLocator.Current
-                .GetService<global::ReactiveUI.Binding.IViewFor<global::TestApp.MainViewModel>>(
-                    svcContract);
-            if (view != null)
-            {
-                return view;
-            }
-
-            // Fallback: direct construction (global::TestApp.MainView has a parameterless constructor).
-            return new global::TestApp.MainView();
+            return global::ReactiveUI.Binding.DefaultViewLocator.GetRegisteredView<global::TestApp.MainViewModel>(contract) ?? new global::TestApp.MainView();
         }
     }
 }

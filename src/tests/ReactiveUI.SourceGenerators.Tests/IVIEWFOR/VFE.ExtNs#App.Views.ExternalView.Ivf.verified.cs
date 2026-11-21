@@ -12,7 +12,7 @@ namespace App.Views
     /// Partial class for the ExternalView which contains ReactiveUI IViewFor initialization.
     /// </summary>
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public partial class ExternalView : global::ReactiveUI.IViewFor<global::External.ViewModels.ExternalViewModel>
+    public partial class ExternalView : global::ReactiveUI.Binding.IViewFor<global::External.ViewModels.ExternalViewModel>
     {
         /// <summary>
         /// The view model dependency property.
@@ -28,7 +28,7 @@ namespace App.Views
         public global::External.ViewModels.ExternalViewModel ViewModel { get => (global::External.ViewModels.ExternalViewModel)GetValue(ViewModelProperty); set => SetValue(ViewModelProperty, value); }
 
         /// <inheritdoc/>
-        object? global::ReactiveUI.IViewFor.ViewModel { get => ViewModel; set => ViewModel = (global::External.ViewModels.ExternalViewModel)value; }
+        object? global::ReactiveUI.Binding.IViewFor.ViewModel { get => ViewModel; set => ViewModel = (global::External.ViewModels.ExternalViewModel)value; }
     }
 }
 #nullable restore

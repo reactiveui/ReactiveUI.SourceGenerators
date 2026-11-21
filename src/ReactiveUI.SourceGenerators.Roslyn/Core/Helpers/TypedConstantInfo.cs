@@ -4,136 +4,124 @@
 
 using System;
 using System.Globalization;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using ReactiveUI.SourceGenerators.CodeGeneration;
 
 namespace ReactiveUI.SourceGenerators.Helpers;
 
-/// <summary>A model representing a typed constant item.</summary>
-/// <remarks>This model is fully serializable and comparable.</remarks>
-internal abstract partial record TypedConstantInfo
+/// <summary>A constant an attribute argument holds, as the C# expression that writes it.</summary>
+/// <param name="Kind">What the constant is.</param>
+/// <param name="Expression">The C# expression that produces the constant.</param>
+internal sealed partial record TypedConstantInfo(TypedConstantInfo.ConstantKind Kind, string Expression)
 {
-    /// <summary>Gets an <see cref="ExpressionSyntax"/> instance representing the current constant.</summary>
-    /// <returns>The <see cref="ExpressionSyntax"/> instance representing the current constant.</returns>
-    internal abstract ExpressionSyntax GetSyntax();
+    /// <summary>The characters reserved for each element when an array's text is sized.</summary>
+    private const int ItemCapacity = 16;
 
-    /// <summary>Creates syntax expressions for an array of typed constants.</summary>
-    /// <param name="items">The typed constants to convert.</param>
-    /// <returns>The corresponding syntax expressions.</returns>
-    private static ExpressionSyntax[] GetItemSyntaxes(EquatableArray<TypedConstantInfo> items)
+    /// <summary>The kinds of constant an attribute argument can hold.</summary>
+    internal enum ConstantKind
     {
-        var itemSyntaxes = new ExpressionSyntax[items.Length];
+        /// <summary>A null reference.</summary>
+        Null = 0,
+
+        /// <summary>A string.</summary>
+        String = 1,
+
+        /// <summary>A Boolean.</summary>
+        Boolean = 2,
+
+        /// <summary>A number or a character.</summary>
+        Number = 3,
+
+        /// <summary>A <c>typeof</c> expression.</summary>
+        Type = 4,
+
+        /// <summary>An enum value.</summary>
+        Enum = 5,
+
+        /// <summary>An array of constants.</summary>
+        Array = 6,
+    }
+
+    /// <summary>Creates the null constant.</summary>
+    /// <returns>The constant.</returns>
+    internal static TypedConstantInfo Null() => new(ConstantKind.Null, "null");
+
+    /// <summary>Creates a string constant.</summary>
+    /// <param name="value">The string.</param>
+    /// <returns>The constant.</returns>
+    internal static TypedConstantInfo OfString(string value) => new(ConstantKind.String, SymbolDisplay.FormatLiteral(value, true));
+
+    /// <summary>Creates a Boolean constant.</summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The constant.</returns>
+    internal static TypedConstantInfo OfBoolean(bool value) => new(ConstantKind.Boolean, value ? "true" : "false");
+
+    /// <summary>Creates a numeric or character constant.</summary>
+    /// <typeparam name="T">The primitive type.</typeparam>
+    /// <param name="value">The value.</param>
+    /// <returns>The constant.</returns>
+    /// <exception cref="ArgumentException">Thrown if the value is not a supported primitive type.</exception>
+    internal static TypedConstantInfo OfNumber<T>(T value)
+        where T : unmanaged, IEquatable<T> => new(ConstantKind.Number, GetNumericLiteral(value));
+
+    /// <summary>Creates a <c>typeof</c> constant.</summary>
+    /// <param name="typeName">The fully qualified type name.</param>
+    /// <returns>The constant.</returns>
+    internal static TypedConstantInfo OfType(string typeName) => new(ConstantKind.Type, $"typeof({typeName})");
+
+    /// <summary>Creates an enum constant.</summary>
+    /// <param name="typeName">The fully qualified enum type name.</param>
+    /// <param name="value">The enum's underlying value.</param>
+    /// <returns>The constant.</returns>
+    /// <remarks>A negative value is parenthesized, because a cast directly before a minus sign does not compile (CS0075).</remarks>
+    internal static TypedConstantInfo OfEnum(string typeName, object value)
+    {
+        var text = Convert.ToString(value, CultureInfo.InvariantCulture);
+        return new(
+            ConstantKind.Enum,
+            text.StartsWith("-", StringComparison.Ordinal) ? $"({typeName})({text})" : $"({typeName}){text}");
+    }
+
+    /// <summary>Creates an array constant.</summary>
+    /// <param name="elementTypeName">The fully qualified element type name.</param>
+    /// <param name="items">The array's elements.</param>
+    /// <returns>The constant.</returns>
+    internal static TypedConstantInfo OfArray(string elementTypeName, ReadOnlySpan<TypedConstantInfo> items)
+    {
+        var builder = PooledBuilder.Rent(elementTypeName.Length + (items.Length * ItemCapacity));
+        _ = builder.Append("new ").Append(elementTypeName).Append("[]{");
         for (var index = 0; index < items.Length; index++)
         {
-            itemSyntaxes[index] = items[index].GetSyntax();
-        }
-
-        return itemSyntaxes;
-    }
-
-    /// <summary>Creates a numeric literal token for a primitive value.</summary>
-    /// <typeparam name="T">The primitive value type.</typeparam>
-    /// <param name="value">The primitive value.</param>
-    /// <returns>The matching numeric literal token.</returns>
-    /// <exception cref="ArgumentException">Thrown if the value is not a supported primitive type.</exception>
-    private static SyntaxToken GetNumericLiteral<T>(T value)
-        where T : unmanaged, IEquatable<T> => value switch
-        {
-            byte byteValue => Literal(byteValue),
-            char characterValue => Literal(characterValue),
-            double doubleValue => Literal($"{doubleValue.ToString("R", CultureInfo.InvariantCulture)}D", doubleValue),
-            float singleValue => Literal(singleValue),
-            int integerValue => Literal(integerValue),
-            long longValue => Literal(longValue),
-            sbyte signedByteValue => Literal(signedByteValue),
-            short shortValue => Literal(shortValue),
-            uint unsignedIntegerValue => Literal(unsignedIntegerValue),
-            ulong unsignedLongValue => Literal(unsignedLongValue),
-            ushort unsignedShortValue => Literal(unsignedShortValue),
-            _ => throw new ArgumentException("Invalid primitive type"),
-        };
-
-    /// <summary>A <see cref="TypedConstantInfo"/> type representing an array.</summary>
-    /// <param name="ElementTypeName">The type name for array elements.</param>
-    /// <param name="Items">The sequence of contained elements.</param>
-    internal sealed record Array(string ElementTypeName, EquatableArray<TypedConstantInfo> Items) : TypedConstantInfo
-    {
-        /// <inheritdoc/>
-        internal override ExpressionSyntax GetSyntax() => ArrayCreationExpression(
-                ArrayType(IdentifierName(ElementTypeName))
-                .AddRankSpecifiers(ArrayRankSpecifier(SingletonSeparatedList<ExpressionSyntax>(OmittedArraySizeExpression()))))
-                .WithInitializer(InitializerExpression(SyntaxKind.ArrayInitializerExpression)
-                .AddExpressions(GetItemSyntaxes(Items)));
-    }
-
-    /// <summary>A <see cref="TypedConstantInfo"/> type representing a primitive value.</summary>
-    internal abstract record Primitive : TypedConstantInfo
-    {
-        /// <summary>A <see cref="TypedConstantInfo"/> type representing a <see cref="string"/> value.</summary>
-        /// <param name="Value">The input <see cref="string"/> value.</param>
-        internal sealed record String(string Value) : TypedConstantInfo
-        {
-            /// <inheritdoc/>
-        internal override ExpressionSyntax GetSyntax() => LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(Value));
-        }
-
-        /// <summary>A <see cref="TypedConstantInfo"/> type representing a <see cref="bool"/> value.</summary>
-        /// <param name="Value">The input <see cref="bool"/> value.</param>
-        internal sealed record Boolean(bool Value) : TypedConstantInfo
-        {
-            /// <inheritdoc/>
-        internal override ExpressionSyntax GetSyntax() => LiteralExpression(Value ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression);
-        }
-
-        /// <summary>A <see cref="TypedConstantInfo"/> type representing a generic primitive value.</summary>
-        /// <typeparam name="T">The primitive type.</typeparam>
-        /// <param name="Value">The input primitive value.</param>
-        internal sealed record Of<T>(T Value) : TypedConstantInfo
-            where T : unmanaged, IEquatable<T>
-        {
-            /// <inheritdoc/>
-            internal override ExpressionSyntax GetSyntax() =>
-                LiteralExpression(SyntaxKind.NumericLiteralExpression, GetNumericLiteral(Value));
-        }
-    }
-
-    /// <summary>A <see cref="TypedConstantInfo"/> type representing a type.</summary>
-    /// <param name="TypeName">The input type name.</param>
-    internal sealed record Type(string TypeName) : TypedConstantInfo
-    {
-        /// <inheritdoc/>
-        internal override ExpressionSyntax GetSyntax() => TypeOfExpression(IdentifierName(TypeName));
-    }
-
-    /// <summary>A <see cref="TypedConstantInfo"/> type representing an enum value.</summary>
-    /// <param name="TypeName">The enum type name.</param>
-    /// <param name="Value">The boxed enum value.</param>
-    internal sealed record Enum(string TypeName, object Value) : TypedConstantInfo
-    {
-        /// <inheritdoc/>
-        internal override ExpressionSyntax GetSyntax()
-        {
-            // We let Roslyn parse the value expression, so that it can automatically handle both positive and negative values. This
-            // is needed because negative values have a different syntax tree (UnaryMinusExpression holding the numeric expression).
-            var valueExpression = ParseExpression(Value.ToString());
-
-            // If the value is negative, we have to put parentheses around them (to avoid CS0075 errors)
-            if (valueExpression is PrefixUnaryExpressionSyntax unaryExpression && unaryExpression.IsKind(SyntaxKind.UnaryMinusExpression))
+            if (index != 0)
             {
-                valueExpression = ParenthesizedExpression(valueExpression);
+                _ = builder.Append(',');
             }
 
-            // Now we can safely return the cast expression for the target enum type (with optional parentheses if needed)
-            return CastExpression(IdentifierName(TypeName), valueExpression);
+            _ = builder.Append(items[index].Expression);
         }
+
+        return new(ConstantKind.Array, PooledBuilder.ToStringAndReturn(builder.Append('}')));
     }
 
-    /// <summary>A <see cref="TypedConstantInfo"/> type representing a <see langword="null"/> value.</summary>
-    internal sealed record Null : TypedConstantInfo
-    {
-        /// <inheritdoc/>
-        internal override ExpressionSyntax GetSyntax() => LiteralExpression(SyntaxKind.NullLiteralExpression);
-    }
+    /// <summary>Writes a primitive value as a C# literal that keeps its type.</summary>
+    /// <typeparam name="T">The primitive value type.</typeparam>
+    /// <param name="value">The primitive value.</param>
+    /// <returns>The literal.</returns>
+    /// <exception cref="ArgumentException">Thrown if the value is not a supported primitive type.</exception>
+    private static string GetNumericLiteral<T>(T value)
+        where T : unmanaged, IEquatable<T> => value switch
+        {
+            byte byteValue => SyntaxFactory.Literal(byteValue).Text,
+            char characterValue => SyntaxFactory.Literal(characterValue).Text,
+            double doubleValue => $"{doubleValue.ToString("R", CultureInfo.InvariantCulture)}D",
+            float singleValue => SyntaxFactory.Literal(singleValue).Text,
+            int integerValue => SyntaxFactory.Literal(integerValue).Text,
+            long longValue => SyntaxFactory.Literal(longValue).Text,
+            sbyte signedByteValue => SyntaxFactory.Literal(signedByteValue).Text,
+            short shortValue => SyntaxFactory.Literal(shortValue).Text,
+            uint unsignedIntegerValue => SyntaxFactory.Literal(unsignedIntegerValue).Text,
+            ulong unsignedLongValue => SyntaxFactory.Literal(unsignedLongValue).Text,
+            ushort unsignedShortValue => SyntaxFactory.Literal(unsignedShortValue).Text,
+            _ => throw new ArgumentException("Invalid primitive type"),
+        };
 }

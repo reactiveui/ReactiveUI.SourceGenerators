@@ -36,27 +36,10 @@ namespace ReactiveUI.Binding
             return null;
         }
 
-        /// <summary>
-        /// Resolves a view for <see cref="global::TestApp.PrivateCtorViewModel"/>.
-        /// Service locator only — no direct construction available.
-        /// </summary>
-        /// <param name="contract">The contract string (empty string for default).</param>
-        /// <returns>The resolved view, or <see langword="null"/> if resolution fails.</returns>
+        // global::TestApp.PrivateCtorViewModel -> global::TestApp.PrivateCtorView
         private static global::ReactiveUI.Binding.IViewFor __ResolveView_0(string contract)
         {
-            // Normalize contract: empty string means no contract (null for Splat lookup).
-            string svcContract = contract.Length == 0 ? null : contract;
-
-            // Prefer service-locator-registered view (supports DI-configured instances).
-            var view = global::Splat.AppLocator.Current
-                .GetService<global::ReactiveUI.Binding.IViewFor<global::TestApp.PrivateCtorViewModel>>(
-                    svcContract);
-            if (view != null)
-            {
-                return view;
-            }
-
-            return null;
+            return global::ReactiveUI.Binding.DefaultViewLocator.GetRegisteredView<global::TestApp.PrivateCtorViewModel>(contract);
         }
     }
 }

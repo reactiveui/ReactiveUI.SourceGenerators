@@ -96,7 +96,7 @@ public static class FallbackConvertersExamples
     public static void ScoreSetMethodConverter()
     {
         ConverterService service = new();
-        service.SetMethodConverters.Register(new LegacyTagListSetMethodConverter());
+        service.SetMethodConverters.Register(new ExistingTagListSetMethodConverter());
 
         ISetMethodBindingConverter converter = service.ResolveSetMethodConverter(typeof(IReadOnlyList<string>), typeof(List<string>))!;
 

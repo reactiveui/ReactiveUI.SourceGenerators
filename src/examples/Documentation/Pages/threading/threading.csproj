@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net10.0;net10.0-windows10.0.19041.0</TargetFrameworks>
+    <TargetFrameworks>net10.0;net11.0;$(BindingWindowsTargets)</TargetFrameworks>
     <LangVersion>14.0</LangVersion>
     <RootNamespace>ReactiveUI.Binding.Documentation</RootNamespace>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
+  <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'windows'">
     <UseMaui>true</UseMaui>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-windows10.0.19041.0'">
+  <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
@@ -20,15 +20,13 @@
     <ProjectReference Include="../../../../ReactiveUI.Binding.Analyzer/ReactiveUI.Binding.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <Compile Include="../../Common/**/*.cs" Link="Common/%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'windows'">
     <ProjectReference Include="../../../../ReactiveUI.Binding.Maui/ReactiveUI.Binding.Maui.csproj" />
     <ProjectReference Include="../../../../ReactiveUI.Binding.Avalonia/ReactiveUI.Binding.Avalonia.csproj" />
     <Using Include="ReactiveUI.Binding.Avalonia" />
-    <PackageReference Include="Avalonia" />
-    <PackageReference Include="ReactiveUI.Primitives.Avalonia" />
     <Compile Remove="Wpf/**;WinForms/**;WpfExamples.cs;WinFormsExamples.cs" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows10.0.19041.0'">
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
     <ProjectReference Include="../../../../ReactiveUI.Binding.Wpf/ReactiveUI.Binding.Wpf.csproj" />
     <ProjectReference Include="../../../../ReactiveUI.Binding.WinForms/ReactiveUI.Binding.WinForms.csproj" />
     <PackageReference Include="Microsoft.Maui.Controls" />

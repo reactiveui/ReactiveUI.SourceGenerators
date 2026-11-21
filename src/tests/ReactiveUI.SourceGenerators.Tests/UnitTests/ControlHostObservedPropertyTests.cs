@@ -99,7 +99,7 @@ public class ControlHostObservedPropertyTests
                 }
             }
 
-            public static class RxApp
+            public static class RxState
             {
                 public static IObserver<Exception> DefaultExceptionHandler { get; } = new Thrower();
 

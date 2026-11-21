@@ -144,7 +144,7 @@ public partial class WhenAnyValueTests
     /// </summary>
     /// <returns>A task representing the asynchronous test operation.</returns>
     [Test]
-    public async Task DeepChain_NullIntermediate_MatchesLegacyReactiveUISemantics()
+    public async Task DeepChain_NullIntermediate_MatchesReactiveUISemantics()
     {
         var generatedHost = new HostTestFixture { Child = null };
         var fallbackHost = new HostTestFixture { Child = null };
@@ -180,7 +180,7 @@ public partial class WhenAnyValueTests
     /// </summary>
     /// <returns>A task representing the asynchronous test operation.</returns>
     [Test]
-    public async Task DeepChain_ThreeLinks_DetachesOrphanedSubtreeLikeLegacyReactiveUI()
+    public async Task DeepChain_ThreeLinks_DetachesOrphanedSubtreeLikeReactiveUI()
     {
         var generatedMiddle = new TestViewModel { Child = new() { Name = InitialChildName } };
         var fallbackMiddle = new TestViewModel { Child = new() { Name = InitialChildName } };

@@ -109,7 +109,7 @@ internal static class TestCompilationReferences
     /// Returns metadata references for all assemblies required by the in-memory test compilations.
     /// Uses an explicit transitive closure rooted at the assemblies required by the test sources.
     /// It deliberately does not sweep all loaded assemblies, so compatibility tests can model a
-    /// ReactiveUI 24 base application without accidentally importing System.Reactive.
+    /// Primitives-based ReactiveUI application without accidentally importing System.Reactive.
     /// </summary>
     /// <returns>The cached default metadata-reference closure.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -156,6 +156,10 @@ internal static class TestCompilationReferences
             typeof(Enumerable).Assembly, // System.Linq
             typeof(System.ComponentModel.INotifyPropertyChanged).Assembly, // System.ObjectModel
             typeof(ReactiveObject).Assembly, // ReactiveUI
+
+            // ReactiveUI asks for a ReactiveUI.Binding version by number, and loading by that number fails when
+            // this repository builds a lower one. Naming the assembly takes the one the test project references.
+            typeof(ReactiveUI.Binding.IViewLocator).Assembly,
             typeof(System.Reactive.Unit).Assembly, // System.Reactive test inputs
             typeof(DynamicData.SourceList<>).Assembly, // Bindable derived list test inputs
             typeof(ReactiveGenerator).Assembly, // ReactiveUI.SourceGenerators.Roslyn

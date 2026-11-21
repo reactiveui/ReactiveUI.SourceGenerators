@@ -19,12 +19,12 @@
 
   <PropertyGroup>
     <RoslynCommonAnalyzersVersion>5.2.0</RoslynCommonAnalyzersVersion>
-    <ReactiveUIPrimitivesVersion>10.0.0</ReactiveUIPrimitivesVersion>
+    <ReactiveUIPrimitivesVersion>10.2.2</ReactiveUIPrimitivesVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <!-- Testing Framework. The tests run on Microsoft Testing Platform, so do not add Microsoft.NET.Test.Sdk. -->
-    <PackageVersion Include="TUnit" Version="1.85.0"/>
+    <PackageVersion Include="TUnit" Version="1.87.12"/>
 
     <!-- Roslyn Framework -->
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="5.12.0"/>
@@ -75,12 +75,14 @@
 
     <!-- Uno Platform. Uno.WinUI matches the project SDK; the Windows head uses the App SDK. -->
     <PackageVersion Include="Uno.WinUI" Version="7.0.65"/>
-    <PackageVersion Include="Microsoft.WindowsAppSDK" Version="2.6.5"/>
+    <PackageVersion Include="Microsoft.WindowsAppSDK" Version="2.7.0"/>
     <PackageVersion Include="ReactiveUI.Primitives.Uno" Version="$(ReactiveUIPrimitivesVersion)"/>
     <PackageVersion Include="ReactiveUI.Primitives.Uno.Reactive" Version="$(ReactiveUIPrimitivesVersion)"/>
 
     <!-- Test Infrastructure for the attribute generators -->
-    <PackageVersion Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="4.0.0"/>
+    <!-- No project references TraceEvent directly: BenchmarkDotNet brings it in, and this pin raises its version
+         for the allocation-trace readers in the benchmark projects. -->
+    <PackageVersion Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="4.0.2"/>
     <PackageVersion Include="DynamicData" Version="9.5.0"/>
 
     <!-- Avalonia sample app -->
@@ -88,13 +90,13 @@
     <PackageVersion Include="Avalonia.Fonts.Inter" Version="12.1.6"/>
     <PackageVersion Include="Avalonia.Diagnostics" Version="11.3.23"/>
     <PackageVersion Include="Avalonia.Desktop" Version="12.1.6"/>
-    <PackageVersion Include="ReactiveUI.Avalonia" Version="12.1.6"/>
+    <PackageVersion Include="ReactiveUI.Avalonia" Version="12.1.7"/>
     <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="11.0.0" Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net11.0'))"/>
     <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.15" Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net11.0'))"/>
 
     <!-- Test App Dependencies-->
-    <PackageVersion Include="ReactiveUI" Version="26.0.1"/>
-    <PackageVersion Include="ReactiveUI.Reactive" Version="26.0.1"/>
-    <PackageVersion Include="ReactiveUI.Maui" Version="26.0.1"/>
+    <PackageVersion Include="ReactiveUI" Version="27.0.1"/>
+    <PackageVersion Include="ReactiveUI.Reactive" Version="27.0.1"/>
+    <PackageVersion Include="ReactiveUI.Maui" Version="27.0.1"/>
   </ItemGroup>
 </Project>

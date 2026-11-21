@@ -4,15 +4,13 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 
 namespace ReactiveUI.SourceGenerators.Helpers;
 
 /// <inheritdoc/>
-internal abstract partial record TypedConstantInfo
+internal sealed partial record TypedConstantInfo
 {
     /// <summary>Creates a new <see cref="TypedConstantInfo"/> instance from a given <see cref="TypedConstant"/> value.</summary>
     /// <param name="arg">The input <see cref="TypedConstant"/> value.</param>
@@ -22,7 +20,7 @@ internal abstract partial record TypedConstantInfo
     {
         if (arg.IsNull)
         {
-            return new Null();
+            return Null();
         }
 
         if (arg.Kind == TypedConstantKind.Array)
@@ -34,182 +32,123 @@ internal abstract partial record TypedConstantInfo
                 items.Add(Create(value));
             }
 
-            return new Array(elementTypeName, items.ToEquatableArray());
+            return OfArray(elementTypeName, items.WrittenSpan);
         }
 
-        return (arg.Kind, arg.Value) switch
+        return arg.Kind switch
         {
-            (TypedConstantKind.Primitive, string text) => new Primitive.String(text),
-            (TypedConstantKind.Primitive, bool flag) => new Primitive.Boolean(flag),
-            (TypedConstantKind.Primitive, object value) => value switch
-            {
-                byte b => new Primitive.Of<byte>(b),
-                char c => new Primitive.Of<char>(c),
-                double d => new Primitive.Of<double>(d),
-                float f => new Primitive.Of<float>(f),
-                int i => new Primitive.Of<int>(i),
-                long l => new Primitive.Of<long>(l),
-                sbyte sb => new Primitive.Of<sbyte>(sb),
-                short sh => new Primitive.Of<short>(sh),
-                uint ui => new Primitive.Of<uint>(ui),
-                ulong ul => new Primitive.Of<ulong>(ul),
-                ushort ush => new Primitive.Of<ushort>(ush),
-                _ => throw new ArgumentException("Invalid primitive type")
-            },
-            (TypedConstantKind.Type, ITypeSymbol type) => new Type(type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)),
-            (TypedConstantKind.Enum, object value) => new Enum(arg.Type!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), value),
-            _ => throw new ArgumentException("Invalid typed constant type"),
+            TypedConstantKind.Type => OfType(((ITypeSymbol)arg.Value!).ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)),
+            TypedConstantKind.Enum => OfEnum(arg.Type!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), arg.Value!),
+            _ => OfPrimitive(arg.Value!),
         };
     }
 
     /// <summary>Creates a new <see cref="TypedConstantInfo"/> instance from a given <see cref="IOperation"/> value.</summary>
     /// <param name="operation">The input <see cref="IOperation"/> value.</param>
-    /// <param name="semanticModel">The <see cref="SemanticModel"/> that was used to retrieve <paramref name="operation"/>.</param>
-    /// <param name="expression">The <see cref="ExpressionSyntax"/> that <paramref name="operation"/> was retrieved from.</param>
-    /// <param name="token">The cancellation token for the current operation.</param>
     /// <param name="info">The resulting <see cref="TypedConstantInfo"/> instance, if available.</param>
     /// <returns>Whether a resulting <see cref="TypedConstantInfo"/> instance could be created.</returns>
-    /// <exception cref="ArgumentException">Thrown if the input argument is not valid.</exception>
-    internal static bool TryCreate(
-        IOperation operation,
-        SemanticModel semanticModel,
-        ExpressionSyntax expression,
-        CancellationToken token,
-        [NotNullWhen(true)] out TypedConstantInfo? info)
+    /// <exception cref="ArgumentException">Thrown if the operation is a constant of an unsupported type.</exception>
+    internal static bool TryCreate(IOperation operation, [NotNullWhen(true)] out TypedConstantInfo? info)
     {
-        if (TryCreateConstant(operation, out info))
+        if (operation.ConstantValue.HasValue)
         {
+            info = OfConstant(operation);
             return true;
         }
 
         if (operation is ITypeOfOperation typeOfOperation)
         {
-            info = new Type(typeOfOperation.TypeOperand.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-
+            info = OfType(typeOfOperation.TypeOperand.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
             return true;
         }
 
-        if (operation is IArrayCreationOperation && TryCreateArray(operation, semanticModel, expression, token, out info))
+        if (operation is IArrayCreationOperation arrayCreation)
         {
-            return true;
+            return TryCreateArray(arrayCreation, out info);
         }
 
         info = null;
-
         return false;
     }
 
-    /// <summary>Creates a typed constant from a constant operation.</summary>
-    /// <param name="operation">The operation to inspect.</param>
-    /// <param name="info">The resulting constant information, when successful.</param>
-    /// <returns><see langword="true"/> when the operation has a supported constant value.</returns>
+    /// <summary>Creates a typed constant from an operation that has a constant value.</summary>
+    /// <param name="operation">The constant operation.</param>
+    /// <returns>The constant.</returns>
     /// <exception cref="ArgumentException">Thrown if the constant is a primitive of an unsupported type.</exception>
-    private static bool TryCreateConstant(
-        IOperation operation,
-        [NotNullWhen(true)] out TypedConstantInfo? info)
+    private static TypedConstantInfo OfConstant(IOperation operation)
     {
-        if (!operation.ConstantValue.HasValue)
+        var value = operation.ConstantValue.Value;
+        if (value is null)
         {
-            info = null;
-            return false;
+            return Null();
         }
 
-        if (operation.Type?.TypeKind is TypeKind.Enum)
-        {
-            info = new Enum(
-                operation.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-                operation.ConstantValue.Value!);
-            return true;
-        }
-
-        info = operation.ConstantValue.Value switch
-        {
-            null => new Null(),
-            string text => new Primitive.String(text),
-            bool flag => new Primitive.Boolean(flag),
-            byte byteValue => new Primitive.Of<byte>(byteValue),
-            char characterValue => new Primitive.Of<char>(characterValue),
-            double doubleValue => new Primitive.Of<double>(doubleValue),
-            float singleValue => new Primitive.Of<float>(singleValue),
-            int integerValue => new Primitive.Of<int>(integerValue),
-            long longValue => new Primitive.Of<long>(longValue),
-            sbyte signedByteValue => new Primitive.Of<sbyte>(signedByteValue),
-            short shortValue => new Primitive.Of<short>(shortValue),
-            uint unsignedIntegerValue => new Primitive.Of<uint>(unsignedIntegerValue),
-            ulong unsignedLongValue => new Primitive.Of<ulong>(unsignedLongValue),
-            ushort unsignedShortValue => new Primitive.Of<ushort>(unsignedShortValue),
-            _ => throw new ArgumentException("Invalid primitive type"),
-        };
-        return true;
+        return operation.Type!.TypeKind is TypeKind.Enum
+            ? OfEnum(operation.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), value)
+            : OfPrimitive(value);
     }
 
-    /// <summary>Creates a typed constant from an array operation.</summary>
-    /// <param name="operation">The array operation to inspect.</param>
-    /// <param name="semanticModel">The semantic model containing the operation.</param>
-    /// <param name="expression">The array expression.</param>
-    /// <param name="token">The cancellation token for the current operation.</param>
-    /// <param name="info">The resulting constant information, when successful.</param>
-    /// <returns><see langword="true"/> when all array items can be represented.</returns>
-    private static bool TryCreateArray(
-        IOperation operation,
-        SemanticModel semanticModel,
-        ExpressionSyntax expression,
-        CancellationToken token,
-        [NotNullWhen(true)] out TypedConstantInfo? info)
+    /// <summary>Creates a typed constant from a boxed string, Boolean, number or character.</summary>
+    /// <param name="value">The boxed value.</param>
+    /// <returns>The constant.</returns>
+    /// <exception cref="ArgumentException">Thrown if the value is not a supported primitive type.</exception>
+    private static TypedConstantInfo OfPrimitive(object value) => value switch
     {
-        var elementTypeName = ((IArrayTypeSymbol?)operation.Type)?.ElementType
-            .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) ?? "object";
-        var initializer = GetInitializer(expression);
-        if (initializer is null)
-        {
-            info = new Array(elementTypeName, default);
-            return true;
-        }
-
-        using var items = ArrayBuilder<TypedConstantInfo>.Rent();
-        foreach (var itemExpression in initializer.Expressions)
-        {
-            if (!TryCreateArrayItem(itemExpression, semanticModel, token, out var item))
-            {
-                info = null;
-                return false;
-            }
-
-            items.Add(item);
-        }
-
-        info = new Array(elementTypeName, items.ToEquatableArray());
-        return true;
-    }
-
-    /// <summary>Gets the initializer from an explicit or implicit array expression.</summary>
-    /// <param name="expression">The expression to inspect.</param>
-    /// <returns>The array initializer, if present.</returns>
-    private static InitializerExpressionSyntax? GetInitializer(ExpressionSyntax expression) => expression switch
-    {
-        ImplicitArrayCreationExpressionSyntax implicitArray => implicitArray.Initializer,
-        ArrayCreationExpressionSyntax array => array.Initializer,
-        _ => null,
+        string text => OfString(text),
+        bool flag => OfBoolean(flag),
+        byte byteValue => OfNumber(byteValue),
+        char characterValue => OfNumber(characterValue),
+        double doubleValue => OfNumber(doubleValue),
+        float singleValue => OfNumber(singleValue),
+        int integerValue => OfNumber(integerValue),
+        long longValue => OfNumber(longValue),
+        sbyte signedByteValue => OfNumber(signedByteValue),
+        short shortValue => OfNumber(shortValue),
+        uint unsignedIntegerValue => OfNumber(unsignedIntegerValue),
+        ulong unsignedLongValue => OfNumber(unsignedLongValue),
+        ushort unsignedShortValue => OfNumber(unsignedShortValue),
+        _ => throw new ArgumentException("Invalid primitive type"),
     };
 
-    /// <summary>Creates typed constant information for an array item.</summary>
-    /// <param name="expression">The array item expression.</param>
-    /// <param name="semanticModel">The semantic model containing the expression.</param>
-    /// <param name="token">The cancellation token for the current operation.</param>
-    /// <param name="item">The resulting item information, when successful.</param>
-    /// <returns><see langword="true"/> when the item can be represented.</returns>
-    private static bool TryCreateArrayItem(
-        ExpressionSyntax expression,
-        SemanticModel semanticModel,
-        CancellationToken token,
-        [NotNullWhen(true)] out TypedConstantInfo? item)
+    /// <summary>Creates a typed constant from an array creation.</summary>
+    /// <param name="arrayCreation">The array creation.</param>
+    /// <param name="info">The resulting constant information, when successful.</param>
+    /// <returns><see langword="true"/> when all array items can be represented.</returns>
+    private static bool TryCreateArray(IArrayCreationOperation arrayCreation, [NotNullWhen(true)] out TypedConstantInfo? info)
     {
-        if (semanticModel.GetOperation(expression, token) is IOperation operation)
+        var elementTypeName = ((IArrayTypeSymbol)arrayCreation.Type!).ElementType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        using var items = ArrayBuilder<TypedConstantInfo>.Rent();
+
+        // An array created with a size and no initializer has no elements to write.
+        if (arrayCreation.Initializer is { } initializer)
         {
-            return TryCreate(operation, semanticModel, expression, token, out item);
+            foreach (var element in initializer.ElementValues)
+            {
+                if (!TryCreate(WithoutImplicitConversions(element), out var item))
+                {
+                    info = null;
+                    return false;
+                }
+
+                items.Add(item);
+            }
         }
 
-        item = null;
-        return false;
+        info = OfArray(elementTypeName, items.WrittenSpan);
+        return true;
+    }
+
+    /// <summary>Gets the operation an element was written as, under the conversions the compiler added.</summary>
+    /// <param name="operation">The element operation.</param>
+    /// <returns>The operation for the element's own expression.</returns>
+    private static IOperation WithoutImplicitConversions(IOperation operation)
+    {
+        // The element is written back as it was typed, so an added conversion to the element type is dropped.
+        while (operation is IConversionOperation { IsImplicit: true } conversion)
+        {
+            operation = conversion.Operand;
+        }
+
+        return operation;
     }
 }

@@ -278,6 +278,27 @@ public class DefaultViewLocatorTests
         await Assert.That(result!.ViewModel).IsEqualTo(vm);
     }
 
+    /// <summary>A generated dispatch gets the view the service locator holds, under the contract it was registered with.</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task GetRegisteredView_ReturnsTheServiceLocatorsView()
+    {
+        const string contract = "registered";
+        AppLocator.CurrentMutable.Register<IViewFor<TestViewModel>>(static () => new TestView());
+        AppLocator.CurrentMutable.Register<IViewFor<TestViewModel>>(static () => new TestView(), contract);
+
+        await Assert.That(DefaultViewLocator.GetRegisteredView<TestViewModel>(string.Empty)).IsTypeOf<TestView>();
+        await Assert.That(DefaultViewLocator.GetRegisteredView<TestViewModel>(contract)).IsTypeOf<TestView>();
+        await Assert.That(DefaultViewLocator.GetRegisteredView<TestViewModel>("unclaimed")).IsNull();
+        await Assert.That(DefaultViewLocator.GetRegisteredView<string>(string.Empty)).IsNull();
+    }
+
+    /// <summary>The contract is required; an empty string stands for none.</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task GetRegisteredView_NullContract_Throws() =>
+        await Assert.That(static () => DefaultViewLocator.GetRegisteredView<TestViewModel>(null!)).Throws<ArgumentNullException>();
+
     /// <summary>Verifies that non-generic ResolveView uses generated dispatch and sets ViewModel.</summary>
     /// <returns>A task representing the asynchronous test operation.</returns>
     [Test]

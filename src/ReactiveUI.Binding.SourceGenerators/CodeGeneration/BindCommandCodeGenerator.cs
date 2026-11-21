@@ -33,6 +33,9 @@ internal static class BindCommandCodeGenerator
     /// <summary>The caller-supplied parameter stream a worker takes on top of the two bound objects.</summary>
     private const string ObservableParameterArgument = ", withParameter";
 
+    /// <summary>The name the worker and the stub give the command parameter.</summary>
+    private const string ParameterName = "withParameter";
+
     /// <summary>Generates concrete typed overloads and binding methods for BindCommand invocations.</summary>
     /// <param name="invocations">All detected BindCommand invocations.</param>
     /// <param name="allClasses">All detected class binding info.</param>
@@ -226,55 +229,31 @@ internal static class BindCommandCodeGenerator
         int generatedAffinity,
         bool hasEvent)
     {
+        // The runtime looks for the binder and follows the command, because both are the same for every control.
+        // The parameter is passed typed, so a value is only boxed when a registered binder takes the binding.
+        var hasParameter = inv.HasObservableParameter || inv is { HasExpressionParameter: true, ParameterPropertyPath: not null };
+
         _ = sb.BlankLine()
-            .Line("if (global::ReactiveUI.Binding.Fallback.CommandBindingAffinityChecker")
-            .Indent()
-            .Append(".HasHigherAffinityPlugin<").Append(inv.ControlTypeFullName).Append(">(").Append(generatedAffinity).Append(", ")
-            .AppendLiteral(hasEvent).Line("))")
-            .Outdent()
-            .OpenBlock()
-            .Line("var __customBinder = global::ReactiveUI.Binding.CommandBinding.CommandBinderService")
-            .Indent()
-            .Append(".GetBinder<").Append(inv.ControlTypeFullName).Append(">(").AppendLiteral(hasEvent).Line(");")
-            .Outdent()
-            .If("__customBinder != null")
-            .Var("__serial", $"new {GeneratedTypeNames.SwapDisposable}()")
-            .Line($"var __binderCmdSub = {GeneratedTypeNames.Subscribe}(commandObs, __cmd =>")
-            .OpenBlock()
-            .Append("__serial.Disposable = ").Append(GeneratedTypeNames.EmptyDisposableInstance).EndStatement()
-            .Append($"{GeneratedTypeNames.IObservable}<object> __paramObs = ");
-        _ = AppendParameterObservable(sb, inv).EndStatement()
-            .Append("__serial.Disposable = __customBinder.BindCommandToObject<").Append(inv.ControlTypeFullName);
+            .BeginVar("__customBinding").Append(GeneratedTypeNames.CommandBinderService).Append(".BindCustom<")
+            .Append(inv.ControlTypeFullName).Append(", ").Append(hasParameter ? inv.ParameterTypeFullName : "object");
         if (hasEvent)
         {
             _ = sb.Append(", ").Append(inv.ResolvedEventArgsTypeFullName ?? GeneratedTypeNames.EventArgs);
         }
 
-        _ = sb.Append(">(").OpenContinuation()
-            .Append("__cmd, ").Append(controlAccess).Append(", __paramObs");
+        _ = sb.Append(">(").Append(controlAccess).Append(", commandObs, ").Append(hasParameter ? ParameterName : "null")
+            .Append(", ").Append(generatedAffinity);
         if (hasEvent)
         {
             _ = sb.Append(", \"").Append(inv.ResolvedEventName).Append('"');
         }
 
-        _ = sb.Line(")")
-            .Append("?? ").Append(GeneratedTypeNames.EmptyDisposableInstance).EndStatement()
-            .Outdent()
-            .CloseBlock(");")
-            .Return($"new {GeneratedTypeNames.MultipleDisposable}(__binderCmdSub, __serial)")
-            .CloseBlock()
+        _ = sb.Line(");")
+            .If("__customBinding != null")
+            .Return("__customBinding")
             .CloseBlock()
             .BlankLine();
     }
-
-    /// <summary>Writes the parameter observable a custom binder is handed.</summary>
-    /// <param name="sb">The writer, part way through the line the expression belongs to.</param>
-    /// <param name="inv">The BindCommand invocation info.</param>
-    /// <returns>The writer, for chaining.</returns>
-    internal static SourceWriter AppendParameterObservable(SourceWriter sb, BindCommandInvocationInfo inv) =>
-        inv.HasObservableParameter || inv is { HasExpressionParameter: true, ParameterPropertyPath: not null }
-            ? sb.Append($"new {GeneratedTypeNames.MapSignal}<").Append(inv.ParameterTypeFullName).Append(", object>(withParameter, __p => __p)")
-            : sb.Append($"{GeneratedTypeNames.ImmutableEmptySignal}<object>.Instance");
 
     /// <summary>Emits the observations of the command, and of a parameter named as a property, through the view's current view model.</summary>
     /// <param name="sb">The writer, inside the worker's body.</param>
@@ -320,7 +299,7 @@ internal static class BindCommandCodeGenerator
             parameterObservation.Path,
             inv.ParameterTypeFullName ?? GeneratedTypeNames.ObjectType,
             parameterObservation.RootClassInfo,
-            "withParameter");
+            ParameterName);
     }
 
     /// <summary>Writes the summary and signature both dispatch overloads declare, opening the parameter list.</summary>
@@ -379,7 +358,7 @@ internal static class BindCommandCodeGenerator
 
             if (group.HasExpressionParameter)
             {
-                CodeGeneratorHelpers.AppendExpressionParameter(sb, "withParameter", ParameterExpressionParameter, dispatchesOnExpressionText);
+                CodeGeneratorHelpers.AppendExpressionParameter(sb, ParameterName, ParameterExpressionParameter, dispatchesOnExpressionText);
             }
         }
 

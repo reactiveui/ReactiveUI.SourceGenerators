@@ -36,7 +36,10 @@ public class AppleConversionParityTests
     {
         var result = TestHelper.RunGenerator(Scenario(from, to, input, expected), LanguageVersion.CSharp10);
         await result.CompilationSucceeds();
-        await result.GeneratedSourceContains("BindToDispatch.g.cs", "GetAffinityForObjects() <= 8");
+        await result.GeneratedSourceContains("BindToDispatch.g.cs", "GeneratedConversion.Convert<");
+
+        // The generated conversion is handed over at the Apple date converters' affinity.
+        await result.GeneratedSourceContains("BindToDispatch.g.cs", "\n                8,\n");
         var (assembly, context) = TestHelper.EmitAndLoad(result);
         try
         {

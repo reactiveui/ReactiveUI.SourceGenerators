@@ -7,12 +7,9 @@ namespace ReactiveUI.SourceGenerators.Models;
 /// <summary>Identifies the ReactiveUI implementation API selected by a compilation.</summary>
 internal enum ReactiveUiApi
 {
-    /// <summary>ReactiveUI releases before the package split.</summary>
-    Legacy = 0,
+    /// <summary>The Primitives-based <c>ReactiveUI</c> package.</summary>
+    Primitives = 0,
 
-    /// <summary>The ReactiveUI 24 or later Primitives-based package.</summary>
-    Primitives = 1,
-
-    /// <summary>The ReactiveUI 24 or later System.Reactive-based package.</summary>
-    SystemReactive = 2,
+    /// <summary>The System.Reactive-based <c>ReactiveUI.Reactive</c> package.</summary>
+    SystemReactive = 1,
 }

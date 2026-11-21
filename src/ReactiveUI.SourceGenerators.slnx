@@ -91,7 +91,6 @@
         <Project Path="tests/ReactiveUI.Binding.Avalonia.Tests.Reactive/ReactiveUI.Binding.Avalonia.Tests.Reactive.csproj" />
         <Project Path="tests/ReactiveUI.Binding.Uno.Tests/ReactiveUI.Binding.Uno.Tests.csproj" />
         <Project Path="tests/ReactiveUI.SourceGenerators.Tests/ReactiveUI.SourceGenerators.Tests.csproj" />
-        <Project Path="tests/ReactiveUI.SourceGenerators.V23.Tests/ReactiveUI.SourceGenerators.V23.Tests.csproj" />
     </Folder>
     <Folder Name="/tests/Execute/">
         <Project Path="tests/ReactiveUI.SourceGenerators.Execute/ReactiveUI.SourceGenerators.Execute.csproj" />

@@ -154,9 +154,10 @@ yet, so they sit in its `AnalyzerReleases.Unshipped.md`.
   `BindCommand`), because one generator cannot see another's output.
 - Generated output compiles at C# 12 and uses block-scoped namespaces.
 - The attribute generators use these test projects: `tests/ReactiveUI.SourceGenerators.Tests` (snapshots, with a folder
-  per generator), `tests/ReactiveUI.SourceGenerators.V23.Tests` (the same generators against ReactiveUI 23) and
-  `tests/ReactiveUI.SourceGenerators.Execute*` (code that compiles and runs against generated output). The SG tests pin
-  ReactiveUI 24.3.0 where they need `ReactiveUI.IViewFor`.
+  per generator) and `tests/ReactiveUI.SourceGenerators.Execute*` (code that compiles and runs against generated
+  output).
+- The attribute generators support ReactiveUI 26 and later, which takes its view API from ReactiveUI.Binding. They carry
+  no branch for an older ReactiveUI.
 
 ## Build & Test Commands
 
@@ -717,9 +718,9 @@ gets the same veto. That is the "better" half of the divergence: same outcome, n
 types it can see at compile time, but `ICreatesObservableForProperty` is registered at run time and the
 highest affinity wins - which is how ReactiveUI resolves the observation behind `Bind` and `OneWayBind`, not
 just behind `WhenChanged`. The choice is made per observed link rather than per binding:
-`ObservationAffinityChecker.FindHigherAffinityPlugin` is asked for a registration outranking the affinity
-that link was generated from, and the link observes through `PluginPropertyObservable` when one wins and
-through the generated mechanism when none does. A two-way binding observes both sides, so either side's
+`PluginObservationSource.Choose` asks for a registration outranking the affinity that link was generated
+from, and the link observes through `PluginPropertyObservable` when one wins and through the generated
+mechanism when none does. A two-way binding observes both sides, so either side's
 registration takes that side.
 
 **The registration drives the observation without an expression engine.** `PluginPropertyObservable`
@@ -1134,6 +1135,7 @@ Not all platforms support before-change notifications (WPF DP, WinUI DP, WinForm
 - **Indentation:** 4 spaces, no tabs
 - **Fields:** `_camelCase` for private/internal
 - **Visibility:** Always explicit, visibility first modifier
+- **DebuggerDisplay:** The text starts with the type's name, e.g. `[DebuggerDisplay("NamespacePath: {Prefix,nq}")]`
 - **Namespaces:** File-scoped preferred
 - **Modern C#:** Nullable reference types, pattern matching, records, init setters
 - **netstandard2.0 targets:** Use `IsExternalInit.cs` polyfill for records; avoid APIs not available in netstandard2.0 (e.g., use `if (x is null) throw new System.ArgumentNullException(...)` instead of `ArgumentNullException.ThrowIfNull()`)
@@ -1207,6 +1209,9 @@ All pipeline models are `sealed record` types with value equality. NEVER include
 - Emitters write through `SourceWriter`, not `SyntaxFactory` and not a raw `StringBuilder`
 - Generated code emitted as C# source via `context.AddSource()`
 - `#pragma warning disable` at top of generated files
+- `#nullable enable annotations` and `#nullable disable warnings` follow it from C# 8. The annotations directive
+  alone leaves nullable warnings as the project set them, and csc then runs nullable flow analysis over every
+  generated method. That analysis was about a fifth of the time csc spent compiling the generated code
 - All generated types use `[Microsoft.CodeAnalysis.Embedded]` attribute
 
 ### Writing Generated Code
@@ -1258,6 +1263,35 @@ types by one name.
   `ReactiveUI.Binding.Generated.Interceptors.<Assembly>`. Where it has to sit in a namespace other assemblies can
   share (a consumer's root namespace, or the runtime's own below C# 10), its class name carries the assembly:
   `__ReactiveUIGeneratedBindings_<Assembly>`.
+
+### Generated Bodies Call Runtime Helpers
+
+A binding's generated method states only what differs per call site: the types, the member names and the
+accessors. The steps that are the same for every binding are public runtime methods, and generated code calls
+them. csc binds and emits every generated line on every build, so a fixed block written out per call site costs
+the consumer compile time for nothing.
+
+| Step | Runtime helper | What generated code passes |
+|------|----------------|----------------------------|
+| Ask the binding hooks | `BindingHooks.ShouldBind` with `BindingHookProperty[]` paths | One reader and one expression factory per property |
+| Offer a link to a registered provider | `PluginObservationSource.Choose` and `ChooseDistinct` | The property name, the affinity, an accessor, an expression factory and the generated observation |
+| Convert a value | `GeneratedConversion.Convert` | The generated conversion as a lambda over the value and the hint, and its affinity |
+| Offer a command binding to a registered binder | `CommandBinderService.BindCustom` | The control, the command stream, the typed parameter stream and the affinity |
+| Ask the service locator for a view | `DefaultViewLocator.GetRegisteredView<TViewModel>` | The contract; the generated resolver adds only how the view is constructed |
+
+- Every lambda generated code passes takes its input as an argument and captures nothing, so the compiler caches
+  it as one static delegate.
+- An expression tree is passed as a factory (`Func<Expression>`). The runtime calls it only when a hook reads the
+  path or a registered provider wins the link.
+- A registered `IPropertyBindingHook` or `ICreatesCommandBinding` receives values as `object`, which boxes value
+  types. A hook that implements `ITypedPropertyBindingHook` is handed a `BindingHookPath` and visits each property in
+  its own types. A binder that implements `ICreatesTypedCommandBinding` is handed the parameter stream typed. The
+  helpers call the typed member when the registration has one.
+- A new fixed block belongs in a runtime helper, not in an emitter. Measure the lines a snapshot gains before you
+  add one to an emitter.
+- Line count is not the whole cost. In a csc profile of generated bindings, binding invocations took about half
+  of the method compile time. Profile the compiler on real generated output before you assume that fewer lines
+  means a faster build.
 
 ### Two-Layer Language Version Constraint
 

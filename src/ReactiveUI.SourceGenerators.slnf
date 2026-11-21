@@ -62,7 +62,6 @@
       "tests\\ReactiveUI.Binding.Avalonia.Tests\\ReactiveUI.Binding.Avalonia.Tests.csproj",
       "tests\\ReactiveUI.Binding.Avalonia.Tests.Reactive\\ReactiveUI.Binding.Avalonia.Tests.Reactive.csproj",
       "tests\\ReactiveUI.SourceGenerators.Tests\\ReactiveUI.SourceGenerators.Tests.csproj",
-      "tests\\ReactiveUI.SourceGenerators.V23.Tests\\ReactiveUI.SourceGenerators.V23.Tests.csproj",
       "tests\\ReactiveUI.SourceGenerators.Execute\\ReactiveUI.SourceGenerators.Execute.csproj",
       "tests\\ReactiveUI.SourceGenerators.Execute.Maui\\ReactiveUI.SourceGenerators.Execute.Maui.csproj",
       "tests\\ReactiveUI.SourceGenerators.Execute.Nested1\\ReactiveUI.SourceGenerators.Execute.Nested1.csproj",

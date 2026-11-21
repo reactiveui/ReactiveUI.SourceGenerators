@@ -40,8 +40,8 @@ public class BindCommandCodeGeneratorHelperTests
     /// <summary>The <c>Volatile</c> name these tests generate against.</summary>
     private const string VolatileName = "Volatile";
 
-    /// <summary>The stream a command parameter reaches a registered binder as, whichever form the call site used.</summary>
-    private const string MappedParameterStreamFragment = "MapSignal<global::System.String, object>(withParameter";
+    /// <summary>The typed stream a command parameter is handed to the runtime as, whichever form the call site used.</summary>
+    private const string TypedParameterStreamFragment = ", commandObs, withParameter, ";
 
     /// <summary>The subscription that keeps the control's parameter following the observed property.</summary>
     private const string ParameterStreamSubscriptionFragment =
@@ -615,7 +615,7 @@ public class BindCommandCodeGeneratorHelperTests
         await Assert.That(result).Contains("__BindCommand_TESTSUFFIX");
         await Assert.That(result).Contains(".Enabled =");
         await Assert.That(result).Contains("CanExecuteChanged");
-        await Assert.That(result).Contains("HasHigherAffinityPlugin");
+        await Assert.That(result).Contains("CommandBinderService.BindCustom<");
     }
 
     /// <summary>Verifies GenerateBindCommandMethod with no plugin match falls through to custom binder + throw.</summary>
@@ -632,7 +632,7 @@ public class BindCommandCodeGeneratorHelperTests
 
         var result = sb.ToString();
         await Assert.That(result).Contains("No bindable event found");
-        await Assert.That(result).Contains("HasHigherAffinityPlugin");
+        await Assert.That(result).Contains("CommandBinderService.BindCustom<");
     }
 
     /// <summary>Verifies EmitCommandAffinityCheck with observable parameter emits Select wrapper.</summary>
@@ -649,9 +649,8 @@ public class BindCommandCodeGeneratorHelperTests
         BindCommandCodeGenerator.EmitCommandAffinityCheck(sb, inv, ViewSaveButtonName, GeneratedAffinity, true);
 
         var result = sb.ToString();
-        await Assert.That(result).Contains("MapSignal<global::System.String, object>");
-        await Assert.That(result).Contains("HasHigherAffinityPlugin<global::TestApp.MyButton>(5, true)");
-        await Assert.That(result).Contains("GetBinder<global::TestApp.MyButton>(true)");
+        await Assert.That(result).Contains("BindCustom<global::TestApp.MyButton, global::System.String, ");
+        await Assert.That(result).Contains(", commandObs, withParameter, 5, \"");
     }
 
     /// <summary>An event whose args type was not resolved hands the custom binder the base event args type.</summary>
@@ -665,7 +664,7 @@ public class BindCommandCodeGeneratorHelperTests
 
         BindCommandCodeGenerator.EmitCommandAffinityCheck(sb, inv, ViewSaveButtonName, GeneratedAffinity, true);
 
-        await Assert.That(sb.ToString()).Contains("BindCommandToObject<global::TestApp.MyButton, global::System.EventArgs>(");
+        await Assert.That(sb.ToString()).Contains("BindCustom<global::TestApp.MyButton, object, global::System.EventArgs>(");
     }
 
     /// <summary>A registered binder is handed the observed parameter, not the value it held at one moment.</summary>
@@ -685,14 +684,14 @@ public class BindCommandCodeGeneratorHelperTests
         BindCommandCodeGenerator.EmitCommandAffinityCheck(sb, inv, ViewSaveButtonName, GeneratedAffinity, true);
 
         var result = sb.ToString();
-        await Assert.That(result).Contains(MappedParameterStreamFragment);
-        await Assert.That(result).Contains("HasHigherAffinityPlugin<global::TestApp.MyButton>(3, true)");
+        await Assert.That(result).Contains(TypedParameterStreamFragment);
+        await Assert.That(result).Contains("BindCustom<global::TestApp.MyButton, global::System.String, ");
     }
 
-    /// <summary>Verifies EmitCommandAffinityCheck with no parameter emits ImmutableEmptySignal.</summary>
+    /// <summary>A binding with no parameter hands the runtime none, and names no event when it has none.</summary>
     /// <returns>A task representing the asynchronous test operation.</returns>
     [Test]
-    public async Task EmitCommandAffinityCheck_NoParam_EmitsImmutableEmptySignal()
+    public async Task EmitCommandAffinityCheck_NoParam_PassesNoParameter()
     {
         var sb = new SourceWriter();
         var inv = ModelFactory.CreateBindCommandInvocationInfo();
@@ -700,52 +699,8 @@ public class BindCommandCodeGeneratorHelperTests
         BindCommandCodeGenerator.EmitCommandAffinityCheck(sb, inv, ViewSaveButtonName, -1, false);
 
         var result = sb.ToString();
-        await Assert.That(result).Contains("ImmutableEmptySignal<object>.Instance");
-        await Assert.That(result).Contains("HasHigherAffinityPlugin<global::TestApp.MyButton>(-1, false)");
-        await Assert.That(result).Contains("GetBinder<global::TestApp.MyButton>(false)");
-    }
-
-    /// <summary>Verifies AppendParameterObservable returns MapSignal for observable parameter.</summary>
-    /// <returns>A task representing the asynchronous test operation.</returns>
-    [Test]
-    public async Task AppendParameterObservable_ObservableParam_ReturnsMapSignal()
-    {
-        var inv = ModelFactory.CreateBindCommandInvocationInfo(
-            hasObservableParameter: true,
-            parameterTypeFullName: StringTypeName);
-
-        var result = BindCommandCodeGenerator.AppendParameterObservable(new(), inv).ToString();
-
-        await Assert.That(result).Contains("MapSignal<global::System.String, object>");
-    }
-
-    /// <summary>An expression parameter reaches a binder as the same mapped stream a supplied observable does.</summary>
-    /// <returns>A task representing the asynchronous test operation.</returns>
-    [Test]
-    public async Task AppendParameterObservable_ExpressionParam_ReturnsTheObservedParameter()
-    {
-        var paramPath = new EquatableArray<PropertyPathSegment>(
-            [ModelFactory.CreatePropertyPathSegment(ParamName)]);
-        var inv = ModelFactory.CreateBindCommandInvocationInfo(
-            hasExpressionParameter: true,
-            parameterTypeFullName: StringTypeName,
-            parameterPropertyPath: paramPath);
-
-        var result = BindCommandCodeGenerator.AppendParameterObservable(new(), inv).ToString();
-
-        await Assert.That(result).Contains(MappedParameterStreamFragment);
-    }
-
-    /// <summary>Verifies AppendParameterObservable returns ImmutableEmptySignal when no parameter.</summary>
-    /// <returns>A task representing the asynchronous test operation.</returns>
-    [Test]
-    public async Task AppendParameterObservable_NoParam_ReturnsImmutableEmptySignal()
-    {
-        var inv = ModelFactory.CreateBindCommandInvocationInfo();
-
-        var result = BindCommandCodeGenerator.AppendParameterObservable(new(), inv).ToString();
-
-        await Assert.That(result).Contains("ImmutableEmptySignal<object>.Instance");
+        await Assert.That(result).Contains("BindCustom<global::TestApp.MyButton, object>(view.SaveButton, commandObs, null, -1);");
+        await Assert.That(result).Contains("if (__customBinding != null)");
     }
 
     /// <summary>Verifies Generate returns null when invocations are empty.</summary>
@@ -800,8 +755,8 @@ public class BindCommandCodeGeneratorHelperTests
 
         var result = sb.ToString();
         await Assert.That(result).Contains("var withParameterMechanism = new global::ReactiveUI.Binding.Observables.PropertyObservable<global::System.String>");
-        await Assert.That(result).Contains("var withParameter = withParameterRegistration == null");
-        await Assert.That(result).Contains(MappedParameterStreamFragment);
+        await Assert.That(result).Contains("var withParameter = global::ReactiveUI.Binding.Observables.PluginObservationSource.ChooseDistinct<");
+        await Assert.That(result).Contains(TypedParameterStreamFragment);
     }
 
     /// <summary>

@@ -313,9 +313,8 @@ public partial class ObservationCodeGeneratorHelperTests
         ObservationCodeGenerator.GenerateShallowObservableVariable(sb, path, ModelFactory.CreateClassBindingInfo(implementsINPC: true), false, ObservedPropertyVariable);
 
         var result = sb.ToString();
-        await Assert.That(result).Contains("FindHigherAffinityPlugin");
-        await Assert.That(result).Contains("__propObs0Registration == null");
-        await Assert.That(result).Contains("PluginPropertyObservable<");
+        await Assert.That(result).Contains("PluginObservationSource.ChooseDistinct<");
+        await Assert.That(result).Contains("__propObs0Mechanism);");
     }
 
     /// <summary>The value is read through an emitted accessor rather than off the notification.</summary>
@@ -328,7 +327,7 @@ public partial class ObservationCodeGeneratorHelperTests
 
         ObservationCodeGenerator.GenerateShallowObservableVariable(sb, path, ModelFactory.CreateClassBindingInfo(implementsINPC: true), false, ObservedPropertyVariable);
 
-        await Assert.That(sb.ToString()).Contains("(object __o) => ((");
+        await Assert.That(sb.ToString()).Contains("__o => __o.Name,");
     }
 
     /// <summary>
@@ -344,7 +343,7 @@ public partial class ObservationCodeGeneratorHelperTests
 
         ObservationCodeGenerator.GenerateShallowObservableVariable(sb, path, ModelFactory.CreateClassBindingInfo(implementsINPC: true), false, ObservedPropertyVariable);
 
-        await Assert.That(sb.ToString()).Contains("(__e => __e.Name)).Body");
+        await Assert.That(sb.ToString()).Contains("() => __e => __e.Name,");
     }
 
     /// <summary>Before-change observation asks the registration for before-change notifications.</summary>
@@ -357,7 +356,7 @@ public partial class ObservationCodeGeneratorHelperTests
 
         ObservationCodeGenerator.GenerateShallowObservableVariable(sb, path, ModelFactory.CreateClassBindingInfo(implementsINPChanging: true), true, ObservedPropertyVariable);
 
-        await Assert.That(sb.ToString()).Contains("\", 5, true);");
+        await Assert.That(sb.ToString()).Contains("\", 5, true,");
     }
 
     /// <summary>A binding reads through the same choice, so its generated write is untouched by a registration.</summary>
@@ -371,8 +370,8 @@ public partial class ObservationCodeGeneratorHelperTests
         ObservationCodeGenerator.EmitInlineObservation(sb, "source", path, StringTypeName, ModelFactory.CreateClassBindingInfo(implementsINPC: true), "sourceObs");
 
         var result = sb.ToString();
-        await Assert.That(result).Contains("sourceObsRegistration");
-        await Assert.That(result).Contains("PluginPropertyObservable<");
+        await Assert.That(result).Contains("var sourceObs = global::ReactiveUI.Binding.Observables.PluginObservationSource.ChooseDistinct<");
+        await Assert.That(result).Contains("sourceObsMechanism);");
     }
 
     /// <summary>

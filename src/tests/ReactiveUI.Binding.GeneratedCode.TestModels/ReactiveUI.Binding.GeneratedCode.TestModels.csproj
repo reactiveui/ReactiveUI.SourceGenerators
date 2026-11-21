@@ -13,7 +13,6 @@
 
   <ItemGroup>
     <PackageReference Include="ReactiveUI"/>
-    <PackageReference Include="System.Reactive"/>
   </ItemGroup>
 
   <ItemGroup>

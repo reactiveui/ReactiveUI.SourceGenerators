@@ -9,7 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp"/>
     <PackageReference Include="Basic.Reference.Assemblies.Net100"/>
     <PackageReference Include="Basic.Reference.Assemblies.Net110"/>
   </ItemGroup>
