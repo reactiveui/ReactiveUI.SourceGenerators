@@ -75,7 +75,7 @@
 
     <!-- Uno Platform. Uno.WinUI matches the project SDK; the Windows head uses the App SDK. -->
     <PackageVersion Include="Uno.WinUI" Version="7.0.65"/>
-    <PackageVersion Include="Microsoft.WindowsAppSDK" Version="2.6.5"/>
+    <PackageVersion Include="Microsoft.WindowsAppSDK" Version="2.7.0"/>
     <PackageVersion Include="ReactiveUI.Primitives.Uno" Version="$(ReactiveUIPrimitivesVersion)"/>
     <PackageVersion Include="ReactiveUI.Primitives.Uno.Reactive" Version="$(ReactiveUIPrimitivesVersion)"/>
 
