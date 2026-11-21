@@ -54,9 +54,9 @@ BindingConverterOverloadsExamples.BindToWithConversionHintAndConverter();
 
 await ViewListConverterExamples.ShowAccountsAsSummaryViews();
 
-MigrationExamples.ExtractConvertersFromLegacyResolver();
+MigrationExamples.ExtractConvertersFromExistingResolver();
 
-MigrationExamples.ImportLegacyConvertersIntoService();
+MigrationExamples.ImportExistingConvertersIntoService();
 
 MigrationExamples.BindToWithMigratedConverterOverride();
 

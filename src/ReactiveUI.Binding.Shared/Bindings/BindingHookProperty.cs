@@ -83,7 +83,8 @@ public sealed class BindingHookProperty
         /// <returns>The change.</returns>
         public ObservedChange<object, object> Read(object owner, out object? value)
         {
-            // A hook is handed every value as an object, so this is the one place a value type is boxed.
+            // IPropertyBindingHook's contract carries each value as an object, and this runs only when such a hook
+            // reads the path. A hook that implements ITypedPropertyBindingHook goes through Visit, which keeps TValue.
             value = read((TOwner)owner);
             return new(owner, expression().Body, value!);
         }

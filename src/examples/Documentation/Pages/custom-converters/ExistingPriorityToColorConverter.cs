@@ -9,8 +9,8 @@ using ReactiveUI.Binding.Documentation.Todo;
 namespace ReactiveUI.Binding.Documentation.Converters;
 
 /// <summary>The priority badge colour converter an older to-do app registered with Splat.</summary>
-[DebuggerDisplay("LegacyPriorityToColorConverter: TodoPriority -> badge colour")]
-public sealed class LegacyPriorityToColorConverter : BindingTypeConverter<TodoPriority, string>
+[DebuggerDisplay("ExistingPriorityToColorConverter: TodoPriority -> badge colour")]
+public sealed class ExistingPriorityToColorConverter : BindingTypeConverter<TodoPriority, string>
 {
     /// <summary>The badge colour of a low priority item.</summary>
     internal const string LowColour = "#9E9E9E";
@@ -22,10 +22,10 @@ public sealed class LegacyPriorityToColorConverter : BindingTypeConverter<TodoPr
     internal const string HighColour = "#D32F2F";
 
     /// <summary>The affinity the older app gave the converter, above every built-in converter.</summary>
-    private const int LegacyAffinity = 100;
+    private const int ExistingAffinity = 100;
 
     /// <inheritdoc/>
-    public override int GetAffinityForObjects() => LegacyAffinity;
+    public override int GetAffinityForObjects() => ExistingAffinity;
 
     /// <inheritdoc/>
     public override bool TryConvert(TodoPriority from, object? conversionHint, [MaybeNullWhen(true)] out string? result)
