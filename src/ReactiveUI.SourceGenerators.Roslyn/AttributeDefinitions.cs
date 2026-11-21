@@ -41,6 +41,27 @@ internal static class AttributeDefinitions
     /// <summary>The metadata name of <c>[ReactiveCollection]</c>.</summary>
     public const string ReactiveCollectionAttributeType = "ReactiveUI.SourceGenerators.ReactiveCollectionAttribute";
 
+    /// <summary>The metadata name of <c>[RegisterView]</c>.</summary>
+    public const string RegisterViewAttributeType = "ReactiveUI.SourceGenerators.RegisterViewAttribute";
+
+    /// <summary>The metadata name of <c>[RegisterView&lt;T&gt;]</c>.</summary>
+    public const string RegisterViewGenericAttributeType = "ReactiveUI.SourceGenerators.RegisterViewAttribute`1";
+
+    /// <summary>The metadata name of <c>[AutoPersist]</c>.</summary>
+    public const string AutoPersistAttributeType = "ReactiveUI.SourceGenerators.AutoPersistAttribute";
+
+    /// <summary>The metadata name of <c>[ReactiveValidation]</c>.</summary>
+    public const string ReactiveValidationAttributeType = "ReactiveUI.SourceGenerators.ReactiveValidationAttribute";
+
+    /// <summary>The metadata name of <c>[WireUpControls]</c>.</summary>
+    public const string WireUpControlsAttributeType = "ReactiveUI.SourceGenerators.Android.WireUpControlsAttribute";
+
+    /// <summary>The metadata name of <c>[WireUpResource]</c>.</summary>
+    public const string WireUpResourceAttributeType = "ReactiveUI.SourceGenerators.Android.WireUpResourceAttribute";
+
+    /// <summary>The metadata name of <c>[IgnoreResource]</c>.</summary>
+    public const string IgnoreResourceAttributeType = "ReactiveUI.SourceGenerators.Android.IgnoreResourceAttribute";
+
     /// <summary>The attribute that excludes a generated control host from code coverage.</summary>
     public const string ExcludeFromCodeCoverage = "[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]";
 }

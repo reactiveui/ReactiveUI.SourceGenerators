@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Runtime.CompilerServices;
+using ReactiveUI.SourceGenerators.Android;
 using ReactiveUI.SourceGenerators.Helpers;
 using ReactiveUI.SourceGenerators.WinForms;
 
@@ -141,6 +142,55 @@ public class IncrementalCachingTests
         """,
         "partial class FirstHost",
         "partial class ThirdHost");
+
+    /// <summary>An unrelated edit leaves every <c>[AutoPersist]</c> type cached; editing one type reruns only that type.</summary>
+    /// <returns>A task to monitor the async.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [Test]
+    public Task AutoPersistCachesPerType() => AssertCachesPerType(
+        new AutoPersistGenerator(),
+        TrackingNames.AutoPersistTypes,
+        """
+        using System.Runtime.Serialization;
+        using ReactiveUI.SourceGenerators;
+        namespace TestNs;
+        [DataContract, AutoPersist] public partial class FirstState { [DataMember] public int Alpha { get; set; } }
+        [DataContract, AutoPersist] public partial class SecondState { [DataMember] public int Beta { get; set; } }
+        """,
+        "Alpha",
+        "Gamma");
+
+    /// <summary>An unrelated edit leaves every <c>[ReactiveValidation]</c> type cached; editing one type reruns only that type.</summary>
+    /// <returns>A task to monitor the async.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [Test]
+    public Task ReactiveValidationCachesPerType() => AssertCachesPerType(
+        new ReactiveValidationGenerator(),
+        TrackingNames.ReactiveValidationTypes,
+        """
+        using ReactiveUI.SourceGenerators;
+        namespace TestNs;
+        [ReactiveValidation] public partial class FirstValidated { }
+        [ReactiveValidation] public partial class SecondValidated { }
+        """,
+        "partial class FirstValidated",
+        "partial class ThirdValidated");
+
+    /// <summary>An unrelated edit leaves every <c>[WireUpControls]</c> type cached; editing one type reruns only that type.</summary>
+    /// <returns>A task to monitor the async.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [Test]
+    public Task WireUpControlsCachesPerType() => AssertCachesPerType(
+        new WireUpControlsGenerator(),
+        TrackingNames.WireUpControlsTypes,
+        """
+        using ReactiveUI.SourceGenerators.Android;
+        namespace TestNs;
+        [WireUpControls] public partial class FirstScreen { }
+        [WireUpControls] public partial class SecondScreen { }
+        """,
+        "partial class FirstScreen",
+        "partial class ThirdScreen");
 
     /// <summary>Runs a generator, then reruns it after an unrelated edit and after an edit to one of two types.</summary>
     /// <param name="generator">The generator.</param>
