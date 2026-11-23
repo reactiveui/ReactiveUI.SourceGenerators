@@ -146,9 +146,13 @@ Portions of this code are derived from [PolySharp](https://github.com/Sergio0694
 [open source programme](https://www.jetbrains.com/community/opensource/).
 [Anthropic](https://www.anthropic.com/) supports them with [Claude](https://claude.com/), and
 [OpenAI](https://openai.com/) with [Codex](https://openai.com/codex/).
+[Snyk](https://snyk.io/) gives the maintainers access to security tools through its
+[Secure Developer Program](https://snyk.io/open-source/).
 
 [![JetBrains](https://raw.githubusercontent.com/reactiveui/website/main/docs/images/sponsors/jetbrains.svg)](https://www.jetbrains.com/)
 [![Claude by Anthropic](https://raw.githubusercontent.com/reactiveui/website/main/docs/images/sponsors/claude.svg)](https://claude.com/)
 [![OpenAI](https://raw.githubusercontent.com/reactiveui/website/main/docs/images/sponsors/openai.svg)](https://openai.com/codex/)
+[![Sponsored by Snyk](https://raw.githubusercontent.com/reactiveui/website/main/docs/images/sponsors/snyk.svg)](https://snyk.io/)
 
 See [our sponsors](https://www.reactiveui.net/sponsors/). All names and logos belong to their owners.
+Snyk and the Snyk logo are trademarks of Snyk Ltd.
