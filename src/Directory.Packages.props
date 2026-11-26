@@ -68,8 +68,8 @@
     <PackageVersion Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.16.0-preview.2"/>
 
     <!-- Avalonia -->
-    <PackageVersion Include="Avalonia" Version="12.1.6"/>
-    <PackageVersion Include="Avalonia.Headless" Version="12.1.6"/>
+    <PackageVersion Include="Avalonia" Version="12.2.0"/>
+    <PackageVersion Include="Avalonia.Headless" Version="12.2.0"/>
     <PackageVersion Include="ReactiveUI.Primitives.Avalonia" Version="$(ReactiveUIPrimitivesVersion)"/>
     <PackageVersion Include="ReactiveUI.Primitives.Avalonia.Reactive" Version="$(ReactiveUIPrimitivesVersion)"/>
 
@@ -86,10 +86,10 @@
     <PackageVersion Include="DynamicData" Version="9.5.0"/>
 
     <!-- Avalonia sample app -->
-    <PackageVersion Include="Avalonia.Themes.Fluent" Version="12.1.6"/>
-    <PackageVersion Include="Avalonia.Fonts.Inter" Version="12.1.6"/>
+    <PackageVersion Include="Avalonia.Themes.Fluent" Version="12.2.0"/>
+    <PackageVersion Include="Avalonia.Fonts.Inter" Version="12.2.0"/>
     <PackageVersion Include="Avalonia.Diagnostics" Version="11.3.23"/>
-    <PackageVersion Include="Avalonia.Desktop" Version="12.1.6"/>
+    <PackageVersion Include="Avalonia.Desktop" Version="12.2.0"/>
     <PackageVersion Include="ReactiveUI.Avalonia" Version="12.1.7"/>
     <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="11.0.0" Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net11.0'))"/>
     <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.15" Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net11.0'))"/>
