@@ -45,7 +45,7 @@ public class ReactiveUIBindingBenchmark
     [Benchmark(Description = "OneWayBind")]
     public void OneWayBind()
     {
-        using var binding = _target.OneWayBind(_source, x => x.Name, x => x.DisplayName);
+        using var binding = _target.OneWayBind(_source, static x => x.Name, static x => x.DisplayName);
 
         for (var i = 0; i < PropertyChangeCount; i++)
         {
@@ -57,7 +57,7 @@ public class ReactiveUIBindingBenchmark
     [Benchmark(Description = "Bind")]
     public void Bind()
     {
-        using var binding = _target.Bind(_source, x => x.Name, x => x.DisplayName);
+        using var binding = _target.Bind(_source, static x => x.Name, static x => x.DisplayName);
 
         for (var i = 0; i < PropertyChangeCount; i++)
         {
@@ -69,13 +69,13 @@ public class ReactiveUIBindingBenchmark
     [Benchmark(Description = "First OneWayBind")]
     public void FirstOneWayBind()
     {
-        using var binding = _target.OneWayBind(_source, x => x.Name, x => x.DisplayName);
+        using var binding = _target.OneWayBind(_source, static x => x.Name, static x => x.DisplayName);
     }
 
     /// <summary>Cold start: create two-way binding, dispose immediately.</summary>
     [Benchmark(Description = "First Bind")]
     public void FirstBind()
     {
-        using var binding = _target.Bind(_source, x => x.Name, x => x.DisplayName);
+        using var binding = _target.Bind(_source, static x => x.Name, static x => x.DisplayName);
     }
 }

@@ -40,7 +40,7 @@ public class ReactiveUIObservationBenchmark
     public void SingleProperty()
     {
         var last = string.Empty;
-        using var sub = _vm.WhenAnyValue(x => x.Name)
+        using var sub = _vm.WhenAnyValue(static x => x.Name)
             .Subscribe(v => last = v);
 
         for (var i = 0; i < PropertyChangeCount; i++)
@@ -54,7 +54,7 @@ public class ReactiveUIObservationBenchmark
     public void DeepChain()
     {
         var last = string.Empty;
-        using var sub = _vm.WhenAnyValue(x => x.Child.Value)
+        using var sub = _vm.WhenAnyValue(static x => x.Child.Value)
             .Subscribe(v => last = v);
 
         for (var i = 0; i < PropertyChangeCount; i++)
@@ -68,7 +68,7 @@ public class ReactiveUIObservationBenchmark
     public void TwoProperties()
     {
         (string Name, int Age) last = default;
-        using var sub = _vm.WhenAnyValue(x => x.Name, x => x.Age, static (name, age) => (name, age))
+        using var sub = _vm.WhenAnyValue(static x => x.Name, static x => x.Age, static (name, age) => (name, age))
             .Subscribe(v => last = v);
 
         for (var i = 0; i < PropertyChangeCount; i++)
@@ -84,7 +84,7 @@ public class ReactiveUIObservationBenchmark
     public string FirstObservation()
     {
         var result = string.Empty;
-        using var sub = _vm.WhenAnyValue(x => x.Name)
+        using var sub = _vm.WhenAnyValue(static x => x.Name)
             .Subscribe(v => result = v);
         return result;
     }
