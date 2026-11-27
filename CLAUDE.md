@@ -589,9 +589,14 @@ and nothing is generated. A class marked `[IReactiveObject]` looks as if it rais
 
 `SourceGeneratorsCompilation` closes that gap:
 
-- It reads `[Reactive]`, `[ReactiveCollection]`, `[BindableDerivedList]`, `[ReactiveCommand]` and `[IReactiveObject]`
-  by metadata name. `SourceGeneratorsMemberExtractor` turns each into a declaration with the name, type and
-  accessibility ReactiveUI.SourceGenerators gives the member. Accessor bodies are `throw null;`; they never run.
+- It reads `[Reactive]`, `[ReactiveCollection]`, `[BindableDerivedList]`, `[ReactiveCommand]`, `[IReactiveObject]`
+  and both forms of `[IViewFor]` by metadata name. `SourceGeneratorsMemberExtractor` turns each into a declaration with
+  the name, type and accessibility ReactiveUI.SourceGenerators gives the member. Accessor bodies are `throw null;`; they
+  never run.
+- A view marked `[IViewFor]` gains `IViewFor<T>`, `ViewModel` and the explicit `IViewFor.ViewModel`, and every view but
+  a Windows Forms one gains `BindingRoot`. Like that generator, it gains them only when it is a partial class deriving
+  from a WPF, Windows Forms, WinUI, MAUI, Avalonia or Uno control. The view model is bound where the class is declared,
+  as the view locator binds it. A type marked both `[IReactiveObject]` and `[IViewFor]` gains both interfaces.
 - The declarations go into one file, parsed once per change to them, and added to a private copy of the compilation.
   The file is never emitted.
 - `BindingGenerator.Detect` reads every call site from that copy, through `CallSiteContext`. A compilation that uses

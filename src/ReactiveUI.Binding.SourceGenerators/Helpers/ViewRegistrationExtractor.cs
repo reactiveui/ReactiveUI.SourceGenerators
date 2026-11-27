@@ -143,6 +143,21 @@ internal static class ViewRegistrationExtractor
         return false;
     }
 
+    /// <summary>Names the flavour of the runtime the compilation references.</summary>
+    /// <param name="compilation">The consumer compilation.</param>
+    /// <returns>The flavour's view namespace with the trailing dot, or null when neither runtime is referenced.</returns>
+    internal static string? ReferencedViewNamespace(Compilation compilation)
+    {
+        if (compilation.GetTypeByMetadataName(Constants.IViewForGenericMetadataName) is not null)
+        {
+            return Constants.LeanViewNamespacePrefix;
+        }
+
+        return compilation.GetTypeByMetadataName(Constants.ReactiveIViewForGenericMetadataName) is not null
+            ? Constants.ReactiveViewNamespacePrefix
+            : null;
+    }
+
     /// <summary>Names the flavour an <c>IViewFor&lt;T&gt;</c> definition belongs to.</summary>
     /// <param name="definition">The interface's open definition.</param>
     /// <param name="lean">The lean runtime's <c>IViewFor&lt;T&gt;</c>, or null when it is not referenced.</param>
@@ -156,21 +171,6 @@ internal static class ViewRegistrationExtractor
         }
 
         return SymbolEqualityComparer.Default.Equals(definition, reactive) ? Constants.ReactiveViewNamespacePrefix : null;
-    }
-
-    /// <summary>Names the flavour of the runtime the compilation references.</summary>
-    /// <param name="compilation">The consumer compilation.</param>
-    /// <returns>The flavour's view namespace with the trailing dot, or null when neither runtime is referenced.</returns>
-    private static string? ReferencedViewNamespace(Compilation compilation)
-    {
-        if (compilation.GetTypeByMetadataName(Constants.IViewForGenericMetadataName) is not null)
-        {
-            return Constants.LeanViewNamespacePrefix;
-        }
-
-        return compilation.GetTypeByMetadataName(Constants.ReactiveIViewForGenericMetadataName) is not null
-            ? Constants.ReactiveViewNamespacePrefix
-            : null;
     }
 
     /// <summary>Builds the registration for a view, reading the view attributes of the flavour it belongs to.</summary>

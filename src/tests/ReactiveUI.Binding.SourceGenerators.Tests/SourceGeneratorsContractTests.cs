@@ -181,6 +181,99 @@ public class SourceGeneratorsContractTests
         }
         """;
 
+    /// <summary>
+    /// Views that ReactiveUI.SourceGenerators makes implement <c>IViewFor&lt;T&gt;</c> from <c>[IViewFor]</c>, binding a
+    /// <c>[BindableDerivedList]</c> list and a <c>[Reactive]</c> property from inside and outside the view.
+    /// </summary>
+    /// <remarks>A stand-in Windows Forms control is the base, because that generator only writes views for UI controls.</remarks>
+    internal const string ViewScenario = """
+        using System;
+        using System.Collections.ObjectModel;
+        using ReactiveUI.SourceGenerators;
+        using RUNTIME_NAMESPACE;
+        using RxObject = RUNTIME_REACTIVE_OBJECT;
+
+        namespace System.Windows.Forms
+        {
+            public class UserControl { }
+        }
+
+        namespace Contract
+        {
+            public partial class LogViewModel : RxObject
+            {
+                private readonly ObservableCollection<string> _source = new ObservableCollection<string>();
+
+                [Reactive]
+                private string? _title;
+
+                [BindableDerivedList]
+                private ReadOnlyObservableCollection<string>? _entries;
+
+                public LogViewModel() => _entries = new ReadOnlyObservableCollection<string>(_source);
+            }
+
+            [IViewFor<LogViewModel>]
+            public partial class LogView : System.Windows.Forms.UserControl
+            {
+                public string? Heading { get; set; }
+
+                public object? EntriesSource { get; set; }
+
+                public IDisposable BindEntries() => this.OneWayBind(ViewModel, static vm => vm.Entries, static v => v.EntriesSource);
+            }
+
+            [IViewFor("LogViewModel")]
+            public partial class NamedLogView : System.Windows.Forms.UserControl
+            {
+                public string? Heading { get; set; }
+            }
+
+            public static class Usage
+            {
+                public static string Run()
+                {
+                    var vm = new LogViewModel();
+                    var view = new LogView { ViewModel = vm };
+                    using var a = view.BindEntries();
+                    using var b = view.OneWayBind(vm, static x => x.Title, static v => v.Heading);
+
+                    var named = new NamedLogView { ViewModel = vm };
+                    using var c = named.OneWayBind(vm, static x => x.Title, static v => v.Heading);
+                    vm.Title = "Log";
+
+                    return $"entries:{view.EntriesSource is ReadOnlyObservableCollection<string>}|generic:{view.Heading}|named:{named.Heading}";
+                }
+            }
+        }
+        """;
+
+    /// <summary>Views that ReactiveUI.SourceGenerators gives <c>IViewFor&lt;T&gt;</c> bind their generated members, in both runtimes.</summary>
+    /// <param name="useReactiveRuntime">Whether to reference the System.Reactive flavour rather than the lean one.</param>
+    /// <param name="intercept">Whether the build opts into interceptors.</param>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    [Arguments(false, false)]
+    [Arguments(true, false)]
+    [Arguments(false, true)]
+    [Arguments(true, true)]
+    public async Task ViewsFromIViewForAttribute_BindAtRunTime(bool useReactiveRuntime, bool intercept)
+    {
+        var result = RunBeside(ViewScenario, useReactiveRuntime, intercept);
+        await Assert.That(result.CompilationErrors.Select(static d => d.ToString())).IsEmpty();
+
+        var (assembly, context) = TestHelper.EmitAndLoad(result);
+        try
+        {
+            var run = assembly.GetType("Contract.Usage")!.GetMethod("Run", BindingFlags.Public | BindingFlags.Static)!;
+            await Assert.That((string)run.Invoke(null, null)!).IsEqualTo("entries:True|generic:Log|named:Log");
+        }
+        finally
+        {
+            context.Unload();
+        }
+    }
+
     /// <summary>Every member ReactiveUI.SourceGenerators writes binds, observes and writes at run time, in both runtimes.</summary>
     /// <param name="useReactiveRuntime">Whether to reference the System.Reactive flavour rather than the lean one.</param>
     /// <param name="intercept">Whether the build opts into interceptors.</param>
@@ -240,5 +333,6 @@ public class SourceGeneratorsContractTests
         new sg::ReactiveUI.SourceGenerators.BindableDerivedListGenerator().AsSourceGenerator(),
         new sg::ReactiveUI.SourceGenerators.ReactiveCommandGenerator().AsSourceGenerator(),
         new sg::ReactiveUI.SourceGenerators.ReactiveObjectGenerator().AsSourceGenerator(),
+        new sg::ReactiveUI.SourceGenerators.IViewForGenerator().AsSourceGenerator(),
     ];
 }

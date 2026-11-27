@@ -62,6 +62,23 @@ public class SourceGeneratorsDeclarationTests
         }
         """;
 
+    /// <summary>The namespace of the lean runtime's view types.</summary>
+    private const string ViewRuntime = "ReactiveUI.Binding";
+
+    /// <summary>The namespace of the System.Reactive runtime's view types.</summary>
+    private const string ReactiveViewRuntime = "ReactiveUI.Binding.Reactive";
+
+    /// <summary>Stand-in view types of the lean runtime.</summary>
+    private const string ViewRuntimeTypes = "namespace ReactiveUI.Binding { public interface IViewFor { } public interface IViewFor<T> : IViewFor { } }";
+
+    /// <summary>Stand-in controls of each UI framework the views derive from.</summary>
+    private const string Controls = """
+        namespace System.Windows.Controls { public class UserControl { } }
+        namespace System.Windows.Forms { public class UserControl { } }
+        namespace Avalonia.Controls { public class UserControl { } }
+        namespace Microsoft.Maui.Controls { public class ContentPage { } }
+        """;
+
     /// <summary>ReactiveUI.SourceGenerators' attributes, as its 4.0.0 library declares them.</summary>
     private static readonly MetadataReference Attributes =
         MetadataReference.CreateFromFile(typeof(ReactiveUI.SourceGenerators.ReactiveAttribute).Assembly.Location);
@@ -270,6 +287,75 @@ public class SourceGeneratorsDeclarationTests
     public async Task IReactiveObject_WithoutInterfaceOrPartial_DeclaresNothing(string source, string reactiveUI) =>
         await Assert.That(Declarations(source, reactiveUI)).IsEqualTo(None);
 
+    /// <summary>
+    /// A view marked <c>[IViewFor]</c> implements <c>IViewFor&lt;T&gt;</c> with the properties ReactiveUI.SourceGenerators
+    /// writes, in the flavour the compilation references. A Windows Forms view has no <c>BindingRoot</c>.
+    /// </summary>
+    /// <param name="attribute">The attribute, in its generic or its string form.</param>
+    /// <param name="baseType">The control the view derives from.</param>
+    /// <param name="runtime">The namespace of the referenced runtime's view types.</param>
+    /// <param name="hasBindingRoot">Whether the view gains a <c>BindingRoot</c> property.</param>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    [Arguments("[IViewFor<Model>]", "System.Windows.Controls.UserControl", ViewRuntime, true)]
+    [Arguments("[IViewFor(\"Model\")]", "Avalonia.Controls.UserControl", ViewRuntime, true)]
+    [Arguments("[IViewFor<Model>]", "System.Windows.Forms.UserControl", ViewRuntime, false)]
+    [Arguments("[IViewFor<Model>]", "Microsoft.Maui.Controls.ContentPage", ReactiveViewRuntime, true)]
+    public async Task IViewFor_AddsInterfaceAndViewModel(string attribute, string baseType, string runtime, bool hasBindingRoot)
+    {
+        var declarations = Declarations(
+            $"public class Model {{ }} {attribute} public partial class View : {baseType} {{ }}",
+            Controls + RuntimeViewTypes(runtime));
+
+        await Assert.That(declarations).Contains($"partial class View : global::{runtime}.IViewFor<global::Model>");
+        await Assert.That(declarations).Contains("public global::Model ViewModel { get { throw null; } set { throw null; } }");
+        await Assert.That(declarations).Contains($"object global::{runtime}.IViewFor.ViewModel {{ get {{ throw null; }} set {{ throw null; }} }}");
+        await Assert.That(declarations.Contains("BindingRoot", StringComparison.Ordinal)).IsEqualTo(hasBindingRoot);
+    }
+
+    /// <summary>
+    /// A view gains nothing when it is not a UI control, no runtime declares <c>IViewFor&lt;T&gt;</c>, the view model's
+    /// name does not bind, or the class is not partial.
+    /// </summary>
+    /// <param name="source">The view.</param>
+    /// <param name="runtime">Stand-in declarations of the runtime the consumer references, or empty for none.</param>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    [Arguments("[IViewFor<Model>] public partial class View : Plain { }", ViewRuntimeTypes)]
+    [Arguments("[IViewFor<Model>] public partial class View : System.Windows.Controls.UserControl { }", "")]
+    [Arguments("[IViewFor(\"Missing\")] public partial class View : System.Windows.Controls.UserControl { }", ViewRuntimeTypes)]
+    [Arguments("[IViewFor<Model>] public class View : System.Windows.Controls.UserControl { }", ViewRuntimeTypes)]
+    [Arguments("[IViewFor<Model>] public partial struct View { }", ViewRuntimeTypes)]
+    [Arguments("[IViewFor(\"\")] public partial class View : System.Windows.Controls.UserControl { }", ViewRuntimeTypes)]
+    [Arguments("[IViewFor(null)] public partial class View : System.Windows.Controls.UserControl { }", ViewRuntimeTypes)]
+    [Arguments("[IViewFor] public partial class View : System.Windows.Controls.UserControl { }", ViewRuntimeTypes)]
+    public async Task IViewFor_WithoutControlRuntimeOrPartial_DeclaresNothing(string source, string runtime) =>
+        await Assert.That(Declarations($"public class Model {{ }} public class Plain {{ }} {source}", Controls + runtime)).IsEqualTo(None);
+
+    /// <summary>A view marked both <c>[IReactiveObject]</c> and <c>[IViewFor]</c> implements both interfaces.</summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    public async Task IViewForAndIReactiveObject_AddBothInterfaces() =>
+        await Assert.That(Declarations(
+                "public class Model { } [IReactiveObject] [IViewFor<Model>] public partial class View : System.Windows.Controls.UserControl { }",
+                $"{Controls}{ViewRuntimeTypes} namespace ReactiveUI {{ public interface IReactiveObject {{ }} }}"))
+            .Contains("partial class View : global::ReactiveUI.IReactiveObject, global::ReactiveUI.Binding.IViewFor<global::Model>");
+
+    /// <summary>
+    /// An access modifier is read only from its own named argument: another argument is stepped over, and a value that is
+    /// not an access modifier leaves the default.
+    /// </summary>
+    /// <param name="attribute">The attribute, with its named arguments.</param>
+    /// <param name="member">The member the attribute is placed on.</param>
+    /// <param name="declared">The declaration the member gets.</param>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Test]
+    [Arguments("[ReactiveCommand(CanExecute = nameof(CanSave))]", "private void Save() { } private IObservable<bool> CanSave => null;", "public global::ReactiveUI.ReactiveCommand<")]
+    [Arguments("[Reactive(SetModifier = \"Private\")]", "private string _name;", "public string Name { get { throw null; } set { } }")]
+    public async Task NamedArguments_ReadOnlyTheirOwnValue(string attribute, string member, string declared) =>
+        await Assert.That(Declarations($"using System; public partial class Model {{ {attribute} {member} }}", PrimitivesReactiveUI))
+            .Contains(declared);
+
     /// <summary>Members are grouped by the type they belong to, in the order the types are first seen.</summary>
     /// <returns>A task representing the asynchronous test operation.</returns>
     [Test]
@@ -320,6 +406,12 @@ public class SourceGeneratorsDeclarationTests
             private {{method}}
         }
         """;
+
+    /// <summary>Declares a runtime's stand-in view types in its namespace.</summary>
+    /// <param name="runtime">The namespace of the runtime's view types.</param>
+    /// <returns>The stand-in declarations.</returns>
+    private static string RuntimeViewTypes(string runtime) =>
+        $"namespace {runtime} {{ public interface IViewFor {{ }} public interface IViewFor<T> : IViewFor {{ }} }}";
 
     /// <summary>Runs the declarations pipeline over a model, and returns the declarations it wrote.</summary>
     /// <param name="source">The model, which may use ReactiveUI.SourceGenerators' attributes unqualified.</param>
