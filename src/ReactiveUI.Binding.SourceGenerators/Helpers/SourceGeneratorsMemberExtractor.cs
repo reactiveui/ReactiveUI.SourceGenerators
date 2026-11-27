@@ -75,6 +75,15 @@ internal static class SourceGeneratorsMemberExtractor
     /// <summary>The accessor body every generated accessor declaration carries. It never runs.</summary>
     private const string GetAccessor = "get { throw null; }";
 
+    /// <summary>The setter body a generated read-write declaration carries. It never runs.</summary>
+    private const string SetAccessor = "set { throw null; }";
+
+    /// <summary>The namespace of Windows Forms, whose views <c>[IViewFor]</c> writes without a <c>BindingRoot</c> property.</summary>
+    private const string WinFormsNamespace = "System.Windows.Forms";
+
+    /// <summary>The namespaces whose controls <c>[IViewFor]</c> generates a view for: WPF and WinForms, WinUI, MAUI, Avalonia and Uno.</summary>
+    private static readonly string[] ViewBaseNamespaces = ["System.Windows", "Microsoft.UI.Xaml", "Microsoft.Maui", "Avalonia", "Windows.UI.Xaml"];
+
     /// <summary>Describes the property <c>[Reactive]</c> generates from a field.</summary>
     /// <param name="context">The attribute context.</param>
     /// <param name="ct">Cancellation token.</param>
@@ -179,6 +188,46 @@ internal static class SourceGeneratorsMemberExtractor
             && PartialTypeRaisePlugin.DescribeDeclaration((INamedTypeSymbol)context.TargetSymbol) is { } declaration
             ? new(declaration, TypeName(reactiveObject), null)
             : null;
+    }
+
+    /// <summary>Describes the <c>IViewFor&lt;T&gt;</c> implementation <c>[IViewFor]</c> adds to a view.</summary>
+    /// <param name="context">The attribute context.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>
+    /// The interface and the properties that implement it, or null when no runtime declares <c>IViewFor&lt;T&gt;</c>, the
+    /// view model does not bind, the class is not partial, or it is not a UI control.
+    /// </returns>
+    /// <remarks>
+    /// ReactiveUI.SourceGenerators only writes a view for a control of a UI framework it knows, so a class with any other
+    /// base gains nothing here either. Every view gains <c>ViewModel</c> and the explicit <c>IViewFor.ViewModel</c>; every
+    /// view but a Windows Forms one also gains <c>BindingRoot</c>. The view model is bound where the class is declared, as
+    /// the view locator binds it.
+    /// </remarks>
+    internal static SourceGeneratorsMember? ExtractIViewFor(GeneratorAttributeSyntaxContext context, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        var view = (INamedTypeSymbol)context.TargetSymbol;
+        if (ViewBaseNamespace(view) is not { } baseNamespace
+            || ViewRegistrationExtractor.ReferencedViewNamespace(context.SemanticModel.Compilation) is not { } prefix
+            || ViewRegistrationExtractor.ResolveViewModel(context.Attributes[0], context.SemanticModel, context.TargetNode.SpanStart, ct) is not { } viewModel
+            || PartialTypeRaisePlugin.DescribeDeclaration(view) is not { } declaration)
+        {
+            return null;
+        }
+
+        var viewModelType = TypeName(viewModel);
+        var members = new PooledStringBuilder()
+            .Append(PublicAccessibility).Append(' ').Append(viewModelType).Append(" ViewModel { ").Append(GetAccessor).Append(' ').Append(SetAccessor).Append(" } ");
+        if (baseNamespace != WinFormsNamespace)
+        {
+            _ = members.Append(PublicAccessibility).Append(' ').Append(viewModelType).Append(" BindingRoot { ").Append(GetAccessor).Append(" } ");
+        }
+
+        var property = members
+            .Append("object global::").Append(prefix).Append("IViewFor.ViewModel { ").Append(GetAccessor).Append(' ').Append(SetAccessor).Append(" }")
+            .ToStringAndReturn();
+
+        return new(declaration, $"global::{prefix}IViewFor<{viewModelType}>", property);
     }
 
     /// <summary>Gets the name ReactiveUI.SourceGenerators gives the property it generates from a field.</summary>
@@ -439,6 +488,34 @@ internal static class SourceGeneratorsMemberExtractor
         }
 
         return start;
+    }
+
+    /// <summary>Finds the UI framework of the control a class derives from, among those <c>[IViewFor]</c> generates a view for.</summary>
+    /// <param name="view">The class.</param>
+    /// <returns>
+    /// <see cref="WinFormsNamespace"/> for a Windows Forms control, the matching entry of <see cref="ViewBaseNamespaces"/>
+    /// for any other, or null when no base type's full name starts with one.
+    /// </returns>
+    private static string? ViewBaseNamespace(INamedTypeSymbol view)
+    {
+        for (var current = view.BaseType; current is not null; current = current.BaseType)
+        {
+            var name = current.ToDisplayString();
+            if (name.StartsWith(WinFormsNamespace, StringComparison.Ordinal))
+            {
+                return WinFormsNamespace;
+            }
+
+            foreach (var prefix in ViewBaseNamespaces)
+            {
+                if (name.StartsWith(prefix, StringComparison.Ordinal))
+                {
+                    return prefix;
+                }
+            }
+        }
+
+        return null;
     }
 
     /// <summary>Writes a type's fully qualified name.</summary>

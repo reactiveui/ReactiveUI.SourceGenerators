@@ -43,12 +43,18 @@ internal static class SourceGeneratorsCompilation
         Func<SyntaxNode, CancellationToken, bool> isVariable = static (node, _) => node is VariableDeclaratorSyntax;
         Func<SyntaxNode, CancellationToken, bool> isMethod = static (node, _) => node is MethodDeclarationSyntax;
         Func<SyntaxNode, CancellationToken, bool> isType = static (node, _) => node is TypeDeclarationSyntax;
+        Func<SyntaxNode, CancellationToken, bool> isClass = static (node, _) => node is ClassDeclarationSyntax;
 
         var reactive = Collect(in context, Constants.SourceGeneratorsReactiveAttributeMetadataName, isVariable, SourceGeneratorsMemberExtractor.ExtractReactive);
         var collections = Collect(in context, Constants.SourceGeneratorsReactiveCollectionAttributeMetadataName, isVariable, SourceGeneratorsMemberExtractor.ExtractReactiveCollection);
         var derivedLists = Collect(in context, Constants.SourceGeneratorsBindableDerivedListAttributeMetadataName, isVariable, SourceGeneratorsMemberExtractor.ExtractBindableDerivedList);
         var commands = Collect(in context, Constants.SourceGeneratorsReactiveCommandAttributeMetadataName, isMethod, SourceGeneratorsMemberExtractor.ExtractReactiveCommand);
         var reactiveObjects = Collect(in context, Constants.SourceGeneratorsIReactiveObjectAttributeMetadataName, isType, SourceGeneratorsMemberExtractor.ExtractIReactiveObject);
+
+        // The generic and the string forms of [IViewFor] are different metadata names, so each needs its own pipeline.
+        Func<GeneratorAttributeSyntaxContext, CancellationToken, SourceGeneratorsMember?> extractView = SourceGeneratorsMemberExtractor.ExtractIViewFor;
+        var genericViews = Collect(in context, Constants.SourceGeneratorsGenericIViewForAttributeMetadataName, isClass, extractView);
+        var namedViews = Collect(in context, Constants.SourceGeneratorsIViewForAttributeMetadataName, isClass, extractView);
 
         // XAML pages are read once per change to the file; their types are resolved against the compilation.
         var xamlFields = context.AdditionalTextsProvider
@@ -61,13 +67,17 @@ internal static class SourceGeneratorsCompilation
             .Select(static (data, ct) => XamlMemberResolver.Resolve(RoslynArray.Unwrap(data.Left), data.Right, ct));
 
         var declarations = reactiveObjects
+            .Combine(genericViews)
+            .Combine(namedViews)
             .Combine(reactive)
             .Combine(collections)
             .Combine(derivedLists)
             .Combine(commands)
             .Combine(xamlFields)
             .Select(static (data, _) => WriteDeclarations(
-                data.Left.Left.Left.Left.Left,
+                data.Left.Left.Left.Left.Left.Left.Left,
+                data.Left.Left.Left.Left.Left.Left.Right,
+                data.Left.Left.Left.Left.Left.Right,
                 data.Left.Left.Left.Left.Right,
                 data.Left.Left.Left.Right,
                 data.Left.Left.Right,
@@ -144,13 +154,19 @@ internal static class SourceGeneratorsCompilation
             order.Add(member.Declaration);
         }
 
+        // A type marked both [IReactiveObject] and [IViewFor] implements both interfaces.
         if (member.Interface is { } implemented)
         {
-            interfaces[member.Declaration] = implemented;
-            return;
+            interfaces[member.Declaration] = interfaces.TryGetValue(member.Declaration, out var existing)
+                ? $"{existing}, {implemented}"
+                : implemented;
         }
 
-        list.Add(member.Property!);
+        // [IViewFor] adds an interface and the properties that implement it.
+        if (member.Property is { } property)
+        {
+            list.Add(property);
+        }
     }
 
     /// <summary>Runs one attribute's pipeline and gathers what it describes.</summary>
