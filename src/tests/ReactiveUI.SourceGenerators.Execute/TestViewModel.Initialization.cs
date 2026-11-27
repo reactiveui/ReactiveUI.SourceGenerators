@@ -191,7 +191,7 @@ public partial class TestViewModel
 
     /// <summary>Registers the subscription that maintains the visible people collection.</summary>
     private void RegisterPeopleSubscription() =>
-        _ = this.WhenAnyValue(vm => vm.People)
+        _ = this.WhenAnyValue(static vm => vm.People)
             .Subscribe(people => people
                 .AsObservableChangeSet()
                 .AutoRefresh(static x => x.Deleted)
