@@ -3,8 +3,8 @@
 <a href="https://www.nuget.org/packages/ReactiveUI.Binding">
 <img src="https://img.shields.io/nuget/dt/ReactiveUI.Binding.svg">
 </a>
-<a href="https://reactiveui.net/slack">
-<img src="https://img.shields.io/badge/chat-slack-blue.svg">
+<a href="https://github.com/reactiveui/ReactiveUI.SourceGenerators/discussions">
+<img src="https://img.shields.io/badge/discussions-ask%20a%20question-8A2BE2?logo=github&logoColor=white">
 </a>
 <a href="https://github.com/reactiveui/ReactiveUI.SourceGenerators/labels/good%20first%20issue">
 <img src="https://img.shields.io/badge/first--timers--only-friendly-blue.svg">
