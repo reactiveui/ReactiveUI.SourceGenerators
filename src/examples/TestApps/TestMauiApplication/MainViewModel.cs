@@ -9,6 +9,7 @@ namespace MauiApp1;
 
 /// <summary>The view model for <see cref="MainPage"/> that counts button clicks.</summary>
 /// <seealso cref="ReactiveObject" />
+[System.Diagnostics.DebuggerDisplay("{CounterText,nq}")]
 public partial class MainViewModel : ReactiveObject
 {
     /// <summary>Stores the number of times the counter button has been clicked.</summary>

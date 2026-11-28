@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net10.0;net11.0</TargetFrameworks>
+    <LangVersion>14.0</LangVersion>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Using Include="ReactiveUI.Binding.Reactive" />
+    <ProjectReference Include="../../../../../ReactiveUI.Binding.Reactive/ReactiveUI.Binding.Reactive.csproj" />
+    <ProjectReference Include="../../../../../ReactiveUI.Binding.SourceGenerators/ReactiveUI.Binding.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="../../../../../ReactiveUI.Binding.Analyzer/ReactiveUI.Binding.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <Compile Include="../../../Common/Infrastructure/ObservableObject.cs" Link="ObservableObject.cs" />
+    <Compile Include="../../../Common/Todo/TodoItem.cs" Link="TodoItem.cs" />
+    <Compile Include="../../../Common/Todo/TodoPriority.cs" Link="TodoPriority.cs" />
+    <Compile Include="../aot/TodoRowView.cs" Link="TodoRowView.cs" />
+  </ItemGroup>
+</Project>

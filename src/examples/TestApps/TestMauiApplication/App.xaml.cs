@@ -9,10 +9,7 @@ namespace MauiApp1;
 public partial class App : Application
 {
     /// <summary>Initializes a new instance of the <see cref="App"/> class.</summary>
-    public App()
-    {
-        InitializeComponent();
-    }
+    public App() => InitializeComponent();
 
     /// <summary>Creates the application window hosting the <see cref="AppShell"/>.</summary>
     /// <param name="activationState">The activation state supplied by the platform.</param>

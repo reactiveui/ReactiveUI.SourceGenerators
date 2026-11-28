@@ -2,6 +2,7 @@
 // ReactiveUI and Contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+using System.Collections.ObjectModel;
 using ReactiveUI.Primitives;
 
 namespace ReactiveUI.Binding.Documentation.SourceGenerators;
@@ -12,6 +13,38 @@ namespace ReactiveUI.Binding.Documentation.SourceGenerators;
 /// </summary>
 public static class SourceGeneratorsExamples
 {
+    /// <summary>Replaces a pending batch and observes completed reviews through a read-only view.</summary>
+    public static void TrackReviewCollections()
+    {
+        ObservableCollection<string> completed = [];
+        ReviewQueue queue = new(completed);
+        ObservableCollection<string> first = ["Profile"];
+        ObservableCollection<string> next = ["Billing"];
+
+        List<int> pendingSizes = [];
+        queue.PropertyChanged += (_, change) =>
+        {
+            if (change.PropertyName == nameof(ReviewQueue.Pending))
+            {
+                pendingSizes.Add(queue.Pending?.Count ?? 0);
+            }
+        };
+
+        queue.Pending = first;
+        first.Add("Settings");
+        queue.Pending = next;
+        first.Clear();
+        completed.Add(next[0]);
+        next.RemoveAt(0);
+
+        if (pendingSizes is not [1, 2, 1, 0] || queue.Completed is not ["Billing"])
+        {
+            throw new InvalidOperationException("The queue did not follow the active batch and completed list.");
+        }
+
+        Console.WriteLine(queue.Completed[0]);
+    }
+
     /// <summary>Observes the property <c>[Reactive]</c> writes from a field.</summary>
     public static void ObserveAPropertyWrittenFromAField()
     {

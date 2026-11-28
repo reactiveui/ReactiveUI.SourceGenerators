@@ -3,6 +3,8 @@
 // See the LICENSE file in the project root for full license information.
 
 using Microsoft.Extensions.Logging;
+using ReactiveUI.Binding.Builder;
+using ReactiveUI.Binding.Maui.Builder;
 
 namespace MauiApp1;
 
@@ -14,6 +16,7 @@ public static class MauiProgram
     public static MauiApp CreateMauiApp()
     {
         var builder = MauiApp.CreateBuilder();
+        _ = RxBindingBuilder.CreateReactiveUIBindingBuilder().WithCoreServices().WithMaui().BuildApp();
         _ = builder
             .UseMauiApp<App>()
             .ConfigureFonts(static fonts =>

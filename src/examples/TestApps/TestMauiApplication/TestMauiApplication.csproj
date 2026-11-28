@@ -64,6 +64,9 @@
 	</ItemGroup>
 
   <ItemGroup>
+    <Using Include="ReactiveUI.Binding" />
+    <ProjectReference Include="..\..\..\ReactiveUI.Binding.Maui\ReactiveUI.Binding.Maui.csproj" />
+    <ProjectReference Include="..\..\..\ReactiveUI.Binding.SourceGenerators\ReactiveUI.Binding.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\..\..\ReactiveUI.SourceGenerators\ReactiveUI.SourceGenerators.csproj" />
     <ProjectReference Include="..\..\..\ReactiveUI.SourceGenerators.Roslyn5000\ReactiveUI.SourceGenerators.Roslyn5000.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>

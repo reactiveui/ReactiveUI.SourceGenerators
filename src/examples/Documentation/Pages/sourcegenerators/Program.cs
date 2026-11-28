@@ -13,3 +13,5 @@ SourceGeneratorsExamples.BindAPropertyWrittenFromAField();
 SourceGeneratorsExamples.BindAButtonToAGeneratedCommand();
 
 SourceGeneratorsExamples.ObserveFromGeneratedCode();
+
+SourceGeneratorsExamples.TrackReviewCollections();
